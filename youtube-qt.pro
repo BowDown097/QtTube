@@ -13,13 +13,14 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
-    include/innertube/objects/InnertubeClickTracking.h \
-    include/innertube/objects/InnertubeClient.h \
-    include/innertube/objects/InnertubeConfigInfo.h \
-    include/innertube/objects/InnertubeContext.h \
-    include/innertube/objects/InnertubeRequestConfig.h \
-    include/innertube/objects/InnertubeUserConfig.h \
-    include/innertube/requests.hpp \
+    innertube/auth.hpp \
+    innertube/objects/InnertubeClickTracking.h \
+    innertube/objects/InnertubeClient.h \
+    innertube/objects/InnertubeConfigInfo.h \
+    innertube/objects/InnertubeContext.h \
+    innertube/objects/InnertubeRequestConfig.h \
+    innertube/objects/InnertubeUserConfig.h \
+    innertube/requests.hpp \
     mainwindow.h
 
 FORMS += \

@@ -5,36 +5,20 @@
 class InnertubeClient
 {
 public:
-    QString browserName;
-    QString browserVersion;
-    QString clientFormFactor;
-    QString clientName;
-    QString clientVersion;
+    QString browserName, browserVersion, clientFormFactor, clientName, clientVersion, deviceMake, deviceModel, gl, hl, originalUrl, osName, osVersion,
+        platform, remoteHost, timeZone, userAgent, userInterfaceTheme, visitorData;
     InnertubeConfigInfo configInfo;
-    QString deviceMake;
-    QString deviceModel;
-    QString gl;
-    QString hl;
-    QString originalUrl;
-    QString osName;
-    QString osVersion;
-    QString platform;
-    QString remoteHost;
-    int screenDensityFloat;
-    int screenPixelDensity;
-    QString timeZone;
-    QString userAgent;
-    QString userInterfaceTheme;
-    QString visitorData;
+    int screenDensityFloat, screenPixelDensity;
 
+    InnertubeClient() {}
     InnertubeClient(const QString& cliName, const QString& cliVer, const QString& plat, const QString& theme, const QString& bName = "Firefox",
                     const QString& bVer = "103.0", const QString& cFF = "UNKNOWN_FORM_FACTOR", const InnertubeConfigInfo& cI = InnertubeConfigInfo(),
                     const QString& dMake = "", const QString& dModel = "", const QString& _gl = "US", const QString& _hl = "en", const QString& origUrl = "",
                     const QString& _osName = "", const QString& osVer = "", const QString& rHost = "", int sDF = 2, int sPD = 2, const QString& tz = "",
                     const QString& agent = "", const QString& visitor = "")
-        : browserName(bName), browserVersion(bVer), clientFormFactor(cFF), clientName(cliName), clientVersion(cliVer), configInfo(cI), deviceMake(dMake),
-          deviceModel(dModel), gl(_gl), hl(_hl), originalUrl(origUrl), osName(_osName), osVersion(osVer), platform(plat), remoteHost(rHost),
-          screenDensityFloat(sDF), screenPixelDensity(sPD), timeZone(tz), userAgent(agent), userInterfaceTheme(theme), visitorData(visitor) {}
+        : browserName(bName), browserVersion(bVer), clientFormFactor(cFF), clientName(cliName), clientVersion(cliVer), deviceMake(dMake),
+          deviceModel(dModel), gl(_gl), hl(_hl), originalUrl(origUrl), osName(_osName), osVersion(osVer), platform(plat), remoteHost(rHost), timeZone(tz),
+          userAgent(agent), userInterfaceTheme(theme), visitorData(visitor), configInfo(cI), screenDensityFloat(sDF), screenPixelDensity(sPD) {}
 
     QJsonObject toJson() const
     {
