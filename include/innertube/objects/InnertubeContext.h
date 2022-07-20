@@ -1,30 +1,9 @@
 #ifndef INNERTUBECONTEXT_H
 #define INNERTUBECONTEXT_H
+#include "InnertubeClickTracking.h"
 #include "InnertubeClient.h"
-
-class InnertubeClickTracking
-{
-public:
-    QString clickTrackingParams;
-    InnertubeClickTracking(const QString& ctp) : clickTrackingParams(ctp) {}
-    QJsonObject toJson() const { return {{ "clickTrackingParams", clickTrackingParams }}; }
-};
-
-class InnertubeRequestConfig
-{
-public:
-    bool useSsl;
-    InnertubeRequestConfig(bool ssl) : useSsl(ssl) {}
-    QJsonObject toJson() const { return {{ "useSsl", useSsl }}; }
-};
-
-class InnertubeUserConfig
-{
-public:
-    bool lockedSafetyMode;
-    InnertubeUserConfig(bool lsm) : lockedSafetyMode(lsm) {}
-    QJsonObject toJson() const { return {{ "lockedSafetyMode", lockedSafetyMode }}; }
-};
+#include "InnertubeRequestConfig.h"
+#include "InnertubeUserConfig.h"
 
 class InnertubeContext
 {
@@ -34,7 +13,8 @@ public:
     InnertubeRequestConfig request;
     InnertubeUserConfig user;
 
-    InnertubeContext(const InnertubeClickTracking& ict, const InnertubeClient& ic, const InnertubeRequestConfig& irc, const InnertubeUserConfig& iuc)
+    InnertubeContext(const InnertubeClient& ic, const InnertubeClickTracking& ict = InnertubeClickTracking(),
+                     const InnertubeRequestConfig& irc = InnertubeRequestConfig(), const InnertubeUserConfig& iuc = InnertubeUserConfig())
         : clickTracking(ict), client(ic), request(irc), user(iuc) {}
 
     QJsonObject toJson() const

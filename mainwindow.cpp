@@ -8,9 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    InnertubeClient client("Firefox", "103.0", "UNKNOWN_FORM_FACTOR", "WEB", "2.20220719", InnertubeConfigInfo(""), "", "", "US", "en",
-                           "https://www.youtube.com/", "X11", "", "DESKTOP", "", 2, 2, "", "", "USER_INTERFACE_THEME_DARK", "");
-    InnertubeContext context(InnertubeClickTracking(""), client, InnertubeRequestConfig(true), InnertubeUserConfig(false));
+    InnertubeClient client("WEB", "2.20220719", "DESKTOP", "USER_INTERFACE_THEME_DARK");
+    InnertubeContext context(client);
 
     QString data = InnertubeRequests::browse(context);
     QFile file("out.txt");

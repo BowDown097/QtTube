@@ -1,15 +1,6 @@
 #ifndef INNERTUBECLIENT_H
 #define INNERTUBECLIENT_H
-#include <QJsonObject>
-#include <QString>
-
-class InnertubeConfigInfo
-{
-public:
-    QString appInstallData;
-    InnertubeConfigInfo(const QString& aid) : appInstallData(aid) {}
-    QJsonObject toJson() const { return {{ "appInstallData", appInstallData }}; }
-};
+#include "InnertubeConfigInfo.h"
 
 class InnertubeClient
 {
@@ -36,12 +27,13 @@ public:
     QString userInterfaceTheme;
     QString visitorData;
 
-    InnertubeClient(const QString& bName, const QString& bVer, const QString& cFF, const QString& cName, const QString& cVer, const InnertubeConfigInfo& cI,
-                    const QString& dMake, const QString& dModel, const QString& _gl, const QString& _hl, const QString& origUrl, const QString& oName,
-                    const QString& oVer, const QString& plat, const QString& rHost, int sDF, int sPD, const QString& tz, const QString& agent,
-                    const QString& theme, const QString& visitor)
-        : browserName(bName), browserVersion(bVer), clientFormFactor(cFF), clientName(cName), clientVersion(cVer), configInfo(cI), deviceMake(dMake),
-          deviceModel(dModel), gl(_gl), hl(_hl), originalUrl(origUrl), osName(oName), osVersion(oVer), platform(plat), remoteHost(rHost),
+    InnertubeClient(const QString& cliName, const QString& cliVer, const QString& plat, const QString& theme, const QString& bName = "Firefox",
+                    const QString& bVer = "103.0", const QString& cFF = "UNKNOWN_FORM_FACTOR", const InnertubeConfigInfo& cI = InnertubeConfigInfo(),
+                    const QString& dMake = "", const QString& dModel = "", const QString& _gl = "US", const QString& _hl = "en", const QString& origUrl = "",
+                    const QString& _osName = "", const QString& osVer = "", const QString& rHost = "", int sDF = 2, int sPD = 2, const QString& tz = "",
+                    const QString& agent = "", const QString& visitor = "")
+        : browserName(bName), browserVersion(bVer), clientFormFactor(cFF), clientName(cliName), clientVersion(cliVer), configInfo(cI), deviceMake(dMake),
+          deviceModel(dModel), gl(_gl), hl(_hl), originalUrl(origUrl), osName(_osName), osVersion(osVer), platform(plat), remoteHost(rHost),
           screenDensityFloat(sDF), screenPixelDensity(sPD), timeZone(tz), userAgent(agent), userInterfaceTheme(theme), visitorData(visitor) {}
 
     QJsonObject toJson() const

@@ -10,10 +10,13 @@
 class InnertubeRequests
 {
 public:
-    static QString browse(InnertubeContext context, bool loggedIn = false, const QString& sapisid = "")
+    static QString browse(InnertubeContext context, bool loggedIn = false, const QString& sapisid = "", bool useShelves = false)
     {
-        context.client.clientName = "ANDROID";
-        context.client.clientVersion = "15.14.33";
+        if (useShelves)
+        {
+            context.client.clientName = "ANDROID";
+            context.client.clientVersion = "15.14.33";
+        }
 
         QNetworkAccessManager* manager = new QNetworkAccessManager;
         QNetworkRequest request(QUrl("https://www.youtube.com/youtubei/v1/browse?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"));
