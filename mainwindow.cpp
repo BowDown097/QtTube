@@ -1,4 +1,3 @@
-#include "innertube/requests.hpp"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -7,18 +6,20 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    // QString data = InnertubeRequests::browse(context);
+
+    InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220720.00.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
+    InnertubeEndpoints::Browse data = InnerTube::instance().get<InnertubeEndpoints::Browse>();
     connect(ui->signInButton, &QPushButton::clicked, this, &MainWindow::signinClicked);
 }
 
 void MainWindow::signinClicked()
 {
-    if (authStore->populated)
+    if (InnerTube::instance().auth()->populated)
         return;
 
-    authStore->authenticate(context);
+    InnerTube::instance().auth()->authenticate(*InnerTube::instance().context());
     ui->signInButton->setText("Sign out");
-    QString data = InnertubeRequests::browse(context, *authStore);
+    QString data = InnerTube::instance().get<InnertubeEndpoints::Browse>(InnerTube::instance().auth()).data;
     qDebug() << data.left(500);
 }
 

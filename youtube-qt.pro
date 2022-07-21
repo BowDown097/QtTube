@@ -1,8 +1,10 @@
-QT       += core gui network webenginewidgets
+QT       += concurrent core gui network webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++20
+CONFIG += c++20 object_parallel_to_source
+
+include(lib/innertube-qt/innertube-qt.pri)
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -13,14 +15,6 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
-    innertube/auth.hpp \
-    innertube/objects/InnertubeClickTracking.h \
-    innertube/objects/InnertubeClient.h \
-    innertube/objects/InnertubeConfigInfo.h \
-    innertube/objects/InnertubeContext.h \
-    innertube/objects/InnertubeRequestConfig.h \
-    innertube/objects/InnertubeUserConfig.h \
-    innertube/requests.hpp \
     mainwindow.h
 
 FORMS += \

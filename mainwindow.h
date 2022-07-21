@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "innertube/auth.hpp"
+#include "innertube.hpp"
 #include <QMainWindow>
 #include <QNetworkReply>
 
@@ -19,8 +19,6 @@ public:
 private slots:
     void signinClicked();
 private:
-    InnertubeAuthStore* authStore = new InnertubeAuthStore;
-    InnertubeContext context = InnertubeContext(InnertubeClient("WEB", "2.20220720.00.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H
