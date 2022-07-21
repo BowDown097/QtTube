@@ -8,7 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220720.00.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
-    InnertubeEndpoints::Browse data = InnerTube::instance().get<InnertubeEndpoints::Browse>();
+    QString data = InnerTube::instance().get<InnertubeEndpoints::BrowseSubscriptions>().data;
+    qDebug() << data.left(10000);
     connect(ui->signInButton, &QPushButton::clicked, this, &MainWindow::signinClicked);
 }
 
@@ -19,8 +20,8 @@ void MainWindow::signinClicked()
 
     InnerTube::instance().authStore()->authenticate(*InnerTube::instance().context());
     ui->signInButton->setText("Sign out");
-    QString data = InnerTube::instance().get<InnertubeEndpoints::Browse>(InnerTube::instance().authStore()).data;
-    qDebug() << data.left(500);
+    QString data = InnerTube::instance().get<InnertubeEndpoints::BrowseSubscriptions>().data;
+    qDebug() << data.left(10000);
 }
 
 MainWindow::~MainWindow()
