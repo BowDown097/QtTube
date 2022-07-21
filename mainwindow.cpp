@@ -14,12 +14,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::signinClicked()
 {
-    if (InnerTube::instance().auth()->populated)
+    if (InnerTube::instance().authStore()->populated)
         return;
 
-    InnerTube::instance().auth()->authenticate(*InnerTube::instance().context());
+    InnerTube::instance().authStore()->authenticate(*InnerTube::instance().context());
     ui->signInButton->setText("Sign out");
-    QString data = InnerTube::instance().get<InnertubeEndpoints::Browse>(InnerTube::instance().auth()).data;
+    QString data = InnerTube::instance().get<InnertubeEndpoints::Browse>(InnerTube::instance().authStore()).data;
     qDebug() << data.left(500);
 }
 
