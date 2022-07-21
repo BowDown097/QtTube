@@ -7,20 +7,20 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220720.00.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
-    QString data = InnerTube::instance().get<InnertubeEndpoints::BrowseSubscriptions>().data;
+    InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220721.00.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
+    QString data = InnerTube::instance().get<InnertubeEndpoints::NextVideo>("sjMuL5XEZzs").data;
     qDebug() << data.left(10000);
     connect(ui->signInButton, &QPushButton::clicked, this, &MainWindow::signinClicked);
 }
 
 void MainWindow::signinClicked()
 {
-    if (InnerTube::instance().authStore()->populated)
+    if (InnerTube::instance().hasAuthenticated())
         return;
 
-    InnerTube::instance().authStore()->authenticate(*InnerTube::instance().context());
+    InnerTube::instance().authenticate();
     ui->signInButton->setText("Sign out");
-    QString data = InnerTube::instance().get<InnertubeEndpoints::BrowseSubscriptions>().data;
+    QString data = InnerTube::instance().get<InnertubeEndpoints::Player>("sjMuL5XEZzs").data;
     qDebug() << data.left(10000);
 }
 
