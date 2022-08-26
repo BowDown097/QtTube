@@ -18,7 +18,6 @@ private slots:
     void showSettings();
     void signinClicked();
 private:
-    void setupHome();
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H

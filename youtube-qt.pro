@@ -16,7 +16,7 @@ SOURCES += \
     ui/settingsform.cpp
 
 HEADERS += \
-    downloadmanager.hpp \
+    browsehelper.hpp \
     mainwindow.h \
     settingsstore.hpp \
     ui/clickablelabel.h \
