@@ -14,39 +14,61 @@
    <string>youtube-qt</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="rightMargin">
-       <number>3</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="name">
-        <property name="text">
-         <string>youtube-qt</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="searchBox">
-        <property name="placeholderText">
-         <string>Search</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="signInButton">
-        <property name="text">
-         <string>Sign In</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="1" column="0">
-     <layout class="QGridLayout" name="homeVideosLayout"/>
-    </item>
-   </layout>
+   <widget class="QPushButton" name="settingsButton">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>12</y>
+      <width>35</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>⚙️</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="signInButton">
+    <property name="geometry">
+     <rect>
+      <x>715</x>
+      <y>12</y>
+      <width>80</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Sign In</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="searchBox">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>13</y>
+      <width>655</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>592</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="placeholderText">
+     <string>Search</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidget">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>70</y>
+      <width>790</width>
+      <height>499</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -58,7 +80,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

@@ -1,7 +1,5 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
-#include "innertube.hpp"
 #include <QMainWindow>
 #include <QNetworkReply>
 
@@ -17,8 +15,10 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 private slots:
+    void showSettings();
     void signinClicked();
 private:
+    void setupHome();
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H

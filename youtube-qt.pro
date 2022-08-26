@@ -12,13 +12,20 @@ include(lib/innertube-qt/innertube-qt.pri)
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    ui/settingsform.cpp
 
 HEADERS += \
-    mainwindow.h
+    downloadmanager.hpp \
+    mainwindow.h \
+    settingsstore.hpp \
+    ui/clickablelabel.h \
+    ui/homevideorenderer.h \
+    ui/settingsform.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    ui/settingsform.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
