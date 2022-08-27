@@ -8,8 +8,16 @@ SettingsForm::SettingsForm(QWidget *parent) :
     ui(new Ui::SettingsForm)
 {
     ui->setupUi(this);
+    ui->argsText->setText(SettingsStore::instance().playerArgs);
     ui->clickTracking->setChecked(SettingsStore::instance().clickTrackingEnabled);
     ui->playerText->setText(SettingsStore::instance().playerPath);
+
+    if (!ui->playerText->text().isEmpty())
+    {
+        ui->argsLabel->setEnabled(true);
+        ui->argsText->setEnabled(true);
+    }
+
     connect(ui->playerSelect, &QPushButton::clicked, this, [this]() { ui->playerText->setText(QFileDialog::getOpenFileName(this, tr("Select video player"))); });
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
 }
@@ -17,6 +25,7 @@ SettingsForm::SettingsForm(QWidget *parent) :
 void SettingsForm::saveSettings()
 {
     SettingsStore::instance().clickTrackingEnabled = ui->clickTracking->isChecked();
+    SettingsStore::instance().playerArgs = ui->argsText->text();
     SettingsStore::instance().playerPath = ui->playerText->text();
     SettingsStore::instance().saveToSettingsFile();
     SettingsStore::instance().initializeFromSettingsFile();

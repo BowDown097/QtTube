@@ -62,6 +62,35 @@
         <string>...</string>
        </property>
       </widget>
+      <widget class="QLabel" name="argsLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>55</y>
+         <width>110</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Arguments</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="argsText">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>55</y>
+         <width>325</width>
+         <height>33</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="privacy">
       <attribute name="title">

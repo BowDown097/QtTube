@@ -78,7 +78,7 @@ private slots:
         }
 
         QProcess* proc = new QProcess;
-        proc->start(SettingsStore::instance().playerPath, QStringList() << QStringLiteral("https://youtube.com/watch?v=%1").arg(videoId));
+        proc->start(SettingsStore::instance().playerPath, QStringList() << SettingsStore::instance().playerArgs << QStringLiteral("https://youtube.com/watch?v=%1").arg(videoId));
     }
 };
 

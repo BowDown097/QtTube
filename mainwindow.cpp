@@ -11,9 +11,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->settingsButton, &QPushButton::clicked, this, &MainWindow::showSettings);
     connect(ui->signInButton, &QPushButton::clicked, this, &MainWindow::signinClicked);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabChanged);
+
+    connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
+            [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget); });
+    connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
+            [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget); });
     SettingsStore::instance().initializeFromSettingsFile();
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
-    BrowseHelper::browseHome(ui->homeWidget);
+    BrowseHelper::instance().browseHome(ui->homeWidget);
 }
 
 void MainWindow::showSettings()
@@ -29,8 +34,24 @@ void MainWindow::signinClicked()
 
     InnerTube::instance().authenticate();
     ui->signInButton->setText("Sign out");
-    ui->homeWidget->clear();
-    BrowseHelper::browseHome(ui->homeWidget);
+
+    switch (ui->tabWidget->currentIndex())
+    {
+    case 0:
+        ui->homeWidget->clear();
+        BrowseHelper::instance().browseHome(ui->homeWidget);
+        break;
+    case 1:
+        ui->trendingWidget->clear();
+        break;
+    case 2:
+        ui->subscriptionsWidget->clear();
+        BrowseHelper::instance().browseSubscriptions(ui->subscriptionsWidget);
+        break;
+    case 3:
+        ui->historyWidget->clear();
+        break;
+    }
 }
 
 void MainWindow::tabChanged(int index)
@@ -39,14 +60,14 @@ void MainWindow::tabChanged(int index)
     {
     case 0:
         ui->homeWidget->clear();
-        BrowseHelper::browseHome(ui->homeWidget);
+        BrowseHelper::instance().browseHome(ui->homeWidget);
         break;
     case 1:
         ui->trendingWidget->clear();
         break;
     case 2:
         ui->subscriptionsWidget->clear();
-        BrowseHelper::browseSubscriptions(ui->subscriptionsWidget);
+        BrowseHelper::instance().browseSubscriptions(ui->subscriptionsWidget);
         break;
     case 3:
         ui->historyWidget->clear();
