@@ -17,6 +17,7 @@ public:
 private slots:
     void showSettings();
     void signinClicked();
+    void tabChanged(int index);
 private:
     Ui::MainWindow *ui;
 };

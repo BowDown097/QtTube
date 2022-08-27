@@ -65,7 +65,7 @@
       <x>5</x>
       <y>70</y>
       <width>795</width>
-      <height>499</height>
+      <height>530</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -85,11 +85,31 @@
      <attribute name="title">
       <string>Trending</string>
      </attribute>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QListWidget" name="trendingWidget"/>
+      </item>
+     </layout>
     </widget>
     <widget class="QWidget" name="tab_3">
      <attribute name="title">
       <string>Subscriptions</string>
      </attribute>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QListWidget" name="subscriptionsWidget"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>History</string>
+     </attribute>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QListWidget" name="historyWidget"/>
+      </item>
+     </layout>
     </widget>
    </widget>
   </widget>
