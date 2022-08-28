@@ -50,9 +50,12 @@ public:
         channelLabel->setText(owner.name);
     }
 
-    void setVideoData(bool isLive, const QString& length, const QString& publishedTime, const QString& title, const QString& videoId, const QString& viewCount)
+    void setVideoData(QString length, QString publishedTime, const QString& title, const QString& videoId, const QString& viewCount)
     {
-        metadataLabel->setText(isLive ? QStringLiteral("LIVE • %1").arg(viewCount) : QStringLiteral("%1 • %2 • %3").arg(length, publishedTime, viewCount));
+        if (!length.isEmpty()) length += " • ";
+        if (!publishedTime.isEmpty()) publishedTime += " • ";
+
+        metadataLabel->setText(QStringLiteral("%1%2%3").arg(length, publishedTime, viewCount));
         titleLabel->setText(title.length() <= 60 ? title : title.left(60) + "…");
         this->videoId = videoId;
     }

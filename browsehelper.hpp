@@ -19,6 +19,27 @@ public:
         return bh;
     }
 
+    void browseHistory(QListWidget* historyWidget)
+    {
+        try
+        {
+            if (InnerTube::instance().hasAuthenticated())
+            {
+                InnertubeEndpoints::BrowseHistory historyData = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>();
+                setupVideoList(historyData.videos, historyWidget);
+                continuationToken = historyData.continuationToken;
+            }
+            else
+            {
+                historyWidget->addItem("Local history has not been implemented yet. You will need to log in.");
+            }
+        }
+        catch (const InnertubeException& ie)
+        {
+            QMessageBox::critical(nullptr, "Failed to get history browsing info", ie.message());
+        }
+    }
+
     void browseHome(QListWidget* homeWidget)
     {
         try
@@ -81,7 +102,7 @@ private:
         {
             HomeVideoRenderer* renderer = new HomeVideoRenderer;
             renderer->setChannelData(video.owner);
-            renderer->setVideoData(video.isLive, video.lengthText.text, video.publishedTimeText.text, video.title.text, video.videoId, video.viewCountText.text);
+            renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.title.text, video.videoId, video.viewCountText.text);
 
             QListWidgetItem* item = new QListWidgetItem(widget);
             item->setSizeHint(renderer->sizeHint());

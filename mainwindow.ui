@@ -77,7 +77,11 @@
      </attribute>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QListWidget" name="homeWidget"/>
+       <widget class="QListWidget" name="homeWidget">
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -87,7 +91,11 @@
      </attribute>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="QListWidget" name="trendingWidget"/>
+       <widget class="QListWidget" name="trendingWidget">
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -97,7 +105,11 @@
      </attribute>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <widget class="QListWidget" name="subscriptionsWidget"/>
+       <widget class="QListWidget" name="subscriptionsWidget">
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -107,7 +119,11 @@
      </attribute>
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0">
-       <widget class="QListWidget" name="historyWidget"/>
+       <widget class="QListWidget" name="historyWidget">
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
