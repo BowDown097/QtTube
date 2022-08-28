@@ -19,6 +19,7 @@ private slots:
     void signinClicked();
 private:
     void browse();
+    void tryRestoreData();
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H

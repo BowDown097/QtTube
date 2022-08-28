@@ -91,27 +91,27 @@
         </rect>
        </property>
       </widget>
+      <widget class="QCheckBox" name="itcCache">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>100</y>
+         <width>461</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable login session restoring</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="privacy">
       <attribute name="title">
        <string>Privacy</string>
       </attribute>
-      <widget class="QCheckBox" name="clickTracking">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>211</width>
-         <height>32</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Click tracking is used primarily for history features. If this feature is turned off, watch history will be stored locally instead of with your YouTube account.</string>
-       </property>
-       <property name="text">
-        <string>Enable click tracking</string>
-       </property>
-      </widget>
      </widget>
     </widget>
    </item>

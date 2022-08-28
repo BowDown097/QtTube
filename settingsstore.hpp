@@ -7,7 +7,7 @@
 class SettingsStore
 {
 public:
-    bool clickTrackingEnabled = true;
+    bool itcCache = true;
     QString playerArgs;
     QString playerPath;
 
@@ -25,7 +25,7 @@ public:
 
         QTextStream in(&settingsFile);
         QJsonObject settingsObj = QJsonDocument::fromJson(in.readAll().toUtf8()).object();
-        clickTrackingEnabled = settingsObj["clickTrackingEnabled"].toBool(true);
+        itcCache = settingsObj["itcCache"].toBool();
         playerArgs = settingsObj["playerArgs"].toString();
         playerPath = settingsObj["playerPath"].toString();
         settingsFile.close();
@@ -38,7 +38,7 @@ public:
             return;
 
         QJsonObject settingsObj {
-            { "clickTrackingEnabled", clickTrackingEnabled },
+            { "itcCache", itcCache },
             { "playerArgs", playerArgs },
             { "playerPath", playerPath }
         };

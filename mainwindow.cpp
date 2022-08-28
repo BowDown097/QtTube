@@ -22,8 +22,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->historyWidget->verticalScrollBar()->setSingleStep(25);
     ui->homeWidget->verticalScrollBar()->setSingleStep(25);
     ui->subscriptionsWidget->verticalScrollBar()->setSingleStep(25);
+
     SettingsStore::instance().initializeFromSettingsFile();
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
+    tryRestoreData();
     BrowseHelper::instance().browseHome(ui->homeWidget);
 }
 
@@ -61,8 +63,36 @@ void MainWindow::signinClicked()
         return;
 
     InnerTube::instance().authenticate();
+    if (SettingsStore::instance().itcCache)
+    {
+        QFile store("store.json");
+        if (store.open(QFile::WriteOnly | QFile::Text))
+        {
+            QTextStream storeIn(&store);
+            storeIn << QJsonDocument(InnerTube::instance().authStore()->toJson()).toJson(QJsonDocument::Compact);
+        }
+    }
+
     ui->signInButton->setText("Sign out");
     browse();
+}
+
+void MainWindow::tryRestoreData()
+{
+    QFile store("store.json");
+    if (!store.open(QFile::ReadOnly | QFile::Text))
+        return;
+
+    QTextStream storeOut(&store);
+    QString storeData = storeOut.readAll();
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(storeData.toUtf8(), &parseError);
+    if (parseError.error != QJsonParseError::NoError)
+        return;
+
+    InnerTube::instance().authStore()->populateFromJson(doc.object(), *InnerTube::instance().context());
+    ui->signInButton->setText("Sign out");
 }
 
 MainWindow::~MainWindow()

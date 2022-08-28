@@ -9,7 +9,7 @@ SettingsForm::SettingsForm(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->argsText->setText(SettingsStore::instance().playerArgs);
-    ui->clickTracking->setChecked(SettingsStore::instance().clickTrackingEnabled);
+    ui->itcCache->setChecked(SettingsStore::instance().itcCache);
     ui->playerText->setText(SettingsStore::instance().playerPath);
 
     if (!ui->playerText->text().isEmpty())
@@ -24,7 +24,7 @@ SettingsForm::SettingsForm(QWidget *parent) :
 
 void SettingsForm::saveSettings()
 {
-    SettingsStore::instance().clickTrackingEnabled = ui->clickTracking->isChecked();
+    SettingsStore::instance().itcCache = ui->itcCache->isChecked();
     SettingsStore::instance().playerArgs = ui->argsText->text();
     SettingsStore::instance().playerPath = ui->playerText->text();
     SettingsStore::instance().saveToSettingsFile();
