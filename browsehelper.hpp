@@ -8,9 +8,8 @@
 #include <innertube.hpp>
 #include <ui/homevideorenderer.h>
 
-class BrowseHelper : public QObject
+class BrowseHelper
 {
-    Q_OBJECT
     bool continuationOngoing;
     QString continuationToken;
 public:
@@ -57,7 +56,7 @@ public:
     template<typename T>
     typename std::enable_if_t<std::is_base_of_v<InnertubeEndpoints::BaseEndpoint, T>, void> tryContinuation(int value, QListWidget* widget)
     {
-        if (value < widget->verticalScrollBar()->maximum() - 10 || continuationOngoing || !InnerTube::instance().hasAuthenticated())
+        if (value < widget->verticalScrollBar()->maximum() - 10 || continuationOngoing || InnerTube::instance().context()->client.visitorData.isEmpty())
             return;
 
         continuationOngoing = true;
@@ -98,6 +97,7 @@ private:
                 QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
                 loop.exec();
                 renderer->setThumbnail(reply->readAll());
+                reply->deleteLater();
             }));
         }
     }
