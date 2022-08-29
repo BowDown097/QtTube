@@ -25,7 +25,7 @@ public:
 
         QTextStream in(&settingsFile);
         QJsonObject settingsObj = QJsonDocument::fromJson(in.readAll().toUtf8()).object();
-        itcCache = settingsObj["itcCache"].toBool();
+        itcCache = settingsObj["itcCache"].toBool(true);
         playerArgs = settingsObj["playerArgs"].toString();
         playerPath = settingsObj["playerPath"].toString();
         settingsFile.close();

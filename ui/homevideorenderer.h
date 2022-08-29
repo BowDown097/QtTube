@@ -39,6 +39,7 @@ public:
         setLayout(hbox);
 
         thumbLabel->setMinimumSize(1, 1);
+        thumbLabel->setScaledContents(true);
         titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
         connect(channelLabel, &ClickableLabel::clicked, this, &HomeVideoRenderer::navigateChannel);
         connect(titleLabel, &ClickableLabel::clicked, this, &HomeVideoRenderer::navigateVideo);
@@ -55,7 +56,10 @@ public:
         if (!length.isEmpty()) length += " • ";
         if (!publishedTime.isEmpty()) publishedTime += " • ";
 
-        metadataLabel->setText(QStringLiteral("%1%2%3").arg(length, publishedTime, viewCount));
+        QString metadata = QStringLiteral("%1%2%3").arg(length, publishedTime, viewCount);
+        if (metadata.endsWith("• ")) metadata.chop(2);
+
+        metadataLabel->setText(metadata);
         titleLabel->setText(title.length() <= 60 ? title : title.left(60) + "…");
         this->videoId = videoId;
     }
