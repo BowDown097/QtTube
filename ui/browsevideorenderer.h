@@ -1,15 +1,16 @@
-#ifndef HOMEVIDEORENDERER_H
-#define HOMEVIDEORENDERER_H
+#ifndef BROWSEVIDEORENDERER_H
+#define BROWSEVIDEORENDERER_H
 #include "clickablelabel.h"
-#include <objects/video/video.h>
-#include <settingsstore.hpp>
+#include "httpreply.h"
+#include "objects/video/videoowner.h"
+#include "settingsstore.hpp"
 #include <QApplication>
 #include <QLabel>
 #include <QMessageBox>
 #include <QProcess>
 #include <QVBoxLayout>
 
-class HomeVideoRenderer : public QWidget
+class BrowseVideoRenderer : public QWidget
 {
     Q_OBJECT
     QString channelId;
@@ -21,7 +22,7 @@ class HomeVideoRenderer : public QWidget
     ClickableLabel* titleLabel;
     QString videoId;
 public:
-    HomeVideoRenderer(QWidget* parent = nullptr) : QWidget(parent)
+    BrowseVideoRenderer(QWidget* parent = nullptr) : QWidget(parent)
     {
         channelLabel = new ClickableLabel;
         hbox = new QHBoxLayout;
@@ -41,8 +42,8 @@ public:
         thumbLabel->setMinimumSize(1, 1);
         thumbLabel->setScaledContents(true);
         titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
-        connect(channelLabel, &ClickableLabel::clicked, this, &HomeVideoRenderer::navigateChannel);
-        connect(titleLabel, &ClickableLabel::clicked, this, &HomeVideoRenderer::navigateVideo);
+        connect(channelLabel, &ClickableLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
+        connect(titleLabel, &ClickableLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
     }
 
     void setChannelData(const InnertubeObjects::VideoOwner& owner)
@@ -64,10 +65,10 @@ public:
         this->videoId = videoId;
     }
 public slots:
-    void setThumbnail(const QByteArray& data)
+    void setThumbnail(const HttpReply& reply)
     {
         QPixmap pixmap;
-        pixmap.loadFromData(data);
+        pixmap.loadFromData(reply.body());
         thumbLabel->setPixmap(pixmap.scaled(240, thumbLabel->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 private slots:
@@ -89,4 +90,4 @@ private slots:
     }
 };
 
-#endif // HOMEVIDEORENDERER_H
+#endif // BROWSEVIDEORENDERER_H

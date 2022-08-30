@@ -2,3 +2,7 @@
 	path = lib/innertube-qt
 	url = https://github.com/BowDown097/innertube-qt
 	branch = master
+[submodule "lib/http"]
+	path = lib/http
+	url = https://github.com/flaviotordini/http
+	branch = master

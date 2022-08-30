@@ -63,15 +63,24 @@
     <property name="geometry">
      <rect>
       <x>5</x>
-      <y>70</y>
+      <y>100</y>
       <width>795</width>
-      <height>530</height>
+      <height>500</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QTabBar::tab::disabled {
+	width: 0; 
+	height: 0; 
+	margin: 0; 
+	padding: 0; 
+	border: none;
+}</string>
     </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="homeTab">
      <attribute name="title">
       <string>Home</string>
      </attribute>
@@ -85,7 +94,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="trendingTab">
      <attribute name="title">
       <string>Trending</string>
      </attribute>
@@ -99,7 +108,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="tab_3">
+    <widget class="QWidget" name="subscriptionsTab">
      <attribute name="title">
       <string>Subscriptions</string>
      </attribute>
@@ -113,7 +122,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="tab_4">
+    <widget class="QWidget" name="historyTab">
      <attribute name="title">
       <string>History</string>
      </attribute>
@@ -127,6 +136,32 @@
       </item>
      </layout>
     </widget>
+    <widget class="QWidget" name="searchTab">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <attribute name="title">
+      <string>Search</string>
+     </attribute>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <widget class="QListWidget" name="searchWidget"/>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="searchReturnButton">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>65</y>
+      <width>35</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>⬅</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

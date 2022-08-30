@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QMainWindow>
-#include <QNetworkReply>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,9 +14,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 private slots:
+    void returnFromSearch();
+    void search();
     void showSettings();
     void signinClicked();
 private:
+    bool doNotBrowse = false;
     void browse();
     void tryRestoreData();
     Ui::MainWindow *ui;

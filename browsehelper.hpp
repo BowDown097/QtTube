@@ -1,12 +1,11 @@
 #ifndef BROWSEHELPER_HPP
 #define BROWSEHELPER_HPP
+#include "http.h"
+#include "innertube.hpp"
+#include "ui/browsechannelrenderer.h"
+#include "ui/browsevideorenderer.h"
 #include <QListWidgetItem>
 #include <QScrollBar>
-#include <QUrl>
-#include <QtConcurrent>
-#include <QtNetwork>
-#include <innertube.hpp>
-#include <ui/homevideorenderer.h>
 
 class BrowseHelper
 {
@@ -36,7 +35,7 @@ public:
         }
         catch (const InnertubeException& ie)
         {
-            QMessageBox::critical(nullptr, "Failed to get history browsing info", ie.message());
+            QMessageBox::critical(nullptr, "Failed to get history browsing data", ie.message());
         }
     }
 
@@ -50,7 +49,7 @@ public:
         }
         catch (const InnertubeException& ie)
         {
-            QMessageBox::critical(nullptr, "Failed to get home browsing info", ie.message());
+            QMessageBox::critical(nullptr, "Failed to get home browsing data", ie.message());
         }
     }
 
@@ -70,12 +69,28 @@ public:
         }
         catch (const InnertubeException& ie)
         {
-            QMessageBox::critical(nullptr, "Failed to get subscriptions browsing info", ie.message());
+            QMessageBox::critical(nullptr, "Failed to get subscriptions browsing data", ie.message());
+        }
+    }
+
+    void search(QListWidget* searchWidget, const QString& query)
+    {
+        try
+        {
+            InnertubeEndpoints::Search searchData = InnerTube::instance().get<InnertubeEndpoints::Search>(query);
+            searchWidget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(searchData.estimatedResults)));
+            setupChannelList(searchData.channels, searchWidget);
+            setupVideoList(searchData.videos, searchWidget);
+            continuationToken = searchData.continuationToken;
+        }
+        catch (const InnertubeException& ie)
+        {
+            QMessageBox::critical(nullptr, "Failed to get search data", ie.message());
         }
     }
 
     template<typename T>
-    typename std::enable_if_t<std::is_base_of_v<InnertubeEndpoints::BaseEndpoint, T>, void> tryContinuation(int value, QListWidget* widget)
+    typename std::enable_if_t<std::is_base_of_v<InnertubeEndpoints::BaseEndpoint, T>, void> tryContinuation(int value, QListWidget* widget, const QString& data = "")
     {
         if (value < widget->verticalScrollBar()->maximum() - 10 || continuationOngoing || InnerTube::instance().context()->client.visitorData.isEmpty())
             return;
@@ -84,7 +99,9 @@ public:
 
         try
         {
-            T newData = InnerTube::instance().get<T>("", continuationToken);
+            T newData = InnerTube::instance().get<T>(data, continuationToken);
+            if constexpr (std::is_same_v<T, InnertubeEndpoints::Search>)
+                setupChannelList(newData.channels, widget);
             setupVideoList(newData.videos, widget);
             continuationToken = newData.continuationToken;
         }
@@ -96,11 +113,29 @@ public:
         continuationOngoing = false;
     }
 private:
+    void setupChannelList(const QVector<InnertubeObjects::Channel>& channels, QListWidget* widget)
+    {
+        for (const InnertubeObjects::Channel& channel : channels)
+        {
+            BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
+            renderer->setData(channel.channelId, channel.descriptionSnippet.text, channel.title.text, channel.subscribed, channel.subscriberCountText.text,
+                              channel.videoCountText.text);
+
+            QListWidgetItem* item = new QListWidgetItem(widget);
+            item->setSizeHint(renderer->sizeHint());
+            widget->addItem(item);
+            widget->setItemWidget(item, renderer);
+
+            HttpReply* reply = Http::instance().get(channel.thumbnails.last().url);
+            QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
+        }
+    }
+
     void setupVideoList(const QVector<InnertubeObjects::Video>& videos, QListWidget* widget)
     {
         for (const InnertubeObjects::Video& video : videos)
         {
-            HomeVideoRenderer* renderer = new HomeVideoRenderer;
+            BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
             renderer->setChannelData(video.owner);
             renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.title.text, video.videoId, video.viewCountText.text);
 
@@ -109,17 +144,8 @@ private:
             widget->addItem(item);
             widget->setItemWidget(item, renderer);
 
-            static_cast<void>(QtConcurrent::run([renderer, video] {
-                QNetworkAccessManager manager;
-                QNetworkRequest request(QUrl(video.thumbnail.mqdefault));
-                QNetworkReply* reply = manager.get(request);
-
-                QEventLoop loop;
-                QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-                loop.exec();
-                renderer->setThumbnail(reply->readAll());
-                reply->deleteLater();
-            }));
+            HttpReply* reply = Http::instance().get(video.thumbnail.mqdefault);
+            QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
         }
     }
 };

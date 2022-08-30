@@ -8,6 +8,12 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    ui->tabWidget->setTabEnabled(4, false);
+    ui->searchReturnButton->setVisible(false);
+
+    connect(ui->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
+    connect(ui->searchReturnButton, &QPushButton::clicked, this, &MainWindow::returnFromSearch);
     connect(ui->settingsButton, &QPushButton::clicked, this, &MainWindow::showSettings);
     connect(ui->signInButton, &QPushButton::clicked, this, &MainWindow::signinClicked);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
@@ -16,11 +22,14 @@ MainWindow::MainWindow(QWidget *parent)
             [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHistory>(value, ui->historyWidget); });
     connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget); });
+    connect(ui->searchWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
+            [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, ui->searchBox->text()); });
     connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget); });
 
     ui->historyWidget->verticalScrollBar()->setSingleStep(25);
     ui->homeWidget->verticalScrollBar()->setSingleStep(25);
+    ui->searchWidget->verticalScrollBar()->setSingleStep(25);
     ui->subscriptionsWidget->verticalScrollBar()->setSingleStep(25);
 
     SettingsStore::instance().initializeFromSettingsFile();
@@ -31,24 +40,63 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::browse()
 {
+    if (doNotBrowse)
+        return;
+
+    ui->historyWidget->clear();
+    ui->homeWidget->clear();
+    ui->searchWidget->clear();
+    ui->subscriptionsWidget->clear();
+    ui->trendingWidget->clear();
+
     switch (ui->tabWidget->currentIndex())
     {
     case 0:
-        ui->homeWidget->clear();
         BrowseHelper::instance().browseHome(ui->homeWidget);
         break;
     case 1:
-        ui->trendingWidget->clear();
         break;
     case 2:
-        ui->subscriptionsWidget->clear();
         BrowseHelper::instance().browseSubscriptions(ui->subscriptionsWidget);
         break;
     case 3:
-        ui->historyWidget->clear();
         BrowseHelper::instance().browseHistory(ui->historyWidget);
         break;
     }
+}
+
+void MainWindow::returnFromSearch()
+{
+    doNotBrowse = true;
+    ui->searchReturnButton->setVisible(false);
+    ui->tabWidget->setTabEnabled(4, false);
+    ui->tabWidget->setTabEnabled(0, true);
+    ui->tabWidget->setTabEnabled(1, true);
+    ui->tabWidget->setTabEnabled(2, true);
+    ui->tabWidget->setTabEnabled(3, true);
+    doNotBrowse = false;
+    ui->tabWidget->setCurrentIndex(0);
+}
+
+void MainWindow::search()
+{
+    if (ui->tabWidget->currentIndex() == 4)
+    {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, ui->searchBox->text());
+        return;
+    }
+
+    doNotBrowse = true;
+    ui->searchReturnButton->setVisible(true);
+    ui->tabWidget->setTabEnabled(4, true);
+    ui->tabWidget->setTabEnabled(0, false);
+    ui->tabWidget->setTabEnabled(1, false);
+    ui->tabWidget->setTabEnabled(2, false);
+    ui->tabWidget->setTabEnabled(3, false);
+    doNotBrowse = false;
+    ui->tabWidget->setCurrentIndex(4);
+    BrowseHelper::instance().search(ui->searchWidget, ui->searchBox->text());
 }
 
 void MainWindow::showSettings()

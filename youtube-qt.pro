@@ -1,9 +1,10 @@
-QT       += concurrent core gui network webenginewidgets
+QT       += core gui network webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++20 object_parallel_to_source
+CONFIG += c++20
 
+include(lib/http/http.pri)
 include(lib/innertube-qt/innertube-qt.pri)
 
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -19,8 +20,9 @@ HEADERS += \
     browsehelper.hpp \
     mainwindow.h \
     settingsstore.hpp \
+    ui/browsechannelrenderer.h \
+    ui/browsevideorenderer.h \
     ui/clickablelabel.h \
-    ui/homevideorenderer.h \
     ui/settingsform.h
 
 FORMS += \
