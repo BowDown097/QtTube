@@ -2,12 +2,15 @@
 #define BROWSEVIDEORENDERER_H
 #include "clickablelabel.h"
 #include "httpreply.h"
-#include "objects/video/videoowner.h"
-#include "settingsstore.hpp"
+#include "innertube.hpp"
+#ifdef USEMPV
+#include "watchview-mpv.h"
+#else
+#include "watchview-ytp.h"
+#endif
 #include <QApplication>
 #include <QLabel>
-#include <QMessageBox>
-#include <QProcess>
+#include <QListWidget>
 #include <QVBoxLayout>
 
 class BrowseVideoRenderer : public QWidget
@@ -79,14 +82,7 @@ private slots:
 
     void navigateVideo()
     {
-        if (SettingsStore::instance().playerPath.isEmpty())
-        {
-            QMessageBox::warning(nullptr, "No player set!", "You have not set a video player to use. Please set it in the Settings.");
-            return;
-        }
-
-        QProcess* proc = new QProcess;
-        proc->start(SettingsStore::instance().playerPath, QStringList() << SettingsStore::instance().playerArgs << QStringLiteral("https://youtube.com/watch?v=%1").arg(videoId));
+        WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Player>(videoId));
     }
 };
 

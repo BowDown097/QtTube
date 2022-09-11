@@ -11,168 +11,138 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>youtube-qt</string>
+   <string>Home - youtube-qt</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="settingsButton">
-    <property name="geometry">
-     <rect>
-      <x>670</x>
-      <y>12</y>
-      <width>35</width>
-      <height>35</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>⚙️</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="signInButton">
-    <property name="geometry">
-     <rect>
-      <x>715</x>
-      <y>12</y>
-      <width>80</width>
-      <height>35</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Sign In</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="searchBox">
-    <property name="geometry">
-     <rect>
-      <x>5</x>
-      <y>13</y>
-      <width>655</width>
-      <height>33</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>592</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="placeholderText">
-     <string>Search</string>
-    </property>
-   </widget>
-   <widget class="QTabWidget" name="tabWidget">
-    <property name="geometry">
-     <rect>
-      <x>5</x>
-      <y>100</y>
-      <width>795</width>
-      <height>500</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QTabBar::tab::disabled {
+  <widget class="QStackedWidget" name="centralwidget">
+   <widget class="QWidget" name="mainPage">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLineEdit" name="searchBox">
+       <property name="minimumSize">
+        <size>
+         <width>592</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="placeholderText">
+        <string>Search</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="settingsButton">
+       <property name="text">
+        <string>⚙️</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="signInButton">
+       <property name="text">
+        <string>Sign In</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="searchReturnButton">
+       <property name="maximumSize">
+        <size>
+         <width>32</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>⬅</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="3">
+      <widget class="QTabWidget" name="tabWidget">
+       <property name="styleSheet">
+        <string notr="true">QTabBar::tab::disabled {
 	width: 0; 
 	height: 0; 
 	margin: 0; 
 	padding: 0; 
 	border: none;
 }</string>
-    </property>
-    <property name="currentIndex">
-     <number>0</number>
-    </property>
-    <widget class="QWidget" name="homeTab">
-     <attribute name="title">
-      <string>Home</string>
-     </attribute>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QListWidget" name="homeWidget">
-        <property name="verticalScrollMode">
-         <enum>QAbstractItemView::ScrollPerPixel</enum>
-        </property>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="homeTab">
+        <attribute name="title">
+         <string>Home</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_16">
+         <item row="0" column="0">
+          <widget class="QListWidget" name="homeWidget">
+           <property name="verticalScrollMode">
+            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="trendingTab">
-     <attribute name="title">
-      <string>Trending</string>
-     </attribute>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QListWidget" name="trendingWidget">
-        <property name="verticalScrollMode">
-         <enum>QAbstractItemView::ScrollPerPixel</enum>
-        </property>
+       <widget class="QWidget" name="trendingTab">
+        <attribute name="title">
+         <string>Trending</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_17">
+         <item row="0" column="0">
+          <widget class="QListWidget" name="trendingWidget">
+           <property name="verticalScrollMode">
+            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="subscriptionsTab">
-     <attribute name="title">
-      <string>Subscriptions</string>
-     </attribute>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QListWidget" name="subscriptionsWidget">
-        <property name="verticalScrollMode">
-         <enum>QAbstractItemView::ScrollPerPixel</enum>
-        </property>
+       <widget class="QWidget" name="subscriptionsTab">
+        <attribute name="title">
+         <string>Subscriptions</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_18">
+         <item row="0" column="0">
+          <widget class="QListWidget" name="subscriptionsWidget">
+           <property name="verticalScrollMode">
+            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="historyTab">
-     <attribute name="title">
-      <string>History</string>
-     </attribute>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QListWidget" name="historyWidget">
-        <property name="verticalScrollMode">
-         <enum>QAbstractItemView::ScrollPerPixel</enum>
-        </property>
+       <widget class="QWidget" name="historyTab">
+        <attribute name="title">
+         <string>History</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_19">
+         <item row="0" column="0">
+          <widget class="QListWidget" name="historyWidget">
+           <property name="verticalScrollMode">
+            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="searchTab">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <attribute name="title">
-      <string>Search</string>
-     </attribute>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
-       <widget class="QListWidget" name="searchWidget"/>
-      </item>
-     </layout>
-    </widget>
+       <widget class="QWidget" name="searchTab">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <attribute name="title">
+         <string>Search</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_20">
+         <item row="0" column="0">
+          <widget class="QListWidget" name="searchWidget"/>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
    </widget>
-   <widget class="QPushButton" name="searchReturnButton">
-    <property name="geometry">
-     <rect>
-      <x>5</x>
-      <y>65</y>
-      <width>35</width>
-      <height>35</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>⬅</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>31</height>
-    </rect>
-   </property>
   </widget>
  </widget>
  <resources/>

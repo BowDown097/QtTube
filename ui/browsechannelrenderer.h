@@ -27,6 +27,7 @@ public:
         thumbLabel = new QLabel;
         titleLabel = new ClickableLabel;
 
+        textVbox->setSpacing(0);
         textVbox->addWidget(titleLabel);
         textVbox->addWidget(metadataLabel);
         textVbox->addWidget(descriptionLabel);

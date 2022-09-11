@@ -3,10 +3,12 @@
 #include "ui_mainwindow.h"
 #include "ui/settingsform.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+namespace { MainWindow* mWInst; }
+MainWindow* MainWindow::instance()  { return mWInst; }
+
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    mWInst = this;
     ui->setupUi(this);
 
     ui->tabWidget->setTabEnabled(4, false);
@@ -32,9 +34,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->searchWidget->verticalScrollBar()->setSingleStep(25);
     ui->subscriptionsWidget->verticalScrollBar()->setSingleStep(25);
 
+    watchView = WatchView::instance();
+    ui->centralwidget->addWidget(watchView);
+    watchView->initialize(ui->centralwidget);
+
     SettingsStore::instance().initializeFromSettingsFile();
+
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
     tryRestoreData();
+
     BrowseHelper::instance().browseHome(ui->homeWidget);
 }
 
@@ -52,14 +60,18 @@ void MainWindow::browse()
     switch (ui->tabWidget->currentIndex())
     {
     case 0:
+        setWindowTitle("Home - youtube-qt");
         BrowseHelper::instance().browseHome(ui->homeWidget);
         break;
     case 1:
+        setWindowTitle("Trending - youtube-qt");
         break;
     case 2:
+        setWindowTitle("Subscriptions - youtube-qt");
         BrowseHelper::instance().browseSubscriptions(ui->subscriptionsWidget);
         break;
     case 3:
+        setWindowTitle("History - youtube-qt");
         BrowseHelper::instance().browseHistory(ui->historyWidget);
         break;
     }

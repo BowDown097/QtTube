@@ -1,11 +1,31 @@
-QT       += core gui network webenginewidgets
-
+QT += core gui network webenginewidgets
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
 CONFIG += c++20
 
 include(lib/http/http.pri)
 include(lib/innertube-qt/innertube-qt.pri)
+
+contains(DEFINES, USEMPV) {
+    LIBS += -lmpv
+    QT += openglwidgets
+    lessThan(QT_MAJOR_VERSION, 6): QT += x11extras
+    SOURCES += \
+        lib/media/mpv/mediampv.cpp \
+        lib/media/mpv/mpvwidget.cpp \
+        ui/watchview-mpv.cpp
+    HEADERS += \
+        lib/media/media.h \
+        lib/media/mpv/mediampv.h \
+        lib/media/mpv/mpvwidget.h \
+        lib/media/mpv/qthelper.hpp \
+        ui/watchview-mpv.h
+}
+
+!contains(DEFINES, USEMPV) {
+    include(lib/webengineplayer/WebEnginePlayer.pri)
+    SOURCES += ui/watchview-ytp.cpp
+    HEADERS += ui/watchview-ytp.h
+}
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.

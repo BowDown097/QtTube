@@ -7,9 +7,9 @@
 class SettingsStore
 {
 public:
-    bool itcCache = true;
-    QString playerArgs;
-    QString playerPath;
+    bool condensedViews;
+    bool itcCache;
+    int preferredVolume;
 
     static SettingsStore& instance()
     {
@@ -25,9 +25,9 @@ public:
 
         QTextStream in(&settingsFile);
         QJsonObject settingsObj = QJsonDocument::fromJson(in.readAll().toUtf8()).object();
+        condensedViews = settingsObj["condensedViews"].toBool();
         itcCache = settingsObj["itcCache"].toBool(true);
-        playerArgs = settingsObj["playerArgs"].toString();
-        playerPath = settingsObj["playerPath"].toString();
+        preferredVolume = settingsObj["preferredVolume"].toInt(100);
         settingsFile.close();
     }
 
@@ -38,9 +38,9 @@ public:
             return;
 
         QJsonObject settingsObj {
+            { "condensedViews", condensedViews },
             { "itcCache", itcCache },
-            { "playerArgs", playerArgs },
-            { "playerPath", playerPath }
+            { "preferredVolume", preferredVolume }
         };
 
         QTextStream out(&settingsFile);
