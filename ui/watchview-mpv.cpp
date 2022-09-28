@@ -65,7 +65,7 @@ void WatchView::initialize(const InnertubeClient& client, QStackedWidget* stacke
 void WatchView::loadVideo(const InnertubeEndpoints::Player& player)
 {
     stackedWidget->setCurrentIndex(1);
-    MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - youtube-qt");
+    MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - QtTube");
     if (player.videoDetails.isLive || player.videoDetails.isLiveContent)
     {
         media->play(player.streamingData.hlsManifestUrl);

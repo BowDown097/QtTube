@@ -59,7 +59,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::Player& player)
     titleLabel->setFixedWidth(playerSize.width());
 
     wePlayer->play(player.videoDetails.videoId);
-    MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - youtube-qt");
+    MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - QtTube");
 }
 
 void WatchView::resizeEvent(QResizeEvent*)

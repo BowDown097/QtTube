@@ -65,18 +65,18 @@ void MainWindow::browse()
     switch (ui->tabWidget->currentIndex())
     {
     case 0:
-        setWindowTitle("Home - youtube-qt");
+        setWindowTitle("Home - QtTube");
         BrowseHelper::instance().browseHome(ui->homeWidget);
         break;
     case 1:
-        setWindowTitle("Trending - youtube-qt");
+        setWindowTitle("Trending - QtTube");
         break;
     case 2:
-        setWindowTitle("Subscriptions - youtube-qt");
+        setWindowTitle("Subscriptions - QtTube");
         BrowseHelper::instance().browseSubscriptions(ui->subscriptionsWidget);
         break;
     case 3:
-        setWindowTitle("History - youtube-qt");
+        setWindowTitle("History - QtTube");
         BrowseHelper::instance().browseHistory(ui->historyWidget);
         break;
     }

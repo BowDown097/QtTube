@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Home - youtube-qt</string>
+   <string>Home - QtTube</string>
   </property>
   <widget class="QStackedWidget" name="centralwidget">
    <widget class="QWidget" name="mainPage">
