@@ -19,10 +19,12 @@ private slots:
     void goBack();
 private:
     WatchView(QWidget* parent = nullptr);
+    QSize calcPlayerSize();
+    void resizeEvent(QResizeEvent*) override;
     QPushButton* backButton;
-    QGridLayout* grid;
     QListWidget* recommendations;
     QStackedWidget* stackedWidget;
+    QLabel* titleLabel;
     WebEnginePlayer* wePlayer;
 };
 

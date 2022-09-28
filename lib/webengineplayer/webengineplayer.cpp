@@ -1,14 +1,18 @@
+#include "playerinterceptor.h"
 #include "webengineplayer.h"
 #include <QVBoxLayout>
 #include <QWebEngineSettings>
 
-WebEnginePlayer::WebEnginePlayer(QWidget* parent) : QWidget(parent), m_view(new QWebEngineView(this))
+WebEnginePlayer::WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player, QWidget* parent)
+    : QWidget(parent), m_view(new QWebEngineView(this))
 {
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(m_view);
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
+    PlayerInterceptor* interceptor = new PlayerInterceptor(context, authStore, player);
+    m_view->page()->profile()->setUrlRequestInterceptor(interceptor);
     m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
     m_view->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
     connect(m_view->page(), &QWebEnginePage::fullScreenRequested, this, &WebEnginePlayer::fullScreenRequested);

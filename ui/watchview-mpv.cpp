@@ -1,6 +1,7 @@
 #ifdef USEMPV
+#include "http.h"
+#include "lib/media/mpv/mediampv.h"
 #include "mainwindow.h"
-#include "media/mpv/mediampv.h"
 #include "settingsstore.hpp"
 #include "watchview-mpv.h"
 #include <QVBoxLayout>
@@ -17,8 +18,9 @@ WatchView::WatchView(QWidget* parent) : QWidget(parent)
     setLayout(grid);
 }
 
-void WatchView::initialize(QStackedWidget* stackedWidget)
+void WatchView::initialize(const InnertubeClient& client, QStackedWidget* stackedWidget)
 {
+    this->itc = client;
     this->stackedWidget = stackedWidget;
 
     QVBoxLayout* info = new QVBoxLayout(this);
@@ -83,6 +85,17 @@ void WatchView::loadVideo(const InnertubeEndpoints::Player& player)
         InnertubeObjects::StreamingFormat bestVideo = *std::ranges::max_element(videoFormats, [](const auto& a, const auto& b) { return a.height < b.height; });
         media->playSeparateAudioAndVideo(bestVideo.url, bestAudio.url);
     }
+
+    if (SettingsStore::instance().playbackTracking)
+        reportPlayback(itc, player);
+
+    if (SettingsStore::instance().watchtimeTracking)
+    {
+        watchtimeTimer = new QTimer;
+        watchtimeTimer->setInterval(5000);
+        connect(watchtimeTimer, &QTimer::timeout, this, [=]() { reportWatchtime(itc, player, media->position()); });
+        watchtimeTimer->start();
+    }
 }
 
 void WatchView::mediaStateChanged(Media::State state)
@@ -96,5 +109,116 @@ void WatchView::volumeChanged(double volume)
     Q_UNUSED(volume);
     if (media->volumeMuted())
         media->setVolumeMuted(false);
+}
+
+QString WatchView::getCpn()
+{
+    QString out;
+    constexpr std::string_view chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    for (int i = 0; i < 16; i++)
+        out += chars[rand() % chars.size()];
+    return out;
+}
+
+void WatchView::reportPlayback(const InnertubeClient& client, const InnertubeEndpoints::Player& player)
+{
+    QUrlQuery playbackQuery(QUrl(player.playbackTracking.videostatsPlaybackUrl));
+
+    QUrl outPlaybackUrl("https://www.youtube.com/api/stats/playback");
+    QUrlQuery outPlaybackQuery;
+    QList<QPair<QString, QString>> map =
+    {
+        { "ns", "yt" },
+        { "el", "detailpage" },
+        { "cpn", getCpn() },
+        { "ver", "2" },
+        { "fmt", "243" },
+        { "fs", "0" },
+        { "rt", QString::number((rand() % 191) + 10) },
+        { "euri", "" },
+        { "lact", QString::number((rand() % 7001) + 1000) },
+        { "cl", playbackQuery.queryItemValue("cl") },
+        { "mos", "0" },
+        { "volume", "100" },
+        { "cbr", client.browserName },
+        { "cbrver", client.browserVersion },
+        { "c", client.clientName },
+        { "cver", client.clientVersion },
+        { "cplayer", "UNIPLAYER" },
+        { "cos", client.osName },
+        { "cosver", client.osVersion },
+        { "cplatform", client.platform },
+        { "hl", client.hl + "_" + client.gl },
+        { "cr", client.gl },
+        { "uga", playbackQuery.queryItemValue("uga") },
+        { "len", playbackQuery.queryItemValue("len") },
+        { "fexp", playbackQuery.queryItemValue("fexp") },
+        { "rtn", "4" },
+        { "afmt", "251" },
+        { "muted", "0" },
+        { "docid", playbackQuery.queryItemValue("docid") },
+        { "ei", playbackQuery.queryItemValue("ei") },
+        { "plid", playbackQuery.queryItemValue("plid") },
+        { "sdetail", playbackQuery.queryItemValue("sdetail") },
+        { "of", playbackQuery.queryItemValue("of") },
+        { "vm", playbackQuery.queryItemValue("vm") }
+    };
+    outPlaybackQuery.setQueryItems(map);
+    outPlaybackUrl.setQuery(outPlaybackQuery);
+    Http::instance().get(outPlaybackUrl);
+}
+
+void WatchView::reportWatchtime(const InnertubeClient& client, const InnertubeEndpoints::Player& player, long long position)
+{
+    QUrlQuery watchtimeQuery(QUrl(player.playbackTracking.videostatsWatchtimeUrl));
+    QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
+    QUrlQuery outWatchtimeQuery;
+    QString rt = QString::number((rand() % 191) + 10);
+    QString posStr = QString::number(position);
+
+    QList<QPair<QString, QString>> map =
+    {
+        { "ns", "yt" },
+        { "el", "detailpage" },
+        { "cpn", getCpn() },
+        { "ver", "2" },
+        { "fmt", "243" },
+        { "fs", "0" },
+        { "rt", rt },
+        { "euri", "" },
+        { "lact", QString::number((rand() % 7001) + 1000) },
+        { "cl", watchtimeQuery.queryItemValue("cl") },
+        { "state", "playing" },
+        { "volume", "100" },
+        { "subscribed", watchtimeQuery.queryItemValue("subscribed") },
+        { "cbr", client.browserName },
+        { "cbrver", client.browserVersion },
+        { "c", client.clientName },
+        { "cver", client.clientVersion },
+        { "cplayer", "UNIPLAYER" },
+        { "cos", client.osName },
+        { "cosver", client.osVersion },
+        { "cplatform", client.platform },
+        { "hl", client.hl + "_" + client.gl },
+        { "cr", client.gl },
+        { "uga", watchtimeQuery.queryItemValue("uga") },
+        { "len", watchtimeQuery.queryItemValue("len") },
+        { "afmt", "251" },
+        { "idpj", "-1" },
+        { "ldpj", "-10" },
+        { "rti", rt },
+        { "st", posStr },
+        { "et", posStr },
+        { "muted", "0" },
+        { "docid", watchtimeQuery.queryItemValue("docid") },
+        { "ei", watchtimeQuery.queryItemValue("ei") },
+        { "plid", watchtimeQuery.queryItemValue("plid") },
+        { "sdetail", watchtimeQuery.queryItemValue("sdetail") },
+        { "of", watchtimeQuery.queryItemValue("of") },
+        { "vm", watchtimeQuery.queryItemValue("vm") }
+    };
+    outWatchtimeQuery.setQueryItems(map);
+    outWatchtimeUrl.setQuery(outWatchtimeQuery);
+    Http::instance().get(outWatchtimeUrl);
 }
 #endif // USEMPV

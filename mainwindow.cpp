@@ -36,14 +36,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     watchView = WatchView::instance();
     ui->centralwidget->addWidget(watchView);
-    watchView->initialize(ui->centralwidget);
 
     SettingsStore::instance().initializeFromSettingsFile();
-
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
     tryRestoreData();
 
     BrowseHelper::instance().browseHome(ui->homeWidget);
+    watchView->initialize(ui->centralwidget);
 }
 
 void MainWindow::browse()

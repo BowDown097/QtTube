@@ -1,6 +1,7 @@
 #ifndef WEBENGINEPLAYER_H
 #define WEBENGINEPLAYER_H
-
+#include "endpoints/video/player.h"
+#include "itc-objects/innertubeauthstore.h"
 #include "fullscreenwindow.h"
 #include <QMainWindow>
 #include <QWebEngineFullScreenRequest>
@@ -10,7 +11,7 @@ class WebEnginePlayer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WebEnginePlayer(QWidget* parent = nullptr);
+    explicit WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player, QWidget* parent = nullptr);
 public slots:
     void play(const QString& vId);
     void playAuthorUploads(const QString& aId);
