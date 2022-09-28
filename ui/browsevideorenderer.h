@@ -55,12 +55,15 @@ public:
         channelLabel->setText(owner.name);
     }
 
-    void setVideoData(QString length, QString publishedTime, const QString& title, const QString& videoId, const QString& viewCount)
+    void setVideoData(QString length, QString publishedTime, int progress, const QString& title, const QString& videoId, const QString& viewCount)
     {
         if (!length.isEmpty()) length += " • ";
         if (!publishedTime.isEmpty()) publishedTime += " • ";
 
-        QString metadata = QStringLiteral("%1%2%3").arg(length, publishedTime, viewCount);
+        QString progStr = QStringLiteral(" • %1:%2 watched").arg((progress / 60) % 60).arg(progress % 60, 2, 10, QChar('0'));
+        QString metadata = progress != 0
+                ? QStringLiteral("%1%2%3%4").arg(length, publishedTime, viewCount, progStr)
+                : QStringLiteral("%1%2%3").arg(length, publishedTime, viewCount);
         if (metadata.endsWith("• ")) metadata.chop(2);
 
         metadataLabel->setText(metadata);

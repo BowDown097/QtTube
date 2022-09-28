@@ -137,7 +137,8 @@ private:
         {
             BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
             renderer->setChannelData(video.owner);
-            renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.title.text, video.videoId, video.viewCountText.text);
+            renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.startTimeSeconds, video.title.text, video.videoId,
+                                   video.viewCountText.text);
 
             QListWidgetItem* item = new QListWidgetItem(widget);
             item->setSizeHint(renderer->sizeHint());
