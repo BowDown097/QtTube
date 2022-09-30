@@ -1,6 +1,7 @@
 #ifndef USEMPV
 #include "innertube.hpp"
 #include "mainwindow.h"
+#include "watchview-shared.h"
 #include "watchview-ytp.h"
 #include <QApplication>
 #include <QTimer>
@@ -32,6 +33,7 @@ void WatchView::goBack()
     titleLabel->deleteLater();
     wePlayer->deleteLater();
     stackedWidget->setCurrentIndex(0);
+    WatchViewShared::toggleIdleSleep(false);
 }
 
 void WatchView::initialize(QStackedWidget* stackedWidget) { this->stackedWidget = stackedWidget; }
@@ -60,6 +62,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::Player& player)
 
     wePlayer->play(player.videoDetails.videoId);
     MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - QtTube");
+    WatchViewShared::toggleIdleSleep(true);
 }
 
 void WatchView::resizeEvent(QResizeEvent*)

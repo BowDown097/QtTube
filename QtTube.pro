@@ -1,6 +1,7 @@
 QT += core gui network webenginewidgets
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++20
+LIBS += -lX11 -lXss
 
 include(lib/http/http.pri)
 include(lib/innertube-qt/innertube-qt.pri)
@@ -43,7 +44,8 @@ HEADERS += \
     ui/browsechannelrenderer.h \
     ui/browsevideorenderer.h \
     ui/clickablelabel.h \
-    ui/settingsform.h
+    ui/settingsform.h \
+    ui/watchview-shared.h
 
 FORMS += \
     mainwindow.ui \

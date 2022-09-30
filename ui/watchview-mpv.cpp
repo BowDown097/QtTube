@@ -86,6 +86,8 @@ void WatchView::loadVideo(const InnertubeEndpoints::Player& player)
         media->playSeparateAudioAndVideo(bestVideo.url, bestAudio.url);
     }
 
+    WatchViewShared::toggleIdleSleep(true);
+
     if (SettingsStore::instance().playbackTracking)
         reportPlayback(itc, player);
 
