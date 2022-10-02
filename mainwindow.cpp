@@ -9,6 +9,7 @@ MainWindow* MainWindow::instance()  { return mWInst; }
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     mWInst = this;
+    setWindowIcon(QIcon(":/qttube.svg"));
     ui->setupUi(this);
 
     ui->tabWidget->setTabEnabled(4, false);

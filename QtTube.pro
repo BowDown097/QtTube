@@ -1,7 +1,7 @@
 QT += core gui network webenginewidgets
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++20
-LIBS += -lX11 -lXss
+unix:!macx: LIBS += -lX11 -lXss
 
 include(lib/http/http.pri)
 include(lib/innertube-qt/innertube-qt.pri)
@@ -50,6 +50,10 @@ HEADERS += \
 FORMS += \
     mainwindow.ui \
     ui/settingsform.ui
+
+RESOURCES += res/resources.qrc
+win32: RC_ICONS = res/qttube.ico
+macx: ICON = res/qttube.icns
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
