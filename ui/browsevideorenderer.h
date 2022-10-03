@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QLabel>
 #include <QListWidget>
+#include <QMessageBox>
 #include <QVBoxLayout>
 
 class BrowseVideoRenderer : public QWidget
@@ -85,7 +86,14 @@ private slots:
 
     void navigateVideo()
     {
-        WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Player>(videoId));
+        try
+        {
+            WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Player>(videoId));
+        }
+        catch (const InnertubeException& ie)
+        {
+            QMessageBox::critical(this, "Failed to load video", ie.message());
+        }
     }
 };
 
