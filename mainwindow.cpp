@@ -131,7 +131,7 @@ void MainWindow::signinClicked()
     InnerTube::instance().authenticate();
     if (SettingsStore::instance().itcCache)
     {
-        QFile store("store.json");
+        QFile store(SettingsStore::configPath.filePath("store.json"));
         if (store.open(QFile::WriteOnly | QFile::Text))
         {
             QTextStream storeIn(&store);
@@ -145,7 +145,7 @@ void MainWindow::signinClicked()
 
 void MainWindow::tryRestoreData()
 {
-    QFile store("store.json");
+    QFile store(SettingsStore::configPath.filePath("store.json"));
     if (!store.open(QFile::ReadOnly | QFile::Text))
         return;
 

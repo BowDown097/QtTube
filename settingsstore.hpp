@@ -1,12 +1,16 @@
 #ifndef SETTINGSSTORE_HPP
 #define SETTINGSSTORE_HPP
+#include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QStandardPaths>
 
 class SettingsStore
 {
 public:
+    // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
+    static inline const QDir configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "QtTube";
     bool condensedViews;
     bool itcCache;
     bool playbackTracking;
@@ -21,7 +25,7 @@ public:
 
     void initializeFromSettingsFile()
     {
-        QFile settingsFile("settings.json");
+        QFile settingsFile(configPath.filePath("settings.json"));
         if (!settingsFile.open(QFile::ReadOnly | QFile::Text) || settingsFile.size() == 0)
         {
             condensedViews = false;
@@ -45,7 +49,7 @@ public:
 
     void saveToSettingsFile()
     {
-        QFile settingsFile("settings.json");
+        QFile settingsFile(configPath.filePath("settings.json"));
         if (!settingsFile.open(QFile::WriteOnly | QFile::Text))
             return;
 
