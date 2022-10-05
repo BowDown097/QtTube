@@ -1,4 +1,5 @@
 #include "settingsform.h"
+#include "settingsstore.hpp"
 #include "ui_settingsform.h"
 #include <QFileDialog>
 #include <QMessageBox>
@@ -7,6 +8,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
 {
     ui->setupUi(this);
     ui->condensedViews->setChecked(SettingsStore::instance().condensedViews);
+    ui->homeShelves->setChecked(SettingsStore::instance().homeShelves);
     ui->itcCache->setChecked(SettingsStore::instance().itcCache);
     ui->playbackTracking->setChecked(SettingsStore::instance().playbackTracking);
     ui->volumeSpin->setValue(SettingsStore::instance().preferredVolume);
@@ -17,6 +19,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
 void SettingsForm::saveSettings()
 {
     SettingsStore::instance().condensedViews = ui->condensedViews->isChecked();
+    SettingsStore::instance().homeShelves = ui->homeShelves->isChecked();
     SettingsStore::instance().itcCache = ui->itcCache->isChecked();
     SettingsStore::instance().playbackTracking = ui->playbackTracking->isChecked();
     SettingsStore::instance().preferredVolume = ui->volumeSpin->value();

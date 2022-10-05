@@ -1,6 +1,5 @@
 #ifndef SETTINGSFORM_H
 #define SETTINGSFORM_H
-#include "settingsstore.hpp"
 #include <QWidget>
 
 namespace Ui {

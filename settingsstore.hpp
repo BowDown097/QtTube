@@ -12,6 +12,7 @@ public:
     // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
     static inline const QDir configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "QtTube";
     bool condensedViews;
+    bool homeShelves;
     bool itcCache;
     bool playbackTracking;
     int preferredVolume;
@@ -29,6 +30,7 @@ public:
         if (!settingsFile.open(QFile::ReadOnly | QFile::Text) || settingsFile.size() == 0)
         {
             condensedViews = false;
+            homeShelves = false;
             itcCache = true;
             playbackTracking = true;
             preferredVolume = 100;
@@ -40,6 +42,7 @@ public:
         QTextStream in(&settingsFile);
         QJsonObject settingsObj = QJsonDocument::fromJson(in.readAll().toUtf8()).object();
         condensedViews = settingsObj["condensedViews"].toBool();
+        homeShelves = settingsObj["homeShelves"].toBool();
         itcCache = settingsObj["itcCache"].toBool(true);
         playbackTracking = settingsObj["playbackTracking"].toBool(true);
         preferredVolume = settingsObj["preferredVolume"].toInt(100);
@@ -55,6 +58,7 @@ public:
 
         QJsonObject settingsObj {
             { "condensedViews", condensedViews },
+            { "homeShelves", homeShelves },
             { "itcCache", itcCache },
             { "playbackTracking", playbackTracking },
             { "preferredVolume", preferredVolume },
