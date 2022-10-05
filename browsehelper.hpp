@@ -35,7 +35,10 @@ public:
         }
         catch (const InnertubeException& ie)
         {
-            QMessageBox::critical(nullptr, "Failed to get history browsing data", ie.message());
+            if (ie.severity() == InnertubeException::Normal)
+                QMessageBox::critical(nullptr, "Failed to get history browsing data", ie.message());
+            else
+                qDebug() << "Failed to get history browsing data:" << ie.message();
         }
     }
 
@@ -49,7 +52,10 @@ public:
         }
         catch (const InnertubeException& ie)
         {
-            QMessageBox::critical(nullptr, "Failed to get home browsing data", ie.message());
+            if (ie.severity() == InnertubeException::Normal)
+                QMessageBox::critical(nullptr, "Failed to get home browsing data", ie.message());
+            else
+                qDebug() << "Failed to get home browsing data:" << ie.message();
         }
     }
 
@@ -69,7 +75,10 @@ public:
         }
         catch (const InnertubeException& ie)
         {
-            QMessageBox::critical(nullptr, "Failed to get subscriptions browsing data", ie.message());
+            if (ie.severity() == InnertubeException::Normal)
+                QMessageBox::critical(nullptr, "Failed to get subscriptions browsing data", ie.message());
+            else
+                qDebug() << "Failed to get subscriptions browsing data:" << ie.message();
         }
     }
 
@@ -85,7 +94,10 @@ public:
         }
         catch (const InnertubeException& ie)
         {
-            QMessageBox::critical(nullptr, "Failed to get search data", ie.message());
+            if (ie.severity() == InnertubeException::Normal)
+                QMessageBox::critical(nullptr, "Failed to get search data", ie.message());
+            else
+                qDebug() << "Failed to get search data:" << ie.message();
         }
     }
 
