@@ -38,7 +38,7 @@ void WatchView::goBack()
 
 void WatchView::initialize(QStackedWidget* stackedWidget) { this->stackedWidget = stackedWidget; }
 
-void WatchView::loadVideo(const InnertubeEndpoints::Player& player)
+void WatchView::loadVideo(const InnertubeEndpoints::Player& player, int progress)
 {
     backButton = new QPushButton(this);
     backButton->setFixedWidth(24);
@@ -60,7 +60,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::Player& player)
     titleLabel->move(0, wePlayer->y() + playerSize.height());
     titleLabel->setFixedWidth(playerSize.width());
 
-    wePlayer->play(player.videoDetails.videoId);
+    wePlayer->play(player.videoDetails.videoId, progress);
     MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - QtTube");
     WatchViewShared::toggleIdleSleep(true);
 }

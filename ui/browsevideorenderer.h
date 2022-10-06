@@ -21,6 +21,7 @@ class BrowseVideoRenderer : public QWidget
     ClickableLabel* channelLabel;
     QHBoxLayout* hbox;
     QLabel* metadataLabel;
+    int progress;
     QVBoxLayout* textVbox;
     QLabel* thumbLabel;
     ClickableLabel* titleLabel;
@@ -58,10 +59,11 @@ public:
 
     void setVideoData(QString length, QString publishedTime, int progress, const QString& title, const QString& videoId, const QString& viewCount)
     {
+        this->progress = progress;
         if (!length.isEmpty()) length += " • ";
         if (!publishedTime.isEmpty()) publishedTime += " • ";
 
-        QString progStr = QStringLiteral(" • %1:%2 watched").arg((progress / 60) % 60).arg(progress % 60, 2, 10, QChar('0'));
+        QString progStr = QStringLiteral(" • %1 watched").arg(QDateTime::fromSecsSinceEpoch(progress, Qt::UTC).toString(progress >= 3600 ? "h:mm:ss" : "m:ss"));
         QString metadata = progress != 0
                 ? QStringLiteral("%1%2%3%4").arg(length, publishedTime, viewCount, progStr)
                 : QStringLiteral("%1%2%3").arg(length, publishedTime, viewCount);
@@ -88,7 +90,7 @@ private slots:
     {
         try
         {
-            WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Player>(videoId));
+            WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Player>(videoId), progress);
         }
         catch (const InnertubeException& ie)
         {

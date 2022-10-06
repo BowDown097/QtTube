@@ -20,9 +20,9 @@ WebEnginePlayer::WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* 
     reset();
 }
 
-void WebEnginePlayer::play(const QString& vId)
+void WebEnginePlayer::play(const QString& vId, int progress)
 {
-    m_view->load(QUrl(QStringLiteral("https://thughunting.party/ytp/?v=%1").arg(vId)));
+    m_view->load(QUrl(QStringLiteral("https://thughunting.party/ytp/?v=%1&t=%2").arg(vId).arg(progress)));
 }
 
 void WebEnginePlayer::playAuthorUploads(const QString& aId)

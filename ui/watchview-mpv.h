@@ -15,7 +15,7 @@ class WatchView : public QWidget
 public:
     static WatchView* instance();
     void initialize(const InnertubeClient& client, QStackedWidget* stackedWidget);
-    void loadVideo(const InnertubeEndpoints::Player& player);
+    void loadVideo(const InnertubeEndpoints::Player& player, int progress = 0);
 private slots:
     void mediaStateChanged(Media::State state);
     void volumeChanged(double volume);

@@ -13,7 +13,7 @@ class WebEnginePlayer : public QWidget
 public:
     explicit WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player, QWidget* parent = nullptr);
 public slots:
-    void play(const QString& vId);
+    void play(const QString& vId, int progress);
     void playAuthorUploads(const QString& aId);
     void playPlaylist(const QString& pId);
     void reset();
