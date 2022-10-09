@@ -4,7 +4,6 @@
 #include "watchview-shared.h"
 #include "watchview-ytp.h"
 #include <QApplication>
-#include <QTimer>
 
 WatchView* WatchView::instance()
 {
@@ -29,10 +28,13 @@ QSize WatchView::calcPlayerSize()
 
 void WatchView::goBack()
 {
-    backButton->deleteLater();
+    MainWindow::instance()->topbar->alwaysShow = true;
+    disconnect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
+
     titleLabel->deleteLater();
     wePlayer->deleteLater();
     stackedWidget->setCurrentIndex(0);
+
     WatchViewShared::toggleIdleSleep(false);
 }
 
@@ -40,10 +42,9 @@ void WatchView::initialize(QStackedWidget* stackedWidget) { this->stackedWidget 
 
 void WatchView::loadVideo(const InnertubeEndpoints::Player& player, int progress)
 {
-    backButton = new QPushButton(this);
-    backButton->setFixedWidth(24);
-    backButton->setText("⬅");
-    connect(backButton, &QPushButton::clicked, this, &WatchView::goBack);
+    MainWindow::instance()->topbar->setVisible(false);
+    MainWindow::instance()->topbar->alwaysShow = false;
+    connect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
 
     titleLabel = new QLabel(this);
     titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 4));
@@ -51,12 +52,10 @@ void WatchView::loadVideo(const InnertubeEndpoints::Player& player, int progress
     titleLabel->setWordWrap(true);
 
     wePlayer = new WebEnginePlayer(InnerTube::instance().context(), InnerTube::instance().authStore(), player, this);
-    wePlayer->move(0, backButton->height() + 5);
-
-    stackedWidget->setCurrentIndex(1);
-
     QSize playerSize = calcPlayerSize();
     wePlayer->setFixedSize(playerSize);
+
+    stackedWidget->setCurrentIndex(1);
     titleLabel->move(0, wePlayer->y() + playerSize.height());
     titleLabel->setFixedWidth(playerSize.width());
 

@@ -35,16 +35,19 @@ contains(DEFINES, USEMPV) {
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    ui/settingsform.cpp
+    ui/settingsform.cpp \
+    ui/topbar.cpp
 
 HEADERS += \
     browsehelper.hpp \
     mainwindow.h \
+    qttubeapplication.hpp \
     settingsstore.hpp \
     ui/browsechannelrenderer.h \
     ui/browsevideorenderer.h \
     ui/clickablelabel.h \
     ui/settingsform.h \
+    ui/topbar.h \
     ui/watchview-shared.h
 
 FORMS += \

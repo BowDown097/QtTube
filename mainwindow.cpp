@@ -1,7 +1,6 @@
 #include "browsehelper.hpp"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "ui/settingsform.h"
 
 namespace { MainWindow* mWInst; }
 MainWindow* MainWindow::instance()  { return mWInst; }
@@ -9,16 +8,15 @@ MainWindow* MainWindow::instance()  { return mWInst; }
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     mWInst = this;
+    setMouseTracking(true);
     setWindowIcon(QIcon(":/qttube.svg"));
     ui->setupUi(this);
 
-    ui->tabWidget->setTabEnabled(4, false);
-    ui->searchReturnButton->setVisible(false);
+    topbar = new TopBar(this);
+    connect(topbar, &TopBar::signedIn, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
+    connect(topbar->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
 
-    connect(ui->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
-    connect(ui->searchReturnButton, &QPushButton::clicked, this, &MainWindow::returnFromSearch);
-    connect(ui->settingsButton, &QPushButton::clicked, this, &MainWindow::showSettings);
-    connect(ui->signInButton, &QPushButton::clicked, this, &MainWindow::signinClicked);
+    ui->tabWidget->setTabEnabled(4, false);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
 
     connect(ui->historyWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
@@ -26,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget); });
     connect(ui->searchWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, ui->searchBox->text()); });
+            [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, topbar->searchBox->text()); });
     connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget); });
 
@@ -83,10 +81,18 @@ void MainWindow::browse()
     }
 }
 
+void MainWindow::resizeEvent(QResizeEvent*)
+{
+    topbar->resize(width(), 35);
+    topbar->searchBox->resize(440 + width() - 800, 35);
+    topbar->settingsButton->move(topbar->searchBox->width() + topbar->searchBox->x() + 8, 0);
+    topbar->signInButton->move(topbar->settingsButton->width() + topbar->settingsButton->x() + 8, 0);
+}
+
 void MainWindow::returnFromSearch()
 {
     doNotBrowse = true;
-    ui->searchReturnButton->setVisible(false);
+    disconnect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromSearch);
     ui->tabWidget->setTabEnabled(4, false);
     ui->tabWidget->setTabEnabled(0, true);
     ui->tabWidget->setTabEnabled(1, true);
@@ -101,12 +107,12 @@ void MainWindow::search()
     if (ui->tabWidget->currentIndex() == 4)
     {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, ui->searchBox->text());
+        BrowseHelper::instance().search(ui->searchWidget, topbar->searchBox->text());
         return;
     }
 
     doNotBrowse = true;
-    ui->searchReturnButton->setVisible(true);
+    connect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromSearch);
     ui->tabWidget->setTabEnabled(4, true);
     ui->tabWidget->setTabEnabled(0, false);
     ui->tabWidget->setTabEnabled(1, false);
@@ -114,33 +120,7 @@ void MainWindow::search()
     ui->tabWidget->setTabEnabled(3, false);
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(4);
-    BrowseHelper::instance().search(ui->searchWidget, ui->searchBox->text());
-}
-
-void MainWindow::showSettings()
-{
-    SettingsForm* settings = new SettingsForm;
-    settings->show();
-}
-
-void MainWindow::signinClicked()
-{
-    if (InnerTube::instance().hasAuthenticated())
-        return;
-
-    InnerTube::instance().authenticate();
-    if (SettingsStore::instance().itcCache)
-    {
-        QFile store(SettingsStore::configPath.filePath("store.json"));
-        if (store.open(QFile::WriteOnly | QFile::Text))
-        {
-            QTextStream storeIn(&store);
-            storeIn << QJsonDocument(InnerTube::instance().authStore()->toJson()).toJson(QJsonDocument::Compact);
-        }
-    }
-
-    ui->signInButton->setText("Sign out");
-    browse();
+    BrowseHelper::instance().search(ui->searchWidget, topbar->searchBox->text());
 }
 
 void MainWindow::tryRestoreData()
@@ -158,7 +138,7 @@ void MainWindow::tryRestoreData()
         return;
 
     InnerTube::instance().authStore()->populateFromJson(doc.object(), *InnerTube::instance().context());
-    ui->signInButton->setText("Sign out");
+    topbar->signInButton->setText("Sign out");
 }
 
 MainWindow::~MainWindow()

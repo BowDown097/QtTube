@@ -5,8 +5,10 @@
 class ClickableLabel : public QLabel
 {
     Q_OBJECT
+    bool underline;
 public:
-    explicit ClickableLabel(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags()) : QLabel(parent, f) {}
+    explicit ClickableLabel(bool underline = true, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags())
+        : QLabel(parent, f), underline(underline) {}
     ~ClickableLabel() {}
 signals:
     void clicked();
@@ -16,7 +18,8 @@ protected:
     void enterEvent(QEnterEvent*) override
     {
         setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
-        setStyleSheet("QLabel { text-decoration: underline; }");
+        if (underline)
+            setStyleSheet("QLabel { text-decoration: underline; }");
     }
 
     void leaveEvent(QEvent*) override

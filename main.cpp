@@ -1,10 +1,9 @@
 #include "mainwindow.h"
-
-#include <QApplication>
+#include "qttubeapplication.hpp"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QtTubeApplication a(argc, argv);
     MainWindow w;
     w.show();
     return a.exec();

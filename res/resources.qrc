@@ -3,4 +3,7 @@
     <qresource>
         <file>qttube.svg</file>
     </qresource>
+    <qresource>
+        <file>qttube-full.png</file>
+    </qresource>
 </RCC>
