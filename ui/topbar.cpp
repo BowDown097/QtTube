@@ -16,13 +16,13 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     setPalette(pal);
 
     logo = new ClickableLabel(false, this);
-    logo->move(10, 0);
+    logo->move(10, 2);
     logo->setPixmap(QPixmap(":/qttube-full.png"));
-    logo->resize(157, 35);
+    logo->resize(134, 30);
 
     searchBox = new QLineEdit(this);
-    searchBox->move(175, 0);
-    searchBox->resize(440, 35);
+    searchBox->move(152, 0);
+    searchBox->resize(463, 35);
 
     settingsButton = new QPushButton(this);
     settingsButton->move(623, 0);

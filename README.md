@@ -12,7 +12,6 @@ This list is ordered by priority. Everything will likely be added in this order.
 - Channel, descriptions, recommendations, etc. on watch page (at the moment, the watch page is only the video and title)
 - Account menu
 - Channel pages
-- SponsorBlock integration
 - Trending tab on home page
 - Switch video player from an embed of YouTube's player to one based off of libmpv
 - Subscriptions/history export

@@ -1,4 +1,5 @@
 #include "playerinterceptor.h"
+#include "settingsstore.hpp"
 #include "webengineplayer.h"
 #include <QVBoxLayout>
 #include <QWebEngineSettings>
@@ -22,9 +23,12 @@ WebEnginePlayer::WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* 
 
 void WebEnginePlayer::play(const QString& vId, int progress)
 {
-    m_view->load(QUrl(QStringLiteral("https://thughunting.party/ytp/?v=%1&t=%2").arg(vId).arg(progress)));
+    m_view->load(QUrl(QStringLiteral("https://thughunting.party/ytp/?v=%1&t=%2&st=%3&sbc=%4")
+                      .arg(vId).arg(progress).arg(SettingsStore::instance().showSBToasts)
+                      .arg(QJsonDocument(QJsonArray::fromVariantList(SettingsStore::instance().sponsorBlockCategories)).toJson())));
 }
 
+/*
 void WebEnginePlayer::playAuthorUploads(const QString& aId)
 {
     m_view->load(QUrl(QStringLiteral("https://thughunting.party/ytp/?ap=%1").arg(aId)));
@@ -34,6 +38,7 @@ void WebEnginePlayer::playPlaylist(const QString& pId)
 {
     m_view->load(QUrl(QStringLiteral("https://thughunting.party/ytp/?p=%1").arg(pId)));
 }
+*/
 
 void WebEnginePlayer::reset()
 {

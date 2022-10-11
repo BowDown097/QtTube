@@ -56,7 +56,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::Player& player, int progress
     wePlayer->setFixedSize(playerSize);
 
     stackedWidget->setCurrentIndex(1);
-    titleLabel->move(0, wePlayer->y() + playerSize.height());
+    titleLabel->move(0, playerSize.height() + 5);
     titleLabel->setFixedWidth(playerSize.width());
 
     wePlayer->play(player.videoDetails.videoId, progress);
@@ -68,7 +68,7 @@ void WatchView::resizeEvent(QResizeEvent*)
 {
     QSize playerSize = calcPlayerSize();
     wePlayer->setFixedSize(playerSize);
-    titleLabel->move(0, wePlayer->y() + playerSize.height());
+    titleLabel->move(0, playerSize.height() + 5);
     titleLabel->setFixedWidth(playerSize.width());
 }
 
