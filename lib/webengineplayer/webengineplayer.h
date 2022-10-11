@@ -9,7 +9,7 @@ class WebEnginePlayer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player, QWidget* parent = nullptr);
+    WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player, QWidget* parent = nullptr);
 public slots:
     void play(const QString& vId, int progress);
     // void playAuthorUploads(const QString& aId);

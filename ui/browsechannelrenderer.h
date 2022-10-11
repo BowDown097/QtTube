@@ -18,7 +18,7 @@ class BrowseChannelRenderer : public QWidget
     QLabel* thumbLabel;
     ClickableLabel* titleLabel;
 public:
-    BrowseChannelRenderer(QWidget* parent = nullptr) : QWidget(parent)
+    explicit BrowseChannelRenderer(QWidget* parent = nullptr) : QWidget(parent)
     {
         hbox = new QHBoxLayout;
         descriptionLabel = new QLabel;

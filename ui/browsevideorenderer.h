@@ -27,7 +27,7 @@ class BrowseVideoRenderer : public QWidget
     ClickableLabel* titleLabel;
     QString videoId;
 public:
-    BrowseVideoRenderer(QWidget* parent = nullptr) : QWidget(parent)
+    explicit BrowseVideoRenderer(QWidget* parent = nullptr) : QWidget(parent)
     {
         channelLabel = new ClickableLabel;
         hbox = new QHBoxLayout;

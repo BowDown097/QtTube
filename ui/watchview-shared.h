@@ -41,7 +41,7 @@ public:
         XScreenSaverSuspend(display, disable);
     #elif defined(Q_OS_WIN)
         if (SetThreadExecutionState(disable ? ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_AWAYMODE_REQUIRED : ES_CONTINUOUS) == NULL)
-            qDebug() << "Failed to toggle idle sleep: SetThreadExecutionState failed");
+            qDebug() << "Failed to toggle idle sleep: SetThreadExecutionState failed";
     #elif defined(Q_OS_MACOS)
         if (!disable && sleepAssert)
         {
