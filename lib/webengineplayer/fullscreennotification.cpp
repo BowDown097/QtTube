@@ -5,26 +5,25 @@
 
 FullScreenNotification::FullScreenNotification(QWidget* parent) : QLabel(parent), m_previouslyVisible(false)
 {
-    setText(tr("You are now in full screen mode. Press ESC to exit!"));
-    setStyleSheet(
-        "font-size: 24px;"
-        "color: white;"
-        "background-color: black;"
-        "border-color: white;"
-        "border-width: 2px;"
-        "border-style: solid;"
-        "padding: 9px");
+    setText(tr("Press Esc to exit full screen mode."));
+    setStyleSheet(R"(
+        font-size: 22px;
+        color: white;
+        background-color: black;
+        padding: 10px 100px;
+        border-radius: 25px;
+    )");
     setAttribute(Qt::WA_TransparentForMouseEvents);
 
     QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect;
-    effect->setOpacity(1);
+    effect->setOpacity(0.6);
     setGraphicsEffect(effect);
 
     QSequentialAnimationGroup* animations = new QSequentialAnimationGroup(this);
     animations->addPause(2000);
     QPropertyAnimation* opacityAnimation = new QPropertyAnimation(effect, "opacity", animations);
     opacityAnimation->setDuration(1200);
-    opacityAnimation->setStartValue(1.0);
+    opacityAnimation->setStartValue(0.6);
     opacityAnimation->setEndValue(0.0);
     opacityAnimation->setEasingCurve(QEasingCurve::OutQuad);
     animations->addAnimation(opacityAnimation);
