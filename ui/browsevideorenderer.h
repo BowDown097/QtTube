@@ -23,7 +23,7 @@ class BrowseVideoRenderer : public QWidget
     QLabel* metadataLabel;
     int progress;
     QVBoxLayout* textVbox;
-    QLabel* thumbLabel;
+    ClickableLabel* thumbLabel;
     ClickableLabel* titleLabel;
     QString videoId;
 public:
@@ -33,7 +33,7 @@ public:
         hbox = new QHBoxLayout;
         metadataLabel = new QLabel;
         textVbox = new QVBoxLayout;
-        thumbLabel = new QLabel;
+        thumbLabel = new ClickableLabel(false);
         titleLabel = new ClickableLabel;
 
         textVbox->addWidget(titleLabel);
@@ -48,6 +48,7 @@ public:
         thumbLabel->setScaledContents(true);
         titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
         connect(channelLabel, &ClickableLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
+        connect(thumbLabel, &ClickableLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
         connect(titleLabel, &ClickableLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
     }
 
