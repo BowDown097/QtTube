@@ -18,3 +18,11 @@ This list is ordered by priority. Everything will likely be added in this order.
 
 # Contributing
 This project is in desperate need of contributors should it not take an eternity to finish. No matter how small, pull requests are **GREATLY** appreciated. This is, at the moment, a one-man effort. And there will be no codes of conduct here - I don't care who you are: if your code is good and works, that's all that matters!
+
+# Used Libraries
+This program makes use of:
+- [http](https://github.com/flaviotordini/http) - Makes QtNetwork much less of a headache to use
+- [innertube-qt](https://github.com/BowDown097/innertube-qt) - The backend for the program
+- [media](https://github.com/flaviotordini/media) - For the libmpv-based player
+- [qtcurl](https://github.com/tarasvb/qtcurl) - Because QtNetwork doesn't like sending request headers 50% of the time
+- [QWebEngineYtPlayer](https://github.com/keshavbhatt/QWebengineYtPlayer) - For the YouTube-embed-based player. Pretty heavily modified but still, credit where credit's due.
