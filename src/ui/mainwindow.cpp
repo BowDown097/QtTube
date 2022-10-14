@@ -22,8 +22,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->tabWidget->setTabEnabled(4, false);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
 
-    BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHistory>(50, ui->historyWidget);
-    /*
     connect(ui->historyWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHistory>(value, ui->historyWidget); });
     connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
@@ -32,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
             [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, topbar->searchBox->text()); });
     connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget); });
-    */
 
     QAction* sneed = new QAction;
     sneed->setShortcut(QKeySequence(Qt::Key_S, Qt::Key_E, Qt::Key_E, Qt::Key_D));
