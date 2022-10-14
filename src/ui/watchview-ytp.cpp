@@ -1,6 +1,6 @@
 #ifndef USEMPV
 #include "../settingsstore.h"
-#include "innertube.hpp"
+#include "innertube.h"
 #include "mainwindow.h"
 #include "watchview-shared.hpp"
 #include "watchview-ytp.h"

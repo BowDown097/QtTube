@@ -1,7 +1,7 @@
 #ifndef WEBENGINEPLAYER_H
 #define WEBENGINEPLAYER_H
-#include "endpoints/video/player.h"
-#include "itc-objects/innertubeauthstore.h"
+#include "innertube/endpoints/video/player.h"
+#include "innertube/itc-objects/innertubeauthstore.h"
 #include "fullscreenwindow.h"
 #include <QWebEngineFullScreenRequest>
 

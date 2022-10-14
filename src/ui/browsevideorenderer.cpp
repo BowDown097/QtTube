@@ -1,5 +1,5 @@
 #include "browsevideorenderer.h"
-#include "innertube.hpp"
+#include "innertube.h"
 #ifdef USEMPV
 #include "watchview-mpv.h"
 #else
@@ -75,5 +75,6 @@ void BrowseVideoRenderer::setVideoData(QString length, QString publishedTime, in
 
     metadataLabel->setText(metadata);
     titleLabel->setText(title.length() <= 60 ? title : title.left(60) + "…");
+    titleLabel->setToolTip(title);
     this->videoId = videoId;
 }

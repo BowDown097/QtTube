@@ -1,8 +1,9 @@
 #include "../browsehelper.h"
 #include "../settingsstore.h"
-#include "innertube.hpp"
+#include "innertube.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QJsonDocument>
 #include <QScrollBar>
 
 namespace { MainWindow* mWInst; }

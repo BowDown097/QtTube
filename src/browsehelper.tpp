@@ -1,6 +1,6 @@
 #ifndef BROWSEHELPER_TPP
 #define BROWSEHELPER_TPP
-#include "innertube.hpp"
+#include "innertube.h"
 #include <QMessageBox>
 #include <QScrollBar>
 

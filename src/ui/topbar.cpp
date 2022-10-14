@@ -1,8 +1,9 @@
 #include "../settingsstore.h"
-#include "innertube.hpp"
+#include "innertube.h"
 #include "mainwindow.h"
 #include "settingsform.h"
 #include "topbar.h"
+#include <QJsonDocument>
 
 TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimation(this, "geometry"))
 {

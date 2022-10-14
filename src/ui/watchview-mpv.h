@@ -1,8 +1,8 @@
 #ifdef USEMPV
 #ifndef WATCHVIEWMPV_H
 #define WATCHVIEWMPV_H
-#include "endpoints/video/player.h"
-#include "itc-objects/innertubeclient.h"
+#include "innertube/endpoints/video/player.h"
+#include "innertube/itc-objects/innertubeclient.h"
 #include "lib/media/media.h"
 #include <QGridLayout>
 #include <QListWidget>

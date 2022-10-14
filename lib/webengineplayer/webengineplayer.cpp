@@ -1,6 +1,7 @@
 #include "playerinterceptor.h"
 #include "webengineplayer.h"
 #include <QVBoxLayout>
+#include <QWebEngineProfile>
 #include <QWebEngineSettings>
 
 WebEnginePlayer::WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player,

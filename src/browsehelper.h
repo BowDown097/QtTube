@@ -1,8 +1,8 @@
 #ifndef BROWSEHELPER_H
 #define BROWSEHELPER_H
-#include "endpoints/base/baseendpoint.h"
-#include "objects/channel/channel.h"
-#include "objects/video/video.h"
+#include "innertube/endpoints/base/baseendpoint.h"
+#include "innertube/objects/channel/channel.h"
+#include "innertube/objects/video/video.h"
 #include <QListWidget>
 #include <type_traits>
 

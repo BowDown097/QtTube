@@ -2,7 +2,7 @@
 #define BROWSEVIDEORENDERER_H
 #include "clickablelabel.h"
 #include "httpreply.h"
-#include "objects/video/videoowner.h"
+#include "innertube/objects/video/videoowner.h"
 #include <QLabel>
 #include <QVBoxLayout>
 

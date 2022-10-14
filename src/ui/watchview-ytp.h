@@ -1,7 +1,7 @@
 #ifndef USEMPV
 #ifndef WATCHVIEWYTP_H
 #define WATCHVIEWYTP_H
-#include "endpoints/video/player.h"
+#include "innertube/endpoints/video/player.h"
 #include "webengineplayer.h"
 #include <QGridLayout>
 #include <QListWidget>

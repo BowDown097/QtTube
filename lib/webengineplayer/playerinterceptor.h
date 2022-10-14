@@ -1,8 +1,8 @@
 #ifndef PLAYERINTERCEPTOR_H
 #define PLAYERINTERCEPTOR_H
-#include "endpoints/video/player.h"
 #include "http.h"
-#include "itc-objects/innertubeauthstore.h"
+#include "innertube/endpoints/video/player.h"
+#include "innertube/itc-objects/innertubeauthstore.h"
 #include <QWebEngineUrlRequestInterceptor>
 
 class PlayerInterceptor : public QWebEngineUrlRequestInterceptor
