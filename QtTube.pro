@@ -13,19 +13,19 @@ contains(DEFINES, USEMPV) {
     SOURCES += \
         lib/media/mpv/mediampv.cpp \
         lib/media/mpv/mpvwidget.cpp \
-        ui/watchview-mpv.cpp
+        src/ui/watchview-mpv.cpp
     HEADERS += \
         lib/media/media.h \
         lib/media/mpv/mediampv.h \
         lib/media/mpv/mpvwidget.h \
         lib/media/mpv/qthelper.hpp \
-        ui/watchview-mpv.h
+        src/ui/watchview-mpv.h
 }
 
 !contains(DEFINES, USEMPV) {
     include(lib/webengineplayer/WebEnginePlayer.pri)
-    SOURCES += ui/watchview-ytp.cpp
-    HEADERS += ui/watchview-ytp.h
+    SOURCES += src/ui/watchview-ytp.cpp
+    HEADERS += src/ui/watchview-ytp.h
 }
 
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -33,26 +33,33 @@ contains(DEFINES, USEMPV) {
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
-    ui/settingsform.cpp \
-    ui/topbar.cpp
+    src/browsehelper.cpp \
+    src/main.cpp \
+    src/qttubeapplication.cpp \
+    src/settingsstore.cpp \
+    src/ui/browsechannelrenderer.cpp \
+    src/ui/browsevideorenderer.cpp \
+    src/ui/clickablelabel.cpp \
+    src/ui/mainwindow.cpp \
+    src/ui/settingsform.cpp \
+    src/ui/topbar.cpp
 
 HEADERS += \
-    browsehelper.hpp \
-    mainwindow.h \
-    qttubeapplication.hpp \
-    settingsstore.hpp \
-    ui/browsechannelrenderer.h \
-    ui/browsevideorenderer.h \
-    ui/clickablelabel.h \
-    ui/settingsform.h \
-    ui/topbar.h \
-    ui/watchview-shared.h
+    src/browsehelper.h \
+    src/browsehelper.tpp \
+    src/qttubeapplication.h \
+    src/settingsstore.h \
+    src/ui/clickablelabel.h \
+    src/ui/mainwindow.h \
+    src/ui/browsechannelrenderer.h \
+    src/ui/browsevideorenderer.h \
+    src/ui/settingsform.h \
+    src/ui/topbar.h \
+    src/ui/watchview-shared.hpp
 
 FORMS += \
-    mainwindow.ui \
-    ui/settingsform.ui
+    src/ui/mainwindow.ui \
+    src/ui/settingsform.ui
 
 RESOURCES += res/resources.qrc
 win32: RC_ICONS = res/qttube.ico

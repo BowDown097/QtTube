@@ -13,20 +13,9 @@ public:
 signals:
     void clicked();
 protected:
+    void enterEvent(QEnterEvent*) override;
+    void leaveEvent(QEvent*) override;
     void mousePressEvent(QMouseEvent*) override { emit clicked(); }
-
-    void enterEvent(QEnterEvent*) override
-    {
-        setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
-        if (underline)
-            setStyleSheet("QLabel { text-decoration: underline; }");
-    }
-
-    void leaveEvent(QEvent*) override
-    {
-        setCursor(QCursor());
-        setStyleSheet("");
-    }
 };
 
 #endif // CLICKABLELABEL_H

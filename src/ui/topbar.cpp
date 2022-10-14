@@ -1,7 +1,7 @@
+#include "../settingsstore.h"
 #include "innertube.hpp"
 #include "mainwindow.h"
 #include "settingsform.h"
-#include "settingsstore.hpp"
 #include "topbar.h"
 
 TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimation(this, "geometry"))

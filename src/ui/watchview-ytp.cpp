@@ -1,7 +1,8 @@
 #ifndef USEMPV
+#include "../settingsstore.h"
 #include "innertube.hpp"
 #include "mainwindow.h"
-#include "watchview-shared.h"
+#include "watchview-shared.hpp"
 #include "watchview-ytp.h"
 #include <QApplication>
 
@@ -47,7 +48,8 @@ void WatchView::loadVideo(const InnertubeEndpoints::Player& player, int progress
     titleLabel->setText(player.videoDetails.title);
     titleLabel->setWordWrap(true);
 
-    wePlayer = new WebEnginePlayer(InnerTube::instance().context(), InnerTube::instance().authStore(), player, this);
+    wePlayer = new WebEnginePlayer(InnerTube::instance().context(), InnerTube::instance().authStore(), player,
+                                   SettingsStore::instance().playbackTracking, SettingsStore::instance().watchtimeTracking, this);
     stackedWidget->setCurrentIndex(1);
     QSize playerSize = calcPlayerSize();
     wePlayer->setFixedSize(playerSize);
@@ -55,7 +57,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::Player& player, int progress
     titleLabel->move(0, playerSize.height() + 5);
     titleLabel->setFixedWidth(playerSize.width());
 
-    wePlayer->play(player.videoDetails.videoId, progress);
+    wePlayer->play(player.videoDetails.videoId, progress, SettingsStore::instance().showSBToasts, SettingsStore::instance().sponsorBlockCategories);
     MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - QtTube");
     WatchViewShared::toggleIdleSleep(true);
 

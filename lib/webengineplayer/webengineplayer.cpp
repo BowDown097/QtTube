@@ -1,18 +1,17 @@
 #include "playerinterceptor.h"
-#include "settingsstore.hpp"
 #include "webengineplayer.h"
 #include <QVBoxLayout>
 #include <QWebEngineSettings>
 
-WebEnginePlayer::WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player, QWidget* parent)
-    : QWidget(parent), m_view(new QWebEngineView(this))
+WebEnginePlayer::WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player,
+    bool playbackTracking, bool watchtimeTracking, QWidget* parent) : QWidget(parent), m_view(new QWebEngineView(this))
 {
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(m_view);
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    PlayerInterceptor* interceptor = new PlayerInterceptor(context, authStore, player);
+    PlayerInterceptor* interceptor = new PlayerInterceptor(context, authStore, player, playbackTracking, watchtimeTracking);
     m_view->page()->profile()->setUrlRequestInterceptor(interceptor);
     m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
     m_view->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
@@ -21,11 +20,10 @@ WebEnginePlayer::WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* 
     reset();
 }
 
-void WebEnginePlayer::play(const QString& vId, int progress)
+void WebEnginePlayer::play(const QString& vId, int progress, bool showSBToasts, const QVariantList& sponsorBlockCategories)
 {
-    m_view->load(QUrl(QStringLiteral("https://thughunting.party/ytp/?v=%1&t=%2&st=%3&sbc=%4")
-                      .arg(vId).arg(progress).arg(SettingsStore::instance().showSBToasts)
-                      .arg(QJsonDocument(QJsonArray::fromVariantList(SettingsStore::instance().sponsorBlockCategories)).toJson())));
+    QString sbc = QJsonDocument(QJsonArray::fromVariantList(sponsorBlockCategories)).toJson();
+    m_view->load(QUrl(QStringLiteral("https://thughunting.party/ytp/?v=%1&t=%2&st=%3&sbc=%4").arg(vId).arg(progress).arg(showSBToasts).arg(sbc)));
 }
 
 /*

@@ -1,5 +1,7 @@
-#ifndef WATCHVIEWSHARED_H
-#define WATCHVIEWSHARED_H
+// this doesn't compile if i split it into a .h and .cpp for some reason. very confusing.
+
+#ifndef WATCHVIEWSHARED_HPP
+#define WATCHVIEWSHARED_HPP
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
 #include <QApplication>
 #include <X11/extensions/scrnsaver.h>
@@ -59,4 +61,4 @@ public:
     }
 };
 
-#endif // WATCHVIEWSHARED_H
+#endif // WATCHVIEWSHARED_HPP

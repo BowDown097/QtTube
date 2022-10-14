@@ -9,9 +9,10 @@ class WebEnginePlayer : public QWidget
 {
     Q_OBJECT
 public:
-    WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player, QWidget* parent = nullptr);
+    WebEnginePlayer(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player,
+                    bool playbackTracking, bool watchtimeTracking, QWidget* parent = nullptr);
 public slots:
-    void play(const QString& vId, int progress);
+    void play(const QString& vId, int progress, bool showSBToasts, const QVariantList& sponsorBlockCategories);
     // void playAuthorUploads(const QString& aId);
     // void playPlaylist(const QString& pId);
     void reset();

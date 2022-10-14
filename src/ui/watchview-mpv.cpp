@@ -1,8 +1,8 @@
 #ifdef USEMPV
+#include "../settingsstore.h"
 #include "http.h"
 #include "lib/media/mpv/mediampv.h"
 #include "mainwindow.h"
-#include "settingsstore.hpp"
 #include "watchview-mpv.h"
 #include <QVBoxLayout>
 

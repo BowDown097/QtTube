@@ -1,11 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QMainWindow>
-#include <ui/topbar.h>
+#include "topbar.h"
 #ifdef USEMPV
-#include <ui/watchview-mpv.h>
+#include "watchview-mpv.h"
 #else
-#include <ui/watchview-ytp.h>
+#include "watchview-ytp.h"
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
 public:
     static MainWindow* instance();
     TopBar* topbar;
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 private slots:
     void returnFromSearch();

@@ -1,5 +1,5 @@
+#include "../settingsstore.h"
 #include "settingsform.h"
-#include "settingsstore.hpp"
 #include "ui_settingsform.h"
 #include <QMessageBox>
 

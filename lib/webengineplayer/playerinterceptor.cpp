@@ -1,9 +1,10 @@
 #include "playerinterceptor.h"
-#include "settingsstore.hpp"
 #include <QUrlQuery>
 
-PlayerInterceptor::PlayerInterceptor(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player, QObject* p)
-    : QWebEngineUrlRequestInterceptor(p), authStore(authStore), context(context), player(player) {}
+PlayerInterceptor::PlayerInterceptor(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player,
+                                     bool playbackTracking, bool watchtimeTracking, QObject* p)
+    : QWebEngineUrlRequestInterceptor(p), authStore(authStore), context(context), player(player), playbackTracking(playbackTracking),
+      watchtimeTracking(watchtimeTracking) {}
 
 void PlayerInterceptor::setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore)
 {
@@ -26,7 +27,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
     if (info.requestUrl().path() == "/api/stats/watchtime")
     {
         info.block(true);
-        if (!SettingsStore::instance().watchtimeTracking) return;
+        if (!watchtimeTracking) return;
 
         QUrlQuery watchtimeQuery(info.requestUrl());
         QUrlQuery playerWatchtimeQuery(QUrl(player.playbackTracking.videostatsWatchtimeUrl));
@@ -84,7 +85,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
     else if (info.requestUrl().path() == "/api/stats/playback")
     {
         info.block(true);
-        if (!SettingsStore::instance().playbackTracking) return;
+        if (!playbackTracking) return;
 
         QUrlQuery playbackQuery(info.requestUrl());
         QUrlQuery playerPlaybackQuery(QUrl(player.playbackTracking.videostatsPlaybackUrl));
