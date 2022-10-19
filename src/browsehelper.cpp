@@ -147,7 +147,7 @@ void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, 
         BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
         renderer->setChannelData(video.owner);
         renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.startTimeSeconds, video.title.text, video.videoId,
-                               video.viewCountText.text);
+                               SettingsStore::instance().condensedViews ? video.shortViewCountText.text : video.viewCountText.text);
 
         QListWidgetItem* item = new QListWidgetItem(widget);
         item->setSizeHint(renderer->sizeHint());

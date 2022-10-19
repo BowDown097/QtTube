@@ -7,7 +7,7 @@
 #include <QScrollBar>
 
 namespace { MainWindow* mWInst; }
-MainWindow* MainWindow::instance()  { return mWInst; }
+MainWindow* MainWindow::instance() { return mWInst; }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -34,8 +34,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QAction* sneed = new QAction;
     sneed->setShortcut(QKeySequence(Qt::Key_S, Qt::Key_E, Qt::Key_E, Qt::Key_D));
-    connect(sneed, &QAction::triggered, this,
-            [] { WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Player>("T3ElIvNBYj0")); });
+    connect(sneed, &QAction::triggered, this, [] {
+        WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Next>("T3ElIvNBYj0"),
+                                         InnerTube::instance().get<InnertubeEndpoints::Player>("T3ElIvNBYj0"));
+    });
     addAction(sneed);
 
     ui->historyWidget->verticalScrollBar()->setSingleStep(25);
@@ -108,6 +110,9 @@ void MainWindow::returnFromSearch()
 
 void MainWindow::search()
 {
+    if (ui->centralwidget->currentIndex() == 1)
+        WatchView::instance()->goBack();
+
     if (ui->tabWidget->currentIndex() == 4)
     {
         ui->searchWidget->clear();
@@ -141,7 +146,7 @@ void MainWindow::tryRestoreData()
     if (parseError.error != QJsonParseError::NoError)
         return;
 
-    InnerTube::instance().authStore()->populateFromJson(doc.object(), *InnerTube::instance().context());
+    InnerTube::instance().authenticateFromJson(doc.object());
     topbar->signInButton->setText("Sign out");
 }
 

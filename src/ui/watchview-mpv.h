@@ -1,6 +1,7 @@
 #ifdef USEMPV
 #ifndef WATCHVIEWMPV_H
 #define WATCHVIEWMPV_H
+#include "innertube/endpoints/video/next.h"
 #include "innertube/endpoints/video/player.h"
 #include "innertube/itc-objects/innertubeclient.h"
 #include "lib/media/media.h"
@@ -15,7 +16,7 @@ class WatchView : public QWidget
 public:
     static WatchView* instance();
     void initialize(const InnertubeClient& client, QStackedWidget* stackedWidget);
-    void loadVideo(const InnertubeEndpoints::Player& player, int progress = 0);
+    void loadVideo(const InnertubeEndpoints::Next& next, const InnertubeEndpoints::Player& player, int progress = 0);
 private slots:
     void mediaStateChanged(Media::State state);
     void volumeChanged(double volume);

@@ -62,8 +62,9 @@ void WatchView::initialize(const InnertubeClient& client, QStackedWidget* stacke
     // TODO: add volume icon, slider, etc.
 }
 
-void WatchView::loadVideo(const InnertubeEndpoints::Player& player, int progress)
+void WatchView::loadVideo(const InnertubeEndpoints::Next& next, const InnertubeEndpoints::Player& player, int progress)
 {
+    Q_UNUSED(next);
     Q_UNUSED(progress);
     stackedWidget->setCurrentIndex(1);
     MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - QtTube");

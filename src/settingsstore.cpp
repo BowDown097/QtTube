@@ -29,7 +29,6 @@ void SettingsStore::initializeFromSettingsFile()
 
 void SettingsStore::saveToSettingsFile()
 {
-    qDebug() << preferredVolume << watchtimeTracking;
     QFile settingsFile(configPath.filePath("settings.json"));
     if (!settingsFile.open(QFile::WriteOnly | QFile::Text))
         return;
