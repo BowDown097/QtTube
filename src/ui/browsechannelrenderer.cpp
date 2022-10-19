@@ -1,4 +1,6 @@
 #include "browsechannelrenderer.h"
+#include "http.h"
+#include "../settingsstore.h"
 #include <QApplication>
 
 BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
@@ -34,13 +36,32 @@ void BrowseChannelRenderer::setData(const QString& channelId, const QString& des
                                     QString subCount, const QString& videoCount)
 {
     Q_UNUSED(subbed); // TODO: sub button
-    if (!subCount.isEmpty() && !videoCount.isEmpty()) subCount += " • ";
 
-    QString metadata = QStringLiteral("%1%2").arg(subCount, videoCount);
     descriptionLabel->setText(descriptionSnippet);
-    metadataLabel->setText(metadata);
     titleLabel->setText(name);
     this->channelId = channelId;
+
+    if (SettingsStore::instance().fullSubs)
+    {
+        Http http;
+        http.setReadTimeout(2000);
+        http.setMaxRetries(5);
+
+        // have to catch errors here because this API really, REALLY likes to stop working
+        HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId));
+        connect(reply, &HttpReply::finished, this, [this, videoCount](const HttpReply& reply) {
+            int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
+            QString fullSubs = QLocale::system().toString(subs) + " subscribers";
+            QString metadata = QStringLiteral("%1 • %2").arg(fullSubs, videoCount);
+            metadataLabel->setText(metadata);
+        });
+    }
+    else
+    {
+        if (!subCount.isEmpty() && !videoCount.isEmpty()) subCount += " • ";
+        QString metadata = QStringLiteral("%1%2").arg(subCount, videoCount);
+        metadataLabel->setText(metadata);
+    }
 }
 
 void BrowseChannelRenderer::setThumbnail(const HttpReply& reply)
