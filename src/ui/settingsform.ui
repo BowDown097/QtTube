@@ -142,6 +142,54 @@
         <string>Use full subscriber counts</string>
        </property>
       </widget>
+      <widget class="QLabel" name="defaultTabLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>250</y>
+         <width>220</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Default front page tab</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="defaultTabCombo">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>248</y>
+         <width>135</width>
+         <height>34</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Home</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Trending</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Subscriptions</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>History</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>None</string>
+        </property>
+       </item>
+      </widget>
      </widget>
      <widget class="QWidget" name="privacy">
       <attribute name="title">

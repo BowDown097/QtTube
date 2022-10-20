@@ -32,14 +32,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget); });
 
-    QAction* sneed = new QAction;
-    sneed->setShortcut(QKeySequence(Qt::Key_S, Qt::Key_E, Qt::Key_E, Qt::Key_D));
-    connect(sneed, &QAction::triggered, this, [] {
-        WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Next>("T3ElIvNBYj0"),
-                                         InnerTube::instance().get<InnertubeEndpoints::Player>("T3ElIvNBYj0"));
-    });
-    addAction(sneed);
-
     ui->historyWidget->verticalScrollBar()->setSingleStep(25);
     ui->homeWidget->verticalScrollBar()->setSingleStep(25);
     ui->searchWidget->verticalScrollBar()->setSingleStep(25);
@@ -52,8 +44,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
     tryRestoreData();
 
-    BrowseHelper::instance().browseHome(ui->homeWidget);
     watchView->initialize(ui->centralwidget);
+    if (SettingsStore::instance().frontPageTab != SettingsStore::FrontPageTab::None)
+    {
+        ui->tabWidget->setCurrentIndex(SettingsStore::instance().frontPageTab);
+        browse();
+    }
+    else
+    {
+        ui->tabWidget->setCurrentIndex(4);
+        setWindowTitle("QtTube");
+    }
 }
 
 void MainWindow::browse()

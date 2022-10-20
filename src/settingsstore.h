@@ -7,8 +7,10 @@ class SettingsStore
 {
 public:
     // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
+    enum FrontPageTab { Home, Trending, Subscriptions, History, None };
     static inline const QDir configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "QtTube";
     bool condensedViews = false;
+    FrontPageTab frontPageTab = FrontPageTab::Home;
     bool fullSubs = false;
     bool homeShelves = false;
     bool itcCache = true;

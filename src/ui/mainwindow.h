@@ -29,7 +29,7 @@ private:
     void resizeEvent(QResizeEvent*) override;
     void tryRestoreData();
     bool doNotBrowse = false;
-    Ui::MainWindow *ui;
+    Ui::MainWindow* ui;
     WatchView* watchView;
 };
 #endif // MAINWINDOW_H
