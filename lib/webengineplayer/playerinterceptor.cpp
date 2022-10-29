@@ -1,11 +1,6 @@
 #include "playerinterceptor.h"
 #include <QUrlQuery>
 
-PlayerInterceptor::PlayerInterceptor(InnertubeContext* context, InnertubeAuthStore* authStore, const InnertubeEndpoints::Player& player,
-                                     bool playbackTracking, bool watchtimeTracking, QObject* p)
-    : QWebEngineUrlRequestInterceptor(p), authStore(authStore), context(context), player(player), playbackTracking(playbackTracking),
-      watchtimeTracking(watchtimeTracking) {}
-
 void PlayerInterceptor::setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore)
 {
     if (authStore->populated)
@@ -24,13 +19,19 @@ void PlayerInterceptor::setNeededHeaders(Http& http, InnertubeContext* context, 
 
 void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
 {
+    if (!m_authStore || !m_context)
+    {
+        qDebug() << "Auth store or InnerTube context is null - using YouTube's default tracking.";
+        return;
+    }
+
     if (info.requestUrl().path() == "/api/stats/watchtime")
     {
         info.block(true);
-        if (!watchtimeTracking) return;
+        if (!m_watchtimeTracking) return;
 
         QUrlQuery watchtimeQuery(info.requestUrl());
-        QUrlQuery playerWatchtimeQuery(QUrl(player.playbackTracking.videostatsWatchtimeUrl));
+        QUrlQuery playerWatchtimeQuery(QUrl(m_playerResponse.playbackTracking.videostatsWatchtimeUrl));
 
         QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
         QUrlQuery outWatchtimeQuery;
@@ -49,14 +50,14 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
             { "state", watchtimeQuery.queryItemValue("state") },
             { "volume", watchtimeQuery.queryItemValue("volume") },
             { "subscribed", playerWatchtimeQuery.queryItemValue("subscribed") },
-            { "cbr", context->client.browserName },
-            { "cbrver", context->client.browserVersion },
-            { "c", context->client.clientName },
-            { "cver", context->client.clientVersion },
+            { "cbr", m_context->client.browserName },
+            { "cbrver", m_context->client.browserVersion },
+            { "c", m_context->client.clientName },
+            { "cver", m_context->client.clientVersion },
             { "cplayer", "UNIPLAYER" },
-            { "cos", context->client.osName },
-            { "cosver", context->client.osVersion },
-            { "cplatform", context->client.platform },
+            { "cos", m_context->client.osName },
+            { "cosver", m_context->client.osVersion },
+            { "cplatform", m_context->client.platform },
             { "hl", watchtimeQuery.queryItemValue("hl") },
             { "cr", watchtimeQuery.queryItemValue("cr") },
             { "uga", playerWatchtimeQuery.queryItemValue("uga") },
@@ -79,16 +80,16 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
         outWatchtimeUrl.setQuery(outWatchtimeQuery);
 
         Http http;
-        setNeededHeaders(http, context, authStore);
+        setNeededHeaders(http, m_context, m_authStore);
         http.get(outWatchtimeUrl);
     }
     else if (info.requestUrl().path() == "/api/stats/playback")
     {
         info.block(true);
-        if (!playbackTracking) return;
+        if (!m_playbackTracking) return;
 
         QUrlQuery playbackQuery(info.requestUrl());
-        QUrlQuery playerPlaybackQuery(QUrl(player.playbackTracking.videostatsPlaybackUrl));
+        QUrlQuery playerPlaybackQuery(QUrl(m_playerResponse.playbackTracking.videostatsPlaybackUrl));
 
         QUrl outPlaybackUrl("https://www.youtube.com/api/stats/playback");
         QUrlQuery outPlaybackQuery;
@@ -106,14 +107,14 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
             { "cl", playerPlaybackQuery.queryItemValue("cl") },
             { "mos", "0" },
             { "volume", playbackQuery.queryItemValue("volume") },
-            { "cbr", context->client.browserName },
-            { "cbrver", context->client.browserVersion },
-            { "c", context->client.clientName },
-            { "cver", context->client.clientVersion },
+            { "cbr", m_context->client.browserName },
+            { "cbrver", m_context->client.browserVersion },
+            { "c", m_context->client.clientName },
+            { "cver", m_context->client.clientVersion },
             { "cplayer", "UNIPLAYER" },
-            { "cos", context->client.osName },
-            { "cosver", context->client.osVersion },
-            { "cplatform", context->client.platform },
+            { "cos", m_context->client.osName },
+            { "cosver", m_context->client.osVersion },
+            { "cplatform", m_context->client.platform },
             { "hl", playbackQuery.queryItemValue("hl") },
             { "cr", playbackQuery.queryItemValue("cr") },
             { "uga", playerPlaybackQuery.queryItemValue("uga") },
@@ -133,7 +134,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
         outPlaybackUrl.setQuery(outPlaybackQuery);
 
         Http http;
-        setNeededHeaders(http, context, authStore);
+        setNeededHeaders(http, m_context, m_authStore);
         http.get(outPlaybackUrl);
     }
 }

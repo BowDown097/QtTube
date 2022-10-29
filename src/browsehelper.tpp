@@ -16,8 +16,8 @@ void BrowseHelper::tryContinuation(int value, QListWidget* widget, const QString
     {
         T newData = InnerTube::instance().get<T>(data, continuationToken);
         if constexpr (std::is_same_v<T, InnertubeEndpoints::Search>)
-            setupChannelList(newData.channels, widget);
-        setupVideoList(newData.videos, widget);
+            setupChannelList(newData.response.channels, widget);
+        setupVideoList(newData.response.videos, widget);
         continuationToken = newData.continuationToken;
     }
     catch (const InnertubeException& ie)

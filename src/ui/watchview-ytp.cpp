@@ -13,72 +13,80 @@ WatchView* WatchView::instance()
     return wv;
 }
 
-WatchView::WatchView(QWidget* parent) : QWidget(parent) {}
-
 void WatchView::goBack()
 {
     MainWindow::instance()->topbar->alwaysShow = true;
     disconnect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
 
+    subscribersLabel->deleteLater();
+    channelName->deleteLater();
+    primaryInfoVbox->deleteLater();
+    channelIcon->deleteLater();
+    primaryInfoHbox->deleteLater();
     titleLabel->deleteLater();
     wePlayer->deleteLater();
-    primaryInfoWidget->deleteLater();
-    stackedWidget->setCurrentIndex(0);
+    pageLayout->deleteLater();
 
+    stackedWidget->setCurrentIndex(0);
     WatchViewShared::toggleIdleSleep(false);
 }
 
 void WatchView::initialize(QStackedWidget* stackedWidget) { this->stackedWidget = stackedWidget; }
 
-void WatchView::loadVideo(const InnertubeEndpoints::Next& next, const InnertubeEndpoints::Player& player, int progress)
+void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress)
 {
+    stackedWidget->setCurrentIndex(1);
+
+    pageLayout = new QVBoxLayout(this);
+    pageLayout->setContentsMargins(0, 0, 0, 0);
+    pageLayout->setSpacing(5);
+
+    wePlayer = new WebEnginePlayer(this);
+    wePlayer->setAuthStore(InnerTube::instance().authStore());
+    wePlayer->setContext(InnerTube::instance().context());
+    wePlayer->setUsePlaybackTracking(SettingsStore::instance().playbackTracking);
+    wePlayer->setUseWatchtimeTracking(SettingsStore::instance().watchtimeTracking);
+    pageLayout->addWidget(wePlayer);
+
     titleLabel = new QLabel(this);
     titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 4));
-    titleLabel->setText(player.videoDetails.title);
+    titleLabel->setText(playerResp.videoDetails.title);
     titleLabel->setWordWrap(true);
+    pageLayout->addWidget(titleLabel);
 
-    primaryInfoWidget = new QWidget(this);
-
-    primaryInfoHbox = new QHBoxLayout(primaryInfoWidget);
-    primaryInfoHbox->setSpacing(0);
+    primaryInfoHbox = new QHBoxLayout;
     primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
+    primaryInfoHbox->setSizeConstraint(QBoxLayout::SizeConstraint::SetFixedSize);
 
-    channelIcon = new ClickableLabel(false, primaryInfoWidget);
+    channelIcon = new ClickableLabel(false, this);
     channelIcon->setMaximumSize(55, 48);
     channelIcon->setMinimumSize(55, 48);
     primaryInfoHbox->addWidget(channelIcon);
 
-    hboxVbox = new QVBoxLayout;
+    primaryInfoVbox = new QVBoxLayout;
 
-    channelName = new ClickableLabel(true, primaryInfoWidget);
-    channelName->setText(next.secondaryInfo.channelName.text);
-    hboxVbox->addWidget(channelName);
+    channelName = new ClickableLabel(true, this);
+    channelName->setText(nextResp.secondaryInfo.channelName.text);
+    primaryInfoVbox->addWidget(channelName);
 
-    subscribersLabel = new QLabel(primaryInfoWidget);
-    setSubscriberCount(next.secondaryInfo);
-    hboxVbox->addWidget(subscribersLabel);
+    subscribersLabel = new QLabel(this);
+    setSubscriberCount(nextResp.secondaryInfo);
+    primaryInfoVbox->addWidget(subscribersLabel);
 
-    primaryInfoHbox->addLayout(hboxVbox);
+    primaryInfoHbox->addLayout(primaryInfoVbox);
+    pageLayout->addLayout(primaryInfoHbox);
 
-    wePlayer = new WebEnginePlayer(InnerTube::instance().context(), InnerTube::instance().authStore(), player,
-                                   SettingsStore::instance().playbackTracking, SettingsStore::instance().watchtimeTracking, this);
+    wePlayer->play(playerResp.videoDetails.videoId, progress, SettingsStore::instance().showSBToasts, SettingsStore::instance().sponsorBlockCategories);
+    wePlayer->setFixedSize(calcPlayerSize());
+    wePlayer->setPlayerResponse(playerResp);
 
-    auto bestThumb = *std::ranges::find_if(next.secondaryInfo.channelIcons, [](const auto& t) { return t.width >= 48; });
+    pageLayout->addStretch();
+
+    auto bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.channelIcons, [](const auto& t) { return t.width >= 48; });
     HttpReply* reply = Http::instance().get(bestThumb.url);
     connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
 
-    stackedWidget->setCurrentIndex(1);
-
-    QSize playerSize = calcPlayerSize();
-    wePlayer->setFixedSize(playerSize);
-
-    titleLabel->move(0, playerSize.height() + 5);
-    titleLabel->setFixedWidth(playerSize.width());
-    primaryInfoWidget->move(0, titleLabel->y() + titleLabel->height() + 5);
-    primaryInfoWidget->setFixedWidth(playerSize.width());
-
-    wePlayer->play(player.videoDetails.videoId, progress, SettingsStore::instance().showSBToasts, SettingsStore::instance().sponsorBlockCategories);
-    MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - QtTube");
+    MainWindow::instance()->setWindowTitle(playerResp.videoDetails.title + " - QtTube");
     WatchViewShared::toggleIdleSleep(true);
 
     MainWindow::instance()->topbar->setVisible(false);
@@ -97,18 +105,6 @@ QSize WatchView::calcPlayerSize()
     }
 
     return QSize(playerWidth, playerHeight);
-}
-
-void WatchView::resizeEvent(QResizeEvent*)
-{
-    QSize playerSize = calcPlayerSize();
-    wePlayer->setFixedSize(playerSize);
-
-    titleLabel->move(0, playerSize.height() + 5);
-    titleLabel->setFixedWidth(playerSize.width());
-
-    primaryInfoWidget->move(0, titleLabel->y() + titleLabel->height() + 5);
-    primaryInfoWidget->setFixedWidth(playerSize.width());
 }
 
 void WatchView::setChannelIcon(const HttpReply& reply)

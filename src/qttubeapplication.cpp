@@ -49,8 +49,8 @@ bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
             if (m_sneedProgress == (int)sneed.size())
             {
                 m_sneedProgress = 0;
-                WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Next>("T3ElIvNBYj0"),
-                                                 InnerTube::instance().get<InnertubeEndpoints::Player>("T3ElIvNBYj0"));
+                WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Next>("T3ElIvNBYj0").response,
+                                                 InnerTube::instance().get<InnertubeEndpoints::Player>("T3ElIvNBYj0").response);
             }
         }
     }

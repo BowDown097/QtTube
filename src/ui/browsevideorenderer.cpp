@@ -39,8 +39,8 @@ void BrowseVideoRenderer::navigateVideo()
 {
     try
     {
-        WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Next>(videoId),
-                                         InnerTube::instance().get<InnertubeEndpoints::Player>(videoId),
+        WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Next>(videoId).response,
+                                         InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response,
                                          progress);
     }
     catch (const InnertubeException& ie)

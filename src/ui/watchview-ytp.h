@@ -3,8 +3,8 @@
 #define WATCHVIEWYTP_H
 #include "clickablelabel.h"
 #include "httpreply.h"
-#include "innertube/endpoints/video/next.h"
-#include "innertube/endpoints/video/player.h"
+#include "innertube/responses/video/nextresponse.h"
+#include "innertube/responses/video/playerresponse.h"
 #include "webengineplayer.h"
 #include <QListWidget>
 #include <QPushButton>
@@ -17,24 +17,23 @@ class WatchView : public QWidget
 public:
     static WatchView* instance();
     void initialize(QStackedWidget* stackedWidget);
-    void loadVideo(const InnertubeEndpoints::Next& next, const InnertubeEndpoints::Player& player, int progress = 0);
+    void loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress = 0);
 public slots:
     void goBack();
 private:
-    ClickableLabel* channelIcon;
-    ClickableLabel* channelName;
-    QVBoxLayout* hboxVbox;
-    QHBoxLayout* primaryInfoHbox;
-    QWidget* primaryInfoWidget;
-    QListWidget* recommendations;
-    QStackedWidget* stackedWidget;
-    QLabel* subscribersLabel; // TODO: make into Hitchhiker-like subscribe button
-    QLabel* titleLabel;
-    WebEnginePlayer* wePlayer;
+    ClickableLabel* channelIcon = nullptr;
+    ClickableLabel* channelName = nullptr;
+    QVBoxLayout* pageLayout = nullptr;
+    QHBoxLayout* primaryInfoHbox = nullptr;
+    QVBoxLayout* primaryInfoVbox = nullptr;
+    QStackedWidget* stackedWidget = nullptr;
+    QLabel* subscribersLabel = nullptr; // TODO: make into Hitchhiker-like subscribe button
+    QLabel* titleLabel = nullptr;
+    WebEnginePlayer* wePlayer = nullptr;
 
-    WatchView(QWidget* parent = nullptr);
+    explicit WatchView(QWidget* parent = nullptr) : QWidget(parent) {}
     QSize calcPlayerSize();
-    void resizeEvent(QResizeEvent*) override;
+    void resizeEvent(QResizeEvent*) override { if (wePlayer) wePlayer->setFixedSize(calcPlayerSize()); } // webengine views don't resize automatically
     void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo);
 private slots:
     void setChannelIcon(const HttpReply& reply);

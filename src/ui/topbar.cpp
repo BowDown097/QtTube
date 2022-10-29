@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "settingsform.h"
 #include "topbar.h"
+#include <QApplication>
 #include <QJsonDocument>
 
 TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimation(this, "geometry"))
@@ -12,7 +13,7 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     resize(MainWindow::instance()->width(), 35);
 
     QPalette pal{};
-    pal.setColor(QPalette::Window, QColor::fromString("#1a1c1e"));
+    pal.setColor(QPalette::Window, QApplication::palette().color(QPalette::AlternateBase));
     setAutoFillBackground(true);
     setPalette(pal);
 

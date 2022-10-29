@@ -13,7 +13,7 @@ void BrowseHelper::browseHistory(QListWidget* historyWidget)
         if (InnerTube::instance().hasAuthenticated())
         {
             InnertubeEndpoints::BrowseHistory historyData = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>();
-            setupVideoList(historyData.videos, historyWidget);
+            setupVideoList(historyData.response.videos, historyWidget);
             continuationToken = historyData.continuationToken;
         }
         else
@@ -43,7 +43,7 @@ void BrowseHelper::browseHome(QListWidget* homeWidget)
             InnerTube::instance().context()->client.clientVersion = "15.14.33";
 
             InnertubeEndpoints::BrowseHomeShelves homeData = InnerTube::instance().get<InnertubeEndpoints::BrowseHomeShelves>();
-            setupVideoList(homeData.videos, homeWidget);
+            setupVideoList(homeData.response.videos, homeWidget);
             continuationToken = homeData.continuationToken;
 
             InnerTube::instance().context()->client.clientName = clientNameTemp;
@@ -52,7 +52,7 @@ void BrowseHelper::browseHome(QListWidget* homeWidget)
         else
         {
             InnertubeEndpoints::BrowseHome homeData = InnerTube::instance().get<InnertubeEndpoints::BrowseHome>();
-            setupVideoList(homeData.videos, homeWidget);
+            setupVideoList(homeData.response.videos, homeWidget);
             continuationToken = homeData.continuationToken;
         }
     }
@@ -76,7 +76,7 @@ void BrowseHelper::browseSubscriptions(QListWidget* subsWidget)
         }
 
         InnertubeEndpoints::BrowseSubscriptions subsData = InnerTube::instance().get<InnertubeEndpoints::BrowseSubscriptions>();
-        setupVideoList(subsData.videos, subsWidget);
+        setupVideoList(subsData.response.videos, subsWidget);
         continuationToken = subsData.continuationToken;
     }
     catch (const InnertubeException& ie)
@@ -93,9 +93,9 @@ void BrowseHelper::search(QListWidget* searchWidget, const QString& query)
     try
     {
         InnertubeEndpoints::Search searchData = InnerTube::instance().get<InnertubeEndpoints::Search>(query);
-        searchWidget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(searchData.estimatedResults)));
-        setupChannelList(searchData.channels, searchWidget);
-        setupVideoList(searchData.videos, searchWidget);
+        searchWidget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(searchData.response.estimatedResults)));
+        setupChannelList(searchData.response.channels, searchWidget);
+        setupVideoList(searchData.response.videos, searchWidget);
         continuationToken = searchData.continuationToken;
     }
     catch (const InnertubeException& ie)
