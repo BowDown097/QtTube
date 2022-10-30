@@ -9,10 +9,9 @@ QtTube is a Qt frontend for YouTube, made in C++. It aims to provide all of the 
 
 # Roadmap
 This list is ordered by priority. Everything will likely be added in this order.
-- Channel, descriptions, recommendations, etc. on watch page (at the moment, the watch page is only the video and title)
+- Description, recommendations, etc. on watch page
 - Account menu
 - Channel pages
-- Trending tab on home page
 - Switch video player from an embed of YouTube's player to one based off of libmpv
 - Subscriptions/history export
 
