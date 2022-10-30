@@ -6,8 +6,6 @@
 #include "innertube/responses/video/nextresponse.h"
 #include "innertube/responses/video/playerresponse.h"
 #include "webengineplayer.h"
-#include <QListWidget>
-#include <QPushButton>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 
@@ -16,7 +14,7 @@ class WatchView : public QWidget
     Q_OBJECT
 public:
     static WatchView* instance();
-    void initialize(QStackedWidget* stackedWidget);
+    void initialize(QStackedWidget* stackedWidget) { this->stackedWidget = stackedWidget; }
     void loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress = 0);
 public slots:
     void goBack();

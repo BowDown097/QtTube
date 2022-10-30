@@ -76,6 +76,7 @@ void MainWindow::browse()
         break;
     case 1:
         setWindowTitle("Trending - QtTube");
+        BrowseHelper::instance().browseTrending(ui->trendingWidget);
         break;
     case 2:
         setWindowTitle("Subscriptions - QtTube");

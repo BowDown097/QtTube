@@ -15,6 +15,7 @@ public:
     void browseHistory(QListWidget* historyWidget);
     void browseHome(QListWidget* homeWidget);
     void browseSubscriptions(QListWidget* subsWidget);
+    void browseTrending(QListWidget* trendingWidget);
     void search(QListWidget* searchWidget, const QString& query);
 
     template<typename T> requires std::derived_from<T, InnertubeEndpoints::BaseEndpoint>

@@ -88,6 +88,22 @@ void BrowseHelper::browseSubscriptions(QListWidget* subsWidget)
     }
 }
 
+void BrowseHelper::browseTrending(QListWidget* trendingWidget)
+{
+    try
+    {
+        InnertubeEndpoints::BrowseTrending trendingData = InnerTube::instance().get<InnertubeEndpoints::BrowseTrending>();
+        setupVideoList(trendingData.response.videos, trendingWidget);
+    }
+    catch (const InnertubeException& ie)
+    {
+        if (ie.severity() == InnertubeException::Normal)
+            QMessageBox::critical(nullptr, "Failed to get trending browsing data", ie.message());
+        else
+            qDebug() << "Failed to get trending browsing data:" << ie.message();
+    }
+}
+
 void BrowseHelper::search(QListWidget* searchWidget, const QString& query)
 {
     try
@@ -127,10 +143,10 @@ void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& chan
 
 void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, QListWidget* widget)
 {
-    QSet<QString> processedShelves;
+    QString lastShelf;
     for (const InnertubeObjects::Video& video : videos)
     {
-        if (!video.shelf.text.isEmpty() && !processedShelves.contains(video.shelf.text))
+        if (!video.shelf.text.isEmpty() && video.shelf.text != lastShelf)
         {
             QLabel* shelfLabel = new QLabel;
             shelfLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
@@ -141,7 +157,7 @@ void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, 
             widget->addItem(item);
             widget->setItemWidget(item, shelfLabel);
 
-            processedShelves.insert(video.shelf.text);
+            lastShelf = video.shelf.text;
         }
 
         BrowseVideoRenderer* renderer = new BrowseVideoRenderer;

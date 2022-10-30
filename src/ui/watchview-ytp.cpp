@@ -31,8 +31,6 @@ void WatchView::goBack()
     WatchViewShared::toggleIdleSleep(false);
 }
 
-void WatchView::initialize(QStackedWidget* stackedWidget) { this->stackedWidget = stackedWidget; }
-
 void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress)
 {
     stackedWidget->setCurrentIndex(1);
@@ -80,7 +78,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     wePlayer->setFixedSize(calcPlayerSize());
     wePlayer->setPlayerResponse(playerResp);
 
-    pageLayout->addStretch();
+    pageLayout->addStretch(); // disable the layout from stretching on resize
 
     auto bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.channelIcons, [](const auto& t) { return t.width >= 48; });
     HttpReply* reply = Http::instance().get(bestThumb.url);
