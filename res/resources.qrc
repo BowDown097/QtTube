@@ -6,4 +6,7 @@
     <qresource>
         <file>qttube-full.png</file>
     </qresource>
+    <qresource>
+        <file>qttube-full-light.png</file>
+    </qresource>
 </RCC>

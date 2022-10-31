@@ -12,14 +12,16 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     animation->setEasingCurve(QEasingCurve::InOutQuint);
     resize(MainWindow::instance()->width(), 35);
 
-    QPalette pal{};
-    pal.setColor(QPalette::Window, QApplication::palette().color(QPalette::AlternateBase));
+    const QColor& aBase = QApplication::palette().color(QPalette::AlternateBase);
+
+    QPalette pal;
+    pal.setColor(QPalette::Window, aBase);
     setAutoFillBackground(true);
     setPalette(pal);
 
     logo = new ClickableLabel(false, this);
     logo->move(10, 2);
-    logo->setPixmap(QPixmap(":/qttube-full.png"));
+    logo->setPixmap(QPixmap(aBase.lightness() < 60 ? ":/qttube-full-light.png" : ":/qttube-full.png"));
     logo->resize(134, 30);
 
     searchBox = new QLineEdit(this);
