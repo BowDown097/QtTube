@@ -12,7 +12,7 @@ class BrowseHelper
     QString continuationToken{};
 public:
     static BrowseHelper& instance() { static BrowseHelper bh; return bh; }
-    void browseHistory(QListWidget* historyWidget);
+    void browseHistory(QListWidget* historyWidget, const QString& query = "");
     void browseHome(QListWidget* homeWidget);
     void browseSubscriptions(QListWidget* subsWidget);
     void browseTrending(QListWidget* trendingWidget);

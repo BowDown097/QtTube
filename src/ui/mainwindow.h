@@ -23,12 +23,15 @@ public:
     ~MainWindow();
 private slots:
     void returnFromSearch();
+    void returnFromWatchHistorySearch();
     void search();
+    void searchWatchHistory();
 private:
     void browse();
     void resizeEvent(QResizeEvent*) override;
     void tryRestoreData();
     bool doNotBrowse = false;
+    QString lastSearchQuery;
     Ui::MainWindow* ui;
     WatchView* watchView;
 };

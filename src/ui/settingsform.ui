@@ -100,9 +100,6 @@
          <height>32</height>
         </rect>
        </property>
-       <property name="toolTip">
-        <string>As an example, &quot;135,230 views&quot; would be condensed to &quot;135.2k views.&quot;</string>
-       </property>
        <property name="text">
         <string>Use shelves homepage layout</string>
        </property>
@@ -115,9 +112,6 @@
          <width>400</width>
          <height>32</height>
         </rect>
-       </property>
-       <property name="toolTip">
-        <string>As an example, &quot;135,230 views&quot; would be condensed to &quot;135.2k views.&quot;</string>
        </property>
        <property name="text">
         <string>Enable 'Return Youtube Dislike' integration</string>
@@ -134,9 +128,6 @@
          <width>400</width>
          <height>32</height>
         </rect>
-       </property>
-       <property name="toolTip">
-        <string>As an example, &quot;135,230 views&quot; would be condensed to &quot;135.2k views.&quot;</string>
        </property>
        <property name="text">
         <string>Use full subscriber counts</string>
@@ -256,7 +247,7 @@
         <rect>
          <x>30</x>
          <y>40</y>
-         <width>250</width>
+         <width>210</width>
          <height>32</height>
         </rect>
        </property>
@@ -275,7 +266,7 @@
         <rect>
          <x>30</x>
          <y>70</y>
-         <width>250</width>
+         <width>210</width>
          <height>32</height>
         </rect>
        </property>
@@ -291,7 +282,7 @@
         <rect>
          <x>30</x>
          <y>100</y>
-         <width>250</width>
+         <width>210</width>
          <height>32</height>
         </rect>
        </property>
@@ -307,7 +298,7 @@
         <rect>
          <x>30</x>
          <y>130</y>
-         <width>250</width>
+         <width>210</width>
          <height>32</height>
         </rect>
        </property>

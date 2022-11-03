@@ -6,13 +6,13 @@
 #include <QApplication>
 #include <QListWidgetItem>
 
-void BrowseHelper::browseHistory(QListWidget* historyWidget)
+void BrowseHelper::browseHistory(QListWidget* historyWidget, const QString& query)
 {
     try
     {
         if (InnerTube::instance().hasAuthenticated())
         {
-            InnertubeEndpoints::BrowseHistory historyData = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>();
+            InnertubeEndpoints::BrowseHistory historyData = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>(query);
             setupVideoList(historyData.response.videos, historyWidget);
             continuationToken = historyData.continuationToken;
         }

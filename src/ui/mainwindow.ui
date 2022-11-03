@@ -10,8 +10,15 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>Home - QtTube</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../res/resources.qrc">
+    <normaloff>:/qttube.svg</normaloff>:/qttube.svg</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -19,7 +26,7 @@
   <widget class="QStackedWidget" name="centralwidget">
    <widget class="QWidget" name="mainPage">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QTabWidget" name="tabWidget">
        <property name="styleSheet">
         <string notr="true">QTabBar::tab::disabled {
@@ -102,6 +109,16 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="historySearchTab">
+        <attribute name="title">
+         <string>History Search</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QListWidget" name="historySearchWidget"/>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
      <item row="0" column="0">
@@ -120,10 +137,15 @@
        </property>
       </spacer>
      </item>
+     <item row="1" column="0">
+      <layout class="QHBoxLayout" name="additionalWidgets"/>
+     </item>
     </layout>
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../res/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

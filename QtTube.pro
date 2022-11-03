@@ -42,7 +42,8 @@ SOURCES += \
     src/ui/clickablelabel.cpp \
     src/ui/mainwindow.cpp \
     src/ui/settingsform.cpp \
-    src/ui/topbar.cpp
+    src/ui/topbar.cpp \
+    src/ui/uiutilities.cpp
 
 HEADERS += \
     src/browsehelper.h \
@@ -55,6 +56,7 @@ HEADERS += \
     src/ui/browsevideorenderer.h \
     src/ui/settingsform.h \
     src/ui/topbar.h \
+    src/ui/uiutilities.h \
     src/ui/watchview-shared.hpp
 
 FORMS += \

@@ -27,6 +27,7 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     searchBox = new QLineEdit(this);
     searchBox->move(152, 0);
     searchBox->resize(463, 35);
+    searchBox->setPlaceholderText("Search");
 
     settingsButton = new QPushButton(this);
     settingsButton->move(623, 0);

@@ -3,6 +3,7 @@
 #include "http.h"
 #include "innertube.h"
 #include "mainwindow.h"
+#include "uiutilities.h"
 #include "watchview-shared.hpp"
 #include "watchview-ytp.h"
 #include <QApplication>
@@ -17,16 +18,8 @@ void WatchView::goBack()
 {
     MainWindow::instance()->topbar->alwaysShow = true;
     disconnect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
-
-    subscribersLabel->deleteLater();
-    channelName->deleteLater();
-    primaryInfoVbox->deleteLater();
-    channelIcon->deleteLater();
-    primaryInfoHbox->deleteLater();
-    titleLabel->deleteLater();
-    wePlayer->deleteLater();
+    UIUtilities::clearLayout(pageLayout);
     pageLayout->deleteLater();
-
     stackedWidget->setCurrentIndex(0);
     WatchViewShared::toggleIdleSleep(false);
 }

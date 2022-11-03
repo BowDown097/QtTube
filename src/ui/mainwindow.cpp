@@ -3,6 +3,7 @@
 #include "innertube.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "uiutilities.h"
 #include <QJsonDocument>
 #include <QScrollBar>
 
@@ -12,8 +13,6 @@ MainWindow* MainWindow::instance() { return mWInst; }
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     mWInst = this;
-    setMouseTracking(true);
-    setWindowIcon(QIcon(":/qttube.svg"));
     ui->setupUi(this);
 
     topbar = new TopBar(this);
@@ -21,21 +20,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(topbar->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
 
     ui->tabWidget->setTabEnabled(4, false);
+    ui->tabWidget->setTabEnabled(5, false);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
 
-    connect(ui->historyWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHistory>(value, ui->historyWidget); });
-    connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget); });
-    connect(ui->searchWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, topbar->searchBox->text()); });
-    connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget); });
+    connect(ui->historyWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHistory>(value, ui->historyWidget, lastSearchQuery); });
+    connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget); });
+    connect(ui->searchWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, lastSearchQuery); });
+    connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget); });
 
+    ui->historySearchWidget->verticalScrollBar()->setSingleStep(25);
     ui->historyWidget->verticalScrollBar()->setSingleStep(25);
     ui->homeWidget->verticalScrollBar()->setSingleStep(25);
     ui->searchWidget->verticalScrollBar()->setSingleStep(25);
     ui->subscriptionsWidget->verticalScrollBar()->setSingleStep(25);
+    ui->trendingWidget->verticalScrollBar()->setSingleStep(25);
 
     watchView = WatchView::instance();
     ui->centralwidget->addWidget(watchView);
@@ -62,6 +60,8 @@ void MainWindow::browse()
     if (doNotBrowse)
         return;
 
+    UIUtilities::clearLayout(ui->additionalWidgets);
+    ui->historySearchWidget->clear();
     ui->historyWidget->clear();
     ui->homeWidget->clear();
     ui->searchWidget->clear();
@@ -84,6 +84,12 @@ void MainWindow::browse()
         break;
     case 3:
         setWindowTitle("History - QtTube");
+
+        QLineEdit* historySearch = new QLineEdit;
+        historySearch->setPlaceholderText("Search watch history");
+        ui->additionalWidgets->addWidget(historySearch);
+        connect(historySearch, &QLineEdit::returnPressed, this, &MainWindow::searchWatchHistory);
+
         BrowseHelper::instance().browseHistory(ui->historyWidget);
         break;
     }
@@ -108,17 +114,36 @@ void MainWindow::returnFromSearch()
     ui->tabWidget->setTabEnabled(3, true);
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(0);
+    ui->searchWidget->clear();
+}
+
+void MainWindow::returnFromWatchHistorySearch()
+{
+    doNotBrowse = true;
+    disconnect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
+    ui->tabWidget->setTabEnabled(5, false);
+    ui->tabWidget->setTabEnabled(0, true);
+    ui->tabWidget->setTabEnabled(1, true);
+    ui->tabWidget->setTabEnabled(2, true);
+    ui->tabWidget->setTabEnabled(3, true);
+    doNotBrowse = false;
+    ui->tabWidget->setCurrentIndex(3);
+    ui->historySearchWidget->clear();
 }
 
 void MainWindow::search()
 {
+    UIUtilities::clearLayout(ui->additionalWidgets);
+    ui->historySearchWidget->clear();
+
     if (ui->centralwidget->currentIndex() == 1)
         WatchView::instance()->goBack();
 
     if (ui->tabWidget->currentIndex() == 4)
     {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, topbar->searchBox->text());
+        lastSearchQuery = topbar->searchBox->text();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery);
         return;
     }
 
@@ -129,9 +154,39 @@ void MainWindow::search()
     ui->tabWidget->setTabEnabled(1, false);
     ui->tabWidget->setTabEnabled(2, false);
     ui->tabWidget->setTabEnabled(3, false);
+    ui->tabWidget->setTabEnabled(5, false);
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(4);
-    BrowseHelper::instance().search(ui->searchWidget, topbar->searchBox->text());
+
+    lastSearchQuery = topbar->searchBox->text();
+    BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery);
+}
+
+void MainWindow::searchWatchHistory()
+{
+    if (ui->centralwidget->currentIndex() == 1)
+        WatchView::instance()->goBack();
+
+    if (ui->tabWidget->currentIndex() == 5)
+    {
+        ui->historySearchWidget->clear();
+        lastSearchQuery = static_cast<QLineEdit*>(sender())->text();
+        BrowseHelper::instance().browseHistory(ui->historySearchWidget, lastSearchQuery);
+        return;
+    }
+
+    doNotBrowse = true;
+    connect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
+    ui->tabWidget->setTabEnabled(5, true);
+    ui->tabWidget->setTabEnabled(0, false);
+    ui->tabWidget->setTabEnabled(1, false);
+    ui->tabWidget->setTabEnabled(2, false);
+    ui->tabWidget->setTabEnabled(3, false);
+    doNotBrowse = false;
+    ui->tabWidget->setCurrentIndex(5);
+
+    lastSearchQuery = static_cast<QLineEdit*>(sender())->text();
+    BrowseHelper::instance().browseHistory(ui->historySearchWidget, lastSearchQuery);
 }
 
 void MainWindow::tryRestoreData()
