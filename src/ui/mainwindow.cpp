@@ -50,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     }
     else
     {
-        ui->tabWidget->setCurrentIndex(4);
+        ui->tabWidget->setCurrentIndex(5);
         setWindowTitle("QtTube");
     }
 }

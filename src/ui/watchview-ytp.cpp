@@ -73,9 +73,12 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
 
     pageLayout->addStretch(); // disable the layout from stretching on resize
 
-    auto bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.channelIcons, [](const auto& t) { return t.width >= 48; });
-    HttpReply* reply = Http::instance().get(bestThumb.url);
-    connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
+    if (!nextResp.secondaryInfo.channelIcons.isEmpty())
+    {
+        auto bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.channelIcons, [](const auto& t) { return t.width >= 48; });
+        HttpReply* reply = Http::instance().get(bestThumb.url);
+        connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
+    }
 
     MainWindow::instance()->setWindowTitle(playerResp.videoDetails.title + " - QtTube");
     WatchViewShared::toggleIdleSleep(true);
