@@ -42,7 +42,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
     tryRestoreData();
 
+#ifdef USEMPV
+    watchView->initialize(InnerTube::instance().context()->client, ui->centralwidget);
+#else
     watchView->initialize(ui->centralwidget);
+#endif
+
     if (SettingsStore::instance().frontPageTab != SettingsStore::FrontPageTab::None)
     {
         ui->tabWidget->setCurrentIndex(SettingsStore::instance().frontPageTab);
@@ -211,4 +216,3 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-

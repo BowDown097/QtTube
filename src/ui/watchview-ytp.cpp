@@ -1,6 +1,5 @@
 #ifndef USEMPV
 #include "../settingsstore.h"
-#include "http.h"
 #include "innertube.h"
 #include "mainwindow.h"
 #include "uiutilities.h"
@@ -61,14 +60,14 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     primaryInfoVbox->addWidget(channelName);
 
     subscribersLabel = new QLabel(this);
-    setSubscriberCount(nextResp.secondaryInfo);
+    WatchViewShared::setSubscriberCount(nextResp.secondaryInfo, subscribersLabel);
     primaryInfoVbox->addWidget(subscribersLabel);
 
     primaryInfoHbox->addLayout(primaryInfoVbox);
     pageLayout->addLayout(primaryInfoHbox);
 
     wePlayer->play(playerResp.videoDetails.videoId, progress, SettingsStore::instance().showSBToasts, SettingsStore::instance().sponsorBlockCategories);
-    wePlayer->setFixedSize(calcPlayerSize());
+    wePlayer->setFixedSize(WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height()));
     wePlayer->setPlayerResponse(playerResp);
 
     pageLayout->addStretch(); // disable the layout from stretching on resize
@@ -77,7 +76,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     {
         auto bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.channelIcons, [](const auto& t) { return t.width >= 48; });
         HttpReply* reply = Http::instance().get(bestThumb.url);
-        connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
+        connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) { WatchViewShared::setChannelIcon(reply, channelIcon); });
     }
 
     MainWindow::instance()->setWindowTitle(playerResp.videoDetails.title + " - QtTube");
@@ -88,45 +87,9 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     connect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
 }
 
-QSize WatchView::calcPlayerSize()
+void WatchView::resizeEvent(QResizeEvent*)
 {
-    int playerWidth = width();
-    int playerHeight = playerWidth * 9/16;
-    if (playerHeight > MainWindow::instance()->height() - 125)
-    {
-        playerHeight = MainWindow::instance()->height() - 125;
-        playerWidth = playerHeight * 16/9;
-    }
-
-    return QSize(playerWidth, playerHeight);
+    if (wePlayer)
+        wePlayer->setFixedSize(WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height()));
 }
-
-void WatchView::setChannelIcon(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-}
-
-void WatchView::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo)
-{
-    if (!SettingsStore::instance().fullSubs)
-    {
-        subscribersLabel->setText(secondaryInfo.subscriberCountText.text);
-        return;
-    }
-
-    Http http;
-    http.setReadTimeout(2000);
-    http.setMaxRetries(5);
-
-    // have to catch errors here because this API really, REALLY likes to stop working
-    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + secondaryInfo.channelId));
-    connect(reply, &HttpReply::error, this, [this, &secondaryInfo] { subscribersLabel->setText(secondaryInfo.subscriberCountText.text); });
-    connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
-        int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
-        subscribersLabel->setText(QLocale::system().toString(subs) + " subscribers");
-    });
-}
-
 #endif // USEMPV

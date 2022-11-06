@@ -1,9 +1,10 @@
 #ifdef USEMPV
 #ifndef WATCHVIEWMPV_H
 #define WATCHVIEWMPV_H
-#include "innertube/endpoints/video/next.h"
-#include "innertube/endpoints/video/player.h"
+#include "clickablelabel.h"
 #include "innertube/itc-objects/innertubeclient.h"
+#include "innertube/responses/video/nextresponse.h"
+#include "innertube/responses/video/playerresponse.h"
 #include "lib/media/media.h"
 #include <QGridLayout>
 #include <QListWidget>
@@ -16,21 +17,29 @@ class WatchView : public QWidget
 public:
     static WatchView* instance();
     void initialize(const InnertubeClient& client, QStackedWidget* stackedWidget);
-    void loadVideo(const InnertubeEndpoints::Next& next, const InnertubeEndpoints::Player& player, int progress = 0);
+    void loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress = 0);
+public slots:
+    void goBack();
 private slots:
     void mediaStateChanged(Media::State state);
     void volumeChanged(double volume);
 private:
-    WatchView(QWidget* parent = nullptr);
-    static QString getCpn();
-    static void reportPlayback(const InnertubeClient& client, const InnertubeEndpoints::Player& player);
-    static void reportWatchtime(const InnertubeClient& client, const InnertubeEndpoints::Player& player, long long position);
-    QGridLayout* grid;
+    ClickableLabel* channelIcon = nullptr;
+    ClickableLabel* channelName = nullptr;
     InnertubeClient itc;
-    Media* media;
-    QListWidget* recommendations;
-    QStackedWidget* stackedWidget;
-    QTimer* watchtimeTimer;
+    Media* media = nullptr;
+    QVBoxLayout* pageLayout = nullptr;
+    QHBoxLayout* primaryInfoHbox = nullptr;
+    QVBoxLayout* primaryInfoVbox = nullptr;
+    QStackedWidget* stackedWidget = nullptr;
+    QLabel* subscribersLabel = nullptr; // TODO: make into Hitchhiker-like subscribe button
+    QLabel* titleLabel = nullptr;
+    QTimer* watchtimeTimer = nullptr;
+
+    explicit WatchView(QWidget* parent = nullptr) : QWidget(parent) {}
+    QString getCpn();
+    void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp);
+    void reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position);
 };
 
 #endif // WATCHVIEWMPV_H

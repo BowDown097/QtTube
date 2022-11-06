@@ -30,11 +30,7 @@ private:
     WebEnginePlayer* wePlayer = nullptr;
 
     explicit WatchView(QWidget* parent = nullptr) : QWidget(parent) {}
-    QSize calcPlayerSize();
-    void resizeEvent(QResizeEvent*) override { if (wePlayer) wePlayer->setFixedSize(calcPlayerSize()); } // webengine views don't resize automatically
-    void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo);
-private slots:
-    void setChannelIcon(const HttpReply& reply);
+    void resizeEvent(QResizeEvent*) override; // webengine views don't resize automatically
 };
 
 #endif // WATCHVIEWYTP_H

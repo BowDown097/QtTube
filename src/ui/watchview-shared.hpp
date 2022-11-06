@@ -2,6 +2,11 @@
 
 #ifndef WATCHVIEWSHARED_HPP
 #define WATCHVIEWSHARED_HPP
+#include "clickablelabel.h"
+#include "http.h"
+#include "../settingsstore.h"
+#include <QLabel>
+
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
 #include <QApplication>
 #include <X11/extensions/scrnsaver.h>
@@ -18,6 +23,48 @@ public:
 #ifdef Q_OS_MACOS
     inline static IOPMAssertionID sleepAssert;
 #endif
+
+    static QSize calcPlayerSize(int widgetWidth, int windowHeight)
+    {
+        int playerWidth = widgetWidth;
+        int playerHeight = playerWidth * 9/16;
+        if (playerHeight > windowHeight - 125)
+        {
+            playerHeight = windowHeight - 125;
+            playerWidth = playerHeight * 16/9;
+        }
+
+        return QSize(playerWidth, playerHeight);
+    }
+
+    static void setChannelIcon(const HttpReply& reply, ClickableLabel* channelIcon)
+    {
+        QPixmap pixmap;
+        pixmap.loadFromData(reply.body());
+        channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    }
+
+    static void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo, QLabel* subscribersLabel)
+    {
+        if (!SettingsStore::instance().fullSubs)
+        {
+            subscribersLabel->setText(secondaryInfo.subscriberCountText.text);
+            return;
+        }
+
+        Http http;
+        http.setReadTimeout(2000);
+        http.setMaxRetries(5);
+
+        // have to catch errors here because this API really, REALLY likes to stop working
+        HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + secondaryInfo.channelId));
+        QObject::connect(reply, &HttpReply::error, [secondaryInfo, subscribersLabel] { subscribersLabel->setText(secondaryInfo.subscriberCountText.text); });
+        QObject::connect(reply, &HttpReply::finished, [subscribersLabel](const HttpReply& reply) {
+            int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
+            subscribersLabel->setText(QLocale::system().toString(subs) + " subscribers");
+        });
+    }
+
     static void toggleIdleSleep(bool disable)
     {
     #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)

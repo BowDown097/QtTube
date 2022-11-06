@@ -1,9 +1,9 @@
 #ifdef USEMPV
 #include "../settingsstore.h"
-#include "http.h"
 #include "lib/media/mpv/mediampv.h"
 #include "mainwindow.h"
 #include "watchview-mpv.h"
+#include "watchview-shared.hpp"
 #include <QVBoxLayout>
 
 WatchView* WatchView::instance()
@@ -12,21 +12,20 @@ WatchView* WatchView::instance()
     return wv;
 }
 
-WatchView::WatchView(QWidget* parent) : QWidget(parent)
+void WatchView::goBack()
 {
-    grid = new QGridLayout(this);
-    setLayout(grid);
+    MainWindow::instance()->topbar->alwaysShow = true;
+    disconnect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
+    UIUtilities::clearLayout(pageLayout);
+    pageLayout->deleteLater();
+    stackedWidget->setCurrentIndex(0);
+    WatchViewShared::toggleIdleSleep(false);
 }
 
 void WatchView::initialize(const InnertubeClient& client, QStackedWidget* stackedWidget)
 {
     this->itc = client;
     this->stackedWidget = stackedWidget;
-
-    QVBoxLayout* info = new QVBoxLayout(this);
-    info->setContentsMargins(0, 0, 0, 0);
-
-    recommendations = new QListWidget(this);
 
     for (int i = 0; i < 10; ++i)
     {
@@ -51,31 +50,78 @@ void WatchView::initialize(const InnertubeClient& client, QStackedWidget* stacke
 
     QAction* pauseAction = new QAction("Toggle pause");
     pauseAction->setShortcuts(QList<QKeySequence>() << QKeySequence(Qt::Key_Space) << QKeySequence(Qt::Key_K) << QKeySequence(Qt::Key_MediaPlay) << QKeySequence(Qt::Key_MediaTogglePlayPause) << QKeySequence(Qt::Key_MediaPause));
+    // TODO: add volume icon, slider, etc.
+}
+
+void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress)
+{
+    stackedWidget->setCurrentIndex(1);
+
+    pageLayout = new QVBoxLayout(this);
+    pageLayout->setContentsMargins(0, 0, 0, 0);
+    pageLayout->setSpacing(5);
 
     media = new MediaMPV;
     media->init();
     media->setVolume(SettingsStore::instance().preferredVolume);
+    media->videoWidget()->setFixedSize(WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height()));
+    pageLayout->addWidget(media->videoWidget());
 
     connect(media, &Media::error, this, [this](const QString& message) { QMessageBox::warning(this, "Media error", message); });
     connect(media, &Media::stateChanged, this, &WatchView::mediaStateChanged);
     connect(media, &Media::volumeChanged, this, &WatchView::volumeChanged);
-    // TODO: add volume icon, slider, etc.
-}
 
-void WatchView::loadVideo(const InnertubeEndpoints::Next& next, const InnertubeEndpoints::Player& player, int progress)
-{
-    Q_UNUSED(next);
-    Q_UNUSED(progress);
-    stackedWidget->setCurrentIndex(1);
-    MainWindow::instance()->setWindowTitle(player.videoDetails.title + " - QtTube");
-    if (player.videoDetails.isLive || player.videoDetails.isLiveContent)
+    titleLabel = new QLabel(this);
+    titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 4));
+    titleLabel->setText(playerResp.videoDetails.title);
+    titleLabel->setWordWrap(true);
+    pageLayout->addWidget(titleLabel);
+
+    primaryInfoHbox = new QHBoxLayout;
+    primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
+    primaryInfoHbox->setSizeConstraint(QBoxLayout::SizeConstraint::SetFixedSize);
+
+    channelIcon = new ClickableLabel(false, this);
+    channelIcon->setMaximumSize(55, 48);
+    channelIcon->setMinimumSize(55, 48);
+    primaryInfoHbox->addWidget(channelIcon);
+
+    primaryInfoVbox = new QVBoxLayout;
+
+    channelName = new ClickableLabel(true, this);
+    channelName->setText(nextResp.secondaryInfo.channelName.text);
+    primaryInfoVbox->addWidget(channelName);
+
+    subscribersLabel = new QLabel(this);
+    WatchViewShared::setSubscriberCount(nextResp.secondaryInfo, subscribersLabel);
+    primaryInfoVbox->addWidget(subscribersLabel);
+
+    primaryInfoHbox->addLayout(primaryInfoVbox);
+    pageLayout->addLayout(primaryInfoHbox);
+
+    pageLayout->addStretch(); // disable the layout from stretching on resize
+
+    if (!nextResp.secondaryInfo.channelIcons.isEmpty())
     {
-        media->play(player.streamingData.hlsManifestUrl);
+        auto bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.channelIcons, [](const auto& t) { return t.width >= 48; });
+        HttpReply* reply = Http::instance().get(bestThumb.url);
+        connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) { WatchViewShared::setChannelIcon(reply, channelIcon); });
+    }
+
+    MainWindow::instance()->setWindowTitle(playerResp.videoDetails.title + " - QtTube");
+    WatchViewShared::toggleIdleSleep(true);
+
+    MainWindow::instance()->topbar->setVisible(false);
+    MainWindow::instance()->topbar->alwaysShow = false;
+    connect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
+    if (playerResp.videoDetails.isLive || playerResp.videoDetails.isLiveContent)
+    {
+        media->play(playerResp.streamingData.hlsManifestUrl);
     }
     else
     {
         QList<InnertubeObjects::StreamingFormat> audioFormats, videoFormats;
-        for (const InnertubeObjects::StreamingFormat& f : player.streamingData.adaptiveFormats)
+        for (const InnertubeObjects::StreamingFormat& f : playerResp.streamingData.adaptiveFormats)
         {
             if (f.mimeType.startsWith("audio/"))
                 audioFormats.append(f);
@@ -83,21 +129,21 @@ void WatchView::loadVideo(const InnertubeEndpoints::Next& next, const InnertubeE
                 videoFormats.append(f);
         }
 
-        InnertubeObjects::StreamingFormat bestAudio = *std::ranges::max_element(audioFormats, [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; });
-        InnertubeObjects::StreamingFormat bestVideo = *std::ranges::max_element(videoFormats, [](const auto& a, const auto& b) { return a.height < b.height; });
+        auto bestAudio = *std::ranges::max_element(audioFormats, [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; });
+        auto bestVideo = *std::ranges::max_element(videoFormats, [](const auto& a, const auto& b) { return a.height < b.height; });
         media->playSeparateAudioAndVideo(bestVideo.url, bestAudio.url);
     }
 
-    WatchViewShared::toggleIdleSleep(true);
+    media->seek(progress);
 
     if (SettingsStore::instance().playbackTracking)
-        reportPlayback(itc, player);
+        reportPlayback(playerResp);
 
     if (SettingsStore::instance().watchtimeTracking)
     {
         watchtimeTimer = new QTimer;
         watchtimeTimer->setInterval(5000);
-        connect(watchtimeTimer, &QTimer::timeout, this, [=]() { reportWatchtime(itc, player, media->position()); });
+        connect(watchtimeTimer, &QTimer::timeout, this, [this, playerResp] { reportWatchtime(playerResp, media->position()); });
         watchtimeTimer->start();
     }
 }
@@ -124,9 +170,9 @@ QString WatchView::getCpn()
     return out;
 }
 
-void WatchView::reportPlayback(const InnertubeClient& client, const InnertubeEndpoints::Player& player)
+void WatchView::reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp)
 {
-    QUrlQuery playbackQuery(QUrl(player.playbackTracking.videostatsPlaybackUrl));
+    QUrlQuery playbackQuery(QUrl(playerResp.playbackTracking.videostatsPlaybackUrl));
 
     QUrl outPlaybackUrl("https://www.youtube.com/api/stats/playback");
     QUrlQuery outPlaybackQuery;
@@ -144,16 +190,16 @@ void WatchView::reportPlayback(const InnertubeClient& client, const InnertubeEnd
         { "cl", playbackQuery.queryItemValue("cl") },
         { "mos", "0" },
         { "volume", "100" },
-        { "cbr", client.browserName },
-        { "cbrver", client.browserVersion },
-        { "c", client.clientName },
-        { "cver", client.clientVersion },
+        { "cbr", itc.browserName },
+        { "cbrver", itc.browserVersion },
+        { "c", itc.clientName },
+        { "cver", itc.clientVersion },
         { "cplayer", "UNIPLAYER" },
-        { "cos", client.osName },
-        { "cosver", client.osVersion },
-        { "cplatform", client.platform },
-        { "hl", client.hl + "_" + client.gl },
-        { "cr", client.gl },
+        { "cos", itc.osName },
+        { "cosver", itc.osVersion },
+        { "cplatform", itc.platform },
+        { "hl", itc.hl + "_" + itc.gl },
+        { "cr", itc.gl },
         { "uga", playbackQuery.queryItemValue("uga") },
         { "len", playbackQuery.queryItemValue("len") },
         { "fexp", playbackQuery.queryItemValue("fexp") },
@@ -172,9 +218,9 @@ void WatchView::reportPlayback(const InnertubeClient& client, const InnertubeEnd
     Http::instance().get(outPlaybackUrl);
 }
 
-void WatchView::reportWatchtime(const InnertubeClient& client, const InnertubeEndpoints::Player& player, long long position)
+void WatchView::reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position)
 {
-    QUrlQuery watchtimeQuery(QUrl(player.playbackTracking.videostatsWatchtimeUrl));
+    QUrlQuery watchtimeQuery(QUrl(playerResp.playbackTracking.videostatsWatchtimeUrl));
     QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
     QUrlQuery outWatchtimeQuery;
     QString rt = QString::number((rand() % 191) + 10);
@@ -195,16 +241,16 @@ void WatchView::reportWatchtime(const InnertubeClient& client, const InnertubeEn
         { "state", "playing" },
         { "volume", "100" },
         { "subscribed", watchtimeQuery.queryItemValue("subscribed") },
-        { "cbr", client.browserName },
-        { "cbrver", client.browserVersion },
-        { "c", client.clientName },
-        { "cver", client.clientVersion },
+        { "cbr", itc.browserName },
+        { "cbrver", itc.browserVersion },
+        { "c", itc.clientName },
+        { "cver", itc.clientVersion },
         { "cplayer", "UNIPLAYER" },
-        { "cos", client.osName },
-        { "cosver", client.osVersion },
-        { "cplatform", client.platform },
-        { "hl", client.hl + "_" + client.gl },
-        { "cr", client.gl },
+        { "cos", itc.osName },
+        { "cosver", itc.osVersion },
+        { "cplatform", itc.platform },
+        { "hl", itc.hl + "_" + itc.gl },
+        { "cr", itc.gl },
         { "uga", watchtimeQuery.queryItemValue("uga") },
         { "len", watchtimeQuery.queryItemValue("len") },
         { "afmt", "251" },
