@@ -1,6 +1,7 @@
 #include "webengineplayer.h"
 #include <QVBoxLayout>
 #include <QWebEngineProfile>
+#include <QWebEngineScriptCollection>
 #include <QWebEngineSettings>
 
 WebEnginePlayer::WebEnginePlayer(QWidget* parent)
@@ -11,6 +12,13 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
+    QWebEngineScript inject;
+    inject.setInjectionPoint(QWebEngineScript::DocumentCreation);
+    inject.setWorldId(QWebEngineScript::MainWorld);
+    inject.setRunsOnSubFrames(true);
+    inject.setSourceCode(m_playerJs);
+    m_view->page()->scripts().insert(inject);
+
     m_view->page()->profile()->setUrlRequestInterceptor(m_interceptor);
     m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
     m_view->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
@@ -19,8 +27,8 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
 
 void WebEnginePlayer::play(const QString& vId, int progress, bool showSBToasts, const QVariantList& sponsorBlockCategories)
 {
-    QString sbc = QJsonDocument(QJsonArray::fromVariantList(sponsorBlockCategories)).toJson();
-    m_view->load(QUrl(QStringLiteral("https://thughunting.party/ytp/?v=%1&t=%2&st=%3&sbc=%4")
+    QString sbc = QJsonDocument(QJsonArray::fromVariantList(sponsorBlockCategories)).toJson(QJsonDocument::Compact);
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2&st=%3&sbc=%4")
                       .arg(vId)
                       .arg(progress)
                       .arg(showSBToasts)
