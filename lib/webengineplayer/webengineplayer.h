@@ -42,6 +42,8 @@ function waitForElement(selector) {
     });
 }
 
+waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
+
 // SponsorBlock integration
 (async function() {
     const barTypes = {
@@ -182,32 +184,15 @@ function waitForElement(selector) {
 
 // Player ads patcher
 (function() {
-    var ytInitialPlayerResponse = null;
-
-    function respGetter() { return ytInitialPlayerResponse; }
-    function respSetter(data) { ytInitialPlayerResponse = { ...data, adPlacements: [] }; }
-
-    Object.defineProperty(window, "ytInitialPlayerResponse", {
-        get: respGetter,
-        set: respSetter,
-        configurable: true
-    });
-
-    const { fetch: origFetch } = window;
-    window.fetch = async (...args) => {
-        const response = await origFetch(...args);
-        if (response.url.includes("/youtubei/v1/player")) {
-            const text = () =>
-                response
-                    .clone()
-                    .text()
-                    .then((data) => data.replace(/adPlacements/, 'odPlacement'));
-
-            response.text = text;
-            return response;
+    JSON.parseOG = JSON.parse;
+    JSON.parse = function(obj) {
+        obj = JSON.parseOG(obj);
+        if (obj?.adPlacements) {
+            obj.adPlacements = [];
+        } else if (obj?.playerAds) {
+            obj.playerAds = [];
         }
-
-        return response;
+        return obj;
     };
 })();
 
@@ -338,6 +323,21 @@ function waitForElement(selector) {
     }
     /* end 2019 chrome scaling */
 
+    /* lighter bottom gradient */
+    .ytp-gradient-bottom, .ytp-gradient-top {
+        height: 50px !important;
+        padding: 0 !important;
+    }
+
+    .ytp-gradient-bottom {
+        background: linear-gradient(to top, #0009, #0000) !important;
+    }
+
+    .ytp-gradient-top {
+        background: linear-gradient(to bottom, #0009, #0000) !important;
+    }
+    /* end lighter bottom gradient */
+
     /* general styles */
     .ytp-pause-overlay-container {
         display: none !important;
@@ -449,6 +449,10 @@ function waitForElement(selector) {
 
     .ytp-menuitem[aria-haspopup="true"] .ytp-menuitem-content {
         padding-right: 38px !important;
+    }
+
+    .iv-branding {
+        display: none;
     }
     /* end general styles */
 
