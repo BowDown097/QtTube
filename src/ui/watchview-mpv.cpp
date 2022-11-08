@@ -56,6 +56,7 @@ void WatchView::initialize(const InnertubeClient& client, QStackedWidget* stacke
 void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress)
 {
     stackedWidget->setCurrentIndex(1);
+    QSize playerSize = WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height());
 
     pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
@@ -64,7 +65,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     media = new MediaMPV;
     media->init();
     media->setVolume(SettingsStore::instance().preferredVolume);
-    media->videoWidget()->setFixedSize(WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height()));
+    media->videoWidget()->setFixedSize(playerSize);
     pageLayout->addWidget(media->videoWidget());
 
     connect(media, &Media::error, this, [this](const QString& message) { QMessageBox::warning(this, "Media error", message); });
@@ -72,6 +73,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     connect(media, &Media::volumeChanged, this, &WatchView::volumeChanged);
 
     titleLabel = new QLabel(this);
+    titleLabel->setFixedWidth(playerSize.width());
     titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 4));
     titleLabel->setText(playerResp.videoDetails.title);
     titleLabel->setWordWrap(true);
@@ -79,7 +81,6 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
 
     primaryInfoHbox = new QHBoxLayout;
     primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
-    primaryInfoHbox->setSizeConstraint(QBoxLayout::SizeConstraint::SetFixedSize);
 
     channelIcon = new ClickableLabel(false, this);
     channelIcon->setMaximumSize(55, 48);
@@ -97,7 +98,11 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     primaryInfoVbox->addWidget(subscribersLabel);
 
     primaryInfoHbox->addLayout(primaryInfoVbox);
-    pageLayout->addLayout(primaryInfoHbox);
+
+    primaryInfoWrapper = new QWidget(this);
+    primaryInfoWrapper->setFixedWidth(playerSize.width());
+    primaryInfoWrapper->setLayout(primaryInfoHbox);
+    pageLayout->addWidget(primaryInfoWrapper);
 
     pageLayout->addStretch(); // disable the layout from stretching on resize
 
@@ -152,6 +157,16 @@ void WatchView::mediaStateChanged(Media::State state)
 {
     if (state == Media::ErrorState)
         QMessageBox::critical(this, "Media error", media->errorString());
+}
+
+void WatchView::resizeEvent(QResizeEvent*)
+{
+    if (!primaryInfoWrapper) return;
+
+    QSize playerSize = WatchViewShared::calcPlayerSize(width(), MainWindow:instance()->height());
+    media->videoWidget()->setFixedSize(playerSize);
+    primaryInfoWrapper->setFixedWidth(playerSize.width());
+    titleLabel->setFixedWidth(playerSize.width());
 }
 
 void WatchView::volumeChanged(double volume)

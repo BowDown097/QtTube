@@ -6,8 +6,6 @@
 #include "innertube/responses/video/nextresponse.h"
 #include "innertube/responses/video/playerresponse.h"
 #include "lib/media/media.h"
-#include <QGridLayout>
-#include <QListWidget>
 #include <QStackedWidget>
 #include <QTimer>
 
@@ -31,6 +29,7 @@ private:
     QVBoxLayout* pageLayout = nullptr;
     QHBoxLayout* primaryInfoHbox = nullptr;
     QVBoxLayout* primaryInfoVbox = nullptr;
+    QWidget* primaryInfoWrapper = nullptr;
     QStackedWidget* stackedWidget = nullptr;
     QLabel* subscribersLabel = nullptr; // TODO: make into Hitchhiker-like subscribe button
     QLabel* titleLabel = nullptr;
@@ -40,6 +39,7 @@ private:
     QString getCpn();
     void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp);
     void reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position);
+    void resizeEvent(QResizeEvent*) override;
 };
 
 #endif // WATCHVIEWMPV_H

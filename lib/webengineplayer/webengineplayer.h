@@ -42,54 +42,25 @@ function waitForElement(selector) {
     });
 }
 
+const params = new URLSearchParams(document.location.search);
 waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
+waitForElement("#movie_player").then(p => p.seekTo(params.get("t"))); // seek to saved time
 
 // SponsorBlock integration
 (async function() {
     const barTypes = {
-        "sponsor": {
-            color: "#00d400",
-            opacity: "0.7"
-        },
-        "selfpromo": {
-            color: "#ffff00",
-            opacity: "0.7"
-        },
-        "exclusive_access": {
-            color: "#008a5c",
-            opacity: "0.7"
-        },
-        "interaction": {
-            color: "#cc00ff",
-            opacity: "0.7"
-        },
-        "intro": {
-            color: "#00ffff",
-            opacity: "0.7"
-        },
-        "outro": {
-            color: "#0202ed",
-            opacity: "0.7"
-        },
-        "preview": {
-            color: "#008fd6",
-            opacity: "0.7"
-        },
-        "music_offtopic": {
-            color: "#ff9900",
-            opacity: "0.7"
-        },
-        "poi_highlight": {
-            color: "#ff1684",
-            opacity: "0.7"
-        },
-        "filler": {
-            color: "#7300FF",
-            opacity: "0.9"
-        }
+        "sponsor": { color: "#00d400", opacity: "0.7" },
+        "selfpromo": { color: "#ffff00", opacity: "0.7" },
+        "exclusive_access": { color: "#008a5c", opacity: "0.7" },
+        "interaction": { color: "#cc00ff", opacity: "0.7" },
+        "intro": { color: "#00ffff", opacity: "0.7" },
+        "outro": { color: "#0202ed", opacity: "0.7" },
+        "preview": { color: "#008fd6", opacity: "0.7" },
+        "music_offtopic": { color: "#ff9900", opacity: "0.7" },
+        "poi_highlight": { color: "#ff1684", opacity: "0.7" },
+        "filler": { color: "#7300ff", opacity: "0.9" }
     };
 
-    const params = new URLSearchParams(document.location.search);
     const sponsorBlockCategories = params.get("sbc");
     var sponsorBlockSegments = new Array();
     if (sponsorBlockCategories && JSON.parse(sponsorBlockCategories).length) {
@@ -134,7 +105,8 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
             }
 
             const time = segment.segment[1] ? Math.min(videoDuration, segment.segment[0]) : segment.segment[0];
-            bar.style.left = `${timeToDecimal(time) * 100}%`;
+            const timeDecimal = await timeToDecimal(time, videoDuration);
+            bar.style.left = `${timeDecimal * 100}%`;
 
             ul.appendChild(bar);
         }
@@ -235,10 +207,18 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
         height: 33px !important;
     }
 
+    .ytp-big-mode .ytp-menuitem {
+        height: 49px !important;
+    }
+
     .ytp-menuitem-label {
         font-size: 118% !important;
         font-weight: 500 !important;
         padding: 0 15px !important;
+    }
+
+    .ytp-big-mode .ytp-menuitem-label {
+        padding: 0 22px !important;
     }
 
     .ytp-menuitem-content {
@@ -256,6 +236,14 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
     .ytp-panel-header {
         height: 33px !important;
     }
+
+    .ytp-big-mode .ytp-panel-header {
+        height: 49px !important;
+    }
+
+    .ytp-big-mode .ytp-panel-title {
+        padding: 0 15px !important;
+    }
     /* end 2019 menu scaling */
 
     /* menu icon disabling */
@@ -267,6 +255,14 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
     /* heatmap disabling */
     .ytp-heat-map-container, .ytp-tooltip-title {
         display: none !important;
+    }
+
+    .ytp-tooltip-text {
+        top: 33px !important;
+    }
+
+    .ytp-big-mode .ytp-tooltip-text {
+        top: 41px !important;
     }
     /* end heatmap disabling */
 
@@ -280,6 +276,11 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
         padding-top: 12px !important;
     }
 
+    .ytp-big-mode .ytp-title-text {
+        padding-left: 6px !important;
+        padding-top: 18px !important;
+    }
+
     .ytp-overflow-button, .ytp-playlist-menu-button {
         padding-top: 6px !important;
         margin: 0 !important;
@@ -289,7 +290,7 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
         display: none !important;
     }
 
-    .ytp-watch-later-title, .ytp-share-title, .ytp-overflow-title, .ytp-copylink-title {
+    .ytp-watch-later-title, .ytp-share-title, .ytp-overflow-title, .ytp-copylink-title, .ytp-cards-button-title {
         display: none !important;
     }
 
@@ -300,26 +301,34 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
     /* end old embed head */
 
     /* 2019 chrome scaling */
-    .ytp-chrome-bottom {
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-bottom {
         height: 36px !important;
     }
 
-    .ytp-chrome-controls {
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls {
         height: 36px !important;
         line-height: 36px !important;
     }
 
-    .ytp-chrome-controls .ytp-button, .ytp-chrome-controls .ytp-replay-button {
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-button, .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-replay-button {
         width: 36px !important;
         padding: 0 !important;
     }
 
-    .ytp-progress-bar-container {
+    .ytp-embed:not(.ytp-big-mode) .ytp-progress-bar-container {
         bottom: 35px !important;
     }
 
-    .ytp-time-display, .ytp-chapter-container {
+    .ytp-embed:not(.ytp-big-mode) .ytp-time-display, .ytp-embed:not(.ytp-big-mode) .ytp-chapter-container {
         line-height: 35px !important;
+    }
+
+    .ytp-time-display {
+        margin-top: 1.5px;
+    }
+
+    .ytp-chapter-container {
+        margin-top: 1px;
     }
     /* end 2019 chrome scaling */
 
@@ -327,6 +336,10 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
     .ytp-gradient-bottom, .ytp-gradient-top {
         height: 50px !important;
         padding: 0 !important;
+    }
+
+    .ytp-big-mode .ytp-gradient-bottom, .ytp-big-mode .ytp-gradient-top {
+        height: 75px !important;
     }
 
     .ytp-gradient-bottom {
@@ -347,7 +360,7 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
         display: none !important;
     }
 
-    .ytp-popup {
+    .ytp-embed:not(.ytp-big-mode) .ytp-popup {
         outline: 0 !important;
     }
 
@@ -355,23 +368,24 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
         padding: 0 !important;
     }
 
-    .ytp-chrome-controls .ytp-button.ytp-chapter-title, .ytp-chrome-controls .ytp-replay-button.ytp-chapter-title {
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-button.ytp-chapter-title,
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-replay-button.ytp-chapter-title {
         width: 100% !important;
     }
 
-    .ytp-chrome-controls .ytp-button.ytp-mute-button,
-    .ytp-chrome-controls .ytp-replay-button.ytp-mute-button,
-    .ytp-chrome-controls .ytp-button.ytp-next-button,
-    .ytp-chrome-controls .ytp-replay-button.ytp-next-button,
-    .ytp-chrome-controls .ytp-button.ytp-miniplayer-button,
-    .ytp-chrome-controls .ytp-replay-button.ytp-miniplayer-button,
-    .ytp-chrome-controls .ytp-button.ytp-remote-button,
-    .ytp-chrome-controls .ytp-replay-button.ytp-remote-button {
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-button.ytp-mute-button,
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-replay-button.ytp-mute-button,
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-button.ytp-next-button,
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-replay-button.ytp-next-button,
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-button.ytp-miniplayer-button,
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-replay-button.ytp-miniplayer-button,
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-button.ytp-remote-button,
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-replay-button.ytp-remote-button {
         padding: 0 !important;
     }
 
-    .ytp-chrome-controls .ytp-button[aria-pressed="true"]::after,
-    .ytp-chrome-controls .ytp-replay-button[aria-pressed="true"]::after {
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-button[aria-pressed="true"]::after,
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-replay-button[aria-pressed="true"]::after {
         width: 18px !important;
         left: 9px !important;
         bottom: 6px !important;
@@ -383,54 +397,59 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
         display: none !important;
     }
 
-    .ytp-chrome-controls .ytp-play-button {
+    .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-play-button {
         width: 46px !important;
     }
 
-    .ytp-player-content {
+    .ytp-embed:not(.ytp-big-mode) .ytp-player-content {
         bottom: 53px !important;
     }
 
-    .ytp-player-content:not(.ytp-upnext):not(.html5-endscreen) {
+    .ytp-embed:not(.ytp-big-mode) .ytp-player-content:not(.ytp-upnext):not(.html5-endscreen) {
         top: 60px !important;
     }
 
-    .ytp-gradient-bottom {
+    .ytp-embed:not(.ytp-big-mode) .ytp-gradient-bottom {
         height: 49px !important;
         padding-top: 49px !important;
     }
 
-    .ytp-settings-menu {
-        bottom: 49px !important;
-        right: 12px !important;
+    .ytp-embed:not(.ytp-big-mode) .ytp-settings-menu {
+        bottom: 49px;
+        right: 12px;
     }
 
-    .ytp-tooltip.ytp-bottom:not(.ytp-tooltip-opaque),
-    .ytp-tooltip.ytp-preview.ytp-text-detail {
+    .ytp-big-mode .ytp-settings-menu {
+        right: 24px !important;
+        bottom: 70px !important;
+    }
+
+    .ytp-embed:not(.ytp-big-mode) .ytp-tooltip.ytp-bottom:not(.ytp-tooltip-opaque),
+    .ytp-embed:not(.ytp-big-mode) .ytp-tooltip.ytp-preview.ytp-text-detail {
         top: unset !important;
-        bottom: 50px !important;
+        bottom: 50px;
     }
 
-    .ytp-tooltip.ytp-preview:not(.ytp-text-detail) {
+    .ytp-big-mode .ytp-tooltip.ytp-preview.ytp-text-detail {
+        bottom: 75px !important;
+    }
+
+    .ytp-embed:not(.ytp-big-mode) .ytp-tooltip.ytp-preview:not(.ytp-text-detail) {
         transform: translateY(-29px) !important;
     }
 
-    .ytp-autonav-toggle-button {
+    .ytp-embed:not(.ytp-big-mode) .ytp-autonav-toggle-button {
         transform: scale(0.9251237) !important;
         top: 11px !important;
     }
 
-    .ytp-skip-intro-button {
+    .ytp-embed:not(.ytp-big-mode) .ytp-skip-intro-button {
         bottom: 50px !important;
         height: 40px !important;
     }
 
-    .ytp-webgl-spherical-control {
+    .ytp-embed:not(.ytp-big-mode) .ytp-webgl-spherical-control {
         top: 60px !important;
-    }
-
-    .ytp-title-text {
-        padding-top: 21px !important;
     }
 
     .html5-video-player:not(.ytp-autohide) .caption-window.ytp-caption-window-bottom {
@@ -449,6 +468,10 @@ waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
 
     .ytp-menuitem[aria-haspopup="true"] .ytp-menuitem-content {
         padding-right: 38px !important;
+    }
+
+    .ytp-big-mode .ytp-menuitem[aria-haspopup="true"] .ytp-menuitem-content {
+        background-position: right !important;
     }
 
     .iv-branding {

@@ -2,7 +2,6 @@
 #ifndef WATCHVIEWYTP_H
 #define WATCHVIEWYTP_H
 #include "clickablelabel.h"
-#include "httpreply.h"
 #include "innertube/responses/video/nextresponse.h"
 #include "innertube/responses/video/playerresponse.h"
 #include "webengineplayer.h"
@@ -24,6 +23,7 @@ private:
     QVBoxLayout* pageLayout = nullptr;
     QHBoxLayout* primaryInfoHbox = nullptr;
     QVBoxLayout* primaryInfoVbox = nullptr;
+    QWidget* primaryInfoWrapper = nullptr;
     QStackedWidget* stackedWidget = nullptr;
     QLabel* subscribersLabel = nullptr; // TODO: make into Hitchhiker-like subscribe button
     QLabel* titleLabel = nullptr;
