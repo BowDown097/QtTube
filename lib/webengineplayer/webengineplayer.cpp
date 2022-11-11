@@ -13,9 +13,8 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     setLayout(layout);
 
     QWebEngineScript inject;
-    inject.setInjectionPoint(QWebEngineScript::DocumentCreation);
+    inject.setInjectionPoint(QWebEngineScript::DocumentReady);
     inject.setWorldId(QWebEngineScript::MainWorld);
-    inject.setRunsOnSubFrames(true);
     inject.setSourceCode(m_playerJs);
     m_view->page()->scripts().insert(inject);
 

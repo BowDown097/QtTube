@@ -174,7 +174,7 @@ waitForElement("#movie_player").then(p => p.seekTo(params.get("t"))); // seek to
         let style = document.createElement("style");
         style.type = "text/css";
         style.appendChild(document.createTextNode(css));
-        waitForElement("head").then(head => head.appendChild(style));
+        document.documentElement.appendChild(style);
     }
 
     addStyle(`
