@@ -1,4 +1,5 @@
 #include "webengineplayer.h"
+#include "src/settingsstore.h"
 #include <QVBoxLayout>
 #include <QWebEngineProfile>
 #include <QWebEngineScriptCollection>
@@ -24,14 +25,13 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     connect(m_view->page(), &QWebEnginePage::fullScreenRequested, this, &WebEnginePlayer::fullScreenRequested);
 }
 
-void WebEnginePlayer::play(const QString& vId, int progress, bool showSBToasts, const QVariantList& sponsorBlockCategories)
+void WebEnginePlayer::play(const QString& vId, int progress)
 {
-    QString sbc = QJsonDocument(QJsonArray::fromVariantList(sponsorBlockCategories)).toJson(QJsonDocument::Compact);
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2&st=%3&sbc=%4")
-                      .arg(vId)
-                      .arg(progress)
-                      .arg(showSBToasts)
-                      .arg(sbc)));
+    QString sbc = QJsonDocument(QJsonArray::fromVariantList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
+    QString q = QMetaEnum::fromType<SettingsStore::PlayerQuality>().valueToKey(SettingsStore::instance().preferredQuality);
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4")
+                      .arg(vId, sbc, q.toLower())
+                      .arg(progress)));
 }
 
 void WebEnginePlayer::fullScreenRequested(QWebEngineFullScreenRequest request)

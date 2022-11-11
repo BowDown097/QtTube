@@ -1,4 +1,5 @@
 #include "playerinterceptor.h"
+#include "src/settingsstore.h"
 #include <QUrlQuery>
 
 void PlayerInterceptor::setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore)
@@ -28,7 +29,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
     if (info.requestUrl().path() == "/api/stats/watchtime")
     {
         info.block(true);
-        if (!m_watchtimeTracking) return;
+        if (!SettingsStore::instance().watchtimeTracking) return;
 
         QUrlQuery watchtimeQuery(info.requestUrl());
         QUrlQuery playerWatchtimeQuery(QUrl(m_playerResponse.playbackTracking.videostatsWatchtimeUrl));
@@ -86,7 +87,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
     else if (info.requestUrl().path() == "/api/stats/playback")
     {
         info.block(true);
-        if (!m_playbackTracking) return;
+        if (!SettingsStore::instance().playbackTracking) return;
 
         QUrlQuery playbackQuery(info.requestUrl());
         QUrlQuery playerPlaybackQuery(QUrl(m_playerResponse.playbackTracking.videostatsPlaybackUrl));

@@ -1,5 +1,4 @@
 #ifndef USEMPV
-#include "../settingsstore.h"
 #include "innertube.h"
 #include "mainwindow.h"
 #include "uiutilities.h"
@@ -35,8 +34,6 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     wePlayer = new WebEnginePlayer(this);
     wePlayer->setAuthStore(InnerTube::instance().authStore());
     wePlayer->setContext(InnerTube::instance().context());
-    wePlayer->setUsePlaybackTracking(SettingsStore::instance().playbackTracking);
-    wePlayer->setUseWatchtimeTracking(SettingsStore::instance().watchtimeTracking);
     pageLayout->addWidget(wePlayer);
 
     titleLabel = new QLabel(this);
@@ -71,7 +68,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     primaryInfoWrapper->setLayout(primaryInfoHbox);
     pageLayout->addWidget(primaryInfoWrapper);
 
-    wePlayer->play(playerResp.videoDetails.videoId, progress, SettingsStore::instance().showSBToasts, SettingsStore::instance().sponsorBlockCategories);
+    wePlayer->play(playerResp.videoDetails.videoId, progress);
     wePlayer->setFixedSize(playerSize);
     wePlayer->setPlayerResponse(playerResp);
 

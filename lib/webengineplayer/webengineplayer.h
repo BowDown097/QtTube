@@ -13,10 +13,8 @@ public:
     void setAuthStore(InnertubeAuthStore* authStore) { m_interceptor->setAuthStore(authStore); }
     void setContext(InnertubeContext* context) { m_interceptor->setContext(context); }
     void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp) { m_interceptor->setPlayerResponse(resp); }
-    void setUsePlaybackTracking(bool playbackTracking) { m_interceptor->setUsePlaybackTracking(playbackTracking); }
-    void setUseWatchtimeTracking(bool watchtimeTracking) { m_interceptor->setUseWatchtimeTracking(watchtimeTracking); }
 public slots:
-    void play(const QString& vId, int progress, bool showSBToasts, const QVariantList& sponsorBlockCategories);
+    void play(const QString& vId, int progress);
 private slots:
     void fullScreenRequested(QWebEngineFullScreenRequest request);
 private:
@@ -43,8 +41,33 @@ function waitForElement(selector) {
 }
 
 const params = new URLSearchParams(document.location.search);
-waitForElement(".ytp-large-play-button").then(elm => elm.click()); // autoplay
-waitForElement("#movie_player").then(p => p.seekTo(params.get("t"))); // seek to saved time
+waitForElement("#movie_player").then(function(p) {
+    p.seekTo(params.get("t")); // seek to saved time
+    p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. there's no way out of doing this. wtf???
+
+    // quality preference
+    var pref = params.get("q");
+    if (!pref || pref == "auto") {
+        p.playVideo();
+        return;
+    }
+
+    var iv = setInterval(function() {
+        if (!p.getAvailableQualityLevels || !p.setPlaybackQualityRange)
+            return;
+
+        const avail = p.getAvailableQualityLevels();
+        if (!avail?.length)
+            return;
+
+        if (!avail.includes(pref)) // if our pref is not available, pick (should be) next best one
+            pref = avail[0];
+
+        p.setPlaybackQualityRange(pref, pref);
+        p.playVideo();
+        clearInterval(iv);
+    }, 1000);
+});
 
 // SponsorBlock integration
 (async function() {

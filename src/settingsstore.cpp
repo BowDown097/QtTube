@@ -20,6 +20,7 @@ void SettingsStore::initializeFromSettingsFile()
     homeShelves = settingsObj["homeShelves"].toBool();
     itcCache = settingsObj["itcCache"].toBool(true);
     playbackTracking = settingsObj["playbackTracking"].toBool(true);
+    preferredQuality = static_cast<PlayerQuality>(settingsObj["preferredQuality"].toInt());
     preferredVolume = settingsObj["preferredVolume"].toInt(100);
     returnDislikes = settingsObj["returnDislikes"].toBool(true);
     showSBToasts = settingsObj["showSBToasts"].toBool(true);
@@ -41,6 +42,7 @@ void SettingsStore::saveToSettingsFile()
         { "homeShelves", homeShelves },
         { "itcCache", itcCache },
         { "playbackTracking", playbackTracking },
+        { "preferredQuality", preferredQuality },
         { "preferredVolume", preferredVolume },
         { "returnDislikes", returnDislikes },
         { "showSBToasts", showSBToasts },

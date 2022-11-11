@@ -15,6 +15,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->condensedViews->setChecked(store.condensedViews);
     ui->homeShelves->setChecked(store.homeShelves);
     ui->volumeSpin->setValue(store.preferredVolume);
+    ui->qualityCombo->setCurrentIndex(store.preferredQuality);
     ui->defaultTabCombo->setCurrentIndex(store.frontPageTab);
     // privacy
     ui->playbackTracking->setChecked(store.playbackTracking);
@@ -43,6 +44,7 @@ void SettingsForm::saveSettings()
     store.condensedViews = ui->condensedViews->isChecked();
     store.homeShelves = ui->homeShelves->isChecked();
     store.preferredVolume = ui->volumeSpin->value();
+    store.preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->qualityCombo->currentIndex());
     store.frontPageTab = static_cast<SettingsStore::FrontPageTab>(ui->defaultTabCombo->currentIndex());
     // privacy
     store.playbackTracking = ui->playbackTracking->isChecked();
