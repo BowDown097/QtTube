@@ -66,7 +66,7 @@ waitForElement("#movie_player").then(function(p) {
         p.setPlaybackQualityRange(pref, pref);
         p.playVideo();
         clearInterval(iv);
-    }, 1000);
+    }, 100);
 });
 
 // SponsorBlock integration
