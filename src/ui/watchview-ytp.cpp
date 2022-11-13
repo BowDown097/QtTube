@@ -1,9 +1,9 @@
 #ifndef USEMPV
+#include "watchview-ytp.h"
 #include "innertube.h"
 #include "mainwindow.h"
 #include "uiutilities.h"
-#include "watchview-shared.hpp"
-#include "watchview-ytp.h"
+#include "watchview-shared.h"
 #include <QApplication>
 
 WatchView* WatchView::instance()

@@ -1,9 +1,11 @@
 #ifdef USEMPV
-#include "../settingsstore.h"
+#include "watchview-mpv.h"
+#include "http.h"
 #include "lib/media/mpv/mediampv.h"
 #include "mainwindow.h"
-#include "watchview-mpv.h"
-#include "watchview-shared.hpp"
+#include "../settingsstore.h"
+#include "uiutilities.h"
+#include "watchview-shared.h"
 #include <QVBoxLayout>
 
 WatchView* WatchView::instance()
@@ -163,7 +165,7 @@ void WatchView::resizeEvent(QResizeEvent*)
 {
     if (!primaryInfoWrapper) return;
 
-    QSize playerSize = WatchViewShared::calcPlayerSize(width(), MainWindow:instance()->height());
+    QSize playerSize = WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height());
     media->videoWidget()->setFixedSize(playerSize);
     primaryInfoWrapper->setFixedWidth(playerSize.width());
     titleLabel->setFixedWidth(playerSize.width());

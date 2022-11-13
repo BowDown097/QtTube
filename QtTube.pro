@@ -43,7 +43,8 @@ SOURCES += \
     src/ui/mainwindow.cpp \
     src/ui/settingsform.cpp \
     src/ui/topbar.cpp \
-    src/ui/uiutilities.cpp
+    src/ui/uiutilities.cpp \
+    src/ui/watchview-shared.cpp
 
 HEADERS += \
     src/browsehelper.h \
@@ -57,7 +58,7 @@ HEADERS += \
     src/ui/settingsform.h \
     src/ui/topbar.h \
     src/ui/uiutilities.h \
-    src/ui/watchview-shared.hpp
+    src/ui/watchview-shared.h
 
 FORMS += \
     src/ui/mainwindow.ui \
