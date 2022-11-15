@@ -113,10 +113,7 @@ void MainWindow::returnFromSearch()
     doNotBrowse = true;
     disconnect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromSearch);
     ui->tabWidget->setTabEnabled(4, false);
-    ui->tabWidget->setTabEnabled(0, true);
-    ui->tabWidget->setTabEnabled(1, true);
-    ui->tabWidget->setTabEnabled(2, true);
-    ui->tabWidget->setTabEnabled(3, true);
+    UIUtilities::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(0);
     ui->searchWidget->clear();
@@ -127,10 +124,7 @@ void MainWindow::returnFromWatchHistorySearch()
     doNotBrowse = true;
     disconnect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
     ui->tabWidget->setTabEnabled(5, false);
-    ui->tabWidget->setTabEnabled(0, true);
-    ui->tabWidget->setTabEnabled(1, true);
-    ui->tabWidget->setTabEnabled(2, true);
-    ui->tabWidget->setTabEnabled(3, true);
+    UIUtilities::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(3);
     ui->historySearchWidget->clear();
@@ -155,11 +149,7 @@ void MainWindow::search()
     doNotBrowse = true;
     connect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromSearch);
     ui->tabWidget->setTabEnabled(4, true);
-    ui->tabWidget->setTabEnabled(0, false);
-    ui->tabWidget->setTabEnabled(1, false);
-    ui->tabWidget->setTabEnabled(2, false);
-    ui->tabWidget->setTabEnabled(3, false);
-    ui->tabWidget->setTabEnabled(5, false);
+    UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3, 5});
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(4);
 
@@ -175,7 +165,7 @@ void MainWindow::searchWatchHistory()
     if (ui->tabWidget->currentIndex() == 5)
     {
         ui->historySearchWidget->clear();
-        lastSearchQuery = static_cast<QLineEdit*>(sender())->text();
+        lastSearchQuery = qobject_cast<QLineEdit*>(sender())->text();
         BrowseHelper::instance().browseHistory(ui->historySearchWidget, lastSearchQuery);
         return;
     }
@@ -183,14 +173,11 @@ void MainWindow::searchWatchHistory()
     doNotBrowse = true;
     connect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
     ui->tabWidget->setTabEnabled(5, true);
-    ui->tabWidget->setTabEnabled(0, false);
-    ui->tabWidget->setTabEnabled(1, false);
-    ui->tabWidget->setTabEnabled(2, false);
-    ui->tabWidget->setTabEnabled(3, false);
+    UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3});
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(5);
 
-    lastSearchQuery = static_cast<QLineEdit*>(sender())->text();
+    lastSearchQuery = qobject_cast<QLineEdit*>(sender())->text();
     BrowseHelper::instance().browseHistory(ui->historySearchWidget, lastSearchQuery);
 }
 
