@@ -36,10 +36,9 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     wePlayer->setContext(InnerTube::instance().context());
     pageLayout->addWidget(wePlayer);
 
-    titleLabel = new QLabel(this);
+    titleLabel = new QLabel(playerResp.videoDetails.title, this);
     titleLabel->setFixedWidth(playerSize.width());
     titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 4));
-    titleLabel->setText(playerResp.videoDetails.title);
     titleLabel->setWordWrap(true);
     pageLayout->addWidget(titleLabel);
 

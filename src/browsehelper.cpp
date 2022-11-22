@@ -1,5 +1,6 @@
 #include "browsehelper.h"
 #include "http.h"
+#include "protobuf/simpleprotobuf.h"
 #include "settingsstore.h"
 #include "ui/browsechannelrenderer.h"
 #include "ui/browsevideorenderer.h"
@@ -104,11 +105,23 @@ void BrowseHelper::browseTrending(QListWidget* trendingWidget)
     }
 }
 
-void BrowseHelper::search(QListWidget* searchWidget, const QString& query)
+void BrowseHelper::search(QListWidget* searchWidget, const QString& query, int dateF, int typeF, int durF, int featF, int sort)
 {
     try
     {
-        InnertubeEndpoints::Search searchData = InnerTube::instance().get<InnertubeEndpoints::Search>(query);
+        QByteArray compiledParams{};
+        QVariantMap filter, params;
+        if (sort != -1) params.insert("sort", sort);
+        if (dateF != -1) filter.insert("uploadDate", dateF + 1);
+        if (typeF != -1) filter.insert("type", typeF + 1);
+        if (durF != -1) filter.insert("duration", durF + 1);
+        if (featF != -1) filter.insert(featureMap[featF], true);
+        if (!filter.isEmpty()) params.insert("filter", filter);
+
+        if (!params.isEmpty())
+            compiledParams = QByteArray::fromHex(SimpleProtobuf::compile(params, searchMsgFields)).toBase64().toPercentEncoding();
+
+        InnertubeEndpoints::Search searchData = InnerTube::instance().get<InnertubeEndpoints::Search>(query, "", compiledParams);
         searchWidget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(searchData.response.estimatedResults)));
         setupChannelList(searchData.response.channels, searchWidget);
         setupVideoList(searchData.response.videos, searchWidget);
@@ -148,9 +161,8 @@ void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, 
     {
         if (!video.shelf.text.isEmpty() && video.shelf.text != lastShelf)
         {
-            QLabel* shelfLabel = new QLabel;
+            QLabel* shelfLabel = new QLabel(video.shelf.text);
             shelfLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
-            shelfLabel->setText(video.shelf.text);
 
             QListWidgetItem* item = new QListWidgetItem(widget);
             item->setSizeHint(shelfLabel->sizeHint());

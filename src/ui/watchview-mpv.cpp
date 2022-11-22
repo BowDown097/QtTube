@@ -74,7 +74,7 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     connect(media, &Media::stateChanged, this, &WatchView::mediaStateChanged);
     connect(media, &Media::volumeChanged, this, &WatchView::volumeChanged);
 
-    titleLabel = new QLabel(this);
+    titleLabel = new QLabel(playerResp.videoDetails.title, this);
     titleLabel->setFixedWidth(playerSize.width());
     titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 4));
     titleLabel->setText(playerResp.videoDetails.title);

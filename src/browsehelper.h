@@ -16,13 +16,50 @@ public:
     void browseHome(QListWidget* homeWidget);
     void browseSubscriptions(QListWidget* subsWidget);
     void browseTrending(QListWidget* trendingWidget);
-    void search(QListWidget* searchWidget, const QString& query);
+    void search(QListWidget* searchWidget, const QString& query, int dateF = -1, int typeF = -1, int durF = -1, int featF = -1, int sort = -1);
 
     template<typename T> requires std::derived_from<T, InnertubeEndpoints::BaseEndpoint>
     void tryContinuation(int value, QListWidget* widget, const QString& data = "");
 private:
     void setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget);
     void setupVideoList(const QList<InnertubeObjects::Video>& videos, QListWidget* widget);
+
+    QMap<int, QString> featureMap = {
+        { 0, "isLive" },
+        { 1, "is4K" },
+        { 2, "isHD" },
+        { 3, "hasSubtitles" },
+        { 4, "isCreativeCommons" },
+        { 5, "is360Degree" },
+        { 6, "isVR180" },
+        { 7, "is3D" },
+        { 8, "isHDR" },
+        { 9, "hasLocation" },
+        { 10, "isPurchased" },
+    };
+    QVariantMap searchMsgFields = {
+        {
+            "sort", QVariantList{1, 0}
+        },
+        {
+            "filter", QVariantList{2, 2, QVariantMap{
+                { "uploadDate", QVariantList{1, 0} },
+                { "type", QVariantList{2, 0} },
+                { "duration", QVariantList{3, 0} },
+                { "isHD", QVariantList{4, 0} },
+                { "hasSubtitles", QVariantList{5, 0} },
+                { "isCreativeCommons", QVariantList{6, 0} },
+                { "is3D", QVariantList{7, 0} },
+                { "isLive", QVariantList{8, 0} },
+                { "isPurchased", QVariantList{9, 0} },
+                { "is4K", QVariantList{14, 0} },
+                { "is360Degree", QVariantList{15, 0} },
+                { "hasLocation", QVariantList{23, 0} },
+                { "isHDR", QVariantList{25, 0} },
+                { "isVR180", QVariantList{26, 0} }
+            }}
+        }
+    };
 };
 
 #include "browsehelper.tpp"

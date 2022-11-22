@@ -4,6 +4,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "uiutilities.h"
+#include <QComboBox>
 #include <QJsonDocument>
 #include <QScrollBar>
 
@@ -110,6 +111,7 @@ void MainWindow::resizeEvent(QResizeEvent*)
 
 void MainWindow::returnFromSearch()
 {
+    UIUtilities::clearLayout(ui->additionalWidgets);
     doNotBrowse = true;
     disconnect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromSearch);
     ui->tabWidget->setTabEnabled(4, false);
@@ -135,6 +137,34 @@ void MainWindow::search()
     UIUtilities::clearLayout(ui->additionalWidgets);
     ui->historySearchWidget->clear();
 
+    QLabel* filtersLabel = new QLabel("Filters:");
+    ui->additionalWidgets->addWidget(filtersLabel);
+
+    QComboBox* dateCmb = new QComboBox;
+    dateCmb->setPlaceholderText("Upload date");
+    dateCmb->addItems({"Last hour", "Today", "This week", "This month", "This year"});
+    ui->additionalWidgets->addWidget(dateCmb);
+
+    QComboBox* typeCmb = new QComboBox;
+    typeCmb->setPlaceholderText("Type");
+    typeCmb->addItems({"Video", "Channel", "Playlist", "Movie"});
+    ui->additionalWidgets->addWidget(typeCmb);
+
+    QComboBox* durCmb = new QComboBox;
+    durCmb->setPlaceholderText("Duration");
+    durCmb->addItems({"Under 4 minutes", "Over 20 minutes", "4-20 minutes"});
+    ui->additionalWidgets->addWidget(durCmb);
+
+    QComboBox* featCmb = new QComboBox;
+    featCmb->setPlaceholderText("Features");
+    featCmb->addItems({"Live", "4K", "HD", "Subtitles/CC", "Creative Commons", "360°", "VR180", "3D", "HDR", "Location", "Purchased"});
+    ui->additionalWidgets->addWidget(featCmb);
+
+    QComboBox* sortCmb = new QComboBox;
+    sortCmb->setPlaceholderText("Sort by");
+    sortCmb->addItems({"Relevance", "Rating", "Upload date", "View count"});
+    ui->additionalWidgets->addWidget(sortCmb);
+
     if (ui->centralwidget->currentIndex() == 1)
         WatchView::instance()->goBack();
 
@@ -155,6 +185,27 @@ void MainWindow::search()
 
     lastSearchQuery = topbar->searchBox->text();
     BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery);
+
+    connect(dateCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(), featCmb->currentIndex(), sortCmb->currentIndex());
+    });
+    connect(typeCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), index, durCmb->currentIndex(), featCmb->currentIndex(), sortCmb->currentIndex());
+    });
+    connect(durCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), index, featCmb->currentIndex(), sortCmb->currentIndex());
+    });
+    connect(featCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), durCmb->currentIndex(), index, sortCmb->currentIndex());
+    });
+    connect(sortCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), durCmb->currentIndex(), featCmb->currentIndex(), index);
+    });
 }
 
 void MainWindow::searchWatchHistory()
