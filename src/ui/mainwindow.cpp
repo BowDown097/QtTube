@@ -171,17 +171,16 @@ void MainWindow::search()
     if (ui->tabWidget->currentIndex() == 4)
     {
         ui->searchWidget->clear();
-        lastSearchQuery = topbar->searchBox->text();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery);
-        return;
     }
-
-    doNotBrowse = true;
-    connect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromSearch);
-    ui->tabWidget->setTabEnabled(4, true);
-    UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3, 5});
-    doNotBrowse = false;
-    ui->tabWidget->setCurrentIndex(4);
+    else
+    {
+        doNotBrowse = true;
+        connect(topbar->logo, &ClickableLabel::clicked, this, &MainWindow::returnFromSearch);
+        ui->tabWidget->setTabEnabled(4, true);
+        UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3, 5});
+        doNotBrowse = false;
+        ui->tabWidget->setCurrentIndex(4);
+    }
 
     lastSearchQuery = topbar->searchBox->text();
     BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery);
