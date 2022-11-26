@@ -1,6 +1,18 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
+        <file>notif-bell.png</file>
+    </qresource>
+    <qresource>
+        <file>notif-bell-hasnotif.png</file>
+    </qresource>
+    <qresource>
+        <file>notif-bell-hasnotif-light.png</file>
+    </qresource>
+    <qresource>
+        <file>notif-bell-light.png</file>
+    </qresource>
+    <qresource>
         <file>qttube.svg</file>
     </qresource>
     <qresource>
@@ -8,5 +20,11 @@
     </qresource>
     <qresource>
         <file>qttube-full-light.png</file>
+    </qresource>
+    <qresource>
+        <file>settings.png</file>
+    </qresource>
+    <qresource>
+        <file>settings-light.png</file>
     </qresource>
 </RCC>

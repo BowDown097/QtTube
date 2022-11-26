@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     topbar = new TopBar(this);
-    connect(topbar, &TopBar::signedIn, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
+    connect(topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
     connect(topbar->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
 
     ui->tabWidget->setTabEnabled(4, false);
@@ -104,9 +104,7 @@ void MainWindow::browse()
 void MainWindow::resizeEvent(QResizeEvent*)
 {
     topbar->resize(width(), 35);
-    topbar->searchBox->resize(440 + width() - 800, 35);
-    topbar->settingsButton->move(topbar->searchBox->width() + topbar->searchBox->x() + 8, 0);
-    topbar->signInButton->move(topbar->settingsButton->width() + topbar->settingsButton->x() + 8, 0);
+    topbar->scaleAppropriately();
 }
 
 void MainWindow::returnFromSearch()
@@ -246,7 +244,13 @@ void MainWindow::tryRestoreData()
         return;
 
     InnerTube::instance().authenticateFromJson(doc.object());
-    topbar->signInButton->setText("Sign out");
+    if (InnerTube::instance().hasAuthenticated())
+    {
+        topbar->setUpNotifications();
+        topbar->signInButton->setText("Sign out");
+        disconnect(topbar->signInButton, &QPushButton::clicked, topbar, &TopBar::trySignIn);
+        connect(topbar->signInButton, &QPushButton::clicked, topbar, &TopBar::signOut);
+    }
 }
 
 MainWindow::~MainWindow()

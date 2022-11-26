@@ -12,16 +12,22 @@ public:
     bool alwaysShow = true;
     QPropertyAnimation* animation;
     ClickableLabel* logo;
+    ClickableLabel* notificationBell;
+    QLabel* notificationCount;
     QLineEdit* searchBox;
-    QPushButton* settingsButton;
+    ClickableLabel* settingsButton;
     QPushButton* signInButton;
     explicit TopBar(QWidget* parent = nullptr);
-    ~TopBar();
+    void scaleAppropriately();
 public slots:
+    void setUpNotifications();
     void showSettings();
+    void signOut();
     void trySignIn();
+private:
+    bool preferDark;
 signals:
-    void signedIn();
+    void signInStatusChanged();
 };
 
 #endif // TOPBAR_H
