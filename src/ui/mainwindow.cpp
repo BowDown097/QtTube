@@ -267,6 +267,7 @@ void MainWindow::showNotifications()
 
     notificationMenu->setVisible(true);
     BrowseHelper::instance().browseNotificationMenu(notificationMenu);
+    topbar->updateNotificationCount();
 }
 
 void MainWindow::tryRestoreData()

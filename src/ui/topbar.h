@@ -24,6 +24,7 @@ public slots:
     void showSettings();
     void signOut();
     void trySignIn();
+    void updateNotificationCount();
 private:
     bool preferDark;
 signals:

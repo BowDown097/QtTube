@@ -73,13 +73,7 @@ void TopBar::setUpNotifications()
     scaleAppropriately();
     if (InnerTube::instance().hasAuthenticated())
     {
-        int unseenCount = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>().unseenCount;
-        notificationBell->setPixmap(unseenCount > 0
-                                    ? QPixmap(preferDark ? ":/notif-bell-hasnotif-light.png" : ":/notif-bell-hasnotif.png")
-                                    : QPixmap(preferDark ? ":/notif-bell-light.png" : ":/notif-bell.png"));
-        notificationBell->setVisible(true);
-        notificationCount->setText(QString::number(unseenCount));
-        notificationCount->setVisible(unseenCount > 0);
+        updateNotificationCount();
     }
     else
     {
@@ -131,4 +125,15 @@ void TopBar::trySignIn()
         connect(signInButton, &QPushButton::clicked, this, &TopBar::signOut);
         emit signInStatusChanged();
     }
+}
+
+void TopBar::updateNotificationCount()
+{
+    int unseenCount = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>().unseenCount;
+    notificationBell->setPixmap(unseenCount > 0
+                                ? QPixmap(preferDark ? ":/notif-bell-hasnotif-light.png" : ":/notif-bell-hasnotif.png")
+                                : QPixmap(preferDark ? ":/notif-bell-light.png" : ":/notif-bell.png"));
+    notificationBell->setVisible(true);
+    notificationCount->setText(QString::number(unseenCount));
+    notificationCount->setVisible(unseenCount > 0);
 }
