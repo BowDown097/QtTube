@@ -9,7 +9,6 @@ class ClickableLabel : public QLabel
 public:
     explicit ClickableLabel(bool underline = true, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags())
         : QLabel(parent, f), underline(underline) {}
-    ~ClickableLabel() {}
 signals:
     void clicked();
 protected:

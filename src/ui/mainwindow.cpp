@@ -1,5 +1,7 @@
 #include "../browsehelper.h"
 #include "../settingsstore.h"
+#include "browsenotificationrenderer.h"
+#include "channelview.h"
 #include "innertube.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -7,6 +9,12 @@
 #include <QComboBox>
 #include <QJsonDocument>
 #include <QScrollBar>
+
+#ifdef USEMPV
+#include "watchview-mpv.h"
+#else
+#include "watchview-ytp.h"
+#endif
 
 namespace { MainWindow* mWInst; }
 MainWindow* MainWindow::instance() { return mWInst; }
@@ -16,7 +24,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     mWInst = this;
     ui->setupUi(this);
 
+    notificationMenu = new QListWidget(this);
+    notificationMenu->setVisible(false);
+
     topbar = new TopBar(this);
+    connect(topbar, &TopBar::notificationBellClicked, this, &MainWindow::showNotifications);
     connect(topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
     connect(topbar->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
 
@@ -24,10 +36,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->tabWidget->setTabEnabled(5, false);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
 
-    connect(ui->historyWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHistory>(value, ui->historyWidget, lastSearchQuery); });
-    connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget); });
-    connect(ui->searchWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, lastSearchQuery); });
-    connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) { BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget); });
+    connect(notificationMenu->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
+        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::GetNotificationMenu>(value, notificationMenu, "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", 5);
+    });
+    connect(ui->historyWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
+        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHistory>(value, ui->historyWidget, lastSearchQuery);
+    });
+    connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
+        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget);
+    });
+    connect(ui->searchWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
+        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, lastSearchQuery);
+    });
+    connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
+        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget);
+    });
 
     ui->historySearchWidget->verticalScrollBar()->setSingleStep(25);
     ui->historyWidget->verticalScrollBar()->setSingleStep(25);
@@ -36,18 +59,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->subscriptionsWidget->verticalScrollBar()->setSingleStep(25);
     ui->trendingWidget->verticalScrollBar()->setSingleStep(25);
 
-    watchView = WatchView::instance();
-    ui->centralwidget->addWidget(watchView);
+    ui->centralwidget->addWidget(WatchView::instance());
 
     SettingsStore::instance().initializeFromSettingsFile();
-    InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP", "USER_INTERFACE_THEME_DARK"));
+    InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP"));
     tryRestoreData();
 
 #ifdef USEMPV
-    watchView->initialize(InnerTube::instance().context()->client, ui->centralwidget);
+    WatchView::instance()->initialize(InnerTube::instance().context()->client, ui->centralwidget);
 #else
-    watchView->initialize(ui->centralwidget);
+    WatchView::instance()->initialize(ui->centralwidget);
 #endif
+
+    ui->centralwidget->addWidget(ChannelView::instance());
+    ChannelView::instance()->initialize(ui->centralwidget);
 
     if (SettingsStore::instance().frontPageTab != SettingsStore::FrontPageTab::None)
     {
@@ -103,8 +128,10 @@ void MainWindow::browse()
 
 void MainWindow::resizeEvent(QResizeEvent*)
 {
+    notificationMenu->setFixedSize(width() >= 800 ? 600 : 600 - (800 - width()), height() / 2);
     topbar->resize(width(), 35);
     topbar->scaleAppropriately();
+    notificationMenu->move(topbar->notificationBell->x() - notificationMenu->width() + 20, 34);
 }
 
 void MainWindow::returnFromSearch()
@@ -227,6 +254,19 @@ void MainWindow::searchWatchHistory()
 
     lastSearchQuery = qobject_cast<QLineEdit*>(sender())->text();
     BrowseHelper::instance().browseHistory(ui->historySearchWidget, lastSearchQuery);
+}
+
+void MainWindow::showNotifications()
+{
+    if (notificationMenu->isVisible())
+    {
+        notificationMenu->clear();
+        notificationMenu->setVisible(false);
+        return;
+    }
+
+    notificationMenu->setVisible(true);
+    BrowseHelper::instance().browseNotificationMenu(notificationMenu);
 }
 
 void MainWindow::tryRestoreData()

@@ -1,6 +1,7 @@
 #ifdef USEMPV
 #include "watchview-mpv.h"
 #include "http.h"
+#include "innertube.h"
 #include "lib/media/mpv/mediampv.h"
 #include "mainwindow.h"
 #include "../settingsstore.h"
@@ -16,6 +17,13 @@ WatchView* WatchView::instance()
 
 void WatchView::goBack()
 {
+    media->stop();
+    media->clearQueue();
+    watchtimeTimer->deleteLater();
+
+    for (QAction* action : actions())
+        removeAction(action);
+
     MainWindow::instance()->topbar->alwaysShow = true;
     disconnect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
     UIUtilities::clearLayout(pageLayout);
@@ -50,13 +58,19 @@ void WatchView::initialize(const InnertubeClient& client, QStackedWidget* stacke
     connect(forwardAction, &QAction::triggered, this, [this] { media->relativeSeek(10000); });
     addAction(forwardAction);
 
-    QAction* pauseAction = new QAction("Toggle pause");
+    QAction* pauseAction = new QAction("Pause video");
     pauseAction->setShortcuts(QList<QKeySequence>() << QKeySequence(Qt::Key_Space) << QKeySequence(Qt::Key_K) << QKeySequence(Qt::Key_MediaPlay) << QKeySequence(Qt::Key_MediaTogglePlayPause) << QKeySequence(Qt::Key_MediaPause));
+    pauseAction->setAutoRepeat(false);
+    connect(pauseAction, &QAction::triggered, this, [this] { media->state() == Media::PlayingState ? media->pause() : media->play(); });
+    addAction(pauseAction);
     // TODO: add volume icon, slider, etc.
 }
 
-void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress)
+void WatchView::loadVideo(const QString& videoId, int progress)
 {
+    InnertubeEndpoints::NextResponse nextResp = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId).response;
+    InnertubeEndpoints::PlayerResponse playerResp = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response;
+
     stackedWidget->setCurrentIndex(1);
     QSize playerSize = WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height());
 
@@ -121,26 +135,8 @@ void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, cons
     MainWindow::instance()->topbar->setVisible(false);
     MainWindow::instance()->topbar->alwaysShow = false;
     connect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
-    if (playerResp.videoDetails.isLive || playerResp.videoDetails.isLiveContent)
-    {
-        media->play(playerResp.streamingData.hlsManifestUrl);
-    }
-    else
-    {
-        QList<InnertubeObjects::StreamingFormat> audioFormats, videoFormats;
-        for (const InnertubeObjects::StreamingFormat& f : playerResp.streamingData.adaptiveFormats)
-        {
-            if (f.mimeType.startsWith("audio/"))
-                audioFormats.append(f);
-            else if (f.mimeType.startsWith("video/"))
-                videoFormats.append(f);
-        }
 
-        auto bestAudio = *std::ranges::max_element(audioFormats, [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; });
-        auto bestVideo = *std::ranges::max_element(videoFormats, [](const auto& a, const auto& b) { return a.height < b.height; });
-        media->playSeparateAudioAndVideo(bestVideo.url, bestAudio.url);
-    }
-
+    media->play("https://www.youtube.com/watch?v=" + playerResp.videoDetails.videoId);
     media->seek(progress);
 
     if (SettingsStore::instance().playbackTracking)

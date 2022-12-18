@@ -27,6 +27,7 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
 
     notificationBell = new ClickableLabel(false, this);
     notificationBell->resize(30, 30);
+    connect(notificationBell, &ClickableLabel::clicked, this, [this] { emit notificationBellClicked(); });
 
     notificationCount = new QLabel(this);
     notificationCount->setFont(QFont(QApplication::font().toString(), 9));

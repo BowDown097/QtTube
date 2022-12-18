@@ -17,8 +17,7 @@ class BrowseChannelRenderer : public QWidget
     ClickableLabel* titleLabel;
 public:
     explicit BrowseChannelRenderer(QWidget* parent = nullptr);
-    void setData(const QString& channelId, const QString& descriptionSnippet, const QString& name, bool subbed,
-                 QString subCount, const QString& videoCount);
+    void setData(const QString& channelId, const QString& descriptionSnippet, const QString& name, bool subbed, QString subCount, const QString& videoCount);
 public slots:
     void setThumbnail(const HttpReply& reply);
 private slots:

@@ -3,6 +3,7 @@
 #include "protobuf/simpleprotobuf.h"
 #include "settingsstore.h"
 #include "ui/browsechannelrenderer.h"
+#include "ui/browsenotificationrenderer.h"
 #include "ui/browsevideorenderer.h"
 #include <QApplication>
 #include <QListWidgetItem>
@@ -64,6 +65,15 @@ void BrowseHelper::browseHome(QListWidget* homeWidget)
         else
             qDebug() << "Failed to get home browsing data:" << ie.message();
     }
+}
+
+// ok listen i know i'm kind of cheating here but whatever
+void BrowseHelper::browseNotificationMenu(QListWidget* menuWidget)
+{
+    InnertubeEndpoints::GetNotificationMenu notificationMenuData =
+        InnerTube::instance().get<InnertubeEndpoints::GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
+    setupNotificationList(notificationMenuData.response.notifications, menuWidget);
+    continuationToken = notificationMenuData.continuationToken;
 }
 
 void BrowseHelper::browseSubscriptions(QListWidget* subsWidget)
@@ -151,6 +161,26 @@ void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& chan
 
         HttpReply* reply = Http::instance().get(channel.thumbnails.last().url);
         QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
+    }
+}
+
+void BrowseHelper::setupNotificationList(const QList<InnertubeObjects::Notification>& notifications, QListWidget* widget)
+{
+    for (const InnertubeObjects::Notification& n : notifications)
+    {
+        BrowseNotificationRenderer* renderer = new BrowseNotificationRenderer(widget);
+        renderer->setData(n);
+
+        QListWidgetItem* item = new QListWidgetItem(widget);
+        item->setSizeHint(renderer->sizeHint());
+        widget->addItem(item);
+        widget->setItemWidget(item, renderer);
+
+        HttpReply* iconReply = Http::instance().get(n.channelIcon.url);
+        QObject::connect(iconReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setChannelIcon);
+
+        HttpReply* thumbReply = Http::instance().get("https://i.ytimg.com/vi/" + n.videoId + "/mqdefault.jpg");
+        QObject::connect(thumbReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setThumbnail);
     }
 }
 

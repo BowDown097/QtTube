@@ -38,7 +38,9 @@ SOURCES += \
     src/qttubeapplication.cpp \
     src/settingsstore.cpp \
     src/ui/browsechannelrenderer.cpp \
+    src/ui/browsenotificationrenderer.cpp \
     src/ui/browsevideorenderer.cpp \
+    src/ui/channelview.cpp \
     src/ui/clickablelabel.cpp \
     src/ui/mainwindow.cpp \
     src/ui/settingsform.cpp \
@@ -51,6 +53,8 @@ HEADERS += \
     src/browsehelper.tpp \
     src/qttubeapplication.h \
     src/settingsstore.h \
+    src/ui/browsenotificationrenderer.h \
+    src/ui/channelview.h \
     src/ui/clickablelabel.h \
     src/ui/mainwindow.h \
     src/ui/browsechannelrenderer.h \

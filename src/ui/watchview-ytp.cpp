@@ -22,8 +22,11 @@ void WatchView::goBack()
     WatchViewShared::toggleIdleSleep(false);
 }
 
-void WatchView::loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress)
+void WatchView::loadVideo(const QString& videoId, int progress)
 {
+    InnertubeEndpoints::NextResponse nextResp = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId).response;
+    InnertubeEndpoints::PlayerResponse playerResp = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response;
+
     stackedWidget->setCurrentIndex(1);
     QSize playerSize = WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height());
 

@@ -42,7 +42,6 @@ MediaMPV::MediaMPV(QObject *parent) : Media(parent), widget(nullptr) {
     mpv_set_option_string(mpv, "input-vo-keyboard", "no");
     mpv_set_option_string(mpv, "input-cursor", "no");
     mpv_set_option_string(mpv, "input-media-keys", "no");
-    mpv_set_option_string(mpv, "ytdl", "no");
     mpv_set_option_string(mpv, "fs", "no");
     mpv_set_option_string(mpv, "osd-level", "0");
     mpv_set_option_string(mpv, "quiet", "yes");

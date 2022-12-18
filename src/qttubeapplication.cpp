@@ -4,6 +4,12 @@
 #include <array>
 #include <QMouseEvent>
 
+#ifdef USEMPV
+#include "ui/watchview-mpv.h"
+#else
+#include "ui/watchview-ytp.h"
+#endif
+
 constexpr std::array<Qt::Key, 5> sneed = { Qt::Key_S, Qt::Key_N, Qt::Key_E, Qt::Key_E, Qt::Key_D };
 
 bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
@@ -53,8 +59,7 @@ bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
         if (m_sneedProgress == (int)sneed.size())
         {
             m_sneedProgress = 0;
-            WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Next>("T3ElIvNBYj0").response,
-                                             InnerTube::instance().get<InnertubeEndpoints::Player>("T3ElIvNBYj0").response);
+            WatchView::instance()->loadVideo("T3ElIvNBYj0");
         }
     }
 

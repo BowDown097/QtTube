@@ -1,12 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include <QListWidget>
 #include <QMainWindow>
 #include "topbar.h"
-#ifdef USEMPV
-#include "watchview-mpv.h"
-#else
-#include "watchview-ytp.h"
-#endif
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -18,9 +14,12 @@ class MainWindow : public QMainWindow
 
 public:
     static MainWindow* instance();
+    QListWidget* notificationMenu;
     TopBar* topbar;
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+public slots:
+    void showNotifications();
 private slots:
     void returnFromSearch();
     void returnFromWatchHistorySearch();
@@ -33,6 +32,5 @@ private:
     bool doNotBrowse = false;
     QString lastSearchQuery;
     Ui::MainWindow* ui;
-    WatchView* watchView;
 };
 #endif // MAINWINDOW_H

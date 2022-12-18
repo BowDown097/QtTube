@@ -1,5 +1,6 @@
 #include "browsevideorenderer.h"
-#include "innertube.h"
+#include "channelview.h"
+#include "innertube/innertubeexception.h"
 #ifdef USEMPV
 #include "watchview-mpv.h"
 #else
@@ -33,15 +34,17 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
     connect(titleLabel, &ClickableLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
 }
 
-void BrowseVideoRenderer::navigateChannel() { qDebug() << "Navigate" << channelId; }
+void BrowseVideoRenderer::navigateChannel()
+{
+    qDebug() << "navigate" << channelId;
+    ChannelView::instance()->loadChannel();
+}
 
 void BrowseVideoRenderer::navigateVideo()
 {
     try
     {
-        WatchView::instance()->loadVideo(InnerTube::instance().get<InnertubeEndpoints::Next>(videoId).response,
-                                         InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response,
-                                         progress);
+        WatchView::instance()->loadVideo(videoId, progress);
     }
     catch (const InnertubeException& ie)
     {

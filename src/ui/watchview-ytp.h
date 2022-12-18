@@ -14,7 +14,7 @@ class WatchView : public QWidget
 public:
     static WatchView* instance();
     void initialize(QStackedWidget* stackedWidget) { this->stackedWidget = stackedWidget; }
-    void loadVideo(const InnertubeEndpoints::NextResponse& nextResp, const InnertubeEndpoints::PlayerResponse& playerResp, int progress = 0);
+    void loadVideo(const QString& videoId, int progress = 0);
 public slots:
     void goBack();
 private:

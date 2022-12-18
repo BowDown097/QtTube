@@ -27,6 +27,7 @@ public slots:
 private:
     bool preferDark;
 signals:
+    void notificationBellClicked();
     void signInStatusChanged();
 };
 
