@@ -7,8 +7,11 @@
 template<typename T> requires std::derived_from<T, InnertubeEndpoints::BaseEndpoint>
 void BrowseHelper::tryContinuation(int value, QListWidget* widget, const QString& data, int threshold)
 {
-    if (value < widget->verticalScrollBar()->maximum() - threshold || continuationOngoing || InnerTube::instance().context()->client.visitorData.isEmpty() || widget->count() == 0)
+    if (value < widget->verticalScrollBar()->maximum() - threshold || continuationToken.isEmpty() || continuationOngoing
+            || InnerTube::instance().context()->client.visitorData.isEmpty() || widget->count() == 0)
+    {
         return;
+    }
 
     continuationOngoing = true;
 
