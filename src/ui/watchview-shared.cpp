@@ -51,7 +51,7 @@ void WatchViewShared::setSubscriberCount(const InnertubeObjects::VideoSecondaryI
     });
 }
 
-void WatchViewShared::toggleIdleSleep(bool disable)
+void WatchViewShared::toggleIdleSleep(bool toggle)
 {
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
     Display* display = qApp->nativeInterface<QNativeInterface::QX11Application>()->display();
@@ -73,18 +73,18 @@ void WatchViewShared::toggleIdleSleep(bool disable)
         return;
     }
 
-    XScreenSaverSuspend(display, disable);
+    XScreenSaverSuspend(display, toggle);
 #elif defined(Q_OS_WIN)
-    if (SetThreadExecutionState(disable ? ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_AWAYMODE_REQUIRED : ES_CONTINUOUS) == NULL)
+    if (SetThreadExecutionState(toggle ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS | ES_SYSTEM_REQUIRED : ES_CONTINUOUS) == NULL)
         qDebug() << "Failed to toggle idle sleep: SetThreadExecutionState failed";
 #elif defined(Q_OS_MACOS)
-    if (!disable && sleepAssert)
+    if (!toggle && sleepAssert)
     {
         IOPMAssertionRelease(sleepAssert);
         return;
     }
 
-    CFStringRef* reason = CFSTR("QtTube video playing");
+    CFStringRef reason = CFSTR("QtTube video playing");
     IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, reason, &sleepAssert);
     if (success != kIOReturnSuccess)
         qDebug() << "Failed to toggle idle sleep: Creating IOPM assertion failed";

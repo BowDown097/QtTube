@@ -78,7 +78,11 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 
     if (!nextResp.secondaryInfo.channelIcons.isEmpty())
     {
-        auto bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.channelIcons, [](const auto& t) { return t.width >= 48; });
+        QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.channelIcons;
+        auto bestThumb = *std::find_if(channelIcons.cbegin(), channelIcons.cend(), [](const InnertubeObjects::GenericThumbnail& t)
+        {
+            return t.width >= 48;
+        });
         HttpReply* reply = Http::instance().get(bestThumb.url);
         connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) { WatchViewShared::setChannelIcon(reply, channelIcon); });
     }

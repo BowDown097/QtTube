@@ -16,7 +16,7 @@ public:
     static QSize calcPlayerSize(int widgetWidth, int windowHeight);
     static void setChannelIcon(const HttpReply& reply, ClickableLabel* channelIcon);
     static void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo, QLabel* subscribersLabel);
-    static void toggleIdleSleep(bool disable);
+    static void toggleIdleSleep(bool toggle);
 };
 
 #endif // WATCHVIEWSHARED_H
