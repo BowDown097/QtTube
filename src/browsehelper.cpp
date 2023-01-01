@@ -146,9 +146,9 @@ void BrowseHelper::search(QListWidget* searchWidget, const QString& query, int d
     }
 }
 
-void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget)
+void BrowseHelper::setupChannelList(const QList<InnertubeObjects::SearchChannel>& channels, QListWidget* widget)
 {
-    for (const InnertubeObjects::Channel& channel : channels)
+    for (const InnertubeObjects::SearchChannel& channel : channels)
     {
         BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
         renderer->setData(channel.channelId, channel.descriptionSnippet.text, channel.title.text, channel.subscribed,

@@ -19,6 +19,7 @@ public:
     QPushButton* signInButton;
     explicit TopBar(QWidget* parent = nullptr);
     void scaleAppropriately();
+    void updateColors(const QColor& color);
 public slots:
     void setUpNotifications();
     void showSettings();

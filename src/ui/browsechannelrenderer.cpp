@@ -1,7 +1,10 @@
 #include "browsechannelrenderer.h"
+#include "channelview.h"
 #include "http.h"
+#include "innertube/innertubeexception.h"
 #include "../settingsstore.h"
 #include <QApplication>
+#include <QMessageBox>
 
 BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
 {
@@ -30,7 +33,17 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
     connect(titleLabel, &ClickableLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
 }
 
-void BrowseChannelRenderer::navigateChannel() { qDebug() << "Navigate" << channelId; }
+void BrowseChannelRenderer::navigateChannel()
+{
+    try
+    {
+        ChannelView::instance()->loadChannel(channelId);
+    }
+    catch (const InnertubeException& ie)
+    {
+        QMessageBox::critical(this, "Failed to load channel", ie.message());
+    }
+}
 
 void BrowseChannelRenderer::setData(const QString& channelId, const QString& descriptionSnippet, const QString& name, bool subbed,
                                     QString subCount, const QString& videoCount)

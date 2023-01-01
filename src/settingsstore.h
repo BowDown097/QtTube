@@ -24,6 +24,7 @@ public:
     int preferredVolume = 100;
     bool returnDislikes = true;
     bool showSBToasts = true;
+    bool themedChannels = true;
     QVariantList sponsorBlockCategories;
     bool watchtimeTracking = true;
 

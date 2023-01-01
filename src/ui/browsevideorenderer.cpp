@@ -36,8 +36,14 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
 
 void BrowseVideoRenderer::navigateChannel()
 {
-    qDebug() << "navigate" << channelId;
-    ChannelView::instance()->loadChannel();
+    try
+    {
+        ChannelView::instance()->loadChannel(channelId);
+    }
+    catch (const InnertubeException& ie)
+    {
+        QMessageBox::critical(this, "Failed to load channel", ie.message());
+    }
 }
 
 void BrowseVideoRenderer::navigateVideo()

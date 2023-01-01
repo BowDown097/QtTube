@@ -1,7 +1,7 @@
 #ifndef BROWSEHELPER_H
 #define BROWSEHELPER_H
 #include "innertube/endpoints/base/baseendpoint.h"
-#include "innertube/objects/channel/channel.h"
+#include "innertube/objects/channel/searchchannel.h"
 #include "innertube/objects/notification/notification.h"
 #include "innertube/objects/video/video.h"
 #include <QListWidget>
@@ -23,7 +23,7 @@ public:
     template<typename T> requires std::derived_from<T, InnertubeEndpoints::BaseEndpoint>
     void tryContinuation(int value, QListWidget* widget, const QString& data = "", int threshold = 10);
 private:
-    void setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget);
+    void setupChannelList(const QList<InnertubeObjects::SearchChannel>& channels, QListWidget* widget);
     void setupNotificationList(const QList<InnertubeObjects::Notification>& notifications, QListWidget* widget);
     void setupVideoList(const QList<InnertubeObjects::Video>& videos, QListWidget* widget);
 

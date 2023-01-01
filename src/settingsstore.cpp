@@ -25,6 +25,7 @@ void SettingsStore::initializeFromSettingsFile()
     returnDislikes = settingsObj["returnDislikes"].toBool(true);
     showSBToasts = settingsObj["showSBToasts"].toBool(true);
     sponsorBlockCategories = settingsObj["sponsorBlockCategories"].toArray().toVariantList();
+    themedChannels = settingsObj["themedChannels"].toBool(true);
     watchtimeTracking = settingsObj["watchtimeTracking"].toBool(true);
     settingsFile.close();
 }
@@ -47,6 +48,7 @@ void SettingsStore::saveToSettingsFile()
         { "returnDislikes", returnDislikes },
         { "showSBToasts", showSBToasts },
         { "sponsorBlockCategories", QJsonArray::fromVariantList(sponsorBlockCategories) },
+        { "themedChannels", themedChannels },
         { "watchtimeTracking", watchtimeTracking }
     };
 

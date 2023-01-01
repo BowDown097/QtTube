@@ -127,6 +127,18 @@ void TopBar::trySignIn()
     }
 }
 
+void TopBar::updateColors(const QColor& color)
+{
+    QPalette pal;
+    pal.setColor(QPalette::Window, color);
+    setPalette(pal);
+
+    preferDark = color.lightness() < 60;
+    logo->setPixmap(QPixmap(preferDark ? ":/qttube-full-light.png" : ":/qttube-full.png"));
+    settingsButton->setPixmap(QPixmap(preferDark ? ":/settings-light.png" : ":/settings.png"));
+    updateNotificationCount();
+}
+
 void TopBar::updateNotificationCount()
 {
     int unseenCount = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>().unseenCount;
