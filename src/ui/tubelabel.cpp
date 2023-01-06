@@ -2,7 +2,7 @@
 
 TubeLabel::TubeLabel(QWidget* parent, Qt::WindowFlags f) : QLabel(parent, f)
 {
-    setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard | Qt::LinksAccessibleByMouse);
+    setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 }
 
 TubeLabel::TubeLabel(const QString& text, QWidget* parent, Qt::WindowFlags f) : TubeLabel(parent, f)
