@@ -191,7 +191,7 @@ void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, 
     {
         if (!video.shelf.text.isEmpty() && video.shelf.text != lastShelf)
         {
-            QLabel* shelfLabel = new QLabel(video.shelf.text);
+            TubeLabel* shelfLabel = new TubeLabel(video.shelf.text);
             shelfLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
 
             QListWidgetItem* item = new QListWidgetItem(widget);

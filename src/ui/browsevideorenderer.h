@@ -1,22 +1,21 @@
 #ifndef BROWSEVIDEORENDERER_H
 #define BROWSEVIDEORENDERER_H
-#include "clickablelabel.h"
 #include "httpreply.h"
 #include "innertube/objects/video/videoowner.h"
-#include <QLabel>
+#include "tubelabel.h"
 #include <QVBoxLayout>
 
 class BrowseVideoRenderer : public QWidget
 {
     Q_OBJECT
     QString channelId;
-    ClickableLabel* channelLabel;
+    TubeLabel* channelLabel;
     QHBoxLayout* hbox;
-    QLabel* metadataLabel;
+    TubeLabel* metadataLabel;
     int progress;
     QVBoxLayout* textVbox;
-    ClickableLabel* thumbLabel;
-    ClickableLabel* titleLabel;
+    TubeLabel* thumbLabel;
+    TubeLabel* titleLabel;
     QString videoId;
 public:
     explicit BrowseVideoRenderer(QWidget* parent = nullptr);

@@ -25,7 +25,7 @@ void WatchView::goBack()
         removeAction(action);
 
     MainWindow::instance()->topbar->alwaysShow = true;
-    disconnect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
+    disconnect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &WatchView::goBack);
     UIUtilities::clearLayout(pageLayout);
     pageLayout->deleteLater();
     stackedWidget->setCurrentIndex(0);
@@ -98,14 +98,16 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     primaryInfoHbox = new QHBoxLayout;
     primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
 
-    channelIcon = new ClickableLabel(false, this);
+    channelIcon = new TubeLabel(this);
+    channelIcon->setClickable(true, false);
     channelIcon->setMaximumSize(55, 48);
     channelIcon->setMinimumSize(55, 48);
     primaryInfoHbox->addWidget(channelIcon);
 
     primaryInfoVbox = new QVBoxLayout;
 
-    channelName = new ClickableLabel(true, this);
+    channelName = new TubeLabel(this);
+    channelName->setClickable(true, true);
     channelName->setText(nextResp.secondaryInfo.channelName.text);
     primaryInfoVbox->addWidget(channelName);
 
@@ -134,7 +136,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 
     MainWindow::instance()->topbar->setVisible(false);
     MainWindow::instance()->topbar->alwaysShow = false;
-    connect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
+    connect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &WatchView::goBack);
 
     media->play("https://www.youtube.com/watch?v=" + playerResp.videoDetails.videoId);
     media->seek(progress);

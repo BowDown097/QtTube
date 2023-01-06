@@ -1,11 +1,10 @@
 #ifdef USEMPV
 #ifndef WATCHVIEWMPV_H
 #define WATCHVIEWMPV_H
-#include "clickablelabel.h"
 #include "innertube/itc-objects/innertubeclient.h"
-#include "innertube/responses/video/nextresponse.h"
 #include "innertube/responses/video/playerresponse.h"
 #include "lib/media/media.h"
+#include "tubelabel.h"
 #include <QStackedWidget>
 #include <QTimer>
 

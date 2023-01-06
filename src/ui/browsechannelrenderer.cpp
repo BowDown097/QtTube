@@ -9,11 +9,11 @@
 BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
 {
     hbox = new QHBoxLayout;
-    descriptionLabel = new QLabel;
-    metadataLabel = new QLabel;
+    descriptionLabel = new TubeLabel;
+    metadataLabel = new TubeLabel;
     textVbox = new QVBoxLayout;
-    thumbLabel = new ClickableLabel;
-    titleLabel = new ClickableLabel;
+    thumbLabel = new TubeLabel;
+    titleLabel = new TubeLabel;
 
     textVbox->setSpacing(0);
     textVbox->addWidget(titleLabel);
@@ -25,12 +25,16 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
     setLayout(hbox);
 
     descriptionLabel->setWordWrap(true);
+
+    thumbLabel->setClickable(true, false);
     thumbLabel->setMinimumSize(1, 1);
     thumbLabel->setScaledContents(true);
+
+    titleLabel->setClickable(true, true);
     titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
 
-    connect(thumbLabel, &ClickableLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
-    connect(titleLabel, &ClickableLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
+    connect(thumbLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
+    connect(titleLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
 }
 
 void BrowseChannelRenderer::navigateChannel()

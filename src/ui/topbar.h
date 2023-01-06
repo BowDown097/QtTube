@@ -1,6 +1,6 @@
 #ifndef TOPBAR_H
 #define TOPBAR_H
-#include "clickablelabel.h"
+#include "tubelabel.h"
 #include <QLineEdit>
 #include <QPropertyAnimation>
 #include <QPushButton>
@@ -11,11 +11,11 @@ class TopBar : public QWidget
 public:
     bool alwaysShow = true;
     QPropertyAnimation* animation;
-    ClickableLabel* logo;
-    ClickableLabel* notificationBell;
+    TubeLabel* logo;
+    TubeLabel* notificationBell;
     QLabel* notificationCount;
     QLineEdit* searchBox;
-    ClickableLabel* settingsButton;
+    TubeLabel* settingsButton;
     QPushButton* signInButton;
     explicit TopBar(QWidget* parent = nullptr);
     void scaleAppropriately();

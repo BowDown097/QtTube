@@ -23,14 +23,14 @@ QSize WatchViewShared::calcPlayerSize(int widgetWidth, int windowHeight)
     return QSize(playerWidth, playerHeight);
 }
 
-void WatchViewShared::setChannelIcon(const HttpReply& reply, ClickableLabel* channelIcon)
+void WatchViewShared::setChannelIcon(const HttpReply& reply, TubeLabel* channelIcon)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
-void WatchViewShared::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo, QLabel* subscribersLabel)
+void WatchViewShared::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo, TubeLabel* subscribersLabel)
 {
     if (!SettingsStore::instance().fullSubs)
     {

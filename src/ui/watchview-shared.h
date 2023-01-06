@@ -1,8 +1,8 @@
 #ifndef WATCHVIEWSHARED_H
 #define WATCHVIEWSHARED_H
-#include "clickablelabel.h"
 #include "httpreply.h"
 #include "innertube/objects/video/videosecondaryinfo.h"
+#include "tubelabel.h"
 #ifdef Q_OS_MACOS
 #include <IOKit/pwr_mgt/IOPMLib.h>
 #endif
@@ -14,8 +14,8 @@ class WatchViewShared
 #endif
 public:
     static QSize calcPlayerSize(int widgetWidth, int windowHeight);
-    static void setChannelIcon(const HttpReply& reply, ClickableLabel* channelIcon);
-    static void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo, QLabel* subscribersLabel);
+    static void setChannelIcon(const HttpReply& reply, TubeLabel* channelIcon);
+    static void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo, TubeLabel* subscribersLabel);
     static void toggleIdleSleep(bool toggle);
 };
 

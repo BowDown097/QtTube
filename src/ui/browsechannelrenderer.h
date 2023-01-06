@@ -1,20 +1,19 @@
 #ifndef BROWSECHANNELRENDERER_H
 #define BROWSECHANNELRENDERER_H
-#include "clickablelabel.h"
 #include "httpreply.h"
-#include <QLabel>
+#include "tubelabel.h"
 #include <QVBoxLayout>
 
 class BrowseChannelRenderer : public QWidget
 {
     Q_OBJECT
     QString channelId;
-    QLabel* descriptionLabel;
+    TubeLabel* descriptionLabel;
     QHBoxLayout* hbox;
-    QLabel* metadataLabel;
+    TubeLabel* metadataLabel;
     QVBoxLayout* textVbox;
-    ClickableLabel* thumbLabel;
-    ClickableLabel* titleLabel;
+    TubeLabel* thumbLabel;
+    TubeLabel* titleLabel;
 public:
     explicit BrowseChannelRenderer(QWidget* parent = nullptr);
     void setData(const QString& channelId, const QString& descriptionSnippet, const QString& name, bool subbed, QString subCount, const QString& videoCount);

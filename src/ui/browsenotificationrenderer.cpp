@@ -3,12 +3,12 @@
 
 BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent) : QWidget(parent)
 {
-    channelIcon = new QLabel;
+    channelIcon = new TubeLabel;
     hbox = new QHBoxLayout;
-    sentTimeText = new QLabel;
-    shortMessage = new QLabel;
+    sentTimeText = new TubeLabel;
+    shortMessage = new TubeLabel;
     textVbox = new QVBoxLayout;
-    thumbLabel = new QLabel;
+    thumbLabel = new TubeLabel;
 
     channelIcon->setFixedSize(48, 48);
     thumbLabel->setFixedHeight(72);

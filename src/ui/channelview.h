@@ -2,7 +2,7 @@
 #define CHANNELVIEW_H
 #include "httpreply.h"
 #include "innertube/responses/browse/channelresponse.h"
-#include <QLabel>
+#include "tubelabel.h"
 #include <QStackedWidget>
 #include <QTabWidget>
 #include <QVBoxLayout>
@@ -23,12 +23,12 @@ private:
     QLabel* channelIcon = nullptr;
     QHBoxLayout* metaHbox = nullptr;
     QVBoxLayout* metaVbox = nullptr;
-    QLabel* channelName = nullptr;
+    TubeLabel* channelName = nullptr;
     QTabWidget* channelTabs = nullptr;
-    QLabel* handleAndVideos = nullptr;
+    TubeLabel* handleAndVideos = nullptr;
     QVBoxLayout* pageLayout = nullptr;
     QStackedWidget* stackedWidget = nullptr;
-    QLabel* subscriberCount = nullptr;
+    TubeLabel* subscriberCount = nullptr;
 
     explicit ChannelView(QWidget* parent = nullptr) : QWidget(parent) {}
     int getDominant(const QList<int>& arr);

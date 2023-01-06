@@ -20,14 +20,16 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     setAutoFillBackground(true);
     setPalette(pal);
 
-    logo = new ClickableLabel(false, this);
+    logo = new TubeLabel(this);
     logo->move(10, 2);
     logo->resize(134, 30);
+    logo->setClickable(true, false);
     logo->setPixmap(QPixmap(preferDark ? ":/qttube-full-light.png" : ":/qttube-full.png"));
 
-    notificationBell = new ClickableLabel(false, this);
+    notificationBell = new TubeLabel(this);
     notificationBell->resize(30, 30);
-    connect(notificationBell, &ClickableLabel::clicked, this, [this] { emit notificationBellClicked(); });
+    notificationBell->setClickable(true, false);
+    connect(notificationBell, &TubeLabel::clicked, this, [this] { emit notificationBellClicked(); });
 
     notificationCount = new QLabel(this);
     notificationCount->setFont(QFont(QApplication::font().toString(), 9));
@@ -37,11 +39,12 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     searchBox->resize(513, 35);
     searchBox->setPlaceholderText("Search");
 
-    settingsButton = new ClickableLabel(false, this);
+    settingsButton = new TubeLabel(this);
     settingsButton->move(673, 3);
     settingsButton->resize(30, 30);
+    settingsButton->setClickable(true, false);
     settingsButton->setPixmap(QPixmap(preferDark ? ":/settings-light.png" : ":/settings.png"));
-    connect(settingsButton, &ClickableLabel::clicked, this, &TopBar::showSettings);
+    connect(settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);
 
     signInButton = new QPushButton(this);
     signInButton->move(711, 0);

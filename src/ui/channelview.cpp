@@ -16,7 +16,7 @@ void ChannelView::goBack()
 {
     MainWindow::instance()->topbar->alwaysShow = true;
     MainWindow::instance()->topbar->updateColors(QApplication::palette().color(QPalette::AlternateBase));
-    disconnect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &ChannelView::goBack);
+    disconnect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
     UIUtilities::clearLayout(pageLayout);
     pageLayout->deleteLater();
     stackedWidget->setCurrentIndex(0);
@@ -50,11 +50,11 @@ void ChannelView::loadChannel(const QString& channelId)
     channelIcon->setFixedSize(55, 48);
     metaHbox->addWidget(channelIcon);
 
-    channelName = new QLabel(this);
+    channelName = new TubeLabel(this);
     channelName->setText(channelResp.header[0].title);
     metaVbox->addWidget(channelName);
 
-    handleAndVideos = new QLabel(this);
+    handleAndVideos = new TubeLabel(this);
     handleAndVideos->setText(channelResp.header[0].channelHandleText.text + " • " + channelResp.header[0].videosCountText.text);
     handleAndVideos->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() - 2));
     metaVbox->addWidget(handleAndVideos);
@@ -62,7 +62,7 @@ void ChannelView::loadChannel(const QString& channelId)
     metaHbox->addLayout(metaVbox);
     channelHeader->addLayout(metaHbox);
 
-    subscriberCount = new QLabel(this);
+    subscriberCount = new TubeLabel(this);
     subscriberCount->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
     subscriberCount->setText(channelResp.header[0].subscriberCountText.text);
     channelHeader->addWidget(subscriberCount);
@@ -74,7 +74,7 @@ void ChannelView::loadChannel(const QString& channelId)
 
     MainWindow::instance()->topbar->alwaysShow = false;
     MainWindow::instance()->topbar->setVisible(false);
-    connect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &ChannelView::goBack);
+    connect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
 
     if (!channelResp.header[0].banner.isEmpty())
     {

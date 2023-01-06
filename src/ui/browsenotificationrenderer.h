@@ -2,18 +2,18 @@
 #define BROWSENOTIFICATIONRENDERER_H
 #include "httpreply.h"
 #include "innertube/objects/notification/notification.h"
+#include "tubelabel.h"
 #include <QHBoxLayout>
-#include <QLabel>
 
 class BrowseNotificationRenderer : public QWidget
 {
     Q_OBJECT
-    QLabel* channelIcon;
+    TubeLabel* channelIcon;
     QHBoxLayout* hbox;
-    QLabel* sentTimeText;
-    QLabel* shortMessage;
+    TubeLabel* sentTimeText;
+    TubeLabel* shortMessage;
     QVBoxLayout* textVbox;
-    QLabel* thumbLabel;
+    TubeLabel* thumbLabel;
 public:
     explicit BrowseNotificationRenderer(QWidget* parent);
     void setData(const InnertubeObjects::Notification& notification);

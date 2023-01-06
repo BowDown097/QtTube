@@ -11,12 +11,12 @@
 
 BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
 {
-    channelLabel = new ClickableLabel;
+    channelLabel = new TubeLabel;
     hbox = new QHBoxLayout;
-    metadataLabel = new QLabel;
+    metadataLabel = new TubeLabel;
     textVbox = new QVBoxLayout;
-    thumbLabel = new ClickableLabel(false);
-    titleLabel = new ClickableLabel;
+    thumbLabel = new TubeLabel;
+    titleLabel = new TubeLabel;
 
     textVbox->addWidget(titleLabel);
     textVbox->addWidget(channelLabel);
@@ -26,12 +26,18 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
     hbox->addLayout(textVbox, 1);
     setLayout(hbox);
 
+    channelLabel->setClickable(true, true);
+
+    thumbLabel->setClickable(true, false);
     thumbLabel->setMinimumSize(1, 1);
     thumbLabel->setScaledContents(true);
+
+    titleLabel->setClickable(true, true);
     titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
-    connect(channelLabel, &ClickableLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
-    connect(thumbLabel, &ClickableLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
-    connect(titleLabel, &ClickableLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
+
+    connect(channelLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
+    connect(thumbLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
+    connect(titleLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
 }
 
 void BrowseVideoRenderer::navigateChannel()

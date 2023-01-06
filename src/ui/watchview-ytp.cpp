@@ -15,7 +15,7 @@ WatchView* WatchView::instance()
 void WatchView::goBack()
 {
     MainWindow::instance()->topbar->alwaysShow = true;
-    disconnect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
+    disconnect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &WatchView::goBack);
     UIUtilities::clearLayout(pageLayout);
     pageLayout->deleteLater();
     stackedWidget->setCurrentIndex(0);
@@ -39,7 +39,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     wePlayer->setContext(InnerTube::instance().context());
     pageLayout->addWidget(wePlayer);
 
-    titleLabel = new QLabel(playerResp.videoDetails.title, this);
+    titleLabel = new TubeLabel(playerResp.videoDetails.title, this);
     titleLabel->setFixedWidth(playerSize.width());
     titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 4));
     titleLabel->setWordWrap(true);
@@ -48,18 +48,20 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     primaryInfoHbox = new QHBoxLayout;
     primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
 
-    channelIcon = new ClickableLabel(false, this);
+    channelIcon = new TubeLabel(this);
+    channelIcon->setClickable(true, false);
     channelIcon->setMaximumSize(55, 48);
     channelIcon->setMinimumSize(55, 48);
     primaryInfoHbox->addWidget(channelIcon);
 
     primaryInfoVbox = new QVBoxLayout;
 
-    channelName = new ClickableLabel(true, this);
+    channelName = new TubeLabel(this);
+    channelName->setClickable(true, true);
     channelName->setText(nextResp.secondaryInfo.channelName.text);
     primaryInfoVbox->addWidget(channelName);
 
-    subscribersLabel = new QLabel(this);
+    subscribersLabel = new TubeLabel(this);
     WatchViewShared::setSubscriberCount(nextResp.secondaryInfo, subscribersLabel);
     primaryInfoVbox->addWidget(subscribersLabel);
 
@@ -92,7 +94,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 
     MainWindow::instance()->topbar->setVisible(false);
     MainWindow::instance()->topbar->alwaysShow = false;
-    connect(MainWindow::instance()->topbar->logo, &ClickableLabel::clicked, this, &WatchView::goBack);
+    connect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &WatchView::goBack);
 }
 
 void WatchView::resizeEvent(QResizeEvent*)

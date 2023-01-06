@@ -1,9 +1,7 @@
 #ifndef USEMPV
 #ifndef WATCHVIEWYTP_H
 #define WATCHVIEWYTP_H
-#include "clickablelabel.h"
-#include "innertube/responses/video/nextresponse.h"
-#include "innertube/responses/video/playerresponse.h"
+#include "tubelabel.h"
 #include "webengineplayer.h"
 #include <QStackedWidget>
 #include <QVBoxLayout>
@@ -18,15 +16,15 @@ public:
 public slots:
     void goBack();
 private:
-    ClickableLabel* channelIcon = nullptr;
-    ClickableLabel* channelName = nullptr;
+    TubeLabel* channelIcon = nullptr;
+    TubeLabel* channelName = nullptr;
     QVBoxLayout* pageLayout = nullptr;
     QHBoxLayout* primaryInfoHbox = nullptr;
     QVBoxLayout* primaryInfoVbox = nullptr;
     QWidget* primaryInfoWrapper = nullptr;
     QStackedWidget* stackedWidget = nullptr;
-    QLabel* subscribersLabel = nullptr; // TODO: make into Hitchhiker-like subscribe button
-    QLabel* titleLabel = nullptr;
+    TubeLabel* subscribersLabel = nullptr; // TODO: make into Hitchhiker-like subscribe button
+    TubeLabel* titleLabel = nullptr;
     WebEnginePlayer* wePlayer = nullptr;
 
     explicit WatchView(QWidget* parent = nullptr) : QWidget(parent) {}

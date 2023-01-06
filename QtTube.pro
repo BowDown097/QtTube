@@ -41,10 +41,10 @@ SOURCES += \
     src/ui/browsenotificationrenderer.cpp \
     src/ui/browsevideorenderer.cpp \
     src/ui/channelview.cpp \
-    src/ui/clickablelabel.cpp \
     src/ui/mainwindow.cpp \
     src/ui/settingsform.cpp \
     src/ui/topbar.cpp \
+    src/ui/tubelabel.cpp \
     src/ui/uiutilities.cpp \
     src/ui/watchview-shared.cpp
 
@@ -55,12 +55,12 @@ HEADERS += \
     src/settingsstore.h \
     src/ui/browsenotificationrenderer.h \
     src/ui/channelview.h \
-    src/ui/clickablelabel.h \
     src/ui/mainwindow.h \
     src/ui/browsechannelrenderer.h \
     src/ui/browsevideorenderer.h \
     src/ui/settingsform.h \
     src/ui/topbar.h \
+    src/ui/tubelabel.h \
     src/ui/uiutilities.h \
     src/ui/watchview-shared.h
 
