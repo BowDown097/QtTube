@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 #include <QListWidget>
 #include <QMainWindow>
-#include "topbar.h"
+#include "ui/widgets/topbar.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

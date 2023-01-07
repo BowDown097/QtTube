@@ -1,6 +1,9 @@
 #include "watchview-shared.h"
+#include "channelview.h"
 #include "http.h"
-#include "../settingsstore.h"
+#include "innertube/innertubeexception.h"
+#include "settingsstore.h"
+#include <QMessageBox>
 
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
 #include <QApplication>
@@ -23,6 +26,18 @@ QSize WatchViewShared::calcPlayerSize(int widgetWidth, int windowHeight)
     return QSize(playerWidth, playerHeight);
 }
 
+void WatchViewShared::navigateChannel(const QString& channelId)
+{
+    try
+    {
+        ChannelView::instance()->loadChannel(channelId);
+    }
+    catch (const InnertubeException& ie)
+    {
+        QMessageBox::critical(nullptr, "Failed to load channel", ie.message());
+    }
+}
+
 void WatchViewShared::setChannelIcon(const HttpReply& reply, TubeLabel* channelIcon)
 {
     QPixmap pixmap;
@@ -34,7 +49,8 @@ void WatchViewShared::setSubscriberCount(const InnertubeObjects::VideoSecondaryI
 {
     if (!SettingsStore::instance().fullSubs)
     {
-        subscribersLabel->setText(secondaryInfo.subscriberCountText.text);
+        subscribersLabel->setText(secondaryInfo.subscriberCountText.text.first(secondaryInfo.subscriberCountText.text.lastIndexOf(" ")));
+        subscribersLabel->adjustSize();
         return;
     }
 
@@ -43,11 +59,15 @@ void WatchViewShared::setSubscriberCount(const InnertubeObjects::VideoSecondaryI
     http.setMaxRetries(5);
 
     // have to catch errors here because this API really, REALLY likes to stop working
-    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + secondaryInfo.channelId));
-    QObject::connect(reply, &HttpReply::error, [secondaryInfo, subscribersLabel] { subscribersLabel->setText(secondaryInfo.subscriberCountText.text); });
+    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + secondaryInfo.subscribeButton.channelId));
+    QObject::connect(reply, &HttpReply::error, [secondaryInfo, subscribersLabel] {
+        subscribersLabel->setText(secondaryInfo.subscriberCountText.text);
+        subscribersLabel->adjustSize();
+    });
     QObject::connect(reply, &HttpReply::finished, [subscribersLabel](const HttpReply& reply) {
         int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
-        subscribersLabel->setText(QLocale::system().toString(subs) + " subscribers");
+        subscribersLabel->setText(QLocale::system().toString(subs));
+        subscribersLabel->adjustSize();
     });
 }
 

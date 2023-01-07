@@ -1,8 +1,8 @@
 #include "browsechannelrenderer.h"
-#include "channelview.h"
 #include "http.h"
 #include "innertube/innertubeexception.h"
-#include "../settingsstore.h"
+#include "settingsstore.h"
+#include "ui/views/channelview.h"
 #include <QApplication>
 #include <QMessageBox>
 

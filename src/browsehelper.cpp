@@ -2,9 +2,9 @@
 #include "http.h"
 #include "protobuf/simpleprotobuf.h"
 #include "settingsstore.h"
-#include "ui/browsechannelrenderer.h"
-#include "ui/browsenotificationrenderer.h"
-#include "ui/browsevideorenderer.h"
+#include "ui/widgets/browsechannelrenderer.h"
+#include "ui/widgets/browsenotificationrenderer.h"
+#include "ui/widgets/browsevideorenderer.h"
 #include <QApplication>
 #include <QListWidgetItem>
 

@@ -1,9 +1,9 @@
 #include "channelview.h"
 #include "http.h"
 #include "innertube.h"
-#include "mainwindow.h"
-#include "../settingsstore.h"
-#include "uiutilities.h"
+#include "settingsstore.h"
+#include "ui/forms/mainwindow.h"
+#include "ui/uiutilities.h"
 #include <QApplication>
 
 ChannelView* ChannelView::instance()
@@ -62,10 +62,31 @@ void ChannelView::loadChannel(const QString& channelId)
     metaHbox->addLayout(metaVbox);
     channelHeader->addLayout(metaHbox);
 
-    subscriberCount = new TubeLabel(this);
-    subscriberCount->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
-    subscriberCount->setText(channelResp.header[0].subscriberCountText.text);
-    channelHeader->addWidget(subscriberCount);
+    subscribeHbox = new QHBoxLayout(this);
+    subscribeHbox->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+    subscribeHbox->setContentsMargins(0, 0, 0, 0);
+    subscribeHbox->setSpacing(0);
+
+    if (channelResp.header[0].subscribeButton.enabled)
+    {
+        subscribeWidget = new SubscribeWidget(channelResp.header[0].subscribeButton, this);
+        subscribeHbox->addWidget(subscribeWidget);
+    }
+
+    subscribersLabel = new TubeLabel(this);
+    subscribersLabel->setStyleSheet(R"(
+    border: 1px solid #333;
+    font-size: 11px;
+    line-height: 24px;
+    padding: 0 6px 0 4.5px;
+    border-radius: 2px;
+    text-align: center;
+    )");
+    subscribersLabel->setText(channelResp.header[0].subscriberCountText.text.first(channelResp.header[0].subscriberCountText.text.lastIndexOf(" ")));
+    subscribersLabel->adjustSize();
+    subscribeHbox->addWidget(subscribersLabel);
+
+    channelHeader->addLayout(subscribeHbox);
 
     pageLayout->addWidget(channelHeaderWidget);
 

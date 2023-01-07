@@ -1,6 +1,6 @@
-#include "../settingsstore.h"
 #include "settingsform.h"
 #include "ui_settingsform.h"
+#include "settingsstore.h"
 #include <QMessageBox>
 
 SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::SettingsForm)

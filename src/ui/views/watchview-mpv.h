@@ -4,7 +4,7 @@
 #include "innertube/itc-objects/innertubeclient.h"
 #include "innertube/responses/video/playerresponse.h"
 #include "lib/media/media.h"
-#include "tubelabel.h"
+#include "ui/widgets/tubelabel.h"
 #include <QStackedWidget>
 #include <QTimer>
 
@@ -30,7 +30,9 @@ private:
     QVBoxLayout* primaryInfoVbox = nullptr;
     QWidget* primaryInfoWrapper = nullptr;
     QStackedWidget* stackedWidget = nullptr;
-    QLabel* subscribersLabel = nullptr; // TODO: make into Hitchhiker-like subscribe button
+    QHBoxLayout* subscribeHbox = nullptr;
+    SubscribeWidget* subscribeWidget = nullptr;
+    TubeLabel* subscribersLabel = nullptr;
     QLabel* titleLabel = nullptr;
     QTimer* watchtimeTimer = nullptr;
 

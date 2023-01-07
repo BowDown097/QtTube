@@ -1,8 +1,8 @@
 #ifndef USEMPV
 #include "watchview-ytp.h"
 #include "innertube.h"
-#include "mainwindow.h"
-#include "uiutilities.h"
+#include "ui/forms/mainwindow.h"
+#include "ui/uiutilities.h"
 #include "watchview-shared.h"
 #include <QApplication>
 
@@ -60,12 +60,39 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     channelName->setClickable(true, true);
     channelName->setText(nextResp.secondaryInfo.channelName.text);
     primaryInfoVbox->addWidget(channelName);
+    connect(channelName, &TubeLabel::clicked, this, [this, nextResp] {
+        disconnect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &WatchView::goBack);
+        WatchViewShared::toggleIdleSleep(false);
+        WatchViewShared::navigateChannel(nextResp.secondaryInfo.subscribeButton.channelId);
+        UIUtilities::clearLayout(pageLayout);
+        pageLayout->deleteLater();
+    });
+
+    subscribeHbox = new QHBoxLayout(this);
+    subscribeHbox->setContentsMargins(0, 0, 0, 0);
+    subscribeHbox->setSpacing(0);
+
+    if (nextResp.secondaryInfo.subscribeButton.enabled)
+    {
+        subscribeWidget = new SubscribeWidget(nextResp.secondaryInfo.subscribeButton, this);
+        subscribeHbox->addWidget(subscribeWidget);
+    }
 
     subscribersLabel = new TubeLabel(this);
+    subscribersLabel->setStyleSheet(R"(
+    border: 1px solid #333;
+    font-size: 11px;
+    line-height: 24px;
+    padding: 0 6px 0 4.5px;
+    border-radius: 2px;
+    text-align: center;
+    )");
     WatchViewShared::setSubscriberCount(nextResp.secondaryInfo, subscribersLabel);
-    primaryInfoVbox->addWidget(subscribersLabel);
+    subscribeHbox->addWidget(subscribersLabel);
 
+    primaryInfoVbox->addLayout(subscribeHbox);
     primaryInfoHbox->addLayout(primaryInfoVbox);
+    primaryInfoHbox->addStretch();
 
     primaryInfoWrapper = new QWidget(this);
     primaryInfoWrapper->setFixedWidth(playerSize.width());

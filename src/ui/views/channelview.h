@@ -1,8 +1,8 @@
 #ifndef CHANNELVIEW_H
 #define CHANNELVIEW_H
 #include "httpreply.h"
-#include "innertube/responses/browse/channelresponse.h"
-#include "tubelabel.h"
+#include "ui/widgets/subscribewidget.h"
+#include "ui/widgets/tubelabel.h"
 #include <QStackedWidget>
 #include <QTabWidget>
 #include <QVBoxLayout>
@@ -28,7 +28,9 @@ private:
     TubeLabel* handleAndVideos = nullptr;
     QVBoxLayout* pageLayout = nullptr;
     QStackedWidget* stackedWidget = nullptr;
-    TubeLabel* subscriberCount = nullptr;
+    QHBoxLayout* subscribeHbox = nullptr;
+    SubscribeWidget* subscribeWidget = nullptr;
+    TubeLabel* subscribersLabel = nullptr;
 
     explicit ChannelView(QWidget* parent = nullptr) : QWidget(parent) {}
     int getDominant(const QList<int>& arr);

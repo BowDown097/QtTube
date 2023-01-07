@@ -1,13 +1,13 @@
 #include "innertube.h"
 #include "qttubeapplication.h"
-#include "ui/mainwindow.h"
+#include "ui/forms/mainwindow.h"
 #include <array>
 #include <QMouseEvent>
 
 #ifdef USEMPV
-#include "ui/watchview-mpv.h"
+#include "ui/views/watchview-mpv.h"
 #else
-#include "ui/watchview-ytp.h"
+#include "ui/views/watchview-ytp.h"
 #endif
 
 constexpr std::array<Qt::Key, 5> sneed = { Qt::Key_S, Qt::Key_N, Qt::Key_E, Qt::Key_E, Qt::Key_D };

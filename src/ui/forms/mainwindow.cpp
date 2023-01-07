@@ -1,19 +1,19 @@
-#include "../browsehelper.h"
-#include "../settingsstore.h"
-#include "browsenotificationrenderer.h"
-#include "channelview.h"
-#include "innertube.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "uiutilities.h"
+#include "browsehelper.h"
+#include "innertube.h"
+#include "settingsstore.h"
+#include "ui/widgets/browsenotificationrenderer.h"
+#include "ui/views/channelview.h"
+#include "ui/uiutilities.h"
 #include <QComboBox>
 #include <QJsonDocument>
 #include <QScrollBar>
 
 #ifdef USEMPV
-#include "watchview-mpv.h"
+#include "ui/views/watchview-mpv.h"
 #else
-#include "watchview-ytp.h"
+#include "ui/views/watchview-ytp.h"
 #endif
 
 namespace { MainWindow* mWInst; }

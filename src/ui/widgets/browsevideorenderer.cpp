@@ -1,13 +1,14 @@
 #include "browsevideorenderer.h"
-#include "channelview.h"
 #include "innertube/innertubeexception.h"
-#ifdef USEMPV
-#include "watchview-mpv.h"
-#else
-#include "watchview-ytp.h"
-#endif
+#include "ui/views/channelview.h"
 #include <QApplication>
 #include <QMessageBox>
+
+#ifdef USEMPV
+#include "ui/views/watchview-mpv.h"
+#else
+#include "ui/views/watchview-ytp.h"
+#endif
 
 BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
 {

@@ -1,5 +1,5 @@
 #include "qttubeapplication.h"
-#include "ui/mainwindow.h"
+#include "ui/forms/mainwindow.h"
 
 int main(int argc, char *argv[])
 {

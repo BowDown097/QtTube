@@ -1,7 +1,8 @@
 #ifndef USEMPV
 #ifndef WATCHVIEWYTP_H
 #define WATCHVIEWYTP_H
-#include "tubelabel.h"
+#include "ui/widgets/subscribewidget.h"
+#include "ui/widgets/tubelabel.h"
 #include "webengineplayer.h"
 #include <QStackedWidget>
 #include <QVBoxLayout>
@@ -23,7 +24,9 @@ private:
     QVBoxLayout* primaryInfoVbox = nullptr;
     QWidget* primaryInfoWrapper = nullptr;
     QStackedWidget* stackedWidget = nullptr;
-    TubeLabel* subscribersLabel = nullptr; // TODO: make into Hitchhiker-like subscribe button
+    QHBoxLayout* subscribeHbox = nullptr;
+    SubscribeWidget* subscribeWidget = nullptr;
+    TubeLabel* subscribersLabel = nullptr;
     TubeLabel* titleLabel = nullptr;
     WebEnginePlayer* wePlayer = nullptr;
 

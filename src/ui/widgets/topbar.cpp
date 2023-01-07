@@ -1,8 +1,8 @@
-#include "../settingsstore.h"
-#include "innertube.h"
-#include "mainwindow.h"
-#include "settingsform.h"
 #include "topbar.h"
+#include "innertube.h"
+#include "settingsstore.h"
+#include "ui/forms/mainwindow.h"
+#include "ui/forms/settingsform.h"
 #include <QApplication>
 #include <QJsonDocument>
 
