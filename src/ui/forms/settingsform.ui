@@ -30,7 +30,7 @@
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <widget class="QCheckBox" name="itcCache">
+      <widget class="QCheckBox" name="restoreLogin">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -62,7 +62,7 @@
         <string>Use condensed view counts</string>
        </property>
       </widget>
-      <widget class="QLabel" name="volumeLabel">
+      <widget class="QLabel" name="preferredVolumeLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -75,7 +75,7 @@
         <string>Preferred player volume</string>
        </property>
       </widget>
-      <widget class="QSpinBox" name="volumeSpin">
+      <widget class="QSpinBox" name="preferredVolume">
        <property name="geometry">
         <rect>
          <x>230</x>
@@ -133,7 +133,7 @@
         <string>Use full subscriber counts</string>
        </property>
       </widget>
-      <widget class="QLabel" name="defaultTabLabel">
+      <widget class="QLabel" name="frontPageTabLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -146,7 +146,7 @@
         <string>Default front page tab</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="defaultTabCombo">
+      <widget class="QComboBox" name="frontPageTab">
        <property name="geometry">
         <rect>
          <x>230</x>
@@ -181,7 +181,7 @@
         </property>
        </item>
       </widget>
-      <widget class="QLabel" name="qualityLabel">
+      <widget class="QLabel" name="preferredQualityLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -194,7 +194,7 @@
         <string>Preferred player quality</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="qualityCombo">
+      <widget class="QComboBox" name="preferredQuality">
        <property name="geometry">
         <rect>
          <x>230</x>

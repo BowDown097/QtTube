@@ -27,7 +27,7 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
 
 void WebEnginePlayer::play(const QString& vId, int progress)
 {
-    QString sbc = QJsonDocument(QJsonArray::fromVariantList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
+    QString sbc = QJsonDocument(QJsonArray::fromStringList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
     QString q = QMetaEnum::fromType<SettingsStore::PlayerQuality>().valueToKey(SettingsStore::instance().preferredQuality);
     m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4")
                       .arg(vId, sbc, q.toLower())

@@ -72,11 +72,8 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     subscribeHbox->setContentsMargins(0, 0, 0, 0);
     subscribeHbox->setSpacing(0);
 
-    if (nextResp.secondaryInfo.subscribeButton.enabled)
-    {
-        subscribeWidget = new SubscribeWidget(nextResp.secondaryInfo.subscribeButton, this);
-        subscribeHbox->addWidget(subscribeWidget);
-    }
+    subscribeWidget = new SubscribeWidget(nextResp.secondaryInfo.subscribeButton, this);
+    subscribeHbox->addWidget(subscribeWidget);
 
     subscribersLabel = new TubeLabel(this);
     subscribersLabel->setStyleSheet(R"(

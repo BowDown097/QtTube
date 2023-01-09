@@ -12,21 +12,22 @@ public:
 
     enum FrontPageTab { Home, Trending, Subscriptions, History, None };
     enum PlayerQuality { Auto, HighRes, HD2160, HD1440, HD1080, HD720, Large, Medium, Small, Tiny };
+    Q_ENUM(FrontPageTab)
     Q_ENUM(PlayerQuality)
 
-    bool condensedViews = false;
-    FrontPageTab frontPageTab = FrontPageTab::Home;
-    bool fullSubs = false;
-    bool homeShelves = false;
-    bool itcCache = true;
-    bool playbackTracking = true;
-    PlayerQuality preferredQuality = PlayerQuality::Auto;
-    int preferredVolume = 100;
-    bool returnDislikes = true;
-    bool showSBToasts = true;
-    bool themedChannels = true;
-    QVariantList sponsorBlockCategories;
-    bool watchtimeTracking = true;
+    bool condensedViews;
+    FrontPageTab frontPageTab;
+    bool fullSubs;
+    bool homeShelves;
+    bool playbackTracking;
+    PlayerQuality preferredQuality;
+    int preferredVolume;
+    bool restoreLogin;
+    bool returnDislikes;
+    bool showSBToasts;
+    QStringList sponsorBlockCategories;
+    bool themedChannels;
+    bool watchtimeTracking;
 
     static SettingsStore& instance() { static SettingsStore ss; return ss; }
     explicit SettingsStore(QObject* parent = nullptr) : QObject(parent) {}

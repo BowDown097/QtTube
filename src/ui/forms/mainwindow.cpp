@@ -3,11 +3,9 @@
 #include "browsehelper.h"
 #include "innertube.h"
 #include "settingsstore.h"
-#include "ui/widgets/browsenotificationrenderer.h"
 #include "ui/views/channelview.h"
 #include "ui/uiutilities.h"
 #include <QComboBox>
-#include <QJsonDocument>
 #include <QScrollBar>
 
 #ifdef USEMPV
@@ -272,19 +270,8 @@ void MainWindow::showNotifications()
 
 void MainWindow::tryRestoreData()
 {
-    QFile store(SettingsStore::configPath.filePath("store.json"));
-    if (!store.open(QFile::ReadOnly | QFile::Text))
-        return;
-
-    QTextStream storeOut(&store);
-    QString storeData = storeOut.readAll();
-
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(storeData.toUtf8(), &parseError);
-    if (parseError.error != QJsonParseError::NoError)
-        return;
-
-    InnerTube::instance().authenticateFromJson(doc.object());
+    QSettings store(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat);
+    InnerTube::instance().authenticateFromSettings(store);
     if (InnerTube::instance().hasAuthenticated())
     {
         topbar->setUpNotifications();

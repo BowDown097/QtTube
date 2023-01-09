@@ -7,7 +7,7 @@ SubscribeWidget::SubscribeWidget(const InnertubeObjects::SubscribeButton& subscr
 {
     setFixedSize(80, 24);
     setStyleSheet(subscribeButton.subscribed ? subscribedStyle : subscribeStyle);
-    setText(subscribeButton.buttonText.text);
+    setText(subscribeButton.buttonText.text.isEmpty() ? "Subscribe" : subscribeButton.buttonText.text);
 }
 
 void SubscribeWidget::enterEvent(QEnterEvent*)

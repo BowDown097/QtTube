@@ -1,58 +1,58 @@
 #include "settingsstore.h"
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QSettings>
 
 void SettingsStore::initializeFromSettingsFile()
 {
-    QFile settingsFile(configPath.filePath("settings.json"));
-    if (!settingsFile.open(QFile::ReadOnly | QFile::Text) || settingsFile.size() == 0)
-    {
-        saveToSettingsFile();
-        return;
-    }
+    QSettings settings(configPath.filePath("settings.ini"), QSettings::IniFormat);
 
-    QTextStream in(&settingsFile);
-    QJsonObject settingsObj = QJsonDocument::fromJson(in.readAll().toUtf8()).object();
-    condensedViews = settingsObj["condensedViews"].toBool();
-    frontPageTab = static_cast<FrontPageTab>(settingsObj["frontPageTab"].toInt());
-    fullSubs = settingsObj["fullSubs"].toBool();
-    homeShelves = settingsObj["homeShelves"].toBool();
-    itcCache = settingsObj["itcCache"].toBool(true);
-    playbackTracking = settingsObj["playbackTracking"].toBool(true);
-    preferredQuality = static_cast<PlayerQuality>(settingsObj["preferredQuality"].toInt());
-    preferredVolume = settingsObj["preferredVolume"].toInt(100);
-    returnDislikes = settingsObj["returnDislikes"].toBool(true);
-    showSBToasts = settingsObj["showSBToasts"].toBool(true);
-    sponsorBlockCategories = settingsObj["sponsorBlockCategories"].toArray().toVariantList();
-    themedChannels = settingsObj["themedChannels"].toBool(true);
-    watchtimeTracking = settingsObj["watchtimeTracking"].toBool(true);
-    settingsFile.close();
+    condensedViews = settings.value("condensedViews", false).toBool();
+    frontPageTab = settings.value("frontPageTab", FrontPageTab::Home).value<FrontPageTab>();
+    fullSubs = settings.value("fullSubs", false).toBool();
+    homeShelves = settings.value("homeShelves", false).toBool();
+    preferredQuality = settings.value("preferredQuality", PlayerQuality::Auto).value<PlayerQuality>();
+    preferredVolume = settings.value("preferredVolume", 100).toInt();
+    restoreLogin = settings.value("restoreLogin", true).toBool();
+    returnDislikes = settings.value("returnDislikes", true).toBool();
+    themedChannels = settings.value("themedChannels", false).toBool();
+
+    playbackTracking = settings.value("privacy/playbackTracking", true).toBool();
+    watchtimeTracking = settings.value("privacy/watchtimeTracking", true).toBool();
+
+    showSBToasts = settings.value("sponsorBlock/toasts", true).toBool();
+
+    int size = settings.beginReadArray("sponsorBlock/categories");
+    for (int i = 0; i < size; ++i)
+    {
+        settings.setArrayIndex(i);
+        sponsorBlockCategories.append(settings.value("name").toString());
+    }
+    settings.endArray();
 }
 
 void SettingsStore::saveToSettingsFile()
 {
-    QFile settingsFile(configPath.filePath("settings.json"));
-    if (!settingsFile.open(QFile::WriteOnly | QFile::Text))
-        return;
+    QSettings settings(configPath.filePath("settings.ini"), QSettings::IniFormat);
 
-    QJsonObject settingsObj {
-        { "condensedViews", condensedViews },
-        { "frontPageTab", frontPageTab },
-        { "fullSubs", fullSubs },
-        { "homeShelves", homeShelves },
-        { "itcCache", itcCache },
-        { "playbackTracking", playbackTracking },
-        { "preferredQuality", preferredQuality },
-        { "preferredVolume", preferredVolume },
-        { "returnDislikes", returnDislikes },
-        { "showSBToasts", showSBToasts },
-        { "sponsorBlockCategories", QJsonArray::fromVariantList(sponsorBlockCategories) },
-        { "themedChannels", themedChannels },
-        { "watchtimeTracking", watchtimeTracking }
-    };
+    settings.setValue("condensedViews", condensedViews);
+    settings.setValue("frontPageTab", frontPageTab);
+    settings.setValue("fullSubs", fullSubs);
+    settings.setValue("homeShelves", homeShelves);
+    settings.setValue("preferredQuality", preferredQuality);
+    settings.setValue("preferredVolume", preferredVolume);
+    settings.setValue("restoreLogin", restoreLogin);
+    settings.setValue("returnDislikes", returnDislikes);
+    settings.setValue("themedChannels", themedChannels);
 
-    QTextStream out(&settingsFile);
-    out << QJsonDocument(settingsObj).toJson(QJsonDocument::Compact);
-    settingsFile.close();
+    settings.setValue("privacy/playbackTracking", playbackTracking);
+    settings.setValue("privacy/watchtimeTracking", watchtimeTracking);
+
+    settings.setValue("sponsorBlock/toasts", showSBToasts);
+
+    settings.beginWriteArray("sponsorBlock/categories");
+    for (int i = 0; i < sponsorBlockCategories.size(); i++)
+    {
+        settings.setArrayIndex(i);
+        settings.setValue("name", sponsorBlockCategories.at(i));
+    }
+    settings.endArray();
 }
