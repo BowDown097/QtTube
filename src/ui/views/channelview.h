@@ -1,6 +1,7 @@
 #ifndef CHANNELVIEW_H
 #define CHANNELVIEW_H
 #include "httpreply.h"
+#include "innertube/responses/browse/channelresponse.h"
 #include "ui/widgets/subscribewidget.h"
 #include "ui/widgets/tubelabel.h"
 #include <QStackedWidget>
@@ -35,6 +36,7 @@ private:
     explicit ChannelView(QWidget* parent = nullptr) : QWidget(parent) {}
     int getDominant(const QList<int>& arr);
     std::tuple<int, int, int> getDominantRgb(const QImage& img);
+    void setSubscriberCount(const InnertubeEndpoints::ChannelResponse& channelResponse);
 private slots:
     void setBanner(const HttpReply& reply);
     void setIcon(const HttpReply& reply);

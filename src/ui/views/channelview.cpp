@@ -82,8 +82,7 @@ void ChannelView::loadChannel(const QString& channelId)
     border-radius: 2px;
     text-align: center;
     )");
-    subscribersLabel->setText(channelResp.header[0].subscriberCountText.text.first(channelResp.header[0].subscriberCountText.text.lastIndexOf(" ")));
-    subscribersLabel->adjustSize();
+    setSubscriberCount(channelResp);
     subscribeHbox->addWidget(subscribersLabel);
 
     channelHeader->addLayout(subscribeHbox);
@@ -169,4 +168,31 @@ void ChannelView::setIcon(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+}
+
+void ChannelView::setSubscriberCount(const InnertubeEndpoints::ChannelResponse& channelResp)
+{
+    QString subscriberCountText = channelResp.header[0].subscriberCountText.text;
+    if (!SettingsStore::instance().fullSubs)
+    {
+        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
+        subscribersLabel->adjustSize();
+        return;
+    }
+
+    Http http;
+    http.setReadTimeout(2000);
+    http.setMaxRetries(5);
+
+    // have to catch errors here because this API really, REALLY likes to stop working
+    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelResp.header[0].channelId));
+    QObject::connect(reply, &HttpReply::error, [this, subscriberCountText] {
+        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
+        subscribersLabel->adjustSize();
+    });
+    QObject::connect(reply, &HttpReply::finished, [this](const HttpReply& reply) {
+        int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
+        subscribersLabel->setText(QLocale::system().toString(subs));
+        subscribersLabel->adjustSize();
+    });
 }

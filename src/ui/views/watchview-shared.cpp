@@ -47,9 +47,10 @@ void WatchViewShared::setChannelIcon(const HttpReply& reply, TubeLabel* channelI
 
 void WatchViewShared::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo, TubeLabel* subscribersLabel)
 {
+    QString subscriberCountText = secondaryInfo.subscriberCountText.text;
     if (!SettingsStore::instance().fullSubs)
     {
-        subscribersLabel->setText(secondaryInfo.subscriberCountText.text.first(secondaryInfo.subscriberCountText.text.lastIndexOf(" ")));
+        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
         subscribersLabel->adjustSize();
         return;
     }
@@ -60,8 +61,8 @@ void WatchViewShared::setSubscriberCount(const InnertubeObjects::VideoSecondaryI
 
     // have to catch errors here because this API really, REALLY likes to stop working
     HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + secondaryInfo.subscribeButton.channelId));
-    QObject::connect(reply, &HttpReply::error, [secondaryInfo, subscribersLabel] {
-        subscribersLabel->setText(secondaryInfo.subscriberCountText.text);
+    QObject::connect(reply, &HttpReply::error, [subscriberCountText, subscribersLabel] {
+        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
         subscribersLabel->adjustSize();
     });
     QObject::connect(reply, &HttpReply::finished, [subscribersLabel](const HttpReply& reply) {
