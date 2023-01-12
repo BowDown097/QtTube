@@ -1,4 +1,4 @@
-
+QT *= webenginewidgets
 INCLUDEPATH += $$PWD
 
 HEADERS += \

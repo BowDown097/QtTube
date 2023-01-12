@@ -1,7 +1,9 @@
-QT += core gui network webenginewidgets
+QT += core gui network
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 INCLUDEPATH += $$PWD/src
 DEPENDPATH += $$PWD/src
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 CONFIG += c++20
 unix:!macx: LIBS += -lX11 -lXss
 
