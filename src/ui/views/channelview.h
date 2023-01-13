@@ -12,28 +12,29 @@ class ChannelView : public QWidget
 {
     Q_OBJECT
 public:
+    Q_DISABLE_COPY(ChannelView)
     static ChannelView* instance();
-    void initialize(QStackedWidget* stackedWidget) { this->stackedWidget = stackedWidget; }
     void loadChannel(const QString& channelId);
 public slots:
     void goBack();
 private:
-    QLabel* channelBanner = nullptr;
-    QHBoxLayout* channelHeader = nullptr;
-    QWidget* channelHeaderWidget = nullptr;
-    QLabel* channelIcon = nullptr;
-    QHBoxLayout* metaHbox = nullptr;
-    QVBoxLayout* metaVbox = nullptr;
-    TubeLabel* channelName = nullptr;
-    QTabWidget* channelTabs = nullptr;
-    TubeLabel* handleAndVideos = nullptr;
-    QVBoxLayout* pageLayout = nullptr;
-    QStackedWidget* stackedWidget = nullptr;
-    QHBoxLayout* subscribeHbox = nullptr;
-    SubscribeWidget* subscribeWidget = nullptr;
-    TubeLabel* subscribersLabel = nullptr;
+    ChannelView() {}
+    static inline ChannelView* m_channelView;
 
-    explicit ChannelView(QWidget* parent = nullptr) : QWidget(parent) {}
+    QLabel* channelBanner;
+    QHBoxLayout* channelHeader;
+    QWidget* channelHeaderWidget;
+    QLabel* channelIcon;
+    QHBoxLayout* metaHbox;
+    QVBoxLayout* metaVbox;
+    TubeLabel* channelName;
+    QTabWidget* channelTabs;
+    TubeLabel* handleAndVideos;
+    QVBoxLayout* pageLayout;
+    QHBoxLayout* subscribeHbox;
+    SubscribeWidget* subscribeWidget;
+    TubeLabel* subscribersLabel;
+
     int getDominant(const QList<int>& arr);
     std::tuple<int, int, int> getDominantRgb(const QImage& img);
     void setSubscriberCount(const InnertubeEndpoints::ChannelResponse& channelResponse);

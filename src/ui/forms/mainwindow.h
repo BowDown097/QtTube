@@ -1,8 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include "ui/widgets/topbar.h"
 #include <QListWidget>
 #include <QMainWindow>
-#include "ui/widgets/topbar.h"
+#include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -13,11 +14,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    static MainWindow* instance();
-    QListWidget* notificationMenu;
-    TopBar* topbar;
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    static QStackedWidget* centralWidget() { return m_centralWidget; }
+    static TopBar* topbar() { return m_topbar; }
 public slots:
     void showNotifications();
 private slots:
@@ -29,7 +30,12 @@ private:
     void browse();
     void resizeEvent(QResizeEvent*) override;
     void tryRestoreData();
+
+    static inline QStackedWidget* m_centralWidget;
+    static inline TopBar* m_topbar;
+
     bool doNotBrowse = false;
+    QListWidget* notificationMenu;
     QString lastSearchQuery;
     Ui::MainWindow* ui;
 };

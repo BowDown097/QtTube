@@ -1,83 +1,62 @@
-#ifdef USEMPV
-#include "watchview-mpv.h"
+#include "watchview.h"
+#include "channelview.h"
 #include "http.h"
 #include "innertube.h"
-#include "lib/media/mpv/mediampv.h"
 #include "settingsstore.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
-#include "watchview-shared.h"
-#include <QVBoxLayout>
+#include <QApplication>
+#include <QMessageBox>
+
+#ifdef USEMPV
+#include "lib/media/mpv/mediampv.h"
+#endif
+
+#if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
+#include <X11/extensions/scrnsaver.h>
+#elif defined (Q_OS_WIN)
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
 
 WatchView* WatchView::instance()
 {
-    static WatchView* wv = new WatchView;
-    return wv;
+    if (!m_watchView)
+        m_watchView = new WatchView;
+    return m_watchView;
 }
 
 void WatchView::goBack()
 {
+#ifdef USEMPV
     media->stop();
     media->clearQueue();
     watchtimeTimer->deleteLater();
 
     for (QAction* action : actions())
         removeAction(action);
+#endif
+    MainWindow::topbar()->alwaysShow = true;
+    MainWindow::centralWidget()->setCurrentIndex(0);
+    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
 
-    MainWindow::instance()->topbar->alwaysShow = true;
-    disconnect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &WatchView::goBack);
     UIUtilities::clearLayout(pageLayout);
     pageLayout->deleteLater();
-    stackedWidget->setCurrentIndex(0);
-    WatchViewShared::toggleIdleSleep(false);
-}
-
-void WatchView::initialize(const InnertubeClient& client, QStackedWidget* stackedWidget)
-{
-    this->itc = client;
-    this->stackedWidget = stackedWidget;
-
-    for (int i = 0; i < 10; ++i)
-    {
-        QAction* seekAction = new QAction;
-        seekAction->setShortcut(Qt::Key_0 + i);
-        seekAction->setAutoRepeat(false);
-        connect(seekAction, &QAction::triggered, this, [i, this] { media->seek((media->duration() * (i * 10)) / 100); });
-        addAction(seekAction);
-    }
-
-    QAction* backAction = new QAction("Back 10 seconds");
-    backAction->setShortcuts(QList<QKeySequence>() << QKeySequence(Qt::Key_Left) << QKeySequence(Qt::Key_MediaPrevious));
-    backAction->setAutoRepeat(false);
-    connect(backAction, &QAction::triggered, this, [this] { media->relativeSeek(-10000); });
-    addAction(backAction);
-
-    QAction* forwardAction = new QAction("Forward 10 seconds");
-    forwardAction->setShortcuts(QList<QKeySequence>() << QKeySequence(Qt::Key_Right) << QKeySequence(Qt::Key_MediaNext));
-    forwardAction->setAutoRepeat(false);
-    connect(forwardAction, &QAction::triggered, this, [this] { media->relativeSeek(10000); });
-    addAction(forwardAction);
-
-    QAction* pauseAction = new QAction("Pause video");
-    pauseAction->setShortcuts(QList<QKeySequence>() << QKeySequence(Qt::Key_Space) << QKeySequence(Qt::Key_K) << QKeySequence(Qt::Key_MediaPlay) << QKeySequence(Qt::Key_MediaTogglePlayPause) << QKeySequence(Qt::Key_MediaPause));
-    pauseAction->setAutoRepeat(false);
-    connect(pauseAction, &QAction::triggered, this, [this] { media->state() == Media::PlayingState ? media->pause() : media->play(); });
-    addAction(pauseAction);
-    // TODO: add volume icon, slider, etc.
+    toggleIdleSleep(false);
 }
 
 void WatchView::loadVideo(const QString& videoId, int progress)
 {
     InnertubeEndpoints::NextResponse nextResp = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId).response;
     InnertubeEndpoints::PlayerResponse playerResp = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response;
-
-    stackedWidget->setCurrentIndex(1);
-    QSize playerSize = WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height());
+    MainWindow::centralWidget()->setCurrentIndex(1);
 
     pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->setSpacing(5);
 
+    QSize playerSize = calcPlayerSize();
+#ifdef USEMPV
     media = new MediaMPV;
     media->init();
     media->setVolume(SettingsStore::instance().preferredVolume);
@@ -87,11 +66,16 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     connect(media, &Media::error, this, [this](const QString& message) { QMessageBox::warning(this, "Media error", message); });
     connect(media, &Media::stateChanged, this, &WatchView::mediaStateChanged);
     connect(media, &Media::volumeChanged, this, &WatchView::volumeChanged);
+#else
+    wePlayer = new WebEnginePlayer(this);
+    wePlayer->setAuthStore(InnerTube::instance().authStore());
+    wePlayer->setContext(InnerTube::instance().context());
+    pageLayout->addWidget(wePlayer);
+#endif
 
-    titleLabel = new QLabel(playerResp.videoDetails.title, this);
+    titleLabel = new TubeLabel(playerResp.videoDetails.title, this);
     titleLabel->setFixedWidth(playerSize.width());
     titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 4));
-    titleLabel->setText(playerResp.videoDetails.title);
     titleLabel->setWordWrap(true);
     pageLayout->addWidget(titleLabel);
 
@@ -111,9 +95,9 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     channelName->setText(nextResp.secondaryInfo.channelName.text);
     primaryInfoVbox->addWidget(channelName);
     connect(channelName, &TubeLabel::clicked, this, [this, nextResp] {
-        disconnect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &WatchView::goBack);
-        WatchViewShared::toggleIdleSleep(false);
-        WatchViewShared::navigateChannel(nextResp.secondaryInfo.subscribeButton.channelId);
+        disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
+        toggleIdleSleep(false);
+        navigateChannel(nextResp.secondaryInfo.subscribeButton.channelId);
         UIUtilities::clearLayout(pageLayout);
         pageLayout->deleteLater();
     });
@@ -134,7 +118,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     border-radius: 2px;
     text-align: center;
     )");
-    WatchViewShared::setSubscriberCount(nextResp.secondaryInfo, subscribersLabel);
+    setSubscriberCount(nextResp.secondaryInfo);
     subscribeHbox->addWidget(subscribersLabel);
 
     primaryInfoVbox->addLayout(subscribeHbox);
@@ -146,22 +130,33 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     primaryInfoWrapper->setLayout(primaryInfoHbox);
     pageLayout->addWidget(primaryInfoWrapper);
 
+#ifndef USEMPV
+    wePlayer->play(playerResp.videoDetails.videoId, progress);
+    wePlayer->setFixedSize(playerSize);
+    wePlayer->setPlayerResponse(playerResp);
+#endif
+
     pageLayout->addStretch(); // disable the layout from stretching on resize
 
     if (!nextResp.secondaryInfo.channelIcons.isEmpty())
     {
-        auto bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.channelIcons, [](const auto& t) { return t.width >= 48; });
+        QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.channelIcons;
+        auto bestThumb = *std::find_if(channelIcons.cbegin(), channelIcons.cend(), [](const InnertubeObjects::GenericThumbnail& t)
+        {
+            return t.width >= 48;
+        });
         HttpReply* reply = Http::instance().get(bestThumb.url);
-        connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) { WatchViewShared::setChannelIcon(reply, channelIcon); });
+        connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
 
-    MainWindow::instance()->setWindowTitle(playerResp.videoDetails.title + " - QtTube");
-    WatchViewShared::toggleIdleSleep(true);
+    setWindowTitle(playerResp.videoDetails.title + " - QtTube");
+    toggleIdleSleep(true);
 
-    MainWindow::instance()->topbar->setVisible(false);
-    MainWindow::instance()->topbar->alwaysShow = false;
-    connect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &WatchView::goBack);
+    MainWindow::topbar()->setVisible(false);
+    MainWindow::topbar()->alwaysShow = false;
+    connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
 
+#ifdef USEMPV
     media->play("https://www.youtube.com/watch?v=" + playerResp.videoDetails.videoId);
     media->seek(progress);
 
@@ -175,22 +170,131 @@ void WatchView::loadVideo(const QString& videoId, int progress)
         connect(watchtimeTimer, &QTimer::timeout, this, [this, playerResp] { reportWatchtime(playerResp, media->position()); });
         watchtimeTimer->start();
     }
-}
-
-void WatchView::mediaStateChanged(Media::State state)
-{
-    if (state == Media::ErrorState)
-        QMessageBox::critical(this, "Media error", media->errorString());
+#endif
 }
 
 void WatchView::resizeEvent(QResizeEvent*)
 {
     if (!primaryInfoWrapper) return;
 
-    QSize playerSize = WatchViewShared::calcPlayerSize(width(), MainWindow::instance()->height());
-    media->videoWidget()->setFixedSize(playerSize);
+    QSize playerSize = calcPlayerSize();
     primaryInfoWrapper->setFixedWidth(playerSize.width());
     titleLabel->setFixedWidth(playerSize.width());
+
+#ifdef USEMPV
+    media->videoWidget()->setFixedSize(playerSize);
+#else
+    wePlayer->setFixedSize(playerSize);
+#endif
+}
+
+QSize WatchView::calcPlayerSize()
+{
+    int playerWidth = width();
+    int playerHeight = playerWidth * 9/16;
+
+    if (playerHeight > height() - 125)
+    {
+        playerHeight = height() - 125;
+        playerWidth = playerHeight * 16/9;
+    }
+
+    return QSize(playerWidth, playerHeight);
+}
+
+void WatchView::navigateChannel(const QString& channelId)
+{
+    try
+    {
+        ChannelView::instance()->loadChannel(channelId);
+    }
+    catch (const InnertubeException& ie)
+    {
+        QMessageBox::critical(nullptr, "Failed to load channel", ie.message());
+    }
+}
+
+void WatchView::setChannelIcon(const HttpReply& reply)
+{
+    QPixmap pixmap;
+    pixmap.loadFromData(reply.body());
+    channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+}
+
+void WatchView::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo)
+{
+    QString subscriberCountText = secondaryInfo.subscriberCountText.text;
+    if (!SettingsStore::instance().fullSubs)
+    {
+        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
+        subscribersLabel->adjustSize();
+        return;
+    }
+
+    Http http;
+    http.setReadTimeout(2000);
+    http.setMaxRetries(5);
+
+    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + secondaryInfo.subscribeButton.channelId));
+    connect(reply, &HttpReply::error, this, [this, subscriberCountText] {
+        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
+        subscribersLabel->adjustSize();
+    });
+    connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
+        int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
+        subscribersLabel->setText(QLocale::system().toString(subs));
+        subscribersLabel->adjustSize();
+    });
+}
+
+void WatchView::toggleIdleSleep(bool toggle)
+{
+#if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
+    Display* display = qApp->nativeInterface<QNativeInterface::QX11Application>()->display();
+    if (!display)
+    {
+        qDebug() << "Failed to toggle idle sleep: Failed to get X11 display";
+        return;
+    }
+
+    int event, error, major, minor;
+    if (XScreenSaverQueryExtension(display, &event, &error) != 1)
+    {
+        qDebug() << "Failed to toggle idle sleep: XScreenSaverQueryExtension failed";
+        return;
+    }
+    if (XScreenSaverQueryVersion(display, &major, &minor) != 1 || major < 1 || (major == 1 && minor < 1))
+    {
+        qDebug() << "Failed to toggle idle sleep: XScreenSaverQueryVersion failed or definitely returned the wrong version";
+        return;
+    }
+
+    XScreenSaverSuspend(display, toggle);
+#elif defined(Q_OS_WIN)
+    if (SetThreadExecutionState(toggle ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS | ES_SYSTEM_REQUIRED : ES_CONTINUOUS) == NULL)
+        qDebug() << "Failed to toggle idle sleep: SetThreadExecutionState failed";
+#elif defined(Q_OS_MACOS)
+    if (!toggle && sleepAssert)
+    {
+        IOPMAssertionRelease(sleepAssert);
+        return;
+    }
+
+    CFStringRef reason = CFSTR("QtTube video playing");
+    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, reason, &sleepAssert);
+    if (success != kIOReturnSuccess)
+        qDebug() << "Failed to toggle idle sleep: Creating IOPM assertion failed";
+#else
+    qDebug() << "Failed to toggle idle sleep: Unsupported OS";
+#endif
+}
+
+
+#ifdef USEMPV // MPV backend exclusive methods
+void WatchView::mediaStateChanged(Media::State state)
+{
+    if (state == Media::ErrorState)
+        QMessageBox::critical(this, "Media error", media->errorString());
 }
 
 void WatchView::volumeChanged(double volume)
@@ -211,10 +315,12 @@ QString WatchView::getCpn()
 
 void WatchView::reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp)
 {
-    QUrlQuery playbackQuery(QUrl(playerResp.playbackTracking.videostatsPlaybackUrl));
+    InnertubeClient itc = InnerTube::instance().context()->client;
 
+    QUrlQuery playbackQuery(QUrl(playerResp.playbackTracking.videostatsPlaybackUrl));
     QUrl outPlaybackUrl("https://www.youtube.com/api/stats/playback");
     QUrlQuery outPlaybackQuery;
+
     QList<QPair<QString, QString>> map =
     {
         { "ns", "yt" },
@@ -252,6 +358,7 @@ void WatchView::reportPlayback(const InnertubeEndpoints::PlayerResponse& playerR
         { "of", playbackQuery.queryItemValue("of") },
         { "vm", playbackQuery.queryItemValue("vm") }
     };
+
     outPlaybackQuery.setQueryItems(map);
     outPlaybackUrl.setQuery(outPlaybackQuery);
     Http::instance().get(outPlaybackUrl);
@@ -259,6 +366,8 @@ void WatchView::reportPlayback(const InnertubeEndpoints::PlayerResponse& playerR
 
 void WatchView::reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position)
 {
+    InnertubeClient itc = InnerTube::instance().context()->client;
+
     QUrlQuery watchtimeQuery(QUrl(playerResp.playbackTracking.videostatsWatchtimeUrl));
     QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
     QUrlQuery outWatchtimeQuery;
@@ -306,8 +415,9 @@ void WatchView::reportWatchtime(const InnertubeEndpoints::PlayerResponse& player
         { "of", watchtimeQuery.queryItemValue("of") },
         { "vm", watchtimeQuery.queryItemValue("vm") }
     };
+
     outWatchtimeQuery.setQueryItems(map);
     outWatchtimeUrl.setQuery(outWatchtimeQuery);
     Http::instance().get(outWatchtimeUrl);
 }
-#endif // USEMPV
+#endif // MPV backend exclusive methods

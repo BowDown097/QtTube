@@ -30,7 +30,6 @@ public:
     bool watchtimeTracking;
 
     static SettingsStore& instance() { static SettingsStore ss; return ss; }
-    explicit SettingsStore(QObject* parent = nullptr) : QObject(parent) {}
     void initializeFromSettingsFile();
     void saveToSettingsFile();
 };

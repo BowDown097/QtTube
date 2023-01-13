@@ -8,24 +8,26 @@
 
 ChannelView* ChannelView::instance()
 {
-    static ChannelView* wv = new ChannelView;
-    return wv;
+    if (!m_channelView)
+        m_channelView = new ChannelView;
+    return m_channelView;
 }
 
 void ChannelView::goBack()
 {
-    MainWindow::instance()->topbar->alwaysShow = true;
-    MainWindow::instance()->topbar->updateColors(QApplication::palette().color(QPalette::AlternateBase));
-    disconnect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
+    MainWindow::topbar()->alwaysShow = true;
+    MainWindow::topbar()->updateColors(QApplication::palette().color(QPalette::AlternateBase));
+    MainWindow::centralWidget()->setCurrentIndex(0);
+    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
+
     UIUtilities::clearLayout(pageLayout);
     pageLayout->deleteLater();
-    stackedWidget->setCurrentIndex(0);
 }
 
 void ChannelView::loadChannel(const QString& channelId)
 {
     InnertubeEndpoints::ChannelResponse channelResp = InnerTube::instance().get<InnertubeEndpoints::BrowseChannel>(channelId).response;
-    stackedWidget->setCurrentIndex(2);
+    MainWindow::centralWidget()->setCurrentIndex(2);
 
     pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
@@ -92,9 +94,9 @@ void ChannelView::loadChannel(const QString& channelId)
     channelTabs = new QTabWidget(this);
     pageLayout->addWidget(channelTabs);
 
-    MainWindow::instance()->topbar->alwaysShow = false;
-    MainWindow::instance()->topbar->setVisible(false);
-    connect(MainWindow::instance()->topbar->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
+    MainWindow::topbar()->alwaysShow = false;
+    MainWindow::topbar()->setVisible(false);
+    connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
 
     if (!channelResp.header[0].banner.isEmpty())
     {
@@ -159,7 +161,7 @@ void ChannelView::setBanner(const HttpReply& reply)
         domPal.setColor(QPalette::Window, domColor);
 
         channelHeaderWidget->setPalette(domPal);
-        MainWindow::instance()->topbar->updateColors(domColor);
+        MainWindow::topbar()->updateColors(domColor);
     }
 }
 
@@ -186,11 +188,11 @@ void ChannelView::setSubscriberCount(const InnertubeEndpoints::ChannelResponse& 
 
     // have to catch errors here because this API really, REALLY likes to stop working
     HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelResp.header[0].channelId));
-    QObject::connect(reply, &HttpReply::error, [this, subscriberCountText] {
+    connect(reply, &HttpReply::error, this, [this, subscriberCountText] {
         subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
         subscribersLabel->adjustSize();
     });
-    QObject::connect(reply, &HttpReply::finished, [this](const HttpReply& reply) {
+    connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
         int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
         subscribersLabel->setText(QLocale::system().toString(subs));
         subscribersLabel->adjustSize();

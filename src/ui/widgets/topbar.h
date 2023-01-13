@@ -17,7 +17,7 @@ public:
     QLineEdit* searchBox;
     TubeLabel* settingsButton;
     QPushButton* signInButton;
-    explicit TopBar(QWidget* parent = nullptr);
+    explicit TopBar(QWidget* parent);
     void scaleAppropriately();
     void updateColors(const QColor& color);
 public slots:

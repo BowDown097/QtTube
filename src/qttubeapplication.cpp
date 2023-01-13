@@ -1,14 +1,8 @@
-#include "innertube.h"
 #include "qttubeapplication.h"
 #include "ui/forms/mainwindow.h"
+#include "ui/views/watchview.h"
 #include <array>
 #include <QMouseEvent>
-
-#ifdef USEMPV
-#include "ui/views/watchview-mpv.h"
-#else
-#include "ui/views/watchview-ytp.h"
-#endif
 
 constexpr std::array<Qt::Key, 5> sneed = { Qt::Key_S, Qt::Key_N, Qt::Key_E, Qt::Key_E, Qt::Key_D };
 
@@ -20,7 +14,7 @@ bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
     if (event->type() == QEvent::MouseMove)
     {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-        TopBar* topbar = MainWindow::instance()->topbar;
+        TopBar* topbar = qobject_cast<MainWindow*>(receiver)->topbar();
         if (!topbar->alwaysShow)
         {
             if (mouseEvent->pos().y() < 35)

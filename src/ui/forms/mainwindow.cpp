@@ -1,34 +1,26 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "browsehelper.h"
 #include "innertube.h"
 #include "settingsstore.h"
+#include "ui/browsehelper.h"
 #include "ui/views/channelview.h"
+#include "ui/views/watchview.h"
 #include "ui/uiutilities.h"
 #include <QComboBox>
 #include <QScrollBar>
 
-#ifdef USEMPV
-#include "ui/views/watchview-mpv.h"
-#else
-#include "ui/views/watchview-ytp.h"
-#endif
-
-namespace { MainWindow* mWInst; }
-MainWindow* MainWindow::instance() { return mWInst; }
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    mWInst = this;
     ui->setupUi(this);
+    m_centralWidget = ui->centralwidget;
 
     notificationMenu = new QListWidget(this);
     notificationMenu->setVisible(false);
 
-    topbar = new TopBar(this);
-    connect(topbar, &TopBar::notificationBellClicked, this, &MainWindow::showNotifications);
-    connect(topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
-    connect(topbar->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
+    m_topbar = new TopBar(this);
+    connect(m_topbar, &TopBar::notificationBellClicked, this, &MainWindow::showNotifications);
+    connect(m_topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
+    connect(m_topbar->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
 
     ui->tabWidget->setTabEnabled(4, false);
     ui->tabWidget->setTabEnabled(5, false);
@@ -57,20 +49,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->subscriptionsWidget->verticalScrollBar()->setSingleStep(25);
     ui->trendingWidget->verticalScrollBar()->setSingleStep(25);
 
-    ui->centralwidget->addWidget(WatchView::instance());
-
     SettingsStore::instance().initializeFromSettingsFile();
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP"));
     tryRestoreData();
 
-#ifdef USEMPV
-    WatchView::instance()->initialize(InnerTube::instance().context()->client, ui->centralwidget);
-#else
-    WatchView::instance()->initialize(ui->centralwidget);
-#endif
-
+    ui->centralwidget->addWidget(WatchView::instance());
     ui->centralwidget->addWidget(ChannelView::instance());
-    ChannelView::instance()->initialize(ui->centralwidget);
 
     if (SettingsStore::instance().frontPageTab != SettingsStore::FrontPageTab::None)
     {
@@ -127,16 +111,16 @@ void MainWindow::browse()
 void MainWindow::resizeEvent(QResizeEvent*)
 {
     notificationMenu->setFixedSize(width() >= 800 ? 600 : 600 - (800 - width()), height() / 2);
-    topbar->resize(width(), 35);
-    topbar->scaleAppropriately();
-    notificationMenu->move(topbar->notificationBell->x() - notificationMenu->width() + 20, 34);
+    m_topbar->resize(width(), 35);
+    m_topbar->scaleAppropriately();
+    notificationMenu->move(m_topbar->notificationBell->x() - notificationMenu->width() + 20, 34);
 }
 
 void MainWindow::returnFromSearch()
 {
     UIUtilities::clearLayout(ui->additionalWidgets);
     doNotBrowse = true;
-    disconnect(topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromSearch);
+    disconnect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromSearch);
     ui->tabWidget->setTabEnabled(4, false);
     UIUtilities::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
     doNotBrowse = false;
@@ -147,7 +131,7 @@ void MainWindow::returnFromSearch()
 void MainWindow::returnFromWatchHistorySearch()
 {
     doNotBrowse = true;
-    disconnect(topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
+    disconnect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
     ui->tabWidget->setTabEnabled(5, false);
     UIUtilities::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
     doNotBrowse = false;
@@ -159,6 +143,16 @@ void MainWindow::search()
 {
     UIUtilities::clearLayout(ui->additionalWidgets);
     ui->historySearchWidget->clear();
+
+    switch (ui->centralwidget->currentIndex())
+    {
+    case 1:
+        WatchView::instance()->goBack();
+        break;
+    case 2:
+        ChannelView::instance()->goBack();
+        break;
+    }
 
     TubeLabel* filtersLabel = new TubeLabel("Filters:");
     ui->additionalWidgets->addWidget(filtersLabel);
@@ -188,9 +182,6 @@ void MainWindow::search()
     sortCmb->addItems({"Relevance", "Rating", "Upload date", "View count"});
     ui->additionalWidgets->addWidget(sortCmb);
 
-    if (ui->centralwidget->currentIndex() == 1)
-        WatchView::instance()->goBack();
-
     if (ui->tabWidget->currentIndex() == 4)
     {
         ui->searchWidget->clear();
@@ -198,14 +189,14 @@ void MainWindow::search()
     else
     {
         doNotBrowse = true;
-        connect(topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromSearch);
+        connect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromSearch);
         ui->tabWidget->setTabEnabled(4, true);
         UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3, 5});
         doNotBrowse = false;
         ui->tabWidget->setCurrentIndex(4);
     }
 
-    lastSearchQuery = topbar->searchBox->text();
+    lastSearchQuery = m_topbar->searchBox->text();
     BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery);
 
     connect(dateCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
@@ -232,9 +223,6 @@ void MainWindow::search()
 
 void MainWindow::searchWatchHistory()
 {
-    if (ui->centralwidget->currentIndex() == 1)
-        WatchView::instance()->goBack();
-
     if (ui->tabWidget->currentIndex() == 5)
     {
         ui->historySearchWidget->clear();
@@ -244,7 +232,7 @@ void MainWindow::searchWatchHistory()
     }
 
     doNotBrowse = true;
-    connect(topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
+    connect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
     ui->tabWidget->setTabEnabled(5, true);
     UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3});
     doNotBrowse = false;
@@ -265,7 +253,7 @@ void MainWindow::showNotifications()
 
     notificationMenu->setVisible(true);
     BrowseHelper::instance().browseNotificationMenu(notificationMenu);
-    topbar->updateNotificationCount();
+    m_topbar->updateNotificationCount();
 }
 
 void MainWindow::tryRestoreData()
@@ -274,10 +262,10 @@ void MainWindow::tryRestoreData()
     InnerTube::instance().authenticateFromSettings(store);
     if (InnerTube::instance().hasAuthenticated())
     {
-        topbar->setUpNotifications();
-        topbar->signInButton->setText("Sign out");
-        disconnect(topbar->signInButton, &QPushButton::clicked, topbar, &TopBar::trySignIn);
-        connect(topbar->signInButton, &QPushButton::clicked, topbar, &TopBar::signOut);
+        m_topbar->setUpNotifications();
+        m_topbar->signInButton->setText("Sign out");
+        disconnect(m_topbar->signInButton, &QPushButton::clicked, m_topbar, &TopBar::trySignIn);
+        connect(m_topbar->signInButton, &QPushButton::clicked, m_topbar, &TopBar::signOut);
     }
 }
 

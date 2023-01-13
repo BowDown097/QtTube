@@ -1,7 +1,6 @@
 #include "topbar.h"
 #include "innertube.h"
 #include "settingsstore.h"
-#include "ui/forms/mainwindow.h"
 #include "ui/forms/settingsform.h"
 #include <QApplication>
 
@@ -9,7 +8,7 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
 {
     animation->setDuration(250);
     animation->setEasingCurve(QEasingCurve::InOutQuint);
-    resize(MainWindow::instance()->width(), 35);
+    resize(parent->width(), 35);
 
     const QColor& aBase = QApplication::palette().color(QPalette::AlternateBase);
     preferDark = aBase.lightness() < 60;
