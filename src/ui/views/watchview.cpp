@@ -47,8 +47,9 @@ void WatchView::goBack()
 
 void WatchView::loadVideo(const QString& videoId, int progress)
 {
-    InnertubeEndpoints::NextResponse nextResp = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId).response;
-    InnertubeEndpoints::PlayerResponse playerResp = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response;
+    auto nextResp = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId).response;
+    auto playerResp = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response;
+
     MainWindow::centralWidget()->setCurrentIndex(1);
 
     pageLayout = new QVBoxLayout(this);

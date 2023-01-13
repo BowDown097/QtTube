@@ -26,7 +26,9 @@ void ChannelView::goBack()
 
 void ChannelView::loadChannel(const QString& channelId)
 {
-    InnertubeEndpoints::ChannelResponse channelResp = InnerTube::instance().get<InnertubeEndpoints::BrowseChannel>(channelId).response;
+    auto channelResp = InnerTube::instance().get<InnertubeEndpoints::BrowseChannel>(channelId).response;
+    InnertubeObjects::ChannelHeader header = channelResp.header[0];
+
     MainWindow::centralWidget()->setCurrentIndex(2);
 
     pageLayout = new QVBoxLayout(this);
@@ -53,11 +55,11 @@ void ChannelView::loadChannel(const QString& channelId)
     metaHbox->addWidget(channelIcon);
 
     channelName = new TubeLabel(this);
-    channelName->setText(channelResp.header[0].title);
+    channelName->setText(header.title);
     metaVbox->addWidget(channelName);
 
     handleAndVideos = new TubeLabel(this);
-    handleAndVideos->setText(channelResp.header[0].channelHandleText.text + " • " + channelResp.header[0].videosCountText.text);
+    handleAndVideos->setText(header.channelHandleText.text + " • " + header.videosCountText.text);
     handleAndVideos->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() - 2));
     metaVbox->addWidget(handleAndVideos);
 
@@ -69,11 +71,8 @@ void ChannelView::loadChannel(const QString& channelId)
     subscribeHbox->setContentsMargins(0, 0, 0, 0);
     subscribeHbox->setSpacing(0);
 
-    if (channelResp.header[0].subscribeButton.enabled)
-    {
-        subscribeWidget = new SubscribeWidget(channelResp.header[0].subscribeButton, this);
-        subscribeHbox->addWidget(subscribeWidget);
-    }
+    subscribeWidget = new SubscribeWidget(header.subscribeButton, this);
+    subscribeHbox->addWidget(subscribeWidget);
 
     subscribersLabel = new TubeLabel(this);
     subscribersLabel->setStyleSheet(R"(
@@ -98,14 +97,14 @@ void ChannelView::loadChannel(const QString& channelId)
     MainWindow::topbar()->setVisible(false);
     connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
 
-    if (!channelResp.header[0].banner.isEmpty())
+    if (!header.banner.isEmpty())
     {
-        HttpReply* bannerReply = Http::instance().get(channelResp.header[0].banner[0].url);
-        QObject::connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
+        HttpReply* bannerReply = Http::instance().get(header.banner[0].url);
+        connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
     }
 
-    HttpReply* iconReply = Http::instance().get(channelResp.header[0].avatar[0].url);
-    QObject::connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
+    HttpReply* iconReply = Http::instance().get(header.avatar[0].url);
+    connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
 }
 
 // below 2 methods courtesy of https://stackoverflow.com/a/61581999 (with some improvements)

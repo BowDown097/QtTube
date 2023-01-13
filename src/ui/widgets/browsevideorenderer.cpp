@@ -73,21 +73,21 @@ void BrowseVideoRenderer::setThumbnail(const HttpReply& reply)
     thumbLabel->setPixmap(pixmap.scaled(240, thumbLabel->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 
-void BrowseVideoRenderer::setVideoData(QString length, QString publishedTime, int progress, const QString& title,
+void BrowseVideoRenderer::setVideoData(const QString& length, const QString& publishedTime, int progress, const QString& title,
                                        const QString& videoId, const QString& viewCount)
 {
     this->progress = progress;
-    if (!length.isEmpty()) length += " • ";
-    if (!publishedTime.isEmpty()) publishedTime += " • ";
+    this->videoId = videoId;
 
-    QString progStr = QStringLiteral(" • %1 watched").arg(QDateTime::fromSecsSinceEpoch(progress, Qt::UTC).toString(progress >= 3600 ? "h:mm:ss" : "m:ss"));
-    QString metadata = progress != 0
-            ? QStringLiteral("%1%2%3%4").arg(length, publishedTime, viewCount, progStr)
-            : QStringLiteral("%1%2%3").arg(length, publishedTime, viewCount);
-    if (metadata.endsWith("• ")) metadata.chop(2);
+    QString progStr = QStringLiteral("%1 watched")
+            .arg(QDateTime::fromSecsSinceEpoch(progress, Qt::UTC)
+            .toString(progress >= 3600 ? "h:mm:ss" : "m:ss"));
 
-    metadataLabel->setText(metadata);
+    QStringList list({length, publishedTime, viewCount});
+    if (progress != 0) list.append(progStr);
+    list.removeAll({});
+
+    metadataLabel->setText(list.join(" • "));
     titleLabel->setText(title.length() <= 60 ? title : title.left(60) + "…");
     titleLabel->setToolTip(title);
-    this->videoId = videoId;
 }

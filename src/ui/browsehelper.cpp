@@ -14,7 +14,7 @@ void BrowseHelper::browseHistory(QListWidget* historyWidget, const QString& quer
     {
         if (InnerTube::instance().hasAuthenticated())
         {
-            InnertubeEndpoints::BrowseHistory historyData = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>(query);
+            auto historyData = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>(query);
             setupVideoList(historyData.response.videos, historyWidget);
             continuationToken = historyData.continuationToken;
         }
@@ -44,7 +44,7 @@ void BrowseHelper::browseHome(QListWidget* homeWidget)
             InnerTube::instance().context()->client.clientName = "ANDROID";
             InnerTube::instance().context()->client.clientVersion = "15.14.33";
 
-            InnertubeEndpoints::BrowseHomeShelves homeData = InnerTube::instance().get<InnertubeEndpoints::BrowseHomeShelves>();
+            auto homeData = InnerTube::instance().get<InnertubeEndpoints::BrowseHomeShelves>();
             setupVideoList(homeData.response.videos, homeWidget);
             continuationToken = homeData.continuationToken;
 
@@ -53,7 +53,7 @@ void BrowseHelper::browseHome(QListWidget* homeWidget)
         }
         else
         {
-            InnertubeEndpoints::BrowseHome homeData = InnerTube::instance().get<InnertubeEndpoints::BrowseHome>();
+            auto homeData = InnerTube::instance().get<InnertubeEndpoints::BrowseHome>();
             setupVideoList(homeData.response.videos, homeWidget);
             continuationToken = homeData.continuationToken;
         }
@@ -70,8 +70,7 @@ void BrowseHelper::browseHome(QListWidget* homeWidget)
 // ok listen i know i'm kind of cheating here but whatever
 void BrowseHelper::browseNotificationMenu(QListWidget* menuWidget)
 {
-    InnertubeEndpoints::GetNotificationMenu notificationMenuData =
-        InnerTube::instance().get<InnertubeEndpoints::GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
+    auto notificationMenuData = InnerTube::instance().get<InnertubeEndpoints::GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
     setupNotificationList(notificationMenuData.response.notifications, menuWidget);
     continuationToken = notificationMenuData.continuationToken;
 }
@@ -86,7 +85,7 @@ void BrowseHelper::browseSubscriptions(QListWidget* subsWidget)
             return;
         }
 
-        InnertubeEndpoints::BrowseSubscriptions subsData = InnerTube::instance().get<InnertubeEndpoints::BrowseSubscriptions>();
+        auto subsData = InnerTube::instance().get<InnertubeEndpoints::BrowseSubscriptions>();
         setupVideoList(subsData.response.videos, subsWidget);
         continuationToken = subsData.continuationToken;
     }
@@ -103,7 +102,7 @@ void BrowseHelper::browseTrending(QListWidget* trendingWidget)
 {
     try
     {
-        InnertubeEndpoints::BrowseTrending trendingData = InnerTube::instance().get<InnertubeEndpoints::BrowseTrending>();
+        auto trendingData = InnerTube::instance().get<InnertubeEndpoints::BrowseTrending>();
         setupVideoList(trendingData.response.videos, trendingWidget);
     }
     catch (const InnertubeException& ie)
@@ -131,7 +130,7 @@ void BrowseHelper::search(QListWidget* searchWidget, const QString& query, int d
         if (!params.isEmpty())
             compiledParams = QByteArray::fromHex(SimpleProtobuf::compile(params, searchMsgFields)).toBase64().toPercentEncoding();
 
-        InnertubeEndpoints::Search searchData = InnerTube::instance().get<InnertubeEndpoints::Search>(query, "", compiledParams);
+        auto searchData = InnerTube::instance().get<InnertubeEndpoints::Search>(query, "", compiledParams);
         searchWidget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(searchData.response.estimatedResults)));
         setupChannelList(searchData.response.channels, searchWidget);
         setupVideoList(searchData.response.videos, searchWidget);

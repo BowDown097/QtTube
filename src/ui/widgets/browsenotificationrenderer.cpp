@@ -30,7 +30,7 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent) : QWidge
 
 void BrowseNotificationRenderer::setChannelIcon(const HttpReply& reply)
 {
-    if (reply.statusCode() == 404)
+    if (reply.statusCode() != 200)
         return;
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());

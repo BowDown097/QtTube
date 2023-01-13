@@ -20,7 +20,8 @@ class BrowseVideoRenderer : public QWidget
 public:
     explicit BrowseVideoRenderer(QWidget* parent = nullptr);
     void setChannelData(const InnertubeObjects::VideoOwner& owner);
-    void setVideoData(QString length, QString publishedTime, int progress, const QString& title, const QString& videoId, const QString& viewCount);
+    void setVideoData(const QString& length, const QString& publishedTime, int progress, const QString& title, const QString& videoId,
+                      const QString& viewCount);
 public slots:
     void setThumbnail(const HttpReply& reply);
 private slots:
