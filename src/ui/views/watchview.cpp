@@ -7,6 +7,7 @@
 #include "ui/uiutilities.h"
 #include <QApplication>
 #include <QMessageBox>
+#include <QResizeEvent>
 
 #ifdef USEMPV
 #include "lib/media/mpv/mediampv.h"
@@ -174,9 +175,9 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 #endif
 }
 
-void WatchView::resizeEvent(QResizeEvent*)
+void WatchView::resizeEvent(QResizeEvent* event)
 {
-    if (!primaryInfoWrapper) return;
+    if (!primaryInfoWrapper || !event->oldSize().isValid()) return;
 
     QSize playerSize = calcPlayerSize();
     primaryInfoWrapper->setFixedWidth(playerSize.width());

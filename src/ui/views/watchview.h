@@ -54,7 +54,7 @@ private:
     inline static IOPMAssertionID sleepAssert;
 #endif
 
-    void resizeEvent(QResizeEvent*) override; // webengine views don't resize automatically
+    void resizeEvent(QResizeEvent* event) override; // webengine views don't resize automatically
     QSize calcPlayerSize();
     void navigateChannel(const QString& channelId);
     void setChannelIcon(const HttpReply& reply);
