@@ -16,7 +16,7 @@ void UIUtilities::clearLayout(QLayout* layout)
 // this will be used for the description and perhaps elsewhere
 void UIUtilities::setMaximumLines(QWidget* widget, int lines)
 {
-    QFontMetrics fm(QApplication::font());
+    QFontMetrics fm(qApp->font());
     widget->setFixedHeight(fm.lineSpacing() * lines);
 }
 

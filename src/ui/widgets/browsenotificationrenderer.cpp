@@ -25,7 +25,7 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent) : QWidge
     hbox->addWidget(thumbLabel);
     setLayout(hbox);
 
-    sentTimeText->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() - 2));
+    sentTimeText->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
 }
 
 void BrowseNotificationRenderer::setChannelIcon(const HttpReply& reply)

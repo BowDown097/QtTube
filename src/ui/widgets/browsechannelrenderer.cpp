@@ -31,7 +31,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
     thumbLabel->setScaledContents(true);
 
     titleLabel->setClickable(true, true);
-    titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
+    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
 
     connect(thumbLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
     connect(titleLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);

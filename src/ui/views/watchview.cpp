@@ -77,7 +77,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 
     titleLabel = new TubeLabel(playerResp.videoDetails.title, this);
     titleLabel->setFixedWidth(playerSize.width());
-    titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 4));
+    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 4));
     titleLabel->setWordWrap(true);
     pageLayout->addWidget(titleLabel);
 

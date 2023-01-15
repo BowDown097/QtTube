@@ -10,13 +10,10 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     animation->setEasingCurve(QEasingCurve::InOutQuint);
     resize(parent->width(), 35);
 
-    const QColor& aBase = QApplication::palette().color(QPalette::AlternateBase);
-    preferDark = aBase.lightness() < 60;
+    preferDark = qApp->palette().alternateBase().color().lightness() < 60;
 
-    QPalette pal;
-    pal.setColor(QPalette::Window, aBase);
     setAutoFillBackground(true);
-    setPalette(pal);
+    setPalette(qApp->palette().alternateBase().color());
 
     logo = new TubeLabel(this);
     logo->move(10, 2);
@@ -30,7 +27,7 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     connect(notificationBell, &TubeLabel::clicked, this, [this] { emit notificationBellClicked(); });
 
     notificationCount = new QLabel(this);
-    notificationCount->setFont(QFont(QApplication::font().toString(), 9));
+    notificationCount->setFont(QFont(qApp->font().toString(), 9));
 
     searchBox = new QLineEdit(this);
     searchBox->move(152, 0);
@@ -124,18 +121,6 @@ void TopBar::trySignIn()
     }
 }
 
-void TopBar::updateColors(const QColor& color)
-{
-    QPalette pal;
-    pal.setColor(QPalette::Window, color);
-    setPalette(pal);
-
-    preferDark = color.lightness() < 60;
-    logo->setPixmap(QPixmap(preferDark ? ":/qttube-full-light.png" : ":/qttube-full.png"));
-    settingsButton->setPixmap(QPixmap(preferDark ? ":/settings-light.png" : ":/settings.png"));
-    updateNotificationCount();
-}
-
 void TopBar::updateNotificationCount()
 {
     int unseenCount = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>().unseenCount;
@@ -145,4 +130,13 @@ void TopBar::updateNotificationCount()
     notificationBell->setVisible(true);
     notificationCount->setText(QString::number(unseenCount));
     notificationCount->setVisible(unseenCount > 0);
+}
+
+void TopBar::updatePalette(const QPalette& palette)
+{
+    setPalette(palette);
+    preferDark = palette.color(QPalette::Window).lightness() < 60;
+    logo->setPixmap(QPixmap(preferDark ? ":/qttube-full-light.png" : ":/qttube-full.png"));
+    settingsButton->setPixmap(QPixmap(preferDark ? ":/settings-light.png" : ":/settings.png"));
+    updateNotificationCount();
 }

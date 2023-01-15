@@ -29,7 +29,7 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
     thumbLabel->setScaledContents(true);
 
     titleLabel->setClickable(true, true);
-    titleLabel->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() + 2));
+    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
 
     connect(channelLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
     connect(thumbLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);

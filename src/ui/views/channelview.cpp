@@ -16,7 +16,7 @@ ChannelView* ChannelView::instance()
 void ChannelView::goBack()
 {
     MainWindow::topbar()->alwaysShow = true;
-    MainWindow::topbar()->updateColors(QApplication::palette().color(QPalette::AlternateBase));
+    MainWindow::topbar()->updatePalette(qApp->palette().alternateBase().color());
     MainWindow::centralWidget()->setCurrentIndex(0);
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
 
@@ -60,7 +60,7 @@ void ChannelView::loadChannel(const QString& channelId)
 
     handleAndVideos = new TubeLabel(this);
     handleAndVideos->setText(header.channelHandleText.text + " • " + header.videosCountText.text);
-    handleAndVideos->setFont(QFont(QApplication::font().toString(), QApplication::font().pointSize() - 2));
+    handleAndVideos->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
     metaVbox->addWidget(handleAndVideos);
 
     metaHbox->addLayout(metaVbox);
@@ -154,13 +154,9 @@ void ChannelView::setBanner(const HttpReply& reply)
     if (SettingsStore::instance().themedChannels)
     {
         std::tuple<int, int, int> domRgb = getDominantRgb(pixmap.toImage());
-        QColor domColor(std::get<0>(domRgb), std::get<1>(domRgb), std::get<2>(domRgb));
-
-        QPalette domPal;
-        domPal.setColor(QPalette::Window, domColor);
-
+        QPalette domPal(QColor(std::get<0>(domRgb), std::get<1>(domRgb), std::get<2>(domRgb)));
         channelHeaderWidget->setPalette(domPal);
-        MainWindow::topbar()->updateColors(domColor);
+        MainWindow::topbar()->updatePalette(domPal);
     }
 }
 
