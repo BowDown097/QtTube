@@ -11,6 +11,7 @@
 
 #ifdef USEMPV
 #include "lib/media/mpv/mediampv.h"
+#include <QRandomGenerator>
 #endif
 
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
@@ -311,7 +312,7 @@ QString WatchView::getCpn()
     QString out;
     constexpr std::string_view chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
     for (int i = 0; i < 16; i++)
-        out += chars[rand() % chars.size()];
+        out += chars[QRandomGenerator::global()->bounded((int)chars.size())];
     return out;
 }
 
@@ -331,9 +332,9 @@ void WatchView::reportPlayback(const InnertubeEndpoints::PlayerResponse& playerR
         { "ver", "2" },
         { "fmt", "243" },
         { "fs", "0" },
-        { "rt", QString::number((rand() % 191) + 10) },
+        { "rt", QString::number(QRandomGenerator::global()->bounded(191) + 10) },
         { "euri", "" },
-        { "lact", QString::number((rand() % 7001) + 1000) },
+        { "lact", QString::number(QRandomGenerator::global()->bounded(7001) + 1000) },
         { "cl", playbackQuery.queryItemValue("cl") },
         { "mos", "0" },
         { "volume", "100" },
@@ -373,7 +374,7 @@ void WatchView::reportWatchtime(const InnertubeEndpoints::PlayerResponse& player
     QUrlQuery watchtimeQuery(QUrl(playerResp.playbackTracking.videostatsWatchtimeUrl));
     QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
     QUrlQuery outWatchtimeQuery;
-    QString rt = QString::number((rand() % 191) + 10);
+    QString rt = QString::number(QRandomGenerator::global()->bounded(191) + 10);
     QString posStr = QString::number(position);
 
     QList<QPair<QString, QString>> map =
@@ -386,7 +387,7 @@ void WatchView::reportWatchtime(const InnertubeEndpoints::PlayerResponse& player
         { "fs", "0" },
         { "rt", rt },
         { "euri", "" },
-        { "lact", QString::number((rand() % 7001) + 1000) },
+        { "lact", QString::number(QRandomGenerator::global()->bounded(7001) + 1000) },
         { "cl", watchtimeQuery.queryItemValue("cl") },
         { "state", "playing" },
         { "volume", "100" },
