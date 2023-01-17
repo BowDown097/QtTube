@@ -1,8 +1,10 @@
 #include "browsevideorenderer.h"
-#include "innertube/innertubeexception.h"
+#include "innertube.h"
+#include "ui/uiutilities.h"
 #include "ui/views/channelview.h"
 #include "ui/views/watchview.h"
 #include <QApplication>
+#include <QMenu>
 #include <QMessageBox>
 
 BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
@@ -29,11 +31,45 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
     thumbLabel->setScaledContents(true);
 
     titleLabel->setClickable(true, true);
+    titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
 
     connect(channelLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
     connect(thumbLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
     connect(titleLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
+    connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showContextMenu);
+}
+
+void BrowseVideoRenderer::copyDirectUrl()
+{
+    auto response = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response;
+    if (response.videoDetails.isLive || response.videoDetails.isLiveContent)
+    {
+        UIUtilities::copyToClipboard(response.streamingData.hlsManifestUrl);
+    }
+    else
+    {
+        QList<InnertubeObjects::StreamingFormat>::iterator best = std::ranges::max_element(
+            response.streamingData.formats,
+            [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; }
+        );
+
+        if (best == response.streamingData.formats.end())
+        {
+            QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely uanvailable.");
+            return;
+        }
+
+        UIUtilities::copyToClipboard((*best).url);
+    }
+
+    QMessageBox::information(this, "Copied to clipboard", "Successfully copied the direct video URL to the clipboard.");
+}
+
+void BrowseVideoRenderer::copyVideoUrl()
+{
+    UIUtilities::copyToClipboard("https://www.youtube.com/watch?v=" + videoId);
+    QMessageBox::information(this, "Copied to clipboard", "Successfully copied the video page URL to the clipboard.");
 }
 
 void BrowseVideoRenderer::navigateChannel()
@@ -90,4 +126,18 @@ void BrowseVideoRenderer::setVideoData(const QString& length, const QString& pub
     metadataLabel->setText(list.join(" • "));
     titleLabel->setText(title.length() <= 60 ? title : title.left(60) + "…");
     titleLabel->setToolTip(title);
+}
+
+void BrowseVideoRenderer::showContextMenu(const QPoint& pos)
+{
+    QMenu* menu = new QMenu(this);
+
+    QAction* copyDirectAction = new QAction("Copy direct video URL", this);
+    connect(copyDirectAction, &QAction::triggered, this, &BrowseVideoRenderer::copyDirectUrl);
+    QAction* copyUrlAction = new QAction("Copy video page URL", this);
+    connect(copyUrlAction, &QAction::triggered, this, &BrowseVideoRenderer::copyVideoUrl);
+
+    menu->addAction(copyUrlAction);
+    menu->addAction(copyDirectAction);
+    menu->popup(titleLabel->mapToGlobal(pos));
 }

@@ -14,7 +14,7 @@ signals:
 protected:
     void enterEvent(QEnterEvent*) override;
     void leaveEvent(QEvent*) override;
-    void mousePressEvent(QMouseEvent*) override;
+    void mousePressEvent(QMouseEvent* event) override;
 private:
     bool clickable = false;
     bool underline = false;

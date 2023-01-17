@@ -1,4 +1,5 @@
 #include "tubelabel.h"
+#include <QMouseEvent>
 
 TubeLabel::TubeLabel(QWidget* parent, Qt::WindowFlags f) : QLabel(parent, f)
 {
@@ -26,8 +27,8 @@ void TubeLabel::leaveEvent(QEvent*)
         setStyleSheet("");
 }
 
-void TubeLabel::mousePressEvent(QMouseEvent*)
+void TubeLabel::mousePressEvent(QMouseEvent* event)
 {
-    if (clickable)
+    if (clickable && event->button() == Qt::LeftButton)
         emit clicked();
 }

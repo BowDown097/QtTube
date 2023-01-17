@@ -1,5 +1,7 @@
 #include "uiutilities.h"
 #include <QApplication>
+#include <QClipboard>
+#include <QThread>
 
 void UIUtilities::clearLayout(QLayout* layout)
 {
@@ -11,6 +13,20 @@ void UIUtilities::clearLayout(QLayout* layout)
             clearLayout(childLayout);
         delete item;
     }
+}
+
+void UIUtilities::copyToClipboard(const QString& text)
+{
+    QClipboard* clipboard = qApp->clipboard();
+    clipboard->setText(text, QClipboard::Clipboard);
+
+    if (clipboard->supportsSelection())
+        clipboard->setText(text, QClipboard::Selection);
+
+// apparently a workaround for copying to clipboard sometimes not working on linux. see https://www.medo64.com/2019/12/copy-to-clipboard-in-qt/
+#ifdef Q_OS_LINUX
+    QThread::msleep(1);
+#endif
 }
 
 // this will be used for the description and perhaps elsewhere

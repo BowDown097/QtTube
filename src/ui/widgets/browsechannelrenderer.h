@@ -21,7 +21,9 @@ public:
 public slots:
     void setThumbnail(const HttpReply& reply);
 private slots:
+    void copyChannelUrl();
     void navigateChannel();
+    void showContextMenu(const QPoint& pos);
 };
 
 #endif // BROWSECHANNELRENDERER_H

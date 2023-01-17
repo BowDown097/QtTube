@@ -2,8 +2,10 @@
 #include "http.h"
 #include "innertube/innertubeexception.h"
 #include "settingsstore.h"
+#include "ui/uiutilities.h"
 #include "ui/views/channelview.h"
 #include <QApplication>
+#include <QMenu>
 #include <QMessageBox>
 
 BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
@@ -31,10 +33,18 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
     thumbLabel->setScaledContents(true);
 
     titleLabel->setClickable(true, true);
+    titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
 
     connect(thumbLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
     connect(titleLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
+    connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &BrowseChannelRenderer::showContextMenu);
+}
+
+void BrowseChannelRenderer::copyChannelUrl()
+{
+    UIUtilities::copyToClipboard("https://www.youtube.com/channel/" + channelId);
+    QMessageBox::information(this, "Copied to clipboard", "Successfully copied the channel page URL to the clipboard.");
 }
 
 void BrowseChannelRenderer::navigateChannel()
@@ -82,4 +92,15 @@ void BrowseChannelRenderer::setThumbnail(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     thumbLabel->setPixmap(pixmap.scaled(200, thumbLabel->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
+
+void BrowseChannelRenderer::showContextMenu(const QPoint& pos)
+{
+    QMenu* menu = new QMenu(this);
+
+    QAction* copyUrlAction = new QAction("Copy channel page URL", this);
+    connect(copyUrlAction, &QAction::triggered, this, &BrowseChannelRenderer::copyChannelUrl);
+
+    menu->addAction(copyUrlAction);
+    menu->popup(titleLabel->mapToGlobal(pos));
 }
