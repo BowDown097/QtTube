@@ -25,11 +25,13 @@ public:
 public slots:
     void setThumbnail(const HttpReply& reply);
 private slots:
+    void copyChannelUrl();
     void copyDirectUrl();
     void copyVideoUrl();
     void navigateChannel();
     void navigateVideo();
-    void showContextMenu(const QPoint& pos);
+    void showChannelContextMenu(const QPoint& pos);
+    void showTitleContextMenu(const QPoint& pos);
 };
 
 #endif // BROWSEVIDEORENDERER_H

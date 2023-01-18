@@ -44,7 +44,6 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
 void BrowseChannelRenderer::copyChannelUrl()
 {
     UIUtilities::copyToClipboard("https://www.youtube.com/channel/" + channelId);
-    QMessageBox::information(this, "Copied to clipboard", "Successfully copied the channel page URL to the clipboard.");
 }
 
 void BrowseChannelRenderer::navigateChannel()

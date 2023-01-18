@@ -25,6 +25,7 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
     setLayout(hbox);
 
     channelLabel->setClickable(true, true);
+    channelLabel->setContextMenuPolicy(Qt::CustomContextMenu);
 
     thumbLabel->setClickable(true, false);
     thumbLabel->setMinimumSize(1, 1);
@@ -35,9 +36,15 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
 
     connect(channelLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
+    connect(channelLabel, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showChannelContextMenu);
     connect(thumbLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
     connect(titleLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
-    connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showContextMenu);
+    connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showTitleContextMenu);
+}
+
+void BrowseVideoRenderer::copyChannelUrl()
+{
+    UIUtilities::copyToClipboard("https://www.youtube.com/channel/" + channelId);
 }
 
 void BrowseVideoRenderer::copyDirectUrl()
@@ -49,12 +56,12 @@ void BrowseVideoRenderer::copyDirectUrl()
     }
     else
     {
-        QList<InnertubeObjects::StreamingFormat>::iterator best = std::ranges::max_element(
-            response.streamingData.formats,
+        QList<InnertubeObjects::StreamingFormat>::const_iterator best = std::max_element(
+            response.streamingData.formats.cbegin(), response.streamingData.formats.cend(),
             [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; }
         );
 
-        if (best == response.streamingData.formats.end())
+        if (best == response.streamingData.formats.cend())
         {
             QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely uanvailable.");
             return;
@@ -62,14 +69,11 @@ void BrowseVideoRenderer::copyDirectUrl()
 
         UIUtilities::copyToClipboard((*best).url);
     }
-
-    QMessageBox::information(this, "Copied to clipboard", "Successfully copied the direct video URL to the clipboard.");
 }
 
 void BrowseVideoRenderer::copyVideoUrl()
 {
     UIUtilities::copyToClipboard("https://www.youtube.com/watch?v=" + videoId);
-    QMessageBox::information(this, "Copied to clipboard", "Successfully copied the video page URL to the clipboard.");
 }
 
 void BrowseVideoRenderer::navigateChannel()
@@ -128,7 +132,18 @@ void BrowseVideoRenderer::setVideoData(const QString& length, const QString& pub
     titleLabel->setToolTip(title);
 }
 
-void BrowseVideoRenderer::showContextMenu(const QPoint& pos)
+void BrowseVideoRenderer::showChannelContextMenu(const QPoint& pos)
+{
+    QMenu* menu = new QMenu(this);
+
+    QAction* copyUrlAction = new QAction("Copy channel page URL", this);
+    connect(copyUrlAction, &QAction::triggered, this, &BrowseVideoRenderer::copyChannelUrl);
+
+    menu->addAction(copyUrlAction);
+    menu->popup(channelLabel->mapToGlobal(pos));
+}
+
+void BrowseVideoRenderer::showTitleContextMenu(const QPoint& pos)
 {
     QMenu* menu = new QMenu(this);
 

@@ -6,6 +6,7 @@
 #include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
 #include <QApplication>
+#include <QMenu>
 #include <QMessageBox>
 #include <QResizeEvent>
 
@@ -52,6 +53,8 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     auto nextResp = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId).response;
     auto playerResp = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response;
 
+    channelId = nextResp.secondaryInfo.subscribeButton.channelId;
+
     MainWindow::centralWidget()->setCurrentIndex(1);
 
     pageLayout = new QVBoxLayout(this);
@@ -95,15 +98,17 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 
     channelName = new TubeLabel(this);
     channelName->setClickable(true, true);
+    channelName->setContextMenuPolicy(Qt::CustomContextMenu);
     channelName->setText(nextResp.secondaryInfo.channelName.text);
     primaryInfoVbox->addWidget(channelName);
     connect(channelName, &TubeLabel::clicked, this, [this, nextResp] {
         disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
         toggleIdleSleep(false);
-        navigateChannel(nextResp.secondaryInfo.subscribeButton.channelId);
+        navigateChannel();
         UIUtilities::clearLayout(pageLayout);
         pageLayout->deleteLater();
     });
+    connect(channelName, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
 
     subscribeHbox = new QHBoxLayout(this);
     subscribeHbox->setContentsMargins(0, 0, 0, 0);
@@ -205,7 +210,12 @@ QSize WatchView::calcPlayerSize()
     return QSize(playerWidth, playerHeight);
 }
 
-void WatchView::navigateChannel(const QString& channelId)
+void WatchView::copyChannelUrl()
+{
+    UIUtilities::copyToClipboard("https://www.youtube.com/channel/" + channelId);
+}
+
+void WatchView::navigateChannel()
 {
     try
     {
@@ -248,6 +258,17 @@ void WatchView::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& s
         subscribersLabel->setText(QLocale::system().toString(subs));
         subscribersLabel->adjustSize();
     });
+}
+
+void WatchView::showContextMenu(const QPoint& pos)
+{
+    QMenu* menu = new QMenu(this);
+
+    QAction* copyUrlAction = new QAction("Copy channel page URL", this);
+    connect(copyUrlAction, &QAction::triggered, this, &WatchView::copyChannelUrl);
+
+    menu->addAction(copyUrlAction);
+    menu->popup(channelName->mapToGlobal(pos));
 }
 
 void WatchView::toggleIdleSleep(bool toggle)

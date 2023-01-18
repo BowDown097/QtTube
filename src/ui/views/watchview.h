@@ -28,11 +28,15 @@ public:
     void loadVideo(const QString& videoId, int progress = 0);
 public slots:
     void goBack();
+private slots:
+    void copyChannelUrl();
+    void showContextMenu(const QPoint& pos);
 private:
     WatchView() {}
     static inline WatchView* m_watchView;
 
     TubeLabel* channelIcon;
+    QString channelId;
     TubeLabel* channelName;
     QVBoxLayout* pageLayout;
     QHBoxLayout* primaryInfoHbox;
@@ -56,7 +60,7 @@ private:
 
     void resizeEvent(QResizeEvent* event) override; // webengine views don't resize automatically
     QSize calcPlayerSize();
-    void navigateChannel(const QString& channelId);
+    void navigateChannel();
     void setChannelIcon(const HttpReply& reply);
     void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo);
     void toggleIdleSleep(bool toggle);
