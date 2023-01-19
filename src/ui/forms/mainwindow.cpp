@@ -201,23 +201,28 @@ void MainWindow::search()
 
     connect(dateCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(), featCmb->currentIndex(), sortCmb->currentIndex());
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(),
+                                        featCmb->currentIndex(), sortCmb->currentIndex());
     });
     connect(typeCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), index, durCmb->currentIndex(), featCmb->currentIndex(), sortCmb->currentIndex());
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), index, durCmb->currentIndex(),
+                                        featCmb->currentIndex(), sortCmb->currentIndex());
     });
     connect(durCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), index, featCmb->currentIndex(), sortCmb->currentIndex());
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), index,
+                                        featCmb->currentIndex(), sortCmb->currentIndex());
     });
     connect(featCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), durCmb->currentIndex(), index, sortCmb->currentIndex());
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
+                                        durCmb->currentIndex(), index, sortCmb->currentIndex());
     });
     connect(sortCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), durCmb->currentIndex(), featCmb->currentIndex(), index);
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
+                                        durCmb->currentIndex(), featCmb->currentIndex(), index);
     });
 }
 
@@ -253,7 +258,6 @@ void MainWindow::showNotifications()
 
     notificationMenu->setVisible(true);
     BrowseHelper::instance().browseNotificationMenu(notificationMenu);
-    m_topbar->updateNotificationCount();
 }
 
 void MainWindow::tryRestoreData()

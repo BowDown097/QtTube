@@ -26,7 +26,7 @@ void ChannelView::goBack()
 
 void ChannelView::loadChannel(const QString& channelId)
 {
-    auto channelResp = InnerTube::instance().get<InnertubeEndpoints::BrowseChannel>(channelId).response;
+    auto channelResp = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
     InnertubeObjects::ChannelHeader header = channelResp.header[0];
 
     MainWindow::centralWidget()->setCurrentIndex(2);
@@ -71,7 +71,8 @@ void ChannelView::loadChannel(const QString& channelId)
     subscribeHbox->setContentsMargins(0, 0, 0, 0);
     subscribeHbox->setSpacing(0);
 
-    subscribeWidget = new SubscribeWidget(header.subscribeButton, this);
+    subscribeWidget = new SubscribeWidget(this);
+    subscribeWidget->setSubscribeButton(header.subscribeButton);
     subscribeHbox->addWidget(subscribeWidget);
 
     subscribersLabel = new TubeLabel(this);

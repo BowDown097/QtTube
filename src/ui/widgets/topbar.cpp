@@ -24,7 +24,7 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     notificationBell = new TubeLabel(this);
     notificationBell->resize(30, 30);
     notificationBell->setClickable(true, false);
-    connect(notificationBell, &TubeLabel::clicked, this, [this] { emit notificationBellClicked(); });
+    connect(notificationBell, &TubeLabel::clicked, this, &TopBar::notificationBellClicked);
 
     notificationCount = new QLabel(this);
     notificationCount->setFont(QFont(qApp->font().toString(), 9));
@@ -123,13 +123,17 @@ void TopBar::trySignIn()
 
 void TopBar::updateNotificationCount()
 {
-    int unseenCount = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>().unseenCount;
-    notificationBell->setPixmap(unseenCount > 0
-                                ? QPixmap(preferDark ? ":/notif-bell-hasnotif-light.png" : ":/notif-bell-hasnotif.png")
-                                : QPixmap(preferDark ? ":/notif-bell-light.png" : ":/notif-bell.png"));
-    notificationBell->setVisible(true);
-    notificationCount->setText(QString::number(unseenCount));
-    notificationCount->setVisible(unseenCount > 0);
+    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>();
+    connect(reply, qOverload<InnertubeEndpoints::UnseenCount>(&InnertubeReply::finished), this,
+            [this](const InnertubeEndpoints::UnseenCount& endpoint)
+    {
+        notificationBell->setPixmap(endpoint.unseenCount > 0
+                                    ? QPixmap(preferDark ? ":/notif-bell-hasnotif-light.png" : ":/notif-bell-hasnotif.png")
+                                    : QPixmap(preferDark ? ":/notif-bell-light.png" : ":/notif-bell.png"));
+        notificationBell->setVisible(true);
+        notificationCount->setText(QString::number(endpoint.unseenCount));
+        notificationCount->setVisible(endpoint.unseenCount > 0);
+    });
 }
 
 void TopBar::updatePalette(const QPalette& palette)

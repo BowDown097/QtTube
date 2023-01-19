@@ -37,8 +37,8 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
 
     connect(channelLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
     connect(channelLabel, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showChannelContextMenu);
-    connect(thumbLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
-    connect(titleLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
+    connect(thumbLabel, &TubeLabel::clicked, this, [this] { WatchView::instance()->loadVideo(videoId, progress); });
+    connect(titleLabel, &TubeLabel::clicked, this, [this] { WatchView::instance()->loadVideo(videoId, progress); });
     connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showTitleContextMenu);
 }
 
@@ -49,26 +49,33 @@ void BrowseVideoRenderer::copyChannelUrl()
 
 void BrowseVideoRenderer::copyDirectUrl()
 {
-    auto response = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response;
-    if (response.videoDetails.isLive || response.videoDetails.isLiveContent)
+    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
+    connect(reply, &InnertubeReply::exception, this, [this]
     {
-        UIUtilities::copyToClipboard(response.streamingData.hlsManifestUrl);
-    }
-    else
+        QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
+    });
+    connect(reply, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::Player& endpoint)
     {
-        QList<InnertubeObjects::StreamingFormat>::const_iterator best = std::max_element(
-            response.streamingData.formats.cbegin(), response.streamingData.formats.cend(),
-            [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; }
-        );
-
-        if (best == response.streamingData.formats.cend())
+        if (endpoint.response.videoDetails.isLive || endpoint.response.videoDetails.isLiveContent)
         {
-            QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely uanvailable.");
-            return;
+            UIUtilities::copyToClipboard(endpoint.response.streamingData.hlsManifestUrl);
         }
+        else
+        {
+            QList<InnertubeObjects::StreamingFormat>::const_iterator best = std::max_element(
+                endpoint.response.streamingData.formats.cbegin(), endpoint.response.streamingData.formats.cend(),
+                [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; }
+            );
 
-        UIUtilities::copyToClipboard((*best).url);
-    }
+            if (best == endpoint.response.streamingData.formats.cend())
+            {
+                QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
+                return;
+            }
+
+            UIUtilities::copyToClipboard((*best).url);
+        }
+    });
 }
 
 void BrowseVideoRenderer::copyVideoUrl()
@@ -85,18 +92,6 @@ void BrowseVideoRenderer::navigateChannel()
     catch (const InnertubeException& ie)
     {
         QMessageBox::critical(this, "Failed to load channel", ie.message());
-    }
-}
-
-void BrowseVideoRenderer::navigateVideo()
-{
-    try
-    {
-        WatchView::instance()->loadVideo(videoId, progress);
-    }
-    catch (const InnertubeException& ie)
-    {
-        QMessageBox::critical(this, "Failed to load video", ie.message());
     }
 }
 

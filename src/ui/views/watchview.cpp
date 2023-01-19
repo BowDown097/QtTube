@@ -32,9 +32,14 @@ WatchView* WatchView::instance()
 void WatchView::goBack()
 {
 #ifdef USEMPV
-    media->stop();
-    media->clearQueue();
-    watchtimeTimer->deleteLater();
+    if (media)
+    {
+        media->stop();
+        media->clearQueue();
+    }
+
+    if (watchtimeTimer)
+        watchtimeTimer->deleteLater();
 
     for (QAction* action : actions())
         removeAction(action);
@@ -50,11 +55,6 @@ void WatchView::goBack()
 
 void WatchView::loadVideo(const QString& videoId, int progress)
 {
-    auto nextResp = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId).response;
-    auto playerResp = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId).response;
-
-    channelId = nextResp.secondaryInfo.subscribeButton.channelId;
-
     MainWindow::centralWidget()->setCurrentIndex(1);
 
     pageLayout = new QVBoxLayout(this);
@@ -62,6 +62,16 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     pageLayout->setSpacing(5);
 
     QSize playerSize = calcPlayerSize();
+
+    InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
+    connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this,
+            std::bind(&WatchView::processPlayer, this, std::placeholders::_1, progress));
+    connect(player, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
+    {
+        QMessageBox::critical(this, "Failed to load video", ie.message());
+        WatchView::goBack();
+    });
+
 #ifdef USEMPV
     media = new MediaMPV;
     media->init();
@@ -76,10 +86,11 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     wePlayer = new WebEnginePlayer(this);
     wePlayer->setAuthStore(InnerTube::instance().authStore());
     wePlayer->setContext(InnerTube::instance().context());
+    wePlayer->setFixedSize(playerSize);
     pageLayout->addWidget(wePlayer);
 #endif
 
-    titleLabel = new TubeLabel(playerResp.videoDetails.title, this);
+    titleLabel = new TubeLabel(this);
     titleLabel->setFixedWidth(playerSize.width());
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 4));
     titleLabel->setWordWrap(true);
@@ -99,34 +110,17 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     channelName = new TubeLabel(this);
     channelName->setClickable(true, true);
     channelName->setContextMenuPolicy(Qt::CustomContextMenu);
-    channelName->setText(nextResp.secondaryInfo.channelName.text);
     primaryInfoVbox->addWidget(channelName);
-    connect(channelName, &TubeLabel::clicked, this, [this, nextResp] {
-        disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
-        toggleIdleSleep(false);
-        navigateChannel();
-        UIUtilities::clearLayout(pageLayout);
-        pageLayout->deleteLater();
-    });
     connect(channelName, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
 
     subscribeHbox = new QHBoxLayout(this);
     subscribeHbox->setContentsMargins(0, 0, 0, 0);
     subscribeHbox->setSpacing(0);
 
-    subscribeWidget = new SubscribeWidget(nextResp.secondaryInfo.subscribeButton, this);
+    subscribeWidget = new SubscribeWidget(this);
     subscribeHbox->addWidget(subscribeWidget);
 
     subscribersLabel = new TubeLabel(this);
-    subscribersLabel->setStyleSheet(R"(
-    border: 1px solid #333;
-    font-size: 11px;
-    line-height: 24px;
-    padding: 0 6px 0 4.5px;
-    border-radius: 2px;
-    text-align: center;
-    )");
-    setSubscriberCount(nextResp.secondaryInfo);
     subscribeHbox->addWidget(subscribersLabel);
 
     primaryInfoVbox->addLayout(subscribeHbox);
@@ -138,13 +132,40 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     primaryInfoWrapper->setLayout(primaryInfoHbox);
     pageLayout->addWidget(primaryInfoWrapper);
 
-#ifndef USEMPV
-    wePlayer->play(playerResp.videoDetails.videoId, progress);
-    wePlayer->setFixedSize(playerSize);
-    wePlayer->setPlayerResponse(playerResp);
-#endif
-
     pageLayout->addStretch(); // disable the layout from stretching on resize
+
+    toggleIdleSleep(true);
+    MainWindow::topbar()->setVisible(false);
+    MainWindow::topbar()->alwaysShow = false;
+    connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
+}
+
+void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
+{
+    InnertubeEndpoints::NextResponse nextResp = endpoint.response;
+
+    channelId = nextResp.secondaryInfo.subscribeButton.channelId;
+
+    channelName->setText(nextResp.secondaryInfo.channelName.text);
+    connect(channelName, &TubeLabel::clicked, this, [this, nextResp] {
+        disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
+        toggleIdleSleep(false);
+        navigateChannel();
+        UIUtilities::clearLayout(pageLayout);
+        pageLayout->deleteLater();
+    });
+
+    subscribersLabel->setStyleSheet(R"(
+    border: 1px solid #333;
+    font-size: 11px;
+    line-height: 24px;
+    padding: 0 6px 0 4.5px;
+    border-radius: 2px;
+    text-align: center;
+    )");
+
+    subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
+    setSubscriberCount(nextResp.secondaryInfo);
 
     if (!nextResp.secondaryInfo.channelIcons.isEmpty())
     {
@@ -156,13 +177,22 @@ void WatchView::loadVideo(const QString& videoId, int progress)
         HttpReply* reply = Http::instance().get(bestThumb.url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
+}
 
+void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint, int progress)
+{
+    InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
+
+    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(playerResp.videoDetails.videoId);
+    connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
+    connect(next, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
+    {
+        QMessageBox::critical(this, "Failed to load video", ie.message());
+        WatchView::goBack();
+    });
+
+    titleLabel->setText(playerResp.videoDetails.title);
     setWindowTitle(playerResp.videoDetails.title + " - QtTube");
-    toggleIdleSleep(true);
-
-    MainWindow::topbar()->setVisible(false);
-    MainWindow::topbar()->alwaysShow = false;
-    connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
 
 #ifdef USEMPV
     media->play("https://www.youtube.com/watch?v=" + playerResp.videoDetails.videoId);
@@ -175,9 +205,12 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     {
         watchtimeTimer = new QTimer;
         watchtimeTimer->setInterval(5000);
-        connect(watchtimeTimer, &QTimer::timeout, this, [this, playerResp] { reportWatchtime(playerResp, media->position()); });
+        connect(watchtimeTimer, &QTimer::timeout, this, std::bind(&WatchView::reportWatchtime, this, playerResp, media->position));
         watchtimeTimer->start();
     }
+#else
+    wePlayer->play(playerResp.videoDetails.videoId, progress);
+    wePlayer->setPlayerResponse(playerResp);
 #endif
 }
 

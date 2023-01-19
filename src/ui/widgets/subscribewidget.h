@@ -6,7 +6,8 @@
 class SubscribeWidget : public QLabel
 {
 public:
-    SubscribeWidget(const InnertubeObjects::SubscribeButton& subscribeButton, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    SubscribeWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
 private:
     InnertubeObjects::SubscribeButton subscribeButton;
 

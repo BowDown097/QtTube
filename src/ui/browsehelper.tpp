@@ -17,7 +17,7 @@ void BrowseHelper::tryContinuation(int value, QListWidget* widget, const QString
 
     try
     {
-        T newData = InnerTube::instance().get<T>(data, continuationToken);
+        T newData = InnerTube::instance().getBlocking<T>(data, continuationToken);
         if constexpr (std::is_same_v<T, InnertubeEndpoints::Search>)
         {
             setupChannelList(newData.response.channels, widget);

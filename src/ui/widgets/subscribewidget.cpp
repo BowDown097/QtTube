@@ -2,10 +2,14 @@
 #include "innertube.h"
 #include <QMessageBox>
 
-SubscribeWidget::SubscribeWidget(const InnertubeObjects::SubscribeButton& subscribeButton, QWidget* parent, Qt::WindowFlags f)
-    : QLabel(parent, f), subscribeButton(subscribeButton)
+SubscribeWidget::SubscribeWidget(QWidget* parent, Qt::WindowFlags f) : QLabel(parent, f)
 {
     setFixedSize(80, 24);
+}
+
+void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
+{
+    this->subscribeButton = subscribeButton;
     setStyleSheet(subscribeButton.subscribed ? subscribedStyle : subscribeStyle);
     setText(subscribeButton.buttonText.text.isEmpty() ? "Subscribe" : subscribeButton.buttonText.text);
 }

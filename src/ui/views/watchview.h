@@ -1,6 +1,8 @@
 #ifndef WATCHVIEWYTP_H
 #define WATCHVIEWYTP_H
 #include "httpreply.h"
+#include "innertube/endpoints/video/next.h"
+#include "innertube/endpoints/video/player.h"
 #include "innertube/objects/video/videosecondaryinfo.h"
 #include "ui/widgets/subscribewidget.h"
 #include "ui/widgets/tubelabel.h"
@@ -30,6 +32,8 @@ public slots:
     void goBack();
 private slots:
     void copyChannelUrl();
+    void processNext(const InnertubeEndpoints::Next& endpoint);
+    void processPlayer(const InnertubeEndpoints::Player& endpoint, int progress);
     void showContextMenu(const QPoint& pos);
 private:
     WatchView() {}

@@ -29,7 +29,6 @@ private slots:
     void copyDirectUrl();
     void copyVideoUrl();
     void navigateChannel();
-    void navigateVideo();
     void showChannelContextMenu(const QPoint& pos);
     void showTitleContextMenu(const QPoint& pos);
 };
