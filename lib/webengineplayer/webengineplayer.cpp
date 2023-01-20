@@ -25,13 +25,14 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     connect(m_view->page(), &QWebEnginePage::fullScreenRequested, this, &WebEnginePlayer::fullScreenRequested);
 }
 
-void WebEnginePlayer::play(const QString& vId, int progress)
+void WebEnginePlayer::play(const QString& vId, int progress, int volume)
 {
     QString sbc = QJsonDocument(QJsonArray::fromStringList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
     QString q = QMetaEnum::fromType<SettingsStore::PlayerQuality>().valueToKey(SettingsStore::instance().preferredQuality);
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4")
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5")
                       .arg(vId, sbc, q.toLower())
-                      .arg(progress)));
+                      .arg(progress)
+                      .arg(volume)));
 }
 
 void WebEnginePlayer::fullScreenRequested(QWebEngineFullScreenRequest request)

@@ -94,9 +94,7 @@ void TopBar::signOut()
     disconnect(signInButton, &QPushButton::clicked, this, &TopBar::signOut);
     connect(signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
     emit signInStatusChanged();
-
-    if (SettingsStore::instance().restoreLogin)
-        QSettings(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat).clear();
+    QSettings(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat).clear();
 }
 
 void TopBar::trySignIn()
@@ -107,11 +105,8 @@ void TopBar::trySignIn()
     InnerTube::instance().authenticate();
     if (InnerTube::instance().hasAuthenticated())
     {
-        if (SettingsStore::instance().restoreLogin)
-        {
-            QSettings store(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat);
-            InnerTube::instance().authStore()->writeToSettings(store);
-        }
+        QSettings store(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat);
+        InnerTube::instance().authStore()->writeToSettings(store);
 
         setUpNotifications();
         signInButton->setText("Sign out");

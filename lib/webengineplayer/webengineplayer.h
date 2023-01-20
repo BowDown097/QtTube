@@ -14,7 +14,7 @@ public:
     void setContext(InnertubeContext* context) { m_interceptor->setContext(context); }
     void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp) { m_interceptor->setPlayerResponse(resp); }
 public slots:
-    void play(const QString& vId, int progress);
+    void play(const QString& vId, int progress, int volume);
 private slots:
     void fullScreenRequested(QWebEngineFullScreenRequest request);
 private:
@@ -43,6 +43,7 @@ function waitForElement(selector) {
 const params = new URLSearchParams(document.location.search);
 waitForElement("#movie_player").then(function(p) {
     p.seekTo(params.get("t")); // seek to saved time
+    p.setVolume(params.get("v")); // seek to saved volume
     p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. there's no way out of doing this. wtf???
 
     // quality preference

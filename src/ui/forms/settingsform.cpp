@@ -10,12 +10,10 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     SettingsStore& store = SettingsStore::instance();
     // general
     ui->condensedViews->setChecked(store.condensedViews);
-    ui->frontPageTab->setCurrentIndex(store.frontPageTab);
     ui->fullSubs->setChecked(store.fullSubs);
     ui->homeShelves->setChecked(store.homeShelves);
     ui->preferredQuality->setCurrentIndex(store.preferredQuality);
     ui->preferredVolume->setValue(store.preferredVolume);
-    ui->restoreLogin->setChecked(store.restoreLogin);
     ui->returnDislike->setChecked(store.returnDislikes);
     ui->themedChannels->setChecked(store.themedChannels);
     // privacy
@@ -40,12 +38,10 @@ void SettingsForm::saveSettings()
     SettingsStore& store = SettingsStore::instance();
     // general
     store.condensedViews = ui->condensedViews->isChecked();
-    store.frontPageTab = static_cast<SettingsStore::FrontPageTab>(ui->frontPageTab->currentIndex());
     store.fullSubs = ui->fullSubs->isChecked();
     store.homeShelves = ui->homeShelves->isChecked();
     store.preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
     store.preferredVolume = ui->preferredVolume->value();
-    store.restoreLogin = ui->restoreLogin->isChecked();
     store.returnDislikes = ui->returnDislike->isChecked();
     store.themedChannels = ui->themedChannels->isChecked();
     // privacy
