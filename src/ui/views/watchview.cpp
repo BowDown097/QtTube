@@ -209,7 +209,7 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint, int pr
         watchtimeTimer->start();
     }
 #else
-    wePlayer->play(playerResp.videoDetails.videoId, progress, SettingsStore::instance().preferredVolume);
+    wePlayer->play(playerResp.videoDetails.videoId, progress);
     wePlayer->setPlayerResponse(playerResp);
 #endif
 }

@@ -14,7 +14,7 @@ public:
     void setContext(InnertubeContext* context) { m_interceptor->setContext(context); }
     void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp) { m_interceptor->setPlayerResponse(resp); }
 public slots:
-    void play(const QString& vId, int progress, int volume);
+    void play(const QString& vId, int progress);
 private slots:
     void fullScreenRequested(QWebEngineFullScreenRequest request);
 private:
