@@ -64,8 +64,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     QSize playerSize = calcPlayerSize();
 
     InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
-    connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this,
-            std::bind(&WatchView::processPlayer, this, std::placeholders::_1, progress));
+    connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
     connect(player, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
     {
         QMessageBox::critical(this, "Failed to load video", ie.message());
@@ -75,6 +74,8 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 #ifdef USEMPV
     media = new MediaMPV;
     media->init();
+    media->play("https://www.youtube.com/watch?v=" + videoId);
+    media->seek(progress);
     media->setVolume(SettingsStore::instance().preferredVolume);
     media->videoWidget()->setFixedSize(playerSize);
     pageLayout->addWidget(media->videoWidget());
@@ -87,6 +88,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     wePlayer->setAuthStore(InnerTube::instance().authStore());
     wePlayer->setContext(InnerTube::instance().context());
     wePlayer->setFixedSize(playerSize);
+    wePlayer->play(videoId, progress);
     pageLayout->addWidget(wePlayer);
 #endif
 
@@ -179,7 +181,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     }
 }
 
-void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint, int progress)
+void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 {
     InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
 
@@ -195,9 +197,6 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint, int pr
     setWindowTitle(playerResp.videoDetails.title + " - QtTube");
 
 #ifdef USEMPV
-    media->play("https://www.youtube.com/watch?v=" + playerResp.videoDetails.videoId);
-    media->seek(progress);
-
     if (SettingsStore::instance().playbackTracking)
         reportPlayback(playerResp);
 
@@ -209,7 +208,6 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint, int pr
         watchtimeTimer->start();
     }
 #else
-    wePlayer->play(playerResp.videoDetails.videoId, progress);
     wePlayer->setPlayerResponse(playerResp);
 #endif
 }

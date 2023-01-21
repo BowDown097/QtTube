@@ -33,7 +33,7 @@ public slots:
 private slots:
     void copyChannelUrl();
     void processNext(const InnertubeEndpoints::Next& endpoint);
-    void processPlayer(const InnertubeEndpoints::Player& endpoint, int progress);
+    void processPlayer(const InnertubeEndpoints::Player& endpoint);
     void showContextMenu(const QPoint& pos);
 private:
     WatchView() {}
