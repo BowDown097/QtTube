@@ -11,73 +11,57 @@
 
 void BrowseHelper::browseHistory(QListWidget* historyWidget, const QString& query)
 {
-    if (InnerTube::instance().hasAuthenticated())
-    {
-        InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>(query);
-        QObject::connect(reply, &InnertubeReply::exception, [](const InnertubeException& ie)
-        {
-            if (ie.severity() == InnertubeException::Normal)
-                QMessageBox::critical(nullptr, "Failed to get history browsing data", ie.message());
-            else
-                qDebug() << "Failed to get history browsing data:" << ie.message();
-        });
-        QObject::connect(reply, qOverload<InnertubeEndpoints::BrowseHistory>(&InnertubeReply::finished),
-                [this, historyWidget](const InnertubeEndpoints::BrowseHistory& endpoint)
-        {
-            setupVideoList(endpoint.response.videos, historyWidget);
-            continuationToken = endpoint.continuationToken;
-        });
-    }
-    else
+    if (!InnerTube::instance().hasAuthenticated())
     {
         historyWidget->addItem("Local history has not been implemented yet. You will need to log in.");
+        return;
     }
+
+    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>(query);
+    QObject::connect(reply, &InnertubeReply::exception, [](const InnertubeException& ie)
+    {
+        if (ie.severity() == InnertubeException::Normal)
+            QMessageBox::critical(nullptr, "Failed to get history browsing data", ie.message());
+        else
+            qDebug() << "Failed to get history browsing data:" << ie.message();
+    });
+    QObject::connect(reply, qOverload<InnertubeEndpoints::BrowseHistory>(&InnertubeReply::finished),
+            [this, historyWidget](const InnertubeEndpoints::BrowseHistory& endpoint)
+    {
+        setupVideoList(endpoint.response.videos, historyWidget);
+        continuationToken = endpoint.continuationToken;
+    });
 }
 
 void BrowseHelper::browseHome(QListWidget* homeWidget)
 {
+    const QString clientNameTemp = InnerTube::instance().context()->client.clientName;
+    const QString clientVerTemp = InnerTube::instance().context()->client.clientVersion;
+
     if (SettingsStore::instance().homeShelves)
     {
-        const QString clientNameTemp = InnerTube::instance().context()->client.clientName;
-        const QString clientVerTemp = InnerTube::instance().context()->client.clientVersion;
-
         InnerTube::instance().context()->client.clientName = "ANDROID";
         InnerTube::instance().context()->client.clientVersion = "15.14.33";
+    }
 
-        InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHomeShelves>();
-        QObject::connect(reply, &InnertubeReply::exception, [](const InnertubeException& ie)
-        {
-            if (ie.severity() == InnertubeException::Normal)
-                QMessageBox::critical(nullptr, "Failed to get home browsing data", ie.message());
-            else
-                qDebug() << "Failed to get home browsing data:" << ie.message();
-        });
-        QObject::connect(reply, qOverload<InnertubeEndpoints::BrowseHomeShelves>(&InnertubeReply::finished),
-                [this, clientNameTemp, clientVerTemp, homeWidget](const InnertubeEndpoints::BrowseHomeShelves& endpoint)
-        {
-            setupVideoList(endpoint.response.videos, homeWidget);
-            continuationToken = endpoint.continuationToken;
-            InnerTube::instance().context()->client.clientName = clientNameTemp;
-            InnerTube::instance().context()->client.clientVersion = clientVerTemp;
-        });
-    }
-    else
+    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHome>();
+    QObject::connect(reply, &InnertubeReply::exception, [clientNameTemp, clientVerTemp](const InnertubeException& ie)
     {
-        InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHome>();
-        QObject::connect(reply, &InnertubeReply::exception, [](const InnertubeException& ie)
-        {
-            if (ie.severity() == InnertubeException::Normal)
-                QMessageBox::critical(nullptr, "Failed to get home browsing data", ie.message());
-            else
-                qDebug() << "Failed to get home browsing data:" << ie.message();
-        });
-        QObject::connect(reply, qOverload<InnertubeEndpoints::BrowseHome>(&InnertubeReply::finished),
-                [this, homeWidget](const InnertubeEndpoints::BrowseHome& endpoint)
-        {
-            setupVideoList(endpoint.response.videos, homeWidget);
-            continuationToken = endpoint.continuationToken;
-        });
-    }
+        if (ie.severity() == InnertubeException::Normal)
+            QMessageBox::critical(nullptr, "Failed to get home browsing data", ie.message());
+        else
+            qDebug() << "Failed to get home browsing data:" << ie.message();
+        InnerTube::instance().context()->client.clientName = clientNameTemp;
+        InnerTube::instance().context()->client.clientVersion = clientVerTemp;
+    });
+    QObject::connect(reply, qOverload<InnertubeEndpoints::BrowseHome>(&InnertubeReply::finished),
+            [this, clientNameTemp, clientVerTemp, homeWidget](const InnertubeEndpoints::BrowseHome& endpoint)
+    {
+        setupVideoList(endpoint.response.videos, homeWidget);
+        continuationToken = endpoint.continuationToken;
+        InnerTube::instance().context()->client.clientName = clientNameTemp;
+        InnerTube::instance().context()->client.clientVersion = clientVerTemp;
+    });
 }
 
 // ok listen i know i'm kind of cheating here but whatever
