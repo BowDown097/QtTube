@@ -7,8 +7,10 @@ class SubscribeWidget : public QLabel
 {
 public:
     SubscribeWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    void setPreferredPalette(const QPalette& pal);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
 private:
+    QPalette preferredPalette;
     InnertubeObjects::SubscribeButton subscribeButton;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

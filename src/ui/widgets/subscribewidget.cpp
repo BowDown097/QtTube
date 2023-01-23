@@ -7,6 +7,12 @@ SubscribeWidget::SubscribeWidget(QWidget* parent, Qt::WindowFlags f) : QLabel(pa
     setFixedSize(80, 24);
 }
 
+void SubscribeWidget::setPreferredPalette(const QPalette& pal)
+{
+    preferredPalette = pal;
+    setPalette(pal);
+}
+
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
     this->subscribeButton = subscribeButton;
@@ -30,6 +36,7 @@ void SubscribeWidget::enterEvent(QEvent*)
     {
         setStyleSheet(subscribeHoveredStyle);
     }
+    setPalette(preferredPalette);
 }
 
 void SubscribeWidget::leaveEvent(QEvent*)
@@ -44,6 +51,7 @@ void SubscribeWidget::leaveEvent(QEvent*)
     {
         setStyleSheet(subscribeStyle);
     }
+    setPalette(preferredPalette);
 }
 
 void SubscribeWidget::mousePressEvent(QMouseEvent*)
@@ -70,4 +78,6 @@ void SubscribeWidget::mousePressEvent(QMouseEvent*)
         setText(subscribeButton.subscribedButtonText.text);
         subscribeButton.subscribed = true;
     }
+
+    setPalette(preferredPalette);
 }

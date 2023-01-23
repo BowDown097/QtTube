@@ -129,9 +129,9 @@ std::tuple<int, int, int> ChannelView::getDominantRgb(const QImage& img)
 {
     QRgb* ct;
     QList<int> red, green, blue;
-    red.reserve(256);
-    green.reserve(256);
-    blue.reserve(256);
+    red.resize(256);
+    green.resize(256);
+    blue.resize(256);
 
     for (int i = 0; i < img.height(); i++)
     {
@@ -158,6 +158,8 @@ void ChannelView::setBanner(const HttpReply& reply)
         std::tuple<int, int, int> domRgb = getDominantRgb(pixmap.toImage());
         QPalette domPal(QColor(std::get<0>(domRgb), std::get<1>(domRgb), std::get<2>(domRgb)));
         channelHeaderWidget->setPalette(domPal);
+        subscribersLabel->setPalette(domPal);
+        subscribeWidget->setPreferredPalette(domPal);
         MainWindow::topbar()->updatePalette(domPal);
     }
 }
