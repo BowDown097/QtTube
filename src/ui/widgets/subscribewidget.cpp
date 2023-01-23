@@ -14,7 +14,11 @@ void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton
     setText(subscribeButton.buttonText.text.isEmpty() ? "Subscribe" : subscribeButton.buttonText.text);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 void SubscribeWidget::enterEvent(QEnterEvent*)
+#else
+void SubscribeWidget::enterEvent(QEvent*)
+#endif
 {
     setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
     if (subscribeButton.subscribed)

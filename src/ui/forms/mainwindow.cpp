@@ -191,6 +191,7 @@ void MainWindow::search()
     lastSearchQuery = m_topbar->searchBox->text();
     BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     connect(dateCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
         BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(),
@@ -216,6 +217,33 @@ void MainWindow::search()
         BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
                                         durCmb->currentIndex(), featCmb->currentIndex(), index);
     });
+#else
+    connect(dateCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(),
+                                        featCmb->currentIndex(), sortCmb->currentIndex());
+    });
+    connect(typeCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), index, durCmb->currentIndex(),
+                                        featCmb->currentIndex(), sortCmb->currentIndex());
+    });
+    connect(durCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), index,
+                                        featCmb->currentIndex(), sortCmb->currentIndex());
+    });
+    connect(featCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
+                                        durCmb->currentIndex(), index, sortCmb->currentIndex());
+    });
+    connect(sortCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
+        ui->searchWidget->clear();
+        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
+                                        durCmb->currentIndex(), featCmb->currentIndex(), index);
+    });
+#endif
 }
 
 void MainWindow::searchWatchHistory()

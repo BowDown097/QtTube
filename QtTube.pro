@@ -1,10 +1,11 @@
 QT += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+lessThan(QT_MAJOR_VERSION, 6): QT += x11extras
 
 INCLUDEPATH += $$PWD/src
 DEPENDPATH += $$PWD/src
 
-CONFIG += c++20
+CONFIG += c++2a
 unix:!macx: LIBS += -lX11 -lXss
 
 include(lib/http/http.pri)
@@ -13,7 +14,6 @@ include(lib/innertube-qt/innertube-qt.pri)
 contains(DEFINES, USEMPV) {
     LIBS += -lmpv
     QT += openglwidgets
-    lessThan(QT_MAJOR_VERSION, 6): QT += x11extras
     SOURCES += \
         lib/media/mpv/mediampv.cpp \
         lib/media/mpv/mpvwidget.cpp

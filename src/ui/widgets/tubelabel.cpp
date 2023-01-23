@@ -11,7 +11,11 @@ TubeLabel::TubeLabel(const QString& text, QWidget* parent, Qt::WindowFlags f) : 
     setText(text);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 void TubeLabel::enterEvent(QEnterEvent*)
+#else
+void TubeLabel::enterEvent(QEvent*)
+#endif
 {
     if (clickable)
         setCursor(QCursor(Qt::CursorShape::PointingHandCursor));

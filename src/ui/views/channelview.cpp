@@ -128,9 +128,10 @@ int ChannelView::getDominant(const QList<int>& arr)
 std::tuple<int, int, int> ChannelView::getDominantRgb(const QImage& img)
 {
     QRgb* ct;
-    QList<int> red(256);
-    QList<int> green(256);
-    QList<int> blue(256);
+    QList<int> red, green, blue;
+    red.reserve(256);
+    green.reserve(256);
+    blue.reserve(256);
 
     for (int i = 0; i < img.height(); i++)
     {
@@ -173,7 +174,11 @@ void ChannelView::setSubscriberCount(const InnertubeEndpoints::ChannelResponse& 
     QString subscriberCountText = channelResp.header[0].subscriberCountText.text;
     if (!SettingsStore::instance().fullSubs)
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
+#else
+        subscribersLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
+#endif
         subscribersLabel->adjustSize();
         return;
     }
@@ -185,7 +190,11 @@ void ChannelView::setSubscriberCount(const InnertubeEndpoints::ChannelResponse& 
     // have to catch errors here because this API really, REALLY likes to stop working
     HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelResp.header[0].channelId));
     connect(reply, &HttpReply::error, this, [this, subscriberCountText] {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
+#else
+        subscribersLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
+#endif
         subscribersLabel->adjustSize();
     });
     connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {

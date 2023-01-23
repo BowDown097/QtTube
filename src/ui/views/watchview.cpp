@@ -16,11 +16,14 @@
 #endif
 
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QtX11Extras/QX11Info>
+#endif // qt 5 check
 #include <X11/extensions/scrnsaver.h>
 #elif defined (Q_OS_WIN)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#endif
+#endif // non-mac unix check
 
 WatchView* WatchView::instance()
 {
@@ -270,7 +273,11 @@ void WatchView::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& s
     QString subscriberCountText = secondaryInfo.subscriberCountText.text;
     if (!SettingsStore::instance().fullSubs)
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
+#else
+        subscribersLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
+#endif
         subscribersLabel->adjustSize();
         return;
     }
@@ -281,7 +288,11 @@ void WatchView::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& s
 
     HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + secondaryInfo.subscribeButton.channelId));
     connect(reply, &HttpReply::error, this, [this, subscriberCountText] {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
+#else
+        subscribersLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
+#endif
         subscribersLabel->adjustSize();
     });
     connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
@@ -305,7 +316,13 @@ void WatchView::showContextMenu(const QPoint& pos)
 void WatchView::toggleIdleSleep(bool toggle)
 {
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     Display* display = qApp->nativeInterface<QNativeInterface::QX11Application>()->display();
+#else
+    Display* display = QX11Info::display();
+#endif // qt 6 check
+
     if (!display)
     {
         qDebug() << "Failed to toggle idle sleep: Failed to get X11 display";
@@ -341,7 +358,7 @@ void WatchView::toggleIdleSleep(bool toggle)
         qDebug() << "Failed to toggle idle sleep: Creating IOPM assertion failed";
 #else
     qDebug() << "Failed to toggle idle sleep: Unsupported OS";
-#endif
+#endif // non-mac unix check
 }
 
 

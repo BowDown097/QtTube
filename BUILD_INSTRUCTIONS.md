@@ -6,7 +6,7 @@ VERY important that recursive flag is there, otherwise you won't be able to buil
 
 ## Prerequisites
 ### Linux
-Make sure you have Qt 6 installed at all, then refer to [innertube-qt's build instructions](https://github.com/BowDown097/innertube-qt/blob/master/BUILD_INSTRUCTIONS.md).
+Make sure you have Qt 5/6 installed (6 recommended), then refer to [innertube-qt's build instructions](https://github.com/BowDown097/innertube-qt/blob/master/BUILD_INSTRUCTIONS.md).
 
 ### macOS
 Highly recommend installing Qt through Homebrew if you haven't already. If you have, or don't want to install it through Homebrew and know what you're doing, just jump to the end of this section. Otherwise, two nice and easy steps:
