@@ -108,11 +108,12 @@ void BrowseVideoRenderer::setThumbnail(const HttpReply& reply)
     thumbLabel->setPixmap(pixmap.scaled(240, thumbLabel->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 
-void BrowseVideoRenderer::setVideoData(const QString& length, const QString& publishedTime, int progress, const QString& title,
+void BrowseVideoRenderer::setVideoData(const QString& length, const QString& publishedTime, int progress, QString title,
                                        const QString& videoId, const QString& viewCount)
 {
     this->progress = progress;
     this->videoId = videoId;
+    title.replace("\r\n", " ");
 
     QString progStr = QStringLiteral("%1 watched")
             .arg(QDateTime::fromSecsSinceEpoch(progress, Qt::UTC)

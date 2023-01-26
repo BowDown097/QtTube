@@ -27,7 +27,6 @@ void ChannelView::goBack()
 void ChannelView::loadChannel(const QString& channelId)
 {
     auto channelResp = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
-    InnertubeObjects::ChannelHeader header = channelResp.header[0];
 
     MainWindow::centralWidget()->setCurrentIndex(2);
 
@@ -55,11 +54,11 @@ void ChannelView::loadChannel(const QString& channelId)
     metaHbox->addWidget(channelIcon);
 
     channelName = new TubeLabel(this);
-    channelName->setText(header.title);
+    channelName->setText(channelResp.header.title);
     metaVbox->addWidget(channelName);
 
     handleAndVideos = new TubeLabel(this);
-    handleAndVideos->setText(header.channelHandleText.text + " • " + header.videosCountText.text);
+    handleAndVideos->setText(channelResp.header.channelHandleText.text + " • " + channelResp.header.videosCountText.text);
     handleAndVideos->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
     metaVbox->addWidget(handleAndVideos);
 
@@ -72,7 +71,7 @@ void ChannelView::loadChannel(const QString& channelId)
     subscribeHbox->setSpacing(0);
 
     subscribeWidget = new SubscribeWidget(this);
-    subscribeWidget->setSubscribeButton(header.subscribeButton);
+    subscribeWidget->setSubscribeButton(channelResp.header.subscribeButton);
     subscribeHbox->addWidget(subscribeWidget);
 
     subscribersLabel = new TubeLabel(this);
@@ -98,13 +97,13 @@ void ChannelView::loadChannel(const QString& channelId)
     MainWindow::topbar()->setVisible(false);
     connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
 
-    if (!header.banner.isEmpty())
+    if (!channelResp.header.banners.isEmpty())
     {
-        HttpReply* bannerReply = Http::instance().get(header.banner[0].url);
+        HttpReply* bannerReply = Http::instance().get(channelResp.header.banners[0].url);
         connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
     }
 
-    HttpReply* iconReply = Http::instance().get(header.avatar[0].url);
+    HttpReply* iconReply = Http::instance().get(channelResp.header.avatars[0].url);
     connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
 }
 
@@ -173,7 +172,7 @@ void ChannelView::setIcon(const HttpReply& reply)
 
 void ChannelView::setSubscriberCount(const InnertubeEndpoints::ChannelResponse& channelResp)
 {
-    QString subscriberCountText = channelResp.header[0].subscriberCountText.text;
+    QString subscriberCountText = channelResp.header.subscriberCountText.text;
     if (!SettingsStore::instance().fullSubs)
     {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -190,7 +189,7 @@ void ChannelView::setSubscriberCount(const InnertubeEndpoints::ChannelResponse& 
     http.setMaxRetries(5);
 
     // have to catch errors here because this API really, REALLY likes to stop working
-    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelResp.header[0].channelId));
+    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelResp.header.channelId));
     connect(reply, &HttpReply::error, this, [this, subscriberCountText] {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
