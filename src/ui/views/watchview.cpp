@@ -128,6 +128,8 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     subscribersLabel = new TubeLabel(this);
     subscribeHbox->addWidget(subscribersLabel);
 
+    subscribeHbox->addStretch();
+
     primaryInfoVbox->addLayout(subscribeHbox);
     primaryInfoHbox->addLayout(primaryInfoVbox);
     primaryInfoHbox->addStretch();
