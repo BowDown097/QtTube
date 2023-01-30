@@ -318,6 +318,11 @@ void WatchView::showContextMenu(const QPoint& pos)
 void WatchView::toggleIdleSleep(bool toggle)
 {
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
+    if (qApp->platformName() != "xcb")
+    {
+        qDebug() << "Failed to toggle idle sleep: Can only toggle sleep on X11 on Unix systems. Screen may sleep while watching videos.";
+        return;
+    }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     Display* display = qApp->nativeInterface<QNativeInterface::QX11Application>()->display();
