@@ -8,10 +8,10 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
 {
     animation->setDuration(250);
     animation->setEasingCurve(QEasingCurve::InOutQuint);
-    resize(parent->width(), 35);
 
     preferDark = qApp->palette().alternateBase().color().lightness() < 60;
 
+    resize(parent->width(), 35);
     setAutoFillBackground(true);
     setPalette(qApp->palette().alternateBase().color());
 

@@ -45,6 +45,7 @@ SOURCES += \
     src/ui/widgets/browsechannelrenderer.cpp \
     src/ui/widgets/browsenotificationrenderer.cpp \
     src/ui/widgets/browsevideorenderer.cpp \
+    src/ui/widgets/findbar.cpp \
     src/ui/widgets/subscribewidget.cpp \
     src/ui/widgets/topbar.cpp \
     src/ui/widgets/tubelabel.cpp
@@ -57,11 +58,13 @@ HEADERS += \
     src/ui/uiutilities.h \
     src/ui/forms/mainwindow.h \
     src/ui/forms/settingsform.h \
+    src/ui/uiutilities.tpp \
     src/ui/views/channelview.h \
     src/ui/views/watchview.h \
     src/ui/widgets/browsechannelrenderer.h \
     src/ui/widgets/browsenotificationrenderer.h \
     src/ui/widgets/browsevideorenderer.h \
+    src/ui/widgets/findbar.h \
     src/ui/widgets/subscribewidget.h \
     src/ui/widgets/topbar.h \
     src/ui/widgets/tubelabel.h

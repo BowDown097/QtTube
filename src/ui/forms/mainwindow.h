@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include "ui/widgets/findbar.h"
 #include "ui/widgets/topbar.h"
+#include <QKeyEvent>
 #include <QListWidget>
 #include <QMainWindow>
 #include <QStackedWidget>
@@ -28,10 +30,12 @@ private slots:
     void searchWatchHistory();
 private:
     void browse();
+    void keyPressEvent(QKeyEvent* event) override;
     void resizeEvent(QResizeEvent*) override;
     void tryRestoreData();
 
     static inline QStackedWidget* m_centralWidget;
+    static inline FindBar* m_findbar;
     static inline TopBar* m_topbar;
 
     bool doNotBrowse = false;

@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     notificationMenu = new QListWidget(this);
     notificationMenu->setVisible(false);
 
+    m_findbar = new FindBar(this);
+    connect(ui->centralwidget, &QStackedWidget::currentChanged, this, [this] { if (m_findbar->isVisible()) { m_findbar->setReveal(false); } });
+
     m_topbar = new TopBar(this);
     connect(m_topbar, &TopBar::notificationBellClicked, this, &MainWindow::showNotifications);
     connect(m_topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
@@ -98,6 +101,17 @@ void MainWindow::browse()
         BrowseHelper::instance().browseHistory(ui->historyWidget);
         break;
     }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    if (ui->centralwidget->currentIndex() == 0)
+    {
+        bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
+        if ((ctrlPressed && event->key() == Qt::Key_F) || event->key() == Qt::Key_Escape)
+            m_findbar->setReveal(!m_findbar->isVisible());
+    }
+    QWidget::keyPressEvent(event);
 }
 
 void MainWindow::resizeEvent(QResizeEvent*)
