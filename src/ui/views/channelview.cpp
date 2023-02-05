@@ -112,7 +112,7 @@ int ChannelView::getDominant(const QList<int>& arr)
 {
     int max = arr[0];
     int index = 0;
-    for (int i = 0; i < 255; i++)
+    for (int i = 0; i < 256; i++)
     {
         if (arr[i] > max)
         {
@@ -124,7 +124,7 @@ int ChannelView::getDominant(const QList<int>& arr)
     return index;
 }
 
-std::tuple<int, int, int> ChannelView::getDominantRgb(const QImage& img)
+ChannelView::Rgb ChannelView::getDominantRgb(const QImage& img)
 {
     QRgb* ct;
     QList<int> red, green, blue;
@@ -143,7 +143,7 @@ std::tuple<int, int, int> ChannelView::getDominantRgb(const QImage& img)
         }
     }
 
-    return std::tuple<int, int, int>(getDominant(red), getDominant(green), getDominant(blue));
+    return Rgb{getDominant(red), getDominant(green), getDominant(blue)};
 }
 
 void ChannelView::setBanner(const HttpReply& reply)
@@ -154,8 +154,8 @@ void ChannelView::setBanner(const HttpReply& reply)
 
     if (SettingsStore::instance().themedChannels)
     {
-        std::tuple<int, int, int> domRgb = getDominantRgb(pixmap.toImage());
-        QPalette domPal(QColor(std::get<0>(domRgb), std::get<1>(domRgb), std::get<2>(domRgb)));
+        Rgb domRgb = getDominantRgb(pixmap.toImage());
+        QPalette domPal(QColor(domRgb.r, domRgb.g, domRgb.b));
         channelHeaderWidget->setPalette(domPal);
         subscribersLabel->setPalette(domPal);
         subscribeWidget->setPreferredPalette(domPal);

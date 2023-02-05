@@ -35,10 +35,10 @@ private:
     void tryRestoreData();
 
     static inline QStackedWidget* m_centralWidget;
-    static inline FindBar* m_findbar;
     static inline TopBar* m_topbar;
 
     bool doNotBrowse = false;
+    FindBar* findbar;
     QListWidget* notificationMenu;
     QString lastSearchQuery;
     Ui::MainWindow* ui;

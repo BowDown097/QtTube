@@ -17,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     notificationMenu = new QListWidget(this);
     notificationMenu->setVisible(false);
 
-    m_findbar = new FindBar(this);
-    connect(ui->centralwidget, &QStackedWidget::currentChanged, this, [this] { if (m_findbar->isVisible()) { m_findbar->setReveal(false); } });
+    findbar = new FindBar(this);
+    connect(ui->centralwidget, &QStackedWidget::currentChanged, this, [this] { if (findbar->isVisible()) { findbar->setReveal(false); } });
 
     m_topbar = new TopBar(this);
     connect(m_topbar, &TopBar::notificationBellClicked, this, &MainWindow::showNotifications);
@@ -109,7 +109,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     {
         bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
         if ((ctrlPressed && event->key() == Qt::Key_F) || event->key() == Qt::Key_Escape)
-            m_findbar->setReveal(!m_findbar->isVisible());
+            findbar->setReveal(!findbar->isVisible());
     }
     QWidget::keyPressEvent(event);
 }
@@ -285,11 +285,14 @@ void MainWindow::showNotifications()
 {
     if (notificationMenu->isVisible())
     {
+        if (ui->centralwidget->currentIndex() != 0)
+            m_topbar->alwaysShow = false;
         notificationMenu->clear();
         notificationMenu->setVisible(false);
         return;
     }
 
+    m_topbar->alwaysShow = true;
     notificationMenu->setVisible(true);
     BrowseHelper::instance().browseNotificationMenu(notificationMenu);
 }

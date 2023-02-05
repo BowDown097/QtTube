@@ -21,6 +21,13 @@ private:
     ChannelView() {}
     static inline ChannelView* m_channelView;
 
+    struct Rgb
+    {
+        int r;
+        int g;
+        int b;
+    };
+
     QLabel* channelBanner;
     QHBoxLayout* channelHeader;
     QWidget* channelHeaderWidget;
@@ -36,7 +43,7 @@ private:
     TubeLabel* subscribersLabel;
 
     int getDominant(const QList<int>& arr);
-    std::tuple<int, int, int> getDominantRgb(const QImage& img);
+    Rgb getDominantRgb(const QImage& img);
     void setSubscriberCount(const InnertubeEndpoints::ChannelResponse& channelResponse);
 private slots:
     void setBanner(const HttpReply& reply);
