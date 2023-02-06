@@ -59,6 +59,7 @@ void WatchView::goBack()
 void WatchView::loadVideo(const QString& videoId, int progress)
 {
     MainWindow::centralWidget()->setCurrentIndex(1);
+    currentVideoId = videoId;
 
     pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
@@ -101,43 +102,96 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     titleLabel->setWordWrap(true);
     pageLayout->addWidget(titleLabel);
 
-    primaryInfoHbox = new QHBoxLayout;
-    primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
+    { // begin primaryInfoHbox
+        primaryInfoHbox = new QHBoxLayout;
+        primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
 
-    channelIcon = new TubeLabel(this);
-    channelIcon->setClickable(true, false);
-    channelIcon->setMaximumSize(55, 48);
-    channelIcon->setMinimumSize(55, 48);
-    primaryInfoHbox->addWidget(channelIcon);
+        channelIcon = new TubeLabel(this);
+        channelIcon->setClickable(true, false);
+        channelIcon->setMaximumSize(55, 48);
+        channelIcon->setMinimumSize(55, 48);
+        primaryInfoHbox->addWidget(channelIcon);
 
-    primaryInfoVbox = new QVBoxLayout;
+        { // begin primaryInfoVbox
+            primaryInfoVbox = new QVBoxLayout;
 
-    channelName = new TubeLabel(this);
-    channelName->setClickable(true, true);
-    channelName->setContextMenuPolicy(Qt::CustomContextMenu);
-    primaryInfoVbox->addWidget(channelName);
-    connect(channelName, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
+            channelName = new TubeLabel(this);
+            channelName->setClickable(true, true);
+            channelName->setContextMenuPolicy(Qt::CustomContextMenu);
+            primaryInfoVbox->addWidget(channelName);
+            connect(channelName, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
 
-    subscribeHbox = new QHBoxLayout(this);
-    subscribeHbox->setContentsMargins(0, 0, 0, 0);
-    subscribeHbox->setSpacing(0);
+            { // begin subscribeHbox
+                subscribeHbox = new QHBoxLayout(this);
+                subscribeHbox->setContentsMargins(0, 0, 0, 0);
+                subscribeHbox->setSpacing(0);
 
-    subscribeWidget = new SubscribeWidget(this);
-    subscribeHbox->addWidget(subscribeWidget);
+                subscribeWidget = new SubscribeWidget(this);
+                subscribeHbox->addWidget(subscribeWidget);
 
-    subscribersLabel = new TubeLabel(this);
-    subscribeHbox->addWidget(subscribersLabel);
+                subscribersLabel = new TubeLabel(this);
+                subscribeHbox->addWidget(subscribersLabel);
 
-    subscribeHbox->addStretch();
+                subscribeHbox->addStretch();
 
-    primaryInfoVbox->addLayout(subscribeHbox);
-    primaryInfoHbox->addLayout(primaryInfoVbox);
-    primaryInfoHbox->addStretch();
+                primaryInfoVbox->addLayout(subscribeHbox);
+            } // end subscribeHbox
 
-    primaryInfoWrapper = new QWidget(this);
-    primaryInfoWrapper->setFixedWidth(playerSize.width());
-    primaryInfoWrapper->setLayout(primaryInfoHbox);
-    pageLayout->addWidget(primaryInfoWrapper);
+            primaryInfoHbox->addLayout(primaryInfoVbox);
+        } // end primaryInfoVbox
+
+        primaryInfoHbox->addStretch();
+
+        primaryInfoWrapper = new QWidget(this);
+        primaryInfoWrapper->setFixedWidth(playerSize.width());
+        primaryInfoWrapper->setLayout(primaryInfoHbox);
+        pageLayout->addWidget(primaryInfoWrapper);
+    } // end primaryInfoHbox
+
+    { // begin menuVbox
+        menuVbox = new QVBoxLayout(this);
+        menuVbox->setContentsMargins(0, 0, 20, 0);
+        menuVbox->setSpacing(3);
+
+        viewCount = new TubeLabel(this);
+        viewCount->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+        viewCount->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 3));
+        menuVbox->addWidget(viewCount);
+
+        if (SettingsStore::instance().returnDislikes)
+        {
+            // i have to wrap the like bar for alignment to work... cringe!
+            likeBarWrapper = new QHBoxLayout(this);
+            likeBarWrapper->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+
+            likeBar = new QProgressBar(this);
+            likeBar->setFixedSize(155, 2);
+            likeBar->setStyleSheet(R"(
+            QProgressBar {
+                border-radius: 2px;
+                background-color: #606060;
+            }
+
+            QProgressBar::chunk {
+                background-color: #1879c6;
+            }
+            )");
+            likeBar->setTextVisible(false);
+            likeBar->setVisible(false);
+            likeBarWrapper->addWidget(likeBar);
+
+            menuVbox->addLayout(likeBarWrapper);
+        }
+
+        likesDislikesLabel = new TubeLabel(this);
+        likesDislikesLabel->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+        menuVbox->addWidget(likesDislikesLabel);
+
+        menuWrapper = new QWidget(this);
+        menuWrapper->setFixedWidth(playerSize.width());
+        menuWrapper->setLayout(menuVbox);
+        pageLayout->addWidget(menuWrapper);
+    } // end menuVbox
 
     pageLayout->addStretch(); // disable the layout from stretching on resize
 
@@ -153,7 +207,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     channelId = nextResp.secondaryInfo.subscribeButton.channelId;
 
-    channelName->setText(nextResp.secondaryInfo.channelName.text);
+    channelName->setText(nextResp.secondaryInfo.owner.title.text);
     connect(channelName, &TubeLabel::clicked, this, [this, nextResp] {
         disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
         toggleIdleSleep(false);
@@ -174,9 +228,11 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
     setSubscriberCount(nextResp.secondaryInfo);
 
-    if (!nextResp.secondaryInfo.channelIcons.isEmpty())
+    viewCount->setText(nextResp.primaryInfo.viewCount.text);
+
+    QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.owner.thumbnails;
+    if (!channelIcons.isEmpty())
     {
-        QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.channelIcons;
         auto bestThumb = *std::find_if(channelIcons.cbegin(), channelIcons.cend(), [](const InnertubeObjects::GenericThumbnail& t)
         {
             return t.width >= 48;
@@ -184,13 +240,32 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         HttpReply* reply = Http::instance().get(bestThumb.url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
+
+    if (SettingsStore::instance().returnDislikes)
+    {
+        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + currentVideoId);
+        connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
+            QJsonDocument doc = QJsonDocument::fromJson(reply.body());
+            int dislikes = doc["dislikes"].toInt();
+            int likes = doc["likes"].toInt();
+            likeBar->setMaximum(likes + dislikes);
+            likeBar->setValue(likes);
+            likeBar->setVisible(true);
+            likesDislikesLabel->setText(QStringLiteral("%1 likes • %2 dislikes")
+                                        .arg(QLocale::system().toString(likes), QLocale::system().toString(dislikes)));
+        });
+    }
+    else
+    {
+        likesDislikesLabel->setText(QStringLiteral("%1 likes").arg(nextResp.primaryInfo.videoActions.likeButton.defaultText.text));
+    }
 }
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 {
     InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
 
-    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(playerResp.videoDetails.videoId);
+    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(currentVideoId);
     connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
     connect(next, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
     {
@@ -222,6 +297,7 @@ void WatchView::resizeEvent(QResizeEvent* event)
     if (!primaryInfoWrapper || !event->oldSize().isValid()) return;
 
     QSize playerSize = calcPlayerSize();
+    menuWrapper->setFixedWidth(playerSize.width());
     primaryInfoWrapper->setFixedWidth(playerSize.width());
     titleLabel->setFixedWidth(playerSize.width());
 
@@ -237,9 +313,9 @@ QSize WatchView::calcPlayerSize()
     int playerWidth = width();
     int playerHeight = playerWidth * 9/16;
 
-    if (playerHeight > height() - 125)
+    if (playerHeight > height() - 150)
     {
-        playerHeight = height() - 125;
+        playerHeight = height() - 150;
         playerWidth = playerHeight * 16/9;
     }
 
@@ -272,7 +348,7 @@ void WatchView::setChannelIcon(const HttpReply& reply)
 
 void WatchView::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo)
 {
-    QString subscriberCountText = secondaryInfo.subscriberCountText.text;
+    QString subscriberCountText = secondaryInfo.owner.subscriberCountText.text;
     if (!SettingsStore::instance().fullSubs)
     {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
