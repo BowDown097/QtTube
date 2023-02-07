@@ -1,6 +1,18 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
+        <file>dislike.png</file>
+    </qresource>
+    <qresource>
+        <file>dislike-light.png</file>
+    </qresource>
+    <qresource>
+        <file>like.png</file>
+    </qresource>
+    <qresource>
+        <file>like-light.png</file>
+    </qresource>
+    <qresource>
         <file>notif-bell.png</file>
     </qresource>
     <qresource>
@@ -11,6 +23,12 @@
     </qresource>
     <qresource>
         <file>notif-bell-light.png</file>
+    </qresource>
+    <qresource>
+        <file>playlist_add.png</file>
+    </qresource>
+    <qresource>
+        <file>playlist_add-light.png</file>
     </qresource>
     <qresource>
         <file>qttube.svg</file>
@@ -26,5 +44,11 @@
     </qresource>
     <qresource>
         <file>settings-light.png</file>
+    </qresource>
+    <qresource>
+        <file>share.png</file>
+    </qresource>
+    <qresource>
+        <file>share-light.png</file>
     </qresource>
 </RCC>

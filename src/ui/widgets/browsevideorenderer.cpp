@@ -9,12 +9,12 @@
 
 BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
 {
-    channelLabel = new TubeLabel;
-    hbox = new QHBoxLayout;
-    metadataLabel = new TubeLabel;
-    textVbox = new QVBoxLayout;
-    thumbLabel = new TubeLabel;
-    titleLabel = new TubeLabel;
+    channelLabel = new ChannelLabel(this);
+    hbox = new QHBoxLayout(this);
+    metadataLabel = new TubeLabel(this);
+    textVbox = new QVBoxLayout(this);
+    thumbLabel = new TubeLabel(this);
+    titleLabel = new TubeLabel(this);
 
     textVbox->addWidget(titleLabel);
     textVbox->addWidget(channelLabel);
@@ -24,9 +24,6 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
     hbox->addLayout(textVbox, 1);
     setLayout(hbox);
 
-    channelLabel->setClickable(true, true);
-    channelLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-
     thumbLabel->setClickable(true, false);
     thumbLabel->setMinimumSize(1, 1);
     thumbLabel->setScaledContents(true);
@@ -35,8 +32,8 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
     titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
 
-    connect(channelLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
-    connect(channelLabel, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showChannelContextMenu);
+    connect(channelLabel->text, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
+    connect(channelLabel->text, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showChannelContextMenu);
     connect(thumbLabel, &TubeLabel::clicked, this, [this] { WatchView::instance()->loadVideo(videoId, progress); });
     connect(titleLabel, &TubeLabel::clicked, this, [this] { WatchView::instance()->loadVideo(videoId, progress); });
     connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showTitleContextMenu);
@@ -98,7 +95,7 @@ void BrowseVideoRenderer::navigateChannel()
 void BrowseVideoRenderer::setChannelData(const InnertubeObjects::VideoOwner& owner)
 {
     channelId = owner.id;
-    channelLabel->setText(owner.name);
+    channelLabel->setInfo(owner.name, owner.badges);
 }
 
 void BrowseVideoRenderer::setThumbnail(const HttpReply& reply)

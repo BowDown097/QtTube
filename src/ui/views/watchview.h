@@ -4,10 +4,10 @@
 #include "innertube/endpoints/video/next.h"
 #include "innertube/endpoints/video/player.h"
 #include "innertube/objects/video/secondaryinfo/videosecondaryinfo.h"
+#include "ui/widgets/channellabel.h"
 #include "ui/widgets/subscribewidget.h"
 #include "ui/widgets/tubelabel.h"
 #include <QProgressBar>
-#include <QStackedWidget>
 #include <QVBoxLayout>
 
 #ifdef USEMPV
@@ -42,10 +42,9 @@ private:
 
     TubeLabel* channelIcon;
     QString channelId;
-    TubeLabel* channelName;
+    ChannelLabel* channelLabel;
     QProgressBar* likeBar;
     QHBoxLayout* likeBarWrapper;
-    TubeLabel* likesDislikesLabel;
     QVBoxLayout* menuVbox;
     QWidget* menuWrapper;
     QVBoxLayout* pageLayout;
@@ -56,6 +55,7 @@ private:
     SubscribeWidget* subscribeWidget;
     TubeLabel* subscribersLabel;
     TubeLabel* titleLabel;
+    QHBoxLayout* topLevelButtons;
     QString currentVideoId;
     TubeLabel* viewCount;
 

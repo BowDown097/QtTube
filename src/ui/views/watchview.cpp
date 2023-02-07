@@ -5,6 +5,7 @@
 #include "settingsstore.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
+#include "ui/widgets/iconlabel.h"
 #include <QApplication>
 #include <QMenu>
 #include <QMessageBox>
@@ -103,7 +104,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     pageLayout->addWidget(titleLabel);
 
     { // begin primaryInfoHbox
-        primaryInfoHbox = new QHBoxLayout;
+        primaryInfoHbox = new QHBoxLayout(this);
         primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
 
         channelIcon = new TubeLabel(this);
@@ -113,13 +114,11 @@ void WatchView::loadVideo(const QString& videoId, int progress)
         primaryInfoHbox->addWidget(channelIcon);
 
         { // begin primaryInfoVbox
-            primaryInfoVbox = new QVBoxLayout;
+            primaryInfoVbox = new QVBoxLayout(this);
 
-            channelName = new TubeLabel(this);
-            channelName->setClickable(true, true);
-            channelName->setContextMenuPolicy(Qt::CustomContextMenu);
-            primaryInfoVbox->addWidget(channelName);
-            connect(channelName, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
+            channelLabel = new ChannelLabel(this);
+            connect(channelLabel->text, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
+            primaryInfoVbox->addWidget(channelLabel);
 
             { // begin subscribeHbox
                 subscribeHbox = new QHBoxLayout(this);
@@ -183,9 +182,10 @@ void WatchView::loadVideo(const QString& videoId, int progress)
             menuVbox->addLayout(likeBarWrapper);
         }
 
-        likesDislikesLabel = new TubeLabel(this);
-        likesDislikesLabel->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
-        menuVbox->addWidget(likesDislikesLabel);
+        topLevelButtons = new QHBoxLayout(this);
+        topLevelButtons->setContentsMargins(0, 3, 0, 0);
+        topLevelButtons->setSpacing(0);
+        menuVbox->addLayout(topLevelButtons);
 
         menuWrapper = new QWidget(this);
         menuWrapper->setFixedWidth(playerSize.width());
@@ -206,9 +206,9 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     InnertubeEndpoints::NextResponse nextResp = endpoint.response;
 
     channelId = nextResp.secondaryInfo.subscribeButton.channelId;
+    channelLabel->setInfo(nextResp.secondaryInfo.owner.title.text, nextResp.secondaryInfo.owner.badges);
 
-    channelName->setText(nextResp.secondaryInfo.owner.title.text);
-    connect(channelName, &TubeLabel::clicked, this, [this, nextResp] {
+    connect(channelLabel->text, &TubeLabel::clicked, this, [this, nextResp] {
         disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
         toggleIdleSleep(false);
         navigateChannel();
@@ -230,6 +230,35 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     viewCount->setText(nextResp.primaryInfo.viewCount.text);
 
+    for (const InnertubeObjects::MenuFlexibleItem& fi : nextResp.primaryInfo.videoActions.flexibleItems)
+    {
+        if (fi.topLevelButton.iconType == "CONTENT_CUT" || fi.topLevelButton.iconType == "MONEY_HEART") // will almost definitely never be implemented
+            continue;
+
+        QString labelText = fi.topLevelButton.text.text;
+        if (labelText == "Save") // to replicate Hitchhiker style
+            labelText = "Add to";
+
+        IconLabel* label = new IconLabel(
+            fi.topLevelButton.iconType.toLower(),
+            topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0)
+        );
+        label->setText(labelText);
+        topLevelButtons->addWidget(label);
+    }
+
+    IconLabel* shareLabel = new IconLabel("share", topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0));
+    shareLabel->setText("Share");
+    topLevelButtons->addWidget(shareLabel);
+
+    topLevelButtons->addStretch();
+
+    IconLabel* likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
+    topLevelButtons->addWidget(likeLabel);
+
+    IconLabel* dislikeLabel = new IconLabel("dislike");
+    topLevelButtons->addWidget(dislikeLabel);
+
     QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.owner.thumbnails;
     if (!channelIcons.isEmpty())
     {
@@ -244,20 +273,21 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     if (SettingsStore::instance().returnDislikes)
     {
         HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + currentVideoId);
-        connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
+        connect(reply, &HttpReply::finished, this, [dislikeLabel, likeLabel, this](const HttpReply& reply) {
             QJsonDocument doc = QJsonDocument::fromJson(reply.body());
             int dislikes = doc["dislikes"].toInt();
             int likes = doc["likes"].toInt();
             likeBar->setMaximum(likes + dislikes);
             likeBar->setValue(likes);
             likeBar->setVisible(true);
-            likesDislikesLabel->setText(QStringLiteral("%1 likes • %2 dislikes")
-                                        .arg(QLocale::system().toString(likes), QLocale::system().toString(dislikes)));
+
+            dislikeLabel->setText(QLocale::system().toString(dislikes));
+            likeLabel->setText(QLocale::system().toString(likes));
         });
     }
     else
     {
-        likesDislikesLabel->setText(QStringLiteral("%1 likes").arg(nextResp.primaryInfo.videoActions.likeButton.defaultText.text));
+        likeLabel->setText(nextResp.primaryInfo.videoActions.likeButton.defaultText.text);
     }
 }
 
@@ -388,7 +418,7 @@ void WatchView::showContextMenu(const QPoint& pos)
     connect(copyUrlAction, &QAction::triggered, this, &WatchView::copyChannelUrl);
 
     menu->addAction(copyUrlAction);
-    menu->popup(channelName->mapToGlobal(pos));
+    menu->popup(channelLabel->text->mapToGlobal(pos));
 }
 
 void WatchView::toggleIdleSleep(bool toggle)

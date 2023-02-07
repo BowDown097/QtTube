@@ -1,15 +1,15 @@
 #ifndef BROWSEVIDEORENDERER_H
 #define BROWSEVIDEORENDERER_H
+#include "channellabel.h"
 #include "httpreply.h"
 #include "innertube/objects/video/videoowner.h"
-#include "tubelabel.h"
 #include <QVBoxLayout>
 
 class BrowseVideoRenderer : public QWidget
 {
     Q_OBJECT
     QString channelId;
-    TubeLabel* channelLabel;
+    ChannelLabel* channelLabel;
     QHBoxLayout* hbox;
     TubeLabel* metadataLabel;
     int progress;
