@@ -277,8 +277,11 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
             QJsonDocument doc = QJsonDocument::fromJson(reply.body());
             int dislikes = doc["dislikes"].toInt();
             int likes = doc["likes"].toInt();
-            likeBar->setMaximum(likes + dislikes);
-            likeBar->setValue(likes);
+            if (likes != 0 || dislikes != 0)
+            {
+                likeBar->setMaximum(likes + dislikes);
+                likeBar->setValue(likes);
+            }
             likeBar->setVisible(true);
 
             dislikeLabel->setText(QLocale::system().toString(dislikes));
