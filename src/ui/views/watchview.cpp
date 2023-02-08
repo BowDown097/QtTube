@@ -201,6 +201,29 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
 }
 
+void WatchView::hotLoadVideo(const QString& videoId)
+{
+    currentVideoId = videoId;
+
+#ifdef USEMPV
+    media->play("https://www.youtube.com/watch?v=" + videoId);
+    watchtimeTimer->deleteLater();
+#else
+    wePlayer->play(videoId, 0);
+#endif
+
+    UIUtilities::clearLayout(topLevelButtons);
+    disconnect(channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
+
+    InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
+    connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
+    connect(player, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
+    {
+        QMessageBox::critical(this, "Failed to load video", ie.message());
+        WatchView::goBack();
+    });
+}
+
 void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 {
     InnertubeEndpoints::NextResponse nextResp = endpoint.response;

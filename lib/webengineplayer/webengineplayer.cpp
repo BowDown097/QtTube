@@ -1,6 +1,8 @@
 #include "webengineplayer.h"
 #include "settingsstore.h"
+#include "webchannelmethods.h"
 #include <QVBoxLayout>
+#include <QWebChannel>
 #include <QWebEngineProfile>
 #include <QWebEngineScriptCollection>
 #include <QWebEngineSettings>
@@ -12,6 +14,18 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     layout->addWidget(m_view);
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
+
+    QWebChannel* channel = new QWebChannel(m_view->page());
+    m_view->page()->setWebChannel(channel);
+    channel->registerObject("methods", WebChannelMethods::instance());
+
+    QWebEngineScript webChannelJs;
+    webChannelJs.setInjectionPoint(QWebEngineScript::DocumentCreation);
+    webChannelJs.setWorldId(QWebEngineScript::MainWorld);
+    QFile webChannelJsFile(":/qtwebchannel/qwebchannel.js");
+    webChannelJsFile.open(QFile::ReadOnly);
+    webChannelJs.setSourceCode(webChannelJsFile.readAll());
+    m_view->page()->scripts().insert(webChannelJs);
 
     QWebEngineScript inject;
     inject.setInjectionPoint(QWebEngineScript::DocumentReady);

@@ -12,6 +12,7 @@ public:
     ChannelLabel(QWidget* parent = nullptr);
     void setInfo(const QString& channelName, const QList<InnertubeObjects::MetadataBadge>& badges);
 private:
+    QLabel* badgeLabel;
     QHBoxLayout* layout;
 };
 

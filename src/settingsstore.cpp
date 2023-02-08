@@ -18,6 +18,8 @@ void SettingsStore::initializeFromSettingsFile()
 
     showSBToasts = settings.value("sponsorBlock/toasts", true).toBool();
 
+    sponsorBlockCategories.clear();
+
     int size = settings.beginReadArray("sponsorBlock/categories");
     for (int i = 0; i < size; ++i)
     {

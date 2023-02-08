@@ -48,21 +48,21 @@ void SettingsForm::saveSettings()
     store.playbackTracking = ui->playbackTracking->isChecked();
     store.watchtimeTracking = ui->watchtimeTracking->isChecked();
     // sponsorblock
-    if (ui->blockFiller->isChecked())
+    if (ui->blockFiller->isChecked() && !store.sponsorBlockCategories.contains("filler"))
         store.sponsorBlockCategories.append("filler");
-    if (ui->blockInteraction->isChecked())
+    if (ui->blockInteraction->isChecked() && !store.sponsorBlockCategories.contains("interaction"))
         store.sponsorBlockCategories.append("interaction");
-    if (ui->blockIntro->isChecked())
+    if (ui->blockIntro->isChecked() && !store.sponsorBlockCategories.contains("intro"))
         store.sponsorBlockCategories.append("intro");
-    if (ui->blockNonMusic->isChecked())
+    if (ui->blockNonMusic->isChecked() && !store.sponsorBlockCategories.contains("music_offtopic"))
         store.sponsorBlockCategories.append("music_offtopic");
-    if (ui->blockOutro->isChecked())
+    if (ui->blockOutro->isChecked() && !store.sponsorBlockCategories.contains("outro"))
         store.sponsorBlockCategories.append("outro");
-    if (ui->blockPreview->isChecked())
+    if (ui->blockPreview->isChecked() && !store.sponsorBlockCategories.contains("preview"))
         store.sponsorBlockCategories.append("preview");
-    if (ui->blockSelfPromo->isChecked())
+    if (ui->blockSelfPromo->isChecked() && !store.sponsorBlockCategories.contains("selfpromo"))
         store.sponsorBlockCategories.append("selfpromo");
-    if (ui->blockSponsor->isChecked())
+    if (ui->blockSponsor->isChecked() && !store.sponsorBlockCategories.contains("sponsor"))
         store.sponsorBlockCategories.append("sponsor");
     store.showSBToasts = ui->showToasts->isChecked();
 

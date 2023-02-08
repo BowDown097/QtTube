@@ -40,6 +40,16 @@ function waitForElement(selector) {
     });
 }
 
+document.addEventListener("click", function(e) {
+    const videowallStill = e.target.closest(".ytp-videowall-still");
+    if (videowallStill != null) {
+        new QWebChannel(qt.webChannelTransport, function(channel) {
+            const params = new URLSearchParams(videowallStill.search);
+            channel.objects.methods.switchWatchViewVideo(params.get("v"));
+        });
+    }
+});
+
 const params = new URLSearchParams(document.location.search);
 waitForElement("#movie_player").then(function(p) {
     p.seekTo(params.get("t")); // seek to saved time

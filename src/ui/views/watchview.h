@@ -28,6 +28,7 @@ class WatchView : public QWidget
 public:
     Q_DISABLE_COPY(WatchView)
     static WatchView* instance();
+    void hotLoadVideo(const QString& videoId);
     void loadVideo(const QString& videoId, int progress = 0);
 public slots:
     void goBack();
