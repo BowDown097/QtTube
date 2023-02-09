@@ -511,6 +511,10 @@ waitForElement("#movie_player").then(function(p) {
     .iv-branding {
         display: none;
     }
+
+    .ytp-swatch-color-white {
+        color: red;
+    }
     /* end general styles */
 
     /* SponsorBlock styles */
