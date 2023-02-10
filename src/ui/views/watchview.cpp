@@ -5,7 +5,6 @@
 #include "settingsstore.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
-#include "ui/widgets/iconlabel.h"
 #include <QApplication>
 #include <QMenu>
 #include <QMessageBox>
@@ -43,7 +42,10 @@ void WatchView::goBack()
     }
 
     if (watchtimeTimer)
+    {
+        watchtimeTimer->stop();
         watchtimeTimer->deleteLater();
+    }
 
     for (QAction* action : actions())
         removeAction(action);
@@ -55,6 +57,12 @@ void WatchView::goBack()
     UIUtilities::clearLayout(pageLayout);
     pageLayout->deleteLater();
     toggleIdleSleep(false);
+
+    if (metadataUpdateTimer)
+    {
+        metadataUpdateTimer->stop();
+        metadataUpdateTimer->deleteLater();
+    }
 }
 
 void WatchView::loadVideo(const QString& videoId, int progress)
@@ -276,10 +284,10 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     topLevelButtons->addStretch();
 
-    IconLabel* likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
+    likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
     topLevelButtons->addWidget(likeLabel);
 
-    IconLabel* dislikeLabel = new IconLabel("dislike");
+    dislikeLabel = new IconLabel("dislike");
     topLevelButtons->addWidget(dislikeLabel);
 
     QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.owner.thumbnails;
@@ -296,7 +304,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     if (SettingsStore::instance().returnDislikes)
     {
         HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + currentVideoId);
-        connect(reply, &HttpReply::finished, this, [dislikeLabel, likeLabel, this](const HttpReply& reply) {
+        connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
             QJsonDocument doc = QJsonDocument::fromJson(reply.body());
             int dislikes = doc["dislikes"].toInt();
             int likes = doc["likes"].toInt();
@@ -346,6 +354,18 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 #else
     wePlayer->setPlayerResponse(playerResp);
 #endif
+
+    if (playerResp.videoDetails.isLive)
+    {
+        metadataUpdateTimer = new QTimer;
+        metadataUpdateTimer->setInterval(60000);
+        connect(metadataUpdateTimer, &QTimer::timeout, this, [this]
+        {
+            auto updatedMetadata = InnerTube::instance().getBlocking<InnertubeEndpoints::UpdatedMetadata>(currentVideoId);
+            updateMetadata(updatedMetadata.response);
+        });
+        metadataUpdateTimer->start();
+    }
 }
 
 void WatchView::resizeEvent(QResizeEvent* event)
@@ -500,6 +520,34 @@ void WatchView::toggleIdleSleep(bool toggle)
 #endif // non-mac unix check
 }
 
+void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)
+{
+    titleLabel->setText(resp.title.text);
+    viewCount->setText(resp.viewCount);
+
+    if (SettingsStore::instance().returnDislikes)
+    {
+        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + currentVideoId);
+        connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
+            QJsonDocument doc = QJsonDocument::fromJson(reply.body());
+            int dislikes = doc["dislikes"].toInt();
+            int likes = doc["likes"].toInt();
+            if (likes != 0 || dislikes != 0)
+            {
+                likeBar->setMaximum(likes + dislikes);
+                likeBar->setValue(likes);
+            }
+            likeBar->setVisible(true);
+
+            dislikeLabel->setText(QLocale::system().toString(dislikes));
+            likeLabel->setText(QLocale::system().toString(likes));
+        });
+    }
+    else
+    {
+        likeLabel->setText(resp.likeDefaultText);
+    }
+}
 
 #ifdef USEMPV // MPV backend exclusive methods
 void WatchView::mediaStateChanged(Media::State state)

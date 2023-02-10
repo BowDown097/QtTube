@@ -4,16 +4,18 @@
 #include "innertube/endpoints/video/next.h"
 #include "innertube/endpoints/video/player.h"
 #include "innertube/objects/video/secondaryinfo/videosecondaryinfo.h"
+#include "innertube/responses/video/updatedmetadataresponse.h"
 #include "ui/widgets/channellabel.h"
+#include "ui/widgets/iconlabel.h"
 #include "ui/widgets/subscribewidget.h"
 #include "ui/widgets/tubelabel.h"
 #include <QProgressBar>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #ifdef USEMPV
 #include "innertube/responses/video/playerresponse.h"
 #include "lib/media/media.h"
-#include <QTimer>
 #else
 #include "webengineplayer.h"
 #endif
@@ -44,10 +46,14 @@ private:
     TubeLabel* channelIcon;
     QString channelId;
     ChannelLabel* channelLabel;
+    QString currentVideoId;
+    IconLabel* dislikeLabel;
     QProgressBar* likeBar;
     QHBoxLayout* likeBarWrapper;
+    IconLabel* likeLabel;
     QVBoxLayout* menuVbox;
     QWidget* menuWrapper;
+    QTimer* metadataUpdateTimer;
     QVBoxLayout* pageLayout;
     QHBoxLayout* primaryInfoHbox;
     QVBoxLayout* primaryInfoVbox;
@@ -57,7 +63,6 @@ private:
     TubeLabel* subscribersLabel;
     TubeLabel* titleLabel;
     QHBoxLayout* topLevelButtons;
-    QString currentVideoId;
     TubeLabel* viewCount;
 
 #ifdef USEMPV
@@ -77,6 +82,7 @@ private:
     void setChannelIcon(const HttpReply& reply);
     void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo);
     void toggleIdleSleep(bool toggle);
+    void updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp);
 
 #ifdef USEMPV
     QString getCpn();
