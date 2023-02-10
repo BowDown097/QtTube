@@ -53,7 +53,7 @@ private:
     IconLabel* likeLabel;
     QVBoxLayout* menuVbox;
     QWidget* menuWrapper;
-    QTimer* metadataUpdateTimer;
+    QTimer* metadataUpdateTimer = nullptr;
     QVBoxLayout* pageLayout;
     QHBoxLayout* primaryInfoHbox;
     QVBoxLayout* primaryInfoVbox;
@@ -66,8 +66,8 @@ private:
     TubeLabel* viewCount;
 
 #ifdef USEMPV
-    Media* media;
-    QTimer* watchtimeTimer;
+    Media* media = nullptr;
+    QTimer* watchtimeTimer = nullptr;
 #else
     WebEnginePlayer* wePlayer;
 #endif

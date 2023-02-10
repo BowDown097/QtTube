@@ -39,12 +39,15 @@ void WatchView::goBack()
     {
         media->stop();
         media->clearQueue();
+        media->deleteLater();
+        media = nullptr;
     }
 
     if (watchtimeTimer)
     {
         watchtimeTimer->stop();
         watchtimeTimer->deleteLater();
+        watchtimeTimer = nullptr;
     }
 
     for (QAction* action : actions())
@@ -62,6 +65,7 @@ void WatchView::goBack()
     {
         metadataUpdateTimer->stop();
         metadataUpdateTimer->deleteLater();
+        metadataUpdateTimer = nullptr;
     }
 }
 
