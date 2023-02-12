@@ -2,6 +2,7 @@
 #include "http.h"
 #include "innertube/innertubeexception.h"
 #include "settingsstore.h"
+#include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
 #include "ui/views/channelview.h"
 #include <QApplication>
@@ -50,7 +51,10 @@ void BrowseChannelRenderer::navigateChannel()
 {
     try
     {
-        ChannelView::instance()->loadChannel(channelId);
+        if (MainWindow::centralWidget()->currentIndex() == 2)
+            ChannelView::instance()->hotLoadChannel(channelId);
+        else
+            ChannelView::instance()->loadChannel(channelId);
     }
     catch (const InnertubeException& ie)
     {
@@ -62,8 +66,12 @@ void BrowseChannelRenderer::setData(const QString& channelId, const QString& des
                                     const QString& subCount, const QString& videoCount)
 {
     Q_UNUSED(subbed); // TODO: sub button
+    if (descriptionSnippet.isEmpty())
+        textVbox->removeWidget(descriptionLabel);
+    else
+        descriptionLabel->setText(descriptionSnippet);
 
-    descriptionLabel->setText(descriptionSnippet);
+    UIUtilities::setMaximumLines(descriptionLabel, 2);
     titleLabel->setText(name);
     this->channelId = channelId;
 

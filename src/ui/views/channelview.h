@@ -14,8 +14,10 @@ class ChannelView : public QWidget
 public:
     Q_DISABLE_COPY(ChannelView)
     static ChannelView* instance();
+    void hotLoadChannel(const QString& channelId);
     void loadChannel(const QString& channelId);
 public slots:
+    void clear();
     void goBack();
 private:
     ChannelView() {}
@@ -32,19 +34,21 @@ private:
     QHBoxLayout* channelHeader;
     QWidget* channelHeaderWidget;
     QLabel* channelIcon;
-    QHBoxLayout* metaHbox;
-    QVBoxLayout* metaVbox;
+    QString channelId;
     TubeLabel* channelName;
     QTabWidget* channelTabs;
     TubeLabel* handleAndVideos;
+    QHBoxLayout* metaHbox;
+    QVBoxLayout* metaVbox;
     QVBoxLayout* pageLayout;
     QHBoxLayout* subscribeHbox;
-    SubscribeWidget* subscribeWidget;
     TubeLabel* subscribersLabel;
+    SubscribeWidget* subscribeWidget;
 
     int getDominant(const QList<int>& arr);
     Rgb getDominantRgb(const QImage& img);
-    void setSubscriberCount(const InnertubeEndpoints::ChannelResponse& channelResponse);
+    void setSubscriberCount(const InnertubeEndpoints::ChannelResponse& channelResp);
+    void setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& channelResp);
 private slots:
     void setBanner(const HttpReply& reply);
     void setIcon(const HttpReply& reply);

@@ -37,6 +37,7 @@ SOURCES += \
     src/qttubeapplication.cpp \
     src/settingsstore.cpp \
     src/ui/browsehelper.cpp \
+    src/ui/channelbrowser.cpp \
     src/ui/uiutilities.cpp \
     src/ui/forms/mainwindow.cpp \
     src/ui/forms/settingsform.cpp \
@@ -57,6 +58,7 @@ HEADERS += \
     src/settingsstore.h \
     src/ui/browsehelper.h \
     src/ui/browsehelper.tpp \
+    src/ui/channelbrowser.h \
     src/ui/uiutilities.h \
     src/ui/forms/mainwindow.h \
     src/ui/forms/settingsform.h \

@@ -1,5 +1,6 @@
 #include "browsevideorenderer.h"
 #include "innertube.h"
+#include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
 #include "ui/views/channelview.h"
 #include "ui/views/watchview.h"
@@ -34,8 +35,8 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
 
     connect(channelLabel->text, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
     connect(channelLabel->text, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showChannelContextMenu);
-    connect(thumbLabel, &TubeLabel::clicked, this, [this] { WatchView::instance()->loadVideo(videoId, progress); });
-    connect(titleLabel, &TubeLabel::clicked, this, [this] { WatchView::instance()->loadVideo(videoId, progress); });
+    connect(thumbLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
+    connect(titleLabel, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateVideo);
     connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showTitleContextMenu);
 }
 
@@ -84,12 +85,22 @@ void BrowseVideoRenderer::navigateChannel()
 {
     try
     {
-        ChannelView::instance()->loadChannel(channelId);
+        if (MainWindow::centralWidget()->currentIndex() == 2)
+            ChannelView::instance()->hotLoadChannel(channelId);
+        else
+            ChannelView::instance()->loadChannel(channelId);
     }
     catch (const InnertubeException& ie)
     {
         QMessageBox::critical(this, "Failed to load channel", ie.message());
     }
+}
+
+void BrowseVideoRenderer::navigateVideo()
+{
+    if (MainWindow::centralWidget()->currentIndex() == 2)
+        ChannelView::instance()->clear();
+    WatchView::instance()->loadVideo(videoId, progress);
 }
 
 void BrowseVideoRenderer::setChannelData(const InnertubeObjects::VideoOwner& owner)

@@ -1,13 +1,46 @@
 #include "browsehelper.h"
+#include "channelbrowser.h"
 #include "http.h"
 #include "protobuf/simpleprotobuf.h"
 #include "settingsstore.h"
 #include "ui/forms/mainwindow.h"
-#include "ui/widgets/browsechannelrenderer.h"
 #include "ui/widgets/browsenotificationrenderer.h"
-#include "ui/widgets/browsevideorenderer.h"
 #include <QApplication>
 #include <QListWidgetItem>
+
+void BrowseHelper::browseChannel(QListWidget* channelTab, int index, const InnertubeEndpoints::ChannelResponse& channelResp)
+{
+    QJsonValue tabRenderer = channelResp.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
+    if (!tabRenderer["selected"].toBool())
+    {
+        QString params = tabRenderer["endpoint"]["browseEndpoint"]["params"].toString();
+        auto bc = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelResp.metadata.externalId, "", params);
+        tabRenderer = bc.response.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
+    }
+
+    try
+    {
+        QString title = tabRenderer["title"].toString();
+        if (title == "Home")
+            ChannelBrowser::instance().setupHome(channelTab, tabRenderer, channelResp);
+        else if (title == "Videos")
+            ChannelBrowser::instance().setupVideos(channelTab, tabRenderer, channelResp);
+        else if (title == "Shorts")
+            ChannelBrowser::instance().setupShorts(channelTab, tabRenderer, channelResp);
+        else if (title == "Live")
+            ChannelBrowser::instance().setupLive(channelTab, tabRenderer, channelResp);
+        else if (title == "Channels")
+            ChannelBrowser::instance().setupChannels(channelTab, tabRenderer);
+        else if (title == "About")
+            ChannelBrowser::instance().setupAbout(channelTab, tabRenderer);
+        else
+            ChannelBrowser::instance().setupUnimplemented(channelTab);
+    }
+    catch (const InnertubeException& ie)
+    {
+        QMessageBox::critical(nullptr, "Failed to get channel tab data", ie.message());
+    }
+}
 
 void BrowseHelper::browseHistory(QListWidget* historyWidget, const QString& query)
 {
@@ -157,21 +190,11 @@ void BrowseHelper::search(QListWidget* searchWidget, const QString& query, int d
     });
 }
 
-void BrowseHelper::setupChannelList(const QList<InnertubeObjects::SearchChannel>& channels, QListWidget* widget)
+void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget)
 {
-    for (const InnertubeObjects::SearchChannel& channel : channels)
+    for (const InnertubeObjects::Channel& channel : channels)
     {
-        BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
-        renderer->setData(channel.channelId, channel.descriptionSnippet.text, channel.title.text, channel.subscribed,
-                          channel.subscriberCountText.text, channel.videoCountText.text);
-
-        QListWidgetItem* item = new QListWidgetItem(widget);
-        item->setSizeHint(renderer->sizeHint());
-        widget->addItem(item);
-        widget->setItemWidget(item, renderer);
-
-        HttpReply* reply = Http::instance().get(channel.thumbnails.last().url);
-        QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
+        ChannelBrowser::instance().addChannelRendererFromChannel(widget, channel);
     }
 }
 
@@ -213,17 +236,6 @@ void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, 
             lastShelf = video.shelf.text;
         }
 
-        BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
-        renderer->setChannelData(video.owner);
-        renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.startTimeSeconds, video.title.text, video.videoId,
-                               SettingsStore::instance().condensedViews ? video.shortViewCountText.text : video.viewCountText.text);
-
-        QListWidgetItem* item = new QListWidgetItem(widget);
-        item->setSizeHint(renderer->sizeHint());
-        widget->addItem(item);
-        widget->setItemWidget(item, renderer);
-
-        HttpReply* reply = Http::instance().get(video.thumbnail.mqdefault);
-        QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
+        ChannelBrowser::instance().addVideoRendererFromVideo(widget, video);
     }
 }

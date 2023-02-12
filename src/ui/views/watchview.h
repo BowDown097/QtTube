@@ -3,7 +3,6 @@
 #include "httpreply.h"
 #include "innertube/endpoints/video/next.h"
 #include "innertube/endpoints/video/player.h"
-#include "innertube/objects/video/secondaryinfo/videosecondaryinfo.h"
 #include "innertube/responses/video/updatedmetadataresponse.h"
 #include "ui/widgets/channellabel.h"
 #include "ui/widgets/iconlabel.h"
@@ -14,7 +13,6 @@
 #include <QVBoxLayout>
 
 #ifdef USEMPV
-#include "innertube/responses/video/playerresponse.h"
 #include "lib/media/media.h"
 #else
 #include "webengineplayer.h"
@@ -46,7 +44,6 @@ private:
     TubeLabel* channelIcon;
     QString channelId;
     ChannelLabel* channelLabel;
-    QString currentVideoId;
     IconLabel* dislikeLabel;
     QProgressBar* likeBar;
     QHBoxLayout* likeBarWrapper;

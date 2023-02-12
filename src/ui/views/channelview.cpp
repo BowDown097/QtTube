@@ -2,9 +2,11 @@
 #include "http.h"
 #include "innertube.h"
 #include "settingsstore.h"
+#include "ui/browsehelper.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
 #include <QApplication>
+#include <QScrollBar>
 
 ChannelView* ChannelView::instance()
 {
@@ -13,20 +15,25 @@ ChannelView* ChannelView::instance()
     return m_channelView;
 }
 
-void ChannelView::goBack()
+void ChannelView::clear()
 {
     MainWindow::topbar()->alwaysShow = true;
     MainWindow::topbar()->updatePalette(qApp->palette().alternateBase().color());
-    MainWindow::centralWidget()->setCurrentIndex(0);
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
-
     UIUtilities::clearLayout(pageLayout);
     pageLayout->deleteLater();
+}
+
+void ChannelView::goBack()
+{
+    clear();
+    MainWindow::centralWidget()->setCurrentIndex(0);
 }
 
 void ChannelView::loadChannel(const QString& channelId)
 {
     auto channelResp = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
+    this->channelId = channelId;
 
     MainWindow::centralWidget()->setCurrentIndex(2);
 
@@ -53,12 +60,10 @@ void ChannelView::loadChannel(const QString& channelId)
     channelIcon->setFixedSize(55, 48);
     metaHbox->addWidget(channelIcon);
 
-    channelName = new TubeLabel(this);
-    channelName->setText(channelResp.header.title);
+    channelName = new TubeLabel(channelResp.header.title, this);
     metaVbox->addWidget(channelName);
 
-    handleAndVideos = new TubeLabel(this);
-    handleAndVideos->setText(channelResp.header.channelHandleText.text + " • " + channelResp.header.videosCountText.text);
+    handleAndVideos = new TubeLabel(channelResp.header.channelHandleText.text + " • " + channelResp.header.videosCountText.text, this);
     handleAndVideos->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
     metaVbox->addWidget(handleAndVideos);
 
@@ -91,20 +96,33 @@ void ChannelView::loadChannel(const QString& channelId)
     pageLayout->addWidget(channelHeaderWidget);
 
     channelTabs = new QTabWidget(this);
+    channelTabs->tabBar()->setAutoFillBackground(true);
+    channelTabs->tabBar()->setDocumentMode(true);
+    channelTabs->tabBar()->setExpanding(false);
     pageLayout->addWidget(channelTabs);
+    setTabsAndStyles(channelResp);
 
     MainWindow::topbar()->alwaysShow = false;
     MainWindow::topbar()->setVisible(false);
     connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
+}
 
-    if (!channelResp.header.banners.isEmpty())
-    {
-        HttpReply* bannerReply = Http::instance().get(channelResp.header.banners[0].url);
-        connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
-    }
+void ChannelView::hotLoadChannel(const QString& channelId)
+{
+    if (this->channelId == channelId)
+        return;
 
-    HttpReply* iconReply = Http::instance().get(channelResp.header.avatars[0].url);
-    connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
+    auto channelResp = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
+    this->channelId = channelId;
+
+    channelName->setText(channelResp.header.title);
+    handleAndVideos->setText(channelResp.header.channelHandleText.text + " • " + channelResp.header.videosCountText.text);
+    subscribeWidget->setSubscribeButton(channelResp.header.subscribeButton);
+    setSubscriberCount(channelResp);
+
+    disconnect(channelTabs, &QTabWidget::currentChanged, nullptr, nullptr);
+    channelTabs->clear();
+    setTabsAndStyles(channelResp);
 }
 
 // below 2 methods courtesy of https://stackoverflow.com/a/61581999 (with some improvements)
@@ -157,6 +175,7 @@ void ChannelView::setBanner(const HttpReply& reply)
         Rgb domRgb = getDominantRgb(pixmap.toImage());
         QPalette domPal(QColor(domRgb.r, domRgb.g, domRgb.b));
         channelHeaderWidget->setPalette(domPal);
+        channelTabs->tabBar()->setPalette(domPal);
         subscribersLabel->setPalette(domPal);
         subscribeWidget->setPreferredPalette(domPal);
         MainWindow::topbar()->updatePalette(domPal);
@@ -203,4 +222,39 @@ void ChannelView::setSubscriberCount(const InnertubeEndpoints::ChannelResponse& 
         subscribersLabel->setText(QLocale::system().toString(subs));
         subscribersLabel->adjustSize();
     });
+}
+
+void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& channelResp)
+{
+    connect(channelTabs, &QTabWidget::currentChanged, this, [this, channelResp](int index) {
+        for (QListWidget* l : channelTabs->findChildren<QListWidget*>())
+            l->clear();
+        QListWidget* list = channelTabs->widget(index)->findChild<QListWidget*>();
+        BrowseHelper::instance().browseChannel(list, index, channelResp);
+    });
+
+    const QJsonArray tabs = channelResp.contents["twoColumnBrowseResultsRenderer"]["tabs"].toArray();
+    for (const QJsonValue& v : tabs)
+    {
+        if (!v.toObject().contains("tabRenderer"))
+            continue;
+
+        QWidget* tab = new QWidget;
+        QGridLayout* grid = new QGridLayout(tab);
+        grid->setContentsMargins(0, 0, 0, 0);
+        QListWidget* list = new QListWidget(tab);
+        list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        list->verticalScrollBar()->setSingleStep(25);
+        grid->addWidget(list, 0, 0, 1, 1);
+        channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
+    }
+
+    if (!channelResp.header.banners.isEmpty())
+    {
+        HttpReply* bannerReply = Http::instance().get(channelResp.header.banners[0].url);
+        connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
+    }
+
+    HttpReply* iconReply = Http::instance().get(channelResp.header.avatars[0].url);
+    connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
 }

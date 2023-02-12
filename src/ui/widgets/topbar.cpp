@@ -137,5 +137,7 @@ void TopBar::updatePalette(const QPalette& palette)
     preferDark = palette.color(QPalette::Window).lightness() < 60;
     logo->setPixmap(QPixmap(preferDark ? ":/qttube-full-light.png" : ":/qttube-full.png"));
     settingsButton->setPixmap(QPixmap(preferDark ? ":/settings-light.png" : ":/settings.png"));
-    updateNotificationCount();
+    notificationBell->setPixmap(notificationCount->isVisible()
+                                ? QPixmap(preferDark ? ":/notif-bell-hasnotif-light.png" : ":/notif-bell-hasnotif.png")
+                                : QPixmap(preferDark ? ":/notif-bell-light.png" : ":/notif-bell.png"));
 }

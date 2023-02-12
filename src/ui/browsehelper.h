@@ -1,18 +1,18 @@
 #ifndef BROWSEHELPER_H
 #define BROWSEHELPER_H
 #include "innertube/endpoints/base/baseendpoint.h"
-#include "innertube/objects/channel/searchchannel.h"
+#include "innertube/objects/channel/channel.h"
 #include "innertube/objects/notification/notification.h"
 #include "innertube/objects/video/video.h"
+#include "innertube/responses/browse/channelresponse.h"
 #include <QListWidget>
 #include <type_traits>
 
 class BrowseHelper
 {
-    bool continuationOngoing = false;
-    QString continuationToken;
 public:
     static BrowseHelper& instance() { static BrowseHelper bh; return bh; }
+    void browseChannel(QListWidget* channelTab, int index, const InnertubeEndpoints::ChannelResponse& channelResp);
     void browseHistory(QListWidget* historyWidget, const QString& query = "");
     void browseHome(QListWidget* homeWidget);
     void browseNotificationMenu(QListWidget* menuWidget);
@@ -23,10 +23,12 @@ public:
     template<typename T> requires std::derived_from<T, InnertubeEndpoints::BaseEndpoint>
     void tryContinuation(int value, QListWidget* widget, const QString& data = "", int threshold = 10);
 private:
-    void setupChannelList(const QList<InnertubeObjects::SearchChannel>& channels, QListWidget* widget);
+    void setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget);
     void setupNotificationList(const QList<InnertubeObjects::Notification>& notifications, QListWidget* widget);
     void setupVideoList(const QList<InnertubeObjects::Video>& videos, QListWidget* widget);
 
+    bool continuationOngoing = false;
+    QString continuationToken;
     QMap<int, QString> featureMap = {
         { 0, "isLive" },
         { 1, "is4K" },

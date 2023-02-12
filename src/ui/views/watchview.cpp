@@ -72,7 +72,6 @@ void WatchView::goBack()
 void WatchView::loadVideo(const QString& videoId, int progress)
 {
     MainWindow::centralWidget()->setCurrentIndex(1);
-    currentVideoId = videoId;
 
     pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
@@ -215,8 +214,6 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 
 void WatchView::hotLoadVideo(const QString& videoId)
 {
-    currentVideoId = videoId;
-
 #ifdef USEMPV
     media->play("https://www.youtube.com/watch?v=" + videoId);
     watchtimeTimer->deleteLater();
@@ -307,7 +304,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     if (SettingsStore::instance().returnDislikes)
     {
-        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + currentVideoId);
+        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + nextResp.videoId);
         connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
             QJsonDocument doc = QJsonDocument::fromJson(reply.body());
             int dislikes = doc["dislikes"].toInt();
@@ -333,7 +330,7 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 {
     InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
 
-    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(currentVideoId);
+    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(playerResp.videoDetails.videoId);
     connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
     connect(next, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
     {
@@ -363,9 +360,9 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
     {
         metadataUpdateTimer = new QTimer;
         metadataUpdateTimer->setInterval(60000);
-        connect(metadataUpdateTimer, &QTimer::timeout, this, [this]
+        connect(metadataUpdateTimer, &QTimer::timeout, this, [playerResp, this]
         {
-            auto updatedMetadata = InnerTube::instance().getBlocking<InnertubeEndpoints::UpdatedMetadata>(currentVideoId);
+            auto updatedMetadata = InnerTube::instance().getBlocking<InnertubeEndpoints::UpdatedMetadata>(playerResp.videoDetails.videoId);
             updateMetadata(updatedMetadata.response);
         });
         metadataUpdateTimer->start();
@@ -531,7 +528,7 @@ void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse
 
     if (SettingsStore::instance().returnDislikes)
     {
-        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + currentVideoId);
+        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + resp.videoId);
         connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
             QJsonDocument doc = QJsonDocument::fromJson(reply.body());
             int dislikes = doc["dislikes"].toInt();
