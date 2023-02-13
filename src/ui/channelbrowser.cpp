@@ -245,11 +245,11 @@ void ChannelBrowser::addBoldLabel(QListWidget* list, const QString& text)
     list->setItemWidget(item, label);
 }
 
-// this method exists as opposed to just using the (QString, QListWidget*) constructor because there's weird text padding
-// when using that constructor, but not when just using a normal ol' QLabel item. cool feature!
 void ChannelBrowser::addLabel(QListWidget* list, const QString& text)
 {
     QLabel* label = new QLabel(text);
+    label->setWordWrap(true);
+
     QListWidgetItem* item = new QListWidgetItem(list);
     item->setSizeHint(label->sizeHint());
     list->addItem(item);
