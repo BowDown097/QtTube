@@ -58,9 +58,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ui->centralwidget->addWidget(WatchView::instance());
     ui->centralwidget->addWidget(ChannelView::instance());
-
     ui->tabWidget->setCurrentIndex(5); // just some blank tab so you can pick one
-    setWindowTitle("QtTube");
 }
 
 void MainWindow::browse()

@@ -29,6 +29,14 @@ void UIUtilities::copyToClipboard(const QString& text)
 #endif
 }
 
+void UIUtilities::elide(QLabel* label, int targetWidth)
+{
+    QFontMetrics fm(label->font());
+    QString elidedText = fm.elidedText(label->text(), Qt::ElideRight, targetWidth);
+    label->setFixedWidth(targetWidth);
+    label->setText(elidedText);
+}
+
 // this will be used for the description and perhaps elsewhere
 void UIUtilities::setMaximumLines(QWidget* widget, int lines)
 {

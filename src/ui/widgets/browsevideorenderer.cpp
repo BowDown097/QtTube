@@ -114,6 +114,7 @@ void BrowseVideoRenderer::setThumbnail(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     thumbLabel->setPixmap(pixmap.scaled(240, thumbLabel->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    UIUtilities::elide(titleLabel, targetElisionWidth);
 }
 
 void BrowseVideoRenderer::setVideoData(const QString& length, const QString& publishedTime, int progress, QString title,
@@ -132,7 +133,7 @@ void BrowseVideoRenderer::setVideoData(const QString& length, const QString& pub
     list.removeAll({});
 
     metadataLabel->setText(list.join(" • "));
-    titleLabel->setText(title.length() <= 60 ? title : title.left(60) + "…");
+    titleLabel->setText(title);
     titleLabel->setToolTip(title);
 }
 

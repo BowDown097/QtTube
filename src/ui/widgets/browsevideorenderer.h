@@ -8,18 +8,10 @@
 class BrowseVideoRenderer : public QWidget
 {
     Q_OBJECT
-    QString channelId;
-    ChannelLabel* channelLabel;
-    QHBoxLayout* hbox;
-    TubeLabel* metadataLabel;
-    int progress;
-    QVBoxLayout* textVbox;
-    TubeLabel* thumbLabel;
-    TubeLabel* titleLabel;
-    QString videoId;
 public:
     explicit BrowseVideoRenderer(QWidget* parent = nullptr);
     void setChannelData(const InnertubeObjects::VideoOwner& owner);
+    void setTargetElisionWidth(int width) { targetElisionWidth = width; }
     void setVideoData(const QString& length, const QString& publishedTime, int progress, QString title, const QString& videoId,
                       const QString& viewCount);
 public slots:
@@ -32,6 +24,17 @@ private slots:
     void navigateVideo();
     void showChannelContextMenu(const QPoint& pos);
     void showTitleContextMenu(const QPoint& pos);
+private:
+    QString channelId;
+    ChannelLabel* channelLabel;
+    QHBoxLayout* hbox;
+    TubeLabel* metadataLabel;
+    int progress;
+    int targetElisionWidth;
+    QVBoxLayout* textVbox;
+    TubeLabel* thumbLabel;
+    TubeLabel* titleLabel;
+    QString videoId;
 };
 
 #endif // BROWSEVIDEORENDERER_H

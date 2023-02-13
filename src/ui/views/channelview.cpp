@@ -243,6 +243,7 @@ void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& ch
         QGridLayout* grid = new QGridLayout(tab);
         grid->setContentsMargins(0, 0, 0, 0);
         QListWidget* list = new QListWidget(tab);
+        list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         list->verticalScrollBar()->setSingleStep(25);
         grid->addWidget(list, 0, 0, 1, 1);

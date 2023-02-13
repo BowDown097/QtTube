@@ -207,6 +207,7 @@ void ChannelBrowser::addVideoRendererFromReel(QListWidget* list, const Innertube
 {
     BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
     renderer->setChannelData(reel.owner);
+    renderer->setTargetElisionWidth(list->width() - 240);
     renderer->setVideoData("SHORTS", "", 0, reel.headline, reel.videoId, reel.viewCountText.text);
 
     QListWidgetItem* item = new QListWidgetItem(list);
@@ -222,6 +223,7 @@ void ChannelBrowser::addVideoRendererFromVideo(QListWidget* list, const Innertub
 {
     BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
     renderer->setChannelData(video.owner);
+    renderer->setTargetElisionWidth(list->width() - 240);
     renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.startTimeSeconds, video.title.text,
         video.videoId, SettingsStore::instance().condensedViews ? video.shortViewCountText.text : video.viewCountText.text);
 
