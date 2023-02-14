@@ -17,7 +17,6 @@ QtTube is a Qt frontend for YouTube, made in C++. It aims to provide all of the 
 This list is ordered by priority. Everything will likely be added in this order.
 - Description, recommendations, etc. on watch page
 - Account menu
-- Channel pages
 - Switch video player from an embed of YouTube's player to one based off of libmpv
 - Subscriptions/history export
 
@@ -32,11 +31,11 @@ This program makes use of:
 - [QWebEngineYtPlayer](https://github.com/keshavbhatt/QWebengineYtPlayer) - For the YouTube-embed-based player. Pretty heavily modified but still, credit where credit's due.
 
 # Screenshots
-As of January 15th, 2023. Depending on how long it's been since said date, things may look different and/or have more content.
+As of February 14th, 2023. Depending on how long it's been since said date, things may look different and/or have more content.
 <div display="flex">
-<img src="https://user-images.githubusercontent.com/42720004/212549629-483b4b1e-3f13-41e5-a977-9547da459662.png" width="348" height="261" />
-<img src="https://user-images.githubusercontent.com/42720004/212549633-e2068701-fdcf-41ad-a5b7-1708cb653bd3.png" width="348" height="261" />
-<img src="https://user-images.githubusercontent.com/42720004/212549635-64c33a5f-43a1-429e-a1bd-b4c336cf3b9a.png" width="348" height="261" />
-<img src="https://user-images.githubusercontent.com/42720004/212549642-d21ff391-b7f2-41e8-8c84-32f1c248a09e.png" width="348" height="261" />
-<img src="https://user-images.githubusercontent.com/42720004/212549638-f6e06ad6-4b8b-4734-bf03-b50eaf76054d.png" width="261" height="261" />
+<img src="https://user-images.githubusercontent.com/42720004/218771944-0bbc6274-b035-49db-9164-25362063f830.png" width="348" height="261" />
+<img src="https://user-images.githubusercontent.com/42720004/218772018-54a62777-3b73-4691-b1f1-e86d32a57805.png" width="348" height="261" />
+<img src="https://user-images.githubusercontent.com/42720004/218772094-a689e1d8-ff9c-4013-b9ab-06f267e9cc52.png" width="348" height="261" />
+<img src="https://user-images.githubusercontent.com/42720004/218772224-d292ee5f-0c1a-4a7a-8beb-e5da35d213b3.png" width="348" height="261" />
+<img src="https://user-images.githubusercontent.com/42720004/218772152-bae43dd9-5950-4872-9f38-07c518d5d865.png" width="311" height="261" />
 </div>
