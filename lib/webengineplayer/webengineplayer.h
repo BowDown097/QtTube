@@ -40,9 +40,15 @@ function waitForElement(selector) {
     });
 }
 
-document.addEventListener("click", function(e) {
+document.addEventListener("mousedown", function(e) {
+    const coveringOverlay = e.target.closest(".ytp-ce-covering-overlay");
     const videowallStill = e.target.closest(".ytp-videowall-still");
-    if (videowallStill != null) {
+    if (coveringOverlay != null) {
+        new QWebChannel(qt.webChannelTransport, function(channel) {
+            const params = new URLSearchParams(coveringOverlay.search);
+            channel.objects.methods.switchWatchViewVideo(params.get("v"));
+        });
+    } else if (videowallStill != null) {
         new QWebChannel(qt.webChannelTransport, function(channel) {
             const params = new URLSearchParams(videowallStill.search);
             channel.objects.methods.switchWatchViewVideo(params.get("v"));
