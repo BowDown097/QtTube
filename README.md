@@ -1,10 +1,4 @@
 ![QtTube Logo](https://user-images.githubusercontent.com/42720004/192839093-ff0565f2-862f-4cee-a026-5cc0cadb20b5.png)
-<p align="center">
-  <img src="https://img.shields.io/codefactor/grade/github/BowDown097/QtTube" />
-  <a href="https://hitsofcode.com/github/BowDown097/QtTube/view">
-    <img src="https://hitsofcode.com/github/BowDown097/QtTube" />
-  </a>
-</p>
 
 QtTube is a Qt frontend for YouTube, made in C++. It aims to provide all of the features of the YouTube website, many of which other frontends do not include, while maintaining as much privacy as possible.
 
