@@ -41,7 +41,7 @@ void UIUtilities::elide(QLabel* label, int targetWidth)
 void UIUtilities::setMaximumLines(QWidget* widget, int lines)
 {
     QFontMetrics fm(qApp->font());
-    widget->setFixedHeight(fm.lineSpacing() * lines);
+    widget->setMaximumHeight(fm.lineSpacing() * lines);
 }
 
 void UIUtilities::setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes)

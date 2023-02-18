@@ -9,6 +9,8 @@
 #include "ui/widgets/subscribewidget.h"
 #include "ui/widgets/tubelabel.h"
 #include <QProgressBar>
+#include <QScrollArea>
+#include <QSpacerItem>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -37,6 +39,7 @@ private slots:
     void processNext(const InnertubeEndpoints::Next& endpoint);
     void processPlayer(const InnertubeEndpoints::Player& endpoint);
     void showContextMenu(const QPoint& pos);
+    void toggleShowMore();
 private:
     WatchView() {}
     static inline WatchView* m_watchView;
@@ -44,17 +47,22 @@ private:
     TubeLabel* channelIcon;
     QString channelId;
     ChannelLabel* channelLabel;
+    TubeLabel* date;
+    TubeLabel* description;
     IconLabel* dislikeLabel;
+    QFrame* frame;
+    QSpacerItem* infoSpacer;
     QProgressBar* likeBar;
     QHBoxLayout* likeBarWrapper;
     IconLabel* likeLabel;
     QVBoxLayout* menuVbox;
     QWidget* menuWrapper;
     QTimer* metadataUpdateTimer = nullptr;
-    QVBoxLayout* pageLayout;
     QHBoxLayout* primaryInfoHbox;
     QVBoxLayout* primaryInfoVbox;
     QWidget* primaryInfoWrapper;
+    QScrollArea* scrollArea;
+    TubeLabel* showMoreLabel;
     QHBoxLayout* subscribeHbox;
     SubscribeWidget* subscribeWidget;
     TubeLabel* subscribersLabel;

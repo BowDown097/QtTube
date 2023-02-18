@@ -57,8 +57,8 @@ void WatchView::goBack()
     MainWindow::centralWidget()->setCurrentIndex(0);
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
 
-    UIUtilities::clearLayout(pageLayout);
-    pageLayout->deleteLater();
+    UIUtilities::clearLayout(frame->layout());
+    frame->layout()->deleteLater();
     toggleIdleSleep(false);
 
     if (metadataUpdateTimer)
@@ -73,9 +73,21 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 {
     MainWindow::centralWidget()->setCurrentIndex(1);
 
-    pageLayout = new QVBoxLayout(this);
-    pageLayout->setContentsMargins(0, 0, 0, 0);
-    pageLayout->setSpacing(5);
+    scrollArea = new QScrollArea(this);
+    scrollArea->setFixedSize(size());
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->show();
+
+    // it seems, for whatever reason, if i just use a QVBoxLayout as opposed to one wrapped in a frame,
+    // it does not resize, meaning all the content is just squished.
+    frame = new QFrame(scrollArea);
+    frame->setLayout(new QVBoxLayout);
+    frame->layout()->setContentsMargins(0, 0, 0, 0);
+    frame->layout()->setSpacing(5);
+    scrollArea->setWidget(frame);
 
     QSize playerSize = calcPlayerSize();
 
@@ -94,7 +106,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     media->seek(progress);
     media->setVolume(SettingsStore::instance().preferredVolume);
     media->videoWidget()->setFixedSize(playerSize);
-    pageLayout->addWidget(media->videoWidget());
+    frame->layout()->addWidget(media->videoWidget());
 
     connect(media, &Media::error, this, [this](const QString& message) { QMessageBox::warning(this, "Media error", message); });
     connect(media, &Media::stateChanged, this, &WatchView::mediaStateChanged);
@@ -105,14 +117,14 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     wePlayer->setContext(InnerTube::instance().context());
     wePlayer->setFixedSize(playerSize);
     wePlayer->play(videoId, progress);
-    pageLayout->addWidget(wePlayer);
+    frame->layout()->addWidget(wePlayer);
 #endif
 
     titleLabel = new TubeLabel(this);
     titleLabel->setFixedWidth(playerSize.width());
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 4));
     titleLabel->setWordWrap(true);
-    pageLayout->addWidget(titleLabel);
+    frame->layout()->addWidget(titleLabel);
 
     { // begin primaryInfoHbox
         primaryInfoHbox = new QHBoxLayout(this);
@@ -128,8 +140,8 @@ void WatchView::loadVideo(const QString& videoId, int progress)
             primaryInfoVbox = new QVBoxLayout(this);
 
             channelLabel = new ChannelLabel(this);
-            connect(channelLabel->text, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
             primaryInfoVbox->addWidget(channelLabel);
+            connect(channelLabel->text, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
 
             { // begin subscribeHbox
                 subscribeHbox = new QHBoxLayout(this);
@@ -155,7 +167,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
         primaryInfoWrapper = new QWidget(this);
         primaryInfoWrapper->setFixedWidth(playerSize.width());
         primaryInfoWrapper->setLayout(primaryInfoHbox);
-        pageLayout->addWidget(primaryInfoWrapper);
+        frame->layout()->addWidget(primaryInfoWrapper);
     } // end primaryInfoHbox
 
     { // begin menuVbox
@@ -164,7 +176,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
         menuVbox->setSpacing(3);
 
         viewCount = new TubeLabel(this);
-        viewCount->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+        viewCount->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         viewCount->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 3));
         menuVbox->addWidget(viewCount);
 
@@ -172,7 +184,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
         {
             // i have to wrap the like bar for alignment to work... cringe!
             likeBarWrapper = new QHBoxLayout(this);
-            likeBarWrapper->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+            likeBarWrapper->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
             likeBar = new QProgressBar(this);
             likeBar->setFixedSize(155, 2);
@@ -201,10 +213,32 @@ void WatchView::loadVideo(const QString& videoId, int progress)
         menuWrapper = new QWidget(this);
         menuWrapper->setFixedWidth(playerSize.width());
         menuWrapper->setLayout(menuVbox);
-        pageLayout->addWidget(menuWrapper);
+        frame->layout()->addWidget(menuWrapper);
     } // end menuVbox
 
-    pageLayout->addStretch(); // disable the layout from stretching on resize
+    infoSpacer = new QSpacerItem(20, 20);
+    frame->layout()->addItem(infoSpacer);
+
+    date = new TubeLabel(this);
+    date->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+    frame->layout()->addWidget(date);
+
+    description = new TubeLabel(this);
+    description->setFixedWidth(playerSize.width());
+    description->setWordWrap(true);
+    UIUtilities::setMaximumLines(description, 3);
+    frame->layout()->addWidget(description);
+
+    showMoreLabel = new TubeLabel(this);
+    showMoreLabel->setAlignment(Qt::AlignCenter);
+    showMoreLabel->setClickable(true, false);
+    showMoreLabel->setFixedWidth(playerSize.width());
+    showMoreLabel->setStyleSheet("border-top: 1px solid " + qApp->palette().text().color().name());
+    showMoreLabel->setText("SHOW MORE");
+    frame->layout()->addWidget(showMoreLabel);
+    connect(showMoreLabel, &TubeLabel::clicked, this, &WatchView::toggleShowMore);
+
+    qobject_cast<QVBoxLayout*>(frame->layout())->addStretch(); // disable the layout from stretching on resize
 
     toggleIdleSleep(true);
     MainWindow::topbar()->setVisible(false);
@@ -244,8 +278,8 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
         toggleIdleSleep(false);
         navigateChannel();
-        UIUtilities::clearLayout(pageLayout);
-        pageLayout->deleteLater();
+        UIUtilities::clearLayout(frame->layout());
+        frame->layout()->deleteLater();
     });
 
     subscribersLabel->setStyleSheet(R"(
@@ -324,6 +358,13 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     {
         likeLabel->setText(nextResp.primaryInfo.videoActions.likeButton.defaultText.text);
     }
+
+    QString dateText = nextResp.primaryInfo.dateText.text;
+    if (!dateText.startsWith("Premier") && !dateText.startsWith("Stream") && !dateText.startsWith("Start") && !dateText.startsWith("Sched"))
+        dateText = "Published on " + dateText;
+    date->setText(dateText);
+
+    description->setText(nextResp.secondaryInfo.description.text);
 }
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
@@ -374,8 +415,10 @@ void WatchView::resizeEvent(QResizeEvent* event)
     if (!primaryInfoWrapper || !event->oldSize().isValid()) return;
 
     QSize playerSize = calcPlayerSize();
+    description->setFixedWidth(playerSize.width());
     menuWrapper->setFixedWidth(playerSize.width());
     primaryInfoWrapper->setFixedWidth(playerSize.width());
+    showMoreLabel->setFixedWidth(playerSize.width());
     titleLabel->setFixedWidth(playerSize.width());
 
 #ifdef USEMPV
@@ -383,6 +426,8 @@ void WatchView::resizeEvent(QResizeEvent* event)
 #else
     wePlayer->setFixedSize(playerSize);
 #endif
+
+    scrollArea->setFixedSize(event->size());
 }
 
 QSize WatchView::calcPlayerSize()
@@ -519,6 +564,20 @@ void WatchView::toggleIdleSleep(bool toggle)
 #else
     qDebug() << "Failed to toggle idle sleep: Unsupported OS";
 #endif // non-mac unix check
+}
+
+void WatchView::toggleShowMore()
+{
+    if (showMoreLabel->text() == "SHOW MORE")
+    {
+        description->setMaximumHeight(QWIDGETSIZE_MAX);
+        showMoreLabel->setText("SHOW LESS");
+    }
+    else
+    {
+        UIUtilities::setMaximumLines(description, 3);
+        showMoreLabel->setText("SHOW MORE");
+    }
 }
 
 void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)

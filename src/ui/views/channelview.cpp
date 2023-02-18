@@ -71,7 +71,7 @@ void ChannelView::loadChannel(const QString& channelId)
     channelHeader->addLayout(metaHbox);
 
     subscribeHbox = new QHBoxLayout(this);
-    subscribeHbox->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+    subscribeHbox->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     subscribeHbox->setContentsMargins(0, 0, 0, 0);
     subscribeHbox->setSpacing(0);
 
