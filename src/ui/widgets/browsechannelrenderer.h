@@ -7,13 +7,6 @@
 class BrowseChannelRenderer : public QWidget
 {
     Q_OBJECT
-    QString channelId;
-    TubeLabel* descriptionLabel;
-    QHBoxLayout* hbox;
-    TubeLabel* metadataLabel;
-    QVBoxLayout* textVbox;
-    TubeLabel* thumbLabel;
-    TubeLabel* titleLabel;
 public:
     explicit BrowseChannelRenderer(QWidget* parent = nullptr);
     void setData(const QString& channelId, const QString& descriptionSnippet, const QString& name, bool subbed,
@@ -24,6 +17,14 @@ private slots:
     void copyChannelUrl();
     void navigateChannel();
     void showContextMenu(const QPoint& pos);
+private:
+    QString channelId;
+    TubeLabel* descriptionLabel;
+    QHBoxLayout* hbox;
+    TubeLabel* metadataLabel;
+    QVBoxLayout* textVbox;
+    TubeLabel* thumbLabel;
+    TubeLabel* titleLabel;
 };
 
 #endif // BROWSECHANNELRENDERER_H

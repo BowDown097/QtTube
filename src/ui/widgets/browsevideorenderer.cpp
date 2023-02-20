@@ -10,28 +10,30 @@
 
 BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
 {
-    channelLabel = new ChannelLabel(this);
     hbox = new QHBoxLayout(this);
-    metadataLabel = new TubeLabel(this);
-    textVbox = new QVBoxLayout(this);
-    thumbLabel = new TubeLabel(this);
-    titleLabel = new TubeLabel(this);
-
-    textVbox->addWidget(titleLabel);
-    textVbox->addWidget(channelLabel);
-    textVbox->addWidget(metadataLabel);
-
-    hbox->addWidget(thumbLabel);
-    hbox->addLayout(textVbox, 1);
     setLayout(hbox);
 
+    textVbox = new QVBoxLayout(this);
+
+    titleLabel = new TubeLabel(this);
+    titleLabel->setClickable(true, true);
+    titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
+    textVbox->addWidget(titleLabel);
+
+    channelLabel = new ChannelLabel(this);
+    textVbox->addWidget(channelLabel);
+
+    metadataLabel = new TubeLabel(this);
+    textVbox->addWidget(metadataLabel);
+
+    thumbLabel = new TubeLabel(this);
     thumbLabel->setClickable(true, false);
     thumbLabel->setMinimumSize(1, 1);
     thumbLabel->setScaledContents(true);
 
-    titleLabel->setClickable(true, true);
-    titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
+    hbox->addWidget(thumbLabel);
+    hbox->addLayout(textVbox, 1);
 
     connect(channelLabel->text, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);
     connect(channelLabel->text, &TubeLabel::customContextMenuRequested, this, &BrowseVideoRenderer::showChannelContextMenu);
@@ -50,7 +52,8 @@ void BrowseVideoRenderer::copyDirectUrl()
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
     connect(reply, &InnertubeReply::exception, this, [this]
     {
-        QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
+        QMessageBox::critical(this, "Failed to copy to clipboard",
+            "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
     });
     connect(reply, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::Player& endpoint)
     {
@@ -61,13 +64,15 @@ void BrowseVideoRenderer::copyDirectUrl()
         else
         {
             QList<InnertubeObjects::StreamingFormat>::const_iterator best = std::max_element(
-                endpoint.response.streamingData.formats.cbegin(), endpoint.response.streamingData.formats.cend(),
+                endpoint.response.streamingData.formats.cbegin(),
+                endpoint.response.streamingData.formats.cend(),
                 [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; }
             );
 
             if (best == endpoint.response.streamingData.formats.cend())
             {
-                QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
+                QMessageBox::critical(this, "Failed to copy to clipboard",
+                    "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
                 return;
             }
 

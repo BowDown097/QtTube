@@ -1,14 +1,12 @@
 #include "channelbrowser.h"
-#include "http.h"
 #include "innertube/innertubeexception.h"
 #include "innertube/objects/channel/aboutfullmetadata.h"
-#include "settingsstore.h"
-#include "ui/widgets/browsechannelrenderer.h"
-#include "ui/widgets/browsevideorenderer.h"
+#include "uiutilities.h"
 #include "ui/widgets/tubelabel.h"
 #include <QApplication>
-#include <QComboBox>
 #include <QDesktopServices>
+#include <QJsonObject>
+#include <QUrlQuery>
 
 void ChannelBrowser::setupAbout(QListWidget* channelTab, const QJsonValue& tabRenderer)
 {
@@ -19,27 +17,27 @@ void ChannelBrowser::setupAbout(QListWidget* channelTab, const QJsonValue& tabRe
 
     InnertubeObjects::AboutFullMetadata metadata(metadataRenderer);
 
-    addBoldLabel(channelTab, metadata.viewCountText);
-    addLabel(channelTab, metadata.joinedDateText.text);
+    UIUtilities::addBoldLabelToList(channelTab, metadata.viewCountText);
+    UIUtilities::addWrappedLabelToList(channelTab, metadata.joinedDateText.text);
 
     if (metadata.showDescription && !metadata.description.isEmpty())
     {
-        addSeparatorItem(channelTab);
-        addBoldLabel(channelTab, metadata.descriptionLabel.text);
-        addLabel(channelTab, metadata.description);
+        UIUtilities::addSeparatorToList(channelTab);
+        UIUtilities::addBoldLabelToList(channelTab, metadata.descriptionLabel.text);
+        UIUtilities::addWrappedLabelToList(channelTab, metadata.description);
     }
 
     if (!metadata.country.isEmpty())
     {
-        addSeparatorItem(channelTab);
-        addBoldLabel(channelTab, metadata.detailsLabel.text);
-        addLabel(channelTab, metadata.countryLabel.text.trimmed() + " " + metadata.country);
+        UIUtilities::addSeparatorToList(channelTab);
+        UIUtilities::addBoldLabelToList(channelTab, metadata.detailsLabel.text);
+        UIUtilities::addWrappedLabelToList(channelTab, metadata.countryLabel.text.trimmed() + " " + metadata.country);
     }
 
     if (!metadata.primaryLinks.isEmpty())
     {
-        addSeparatorItem(channelTab);
-        addBoldLabel(channelTab, metadata.primaryLinksLabel.text);
+        UIUtilities::addSeparatorToList(channelTab);
+        UIUtilities::addBoldLabelToList(channelTab, metadata.primaryLinksLabel.text);
 
         for (const InnertubeObjects::ChannelHeaderLink& link : metadata.primaryLinks)
         {
@@ -70,23 +68,41 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
         const QJsonArray itemSectionContents = v["itemSectionRenderer"]["contents"].toArray();
         for (const QJsonValue& v2 : itemSectionContents)
         {
-            if (v2.toObject().contains("messageRenderer"))
+            const QJsonObject o2 = v2.toObject();
+            if (o2.contains("gridRenderer"))
             {
-                QListWidgetItem* item = new QListWidgetItem("This channel doesn't feature any other channels.", channelTab);
-                channelTab->addItem(item);
-                return;
+                const QJsonArray gridItems = v2["gridRenderer"]["items"].toArray();
+                for (const QJsonValue& v3 : gridItems)
+                {
+                    if (!v3.toObject().contains("gridChannelRenderer"))
+                        continue;
+
+                    InnertubeObjects::Channel channel(v3["gridChannelRenderer"]);
+                    UIUtilities::addChannelRendererToList(channelTab, channel);
+                }
             }
-
-            const QJsonArray gridItems = v2["gridRenderer"]["items"].toArray();
-            for (const QJsonValue& v3 : gridItems)
+            else if (o2.contains("shelfRenderer"))
             {
-                if (!v3.toObject().contains("gridChannelRenderer"))
-                    continue;
+                UIUtilities::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
+                QJsonArray shelfItems = v2["shelfRenderer"]["content"]["horizontalListRenderer"]["items"].toArray();
+                if (shelfItems.isEmpty()) // if no horizontal list, try expanded contents
+                    shelfItems = v2["shelfRenderer"]["content"]["expandedShelfContentsRenderer"]["items"].toArray();
 
-                InnertubeObjects::Channel channel(v3["gridChannelRenderer"]);
-                addChannelRendererFromChannel(channelTab, channel);
+                for (const QJsonValue& v3 : qAsConst(shelfItems))
+                {
+                    const QJsonObject obj = v3.toObject();
+                    QJsonObject::const_iterator it = obj.begin();
+                    InnertubeObjects::Channel channel(it.value());
+                    UIUtilities::addChannelRendererToList(channelTab, channel);
+                }
             }
         }
+    }
+
+    if (channelTab->count() == 0)
+    {
+        QListWidgetItem* item = new QListWidgetItem("This channel doesn't feature any other channels.", channelTab);
+        channelTab->addItem(item);
     }
 }
 
@@ -101,18 +117,10 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
             if (!v2.toObject().contains("shelfRenderer"))
                 continue;
 
-            QJsonValue shelf = v2["shelfRenderer"];
-            TubeLabel* shelfLabel = new TubeLabel(InnertubeObjects::InnertubeString(shelf["title"]).text);
-            shelfLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
-
-            QListWidgetItem* item = new QListWidgetItem(channelTab);
-            item->setSizeHint(shelfLabel->sizeHint());
-            channelTab->addItem(item);
-            channelTab->setItemWidget(item, shelfLabel);
-
-            QJsonArray list = shelf["content"]["horizontalListRenderer"]["items"].toArray();
+            UIUtilities::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
+            QJsonArray list = v2["shelfRenderer"]["content"]["horizontalListRenderer"]["items"].toArray();
             if (list.isEmpty()) // if no horizontal list, try expanded contents
-                list = shelf["content"]["expandedShelfContentsRenderer"]["items"].toArray();
+                list = v2["shelfRenderer"]["content"]["expandedShelfContentsRenderer"]["items"].toArray();
 
             for (const QJsonValue& v3 : qAsConst(list))
             {
@@ -121,7 +129,7 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
                 if (it.key() == "channelRenderer" || it.key() == "gridChannelRenderer")
                 {
                     InnertubeObjects::Channel channel(it.value());
-                    addChannelRendererFromChannel(channelTab, channel);
+                    UIUtilities::addChannelRendererToList(channelTab, channel);
                 }
                 else if (it.key() == "gridVideoRenderer" || it.key() == "videoRenderer")
                 {
@@ -129,7 +137,7 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
                     InnertubeObjects::Video video(it.value(), it.key() == "gridVideoRenderer");
                     video.owner.id = channelResp.metadata.externalId;
                     video.owner.name = channelResp.metadata.title;
-                    addVideoRendererFromVideo(channelTab, video);
+                    UIUtilities::addVideoRendererToList(channelTab, video);
                 }
             }
         }
@@ -147,7 +155,13 @@ void ChannelBrowser::setupLive(QListWidget* channelTab, const QJsonValue& tabRen
         InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);
         video.owner.id = channelResp.metadata.externalId;
         video.owner.name = channelResp.metadata.title;
-        addVideoRendererFromVideo(channelTab, video);
+        UIUtilities::addVideoRendererToList(channelTab, video);
+    }
+
+    if (channelTab->count() == 0)
+    {
+        QListWidgetItem* item = new QListWidgetItem("This channel has no live streams.", channelTab);
+        channelTab->addItem(item);
     }
 }
 
@@ -162,7 +176,13 @@ void ChannelBrowser::setupShorts(QListWidget* channelTab, const QJsonValue& tabR
         InnertubeObjects::Reel reel(v["richItemRenderer"]["content"]["reelItemRenderer"]);
         reel.owner.id = channelResp.metadata.externalId;
         reel.owner.name = channelResp.metadata.title;
-        addVideoRendererFromReel(channelTab, reel);
+        UIUtilities::addVideoRendererToList(channelTab, reel);
+    }
+
+    if (channelTab->count() == 0)
+    {
+        QListWidgetItem* item = new QListWidgetItem("This channel has no shorts.", channelTab);
+        channelTab->addItem(item);
     }
 }
 
@@ -184,88 +204,12 @@ void ChannelBrowser::setupVideos(QListWidget* channelTab, const QJsonValue& tabR
         InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);
         video.owner.id = channelResp.metadata.externalId;
         video.owner.name = channelResp.metadata.title;
-        addVideoRendererFromVideo(channelTab, video);
+        UIUtilities::addVideoRendererToList(channelTab, video);
     }
-}
 
-void ChannelBrowser::addChannelRendererFromChannel(QListWidget* list, const InnertubeObjects::Channel& channel)
-{
-    BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
-    renderer->setData(channel.channelId, channel.descriptionSnippet.text, channel.title.text, channel.subscribed,
-                      channel.subscriberCountText.text, channel.videoCountText.text);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(renderer->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, renderer);
-
-    HttpReply* reply = Http::instance().get(channel.thumbnails.last().url);
-    QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
-}
-
-void ChannelBrowser::addVideoRendererFromReel(QListWidget* list, const InnertubeObjects::Reel& reel)
-{
-    BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
-    renderer->setChannelData(reel.owner);
-    renderer->setTargetElisionWidth(list->width() - 240);
-    renderer->setVideoData("SHORTS", "", 0, reel.headline, reel.videoId, reel.viewCountText.text);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(renderer->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, renderer);
-
-    HttpReply* reply = Http::instance().get(reel.thumbnails[0].url);
-    QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
-}
-
-void ChannelBrowser::addVideoRendererFromVideo(QListWidget* list, const InnertubeObjects::Video& video)
-{
-    BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
-    renderer->setChannelData(video.owner);
-    renderer->setTargetElisionWidth(list->width() - 240);
-    renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.startTimeSeconds, video.title.text,
-        video.videoId, SettingsStore::instance().condensedViews ? video.shortViewCountText.text : video.viewCountText.text);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(renderer->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, renderer);
-
-    HttpReply* reply = Http::instance().get(video.thumbnail.mqdefault);
-    QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
-}
-
-void ChannelBrowser::addBoldLabel(QListWidget* list, const QString& text)
-{
-    QLabel* label = new QLabel(text);
-    label->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(label->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, label);
-}
-
-void ChannelBrowser::addLabel(QListWidget* list, const QString& text)
-{
-    QLabel* label = new QLabel(text);
-    label->setWordWrap(true);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(label->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, label);
-}
-
-void ChannelBrowser::addSeparatorItem(QListWidget* list)
-{
-    QFrame* line = new QFrame;
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(line->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, line);
+    if (channelTab->count() == 0)
+    {
+        QListWidgetItem* item = new QListWidgetItem("This channel has no videos.", channelTab);
+        channelTab->addItem(item);
+    }
 }

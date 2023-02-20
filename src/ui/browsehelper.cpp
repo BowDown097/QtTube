@@ -3,6 +3,7 @@
 #include "http.h"
 #include "protobuf/simpleprotobuf.h"
 #include "settingsstore.h"
+#include "uiutilities.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/widgets/browsenotificationrenderer.h"
 #include <QApplication>
@@ -22,19 +23,19 @@ void BrowseHelper::browseChannel(QListWidget* channelTab, int index, const Inner
     {
         QString title = tabRenderer["title"].toString();
         if (title == "Home")
-            ChannelBrowser::instance().setupHome(channelTab, tabRenderer, channelResp);
+            ChannelBrowser::setupHome(channelTab, tabRenderer, channelResp);
         else if (title == "Videos")
-            ChannelBrowser::instance().setupVideos(channelTab, tabRenderer, channelResp);
+            ChannelBrowser::setupVideos(channelTab, tabRenderer, channelResp);
         else if (title == "Shorts")
-            ChannelBrowser::instance().setupShorts(channelTab, tabRenderer, channelResp);
+            ChannelBrowser::setupShorts(channelTab, tabRenderer, channelResp);
         else if (title == "Live")
-            ChannelBrowser::instance().setupLive(channelTab, tabRenderer, channelResp);
+            ChannelBrowser::setupLive(channelTab, tabRenderer, channelResp);
         else if (title == "Channels")
-            ChannelBrowser::instance().setupChannels(channelTab, tabRenderer);
+            ChannelBrowser::setupChannels(channelTab, tabRenderer);
         else if (title == "About")
-            ChannelBrowser::instance().setupAbout(channelTab, tabRenderer);
+            ChannelBrowser::setupAbout(channelTab, tabRenderer);
         else
-            ChannelBrowser::instance().setupUnimplemented(channelTab);
+            ChannelBrowser::setupUnimplemented(channelTab);
     }
     catch (const InnertubeException& ie)
     {
@@ -194,7 +195,7 @@ void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& chan
 {
     for (const InnertubeObjects::Channel& channel : channels)
     {
-        ChannelBrowser::instance().addChannelRendererFromChannel(widget, channel);
+        UIUtilities::addChannelRendererToList(widget, channel);
     }
 }
 
@@ -225,17 +226,10 @@ void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, 
     {
         if (!video.shelf.text.isEmpty() && video.shelf.text != lastShelf)
         {
-            TubeLabel* shelfLabel = new TubeLabel(video.shelf.text);
-            shelfLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
-
-            QListWidgetItem* item = new QListWidgetItem(widget);
-            item->setSizeHint(shelfLabel->sizeHint());
-            widget->addItem(item);
-            widget->setItemWidget(item, shelfLabel);
-
+            UIUtilities::addShelfTitleToList(widget, video.shelf.text);
             lastShelf = video.shelf.text;
         }
 
-        ChannelBrowser::instance().addVideoRendererFromVideo(widget, video);
+        UIUtilities::addVideoRendererToList(widget, video);
     }
 }
