@@ -27,6 +27,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
 
     descriptionLabel = new TubeLabel(this);
     descriptionLabel->setWordWrap(true);
+    UIUtilities::setMaximumLines(descriptionLabel, 2);
     textVbox->addWidget(descriptionLabel);
 
     thumbLabel = new TubeLabel(this);
@@ -73,12 +74,10 @@ void BrowseChannelRenderer::setData(const QString& channelId, const QString& des
     {
         textVbox->removeWidget(descriptionLabel);
         descriptionLabel->deleteLater();
-        descriptionLabel = nullptr;
     }
     else
     {
         descriptionLabel->setText(descriptionSnippet);
-        UIUtilities::setMaximumLines(descriptionLabel, 2);
     }
 
     if (SettingsStore::instance().fullSubs)

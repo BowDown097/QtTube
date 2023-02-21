@@ -582,8 +582,14 @@ void WatchView::toggleShowMore()
 
 void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)
 {
+    description->setText(resp.description.text);
     titleLabel->setText(resp.title.text);
     viewCount->setText(resp.viewCount);
+
+    QString dateText = resp.dateText;
+    if (!dateText.startsWith("Premier") && !dateText.startsWith("Stream") && !dateText.startsWith("Start") && !dateText.startsWith("Sched"))
+        dateText = "Published on " + dateText;
+    date->setText(dateText);
 
     if (SettingsStore::instance().returnDislikes)
     {
