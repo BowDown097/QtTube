@@ -381,35 +381,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         dateText = "Published on " + dateText;
     date->setText(dateText);
 
-    QString descriptionText;
-    for (const InnertubeObjects::InnertubeRun& run : nextResp.secondaryInfo.description.runs)
-    {
-        if (!run.navigationEndpoint.isNull())
-        {
-            const QJsonObject navigationEndpoint = run.navigationEndpoint.toObject();
-            QString href;
-
-            if (navigationEndpoint.contains("urlEndpoint"))
-            {
-                QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
-                QUrlQuery query(url);
-                href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
-            }
-            else
-            {
-                href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString()
-                       + "&continuePlayback=" + QString::number(run.navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
-            }
-
-            descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, run.text);
-        }
-        else
-        {
-            descriptionText += run.text;
-        }
-    }
-
-    description->setText(descriptionText.replace("\n", "<br>"));
+    description->setText(generateFormattedDescription(nextResp.secondaryInfo.description));
 }
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
@@ -524,6 +496,40 @@ void WatchView::descriptionLinkActivated(const QString& url)
     {
         qDebug() << "Ran into unsupported description link:" << url;
     }
+}
+
+QString WatchView::generateFormattedDescription(const InnertubeObjects::InnertubeString& description)
+{
+    QString descriptionText;
+
+    for (const InnertubeObjects::InnertubeRun& run : description.runs)
+    {
+        if (!run.navigationEndpoint.isNull() && !run.navigationEndpoint.isUndefined())
+        {
+            const QJsonObject navigationEndpoint = run.navigationEndpoint.toObject();
+            QString href;
+
+            if (navigationEndpoint.contains("urlEndpoint"))
+            {
+                QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
+                QUrlQuery query(url);
+                href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
+            }
+            else
+            {
+                href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString()
+                       + "&continuePlayback=" + QString::number(run.navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
+            }
+
+            descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, run.text);
+        }
+        else
+        {
+            descriptionText += run.text;
+        }
+    }
+
+    return descriptionText.replace("\n", "<br>");
 }
 
 void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton)
@@ -698,7 +704,7 @@ void WatchView::toggleShowMore()
 
 void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)
 {
-    description->setText(resp.description.text);
+    description->setText(generateFormattedDescription(resp.description));
     titleLabel->setText(resp.title.text);
     viewCount->setText(resp.viewCount);
 
