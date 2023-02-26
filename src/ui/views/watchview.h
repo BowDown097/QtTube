@@ -30,12 +30,13 @@ class WatchView : public QWidget
 public:
     Q_DISABLE_COPY(WatchView)
     static WatchView* instance();
-    void hotLoadVideo(const QString& videoId);
+    void hotLoadVideo(const QString& videoId, int progress = 0);
     void loadVideo(const QString& videoId, int progress = 0);
 public slots:
     void goBack();
 private slots:
     void copyChannelUrl();
+    void descriptionLinkActivated(const QString& url);
     void processNext(const InnertubeEndpoints::Next& endpoint);
     void processPlayer(const InnertubeEndpoints::Player& endpoint);
     void showContextMenu(const QPoint& pos);

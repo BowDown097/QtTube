@@ -6,9 +6,11 @@
 #include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
 #include <QApplication>
+#include <QDesktopServices>
 #include <QMenu>
 #include <QMessageBox>
 #include <QResizeEvent>
+#include <QScrollBar>
 
 #ifdef USEMPV
 #include "lib/media/mpv/mediampv.h"
@@ -225,9 +227,11 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 
     description = new TubeLabel(this);
     description->setFixedWidth(playerSize.width());
+    description->setTextFormat(Qt::RichText);
     description->setWordWrap(true);
     UIUtilities::setMaximumLines(description, 3);
     frame->layout()->addWidget(description);
+    connect(description, &TubeLabel::linkActivated, this, &WatchView::descriptionLinkActivated);
 
     showMoreLabel = new TubeLabel(this);
     showMoreLabel->setAlignment(Qt::AlignCenter);
@@ -246,13 +250,14 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
 }
 
-void WatchView::hotLoadVideo(const QString& videoId)
+void WatchView::hotLoadVideo(const QString& videoId, int progress)
 {
 #ifdef USEMPV
     media->play("https://www.youtube.com/watch?v=" + videoId);
+    media->seek(progress);
     watchtimeTimer->deleteLater();
 #else
-    wePlayer->play(videoId, 0);
+    wePlayer->play(videoId, progress);
 #endif
 
     UIUtilities::clearLayout(topLevelButtons);
@@ -364,7 +369,35 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         dateText = "Published on " + dateText;
     date->setText(dateText);
 
-    description->setText(nextResp.secondaryInfo.description.text);
+    QString descriptionText;
+    for (const InnertubeObjects::InnertubeRun& run : nextResp.secondaryInfo.description.runs)
+    {
+        if (!run.navigationEndpoint.isNull())
+        {
+            const QJsonObject navigationEndpoint = run.navigationEndpoint.toObject();
+            QString href;
+
+            if (navigationEndpoint.contains("urlEndpoint"))
+            {
+                QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
+                QUrlQuery query(url);
+                href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
+            }
+            else
+            {
+                href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString()
+                       + "&continuePlayback=" + QString::number(run.navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
+            }
+
+            descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, run.text);
+        }
+        else
+        {
+            descriptionText += run.text;
+        }
+    }
+
+    description->setText(descriptionText.replace("\n", "<br>"));
 }
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
@@ -447,6 +480,38 @@ QSize WatchView::calcPlayerSize()
 void WatchView::copyChannelUrl()
 {
     UIUtilities::copyToClipboard("https://www.youtube.com/channel/" + channelId);
+}
+
+void WatchView::descriptionLinkActivated(const QString& url)
+{
+    QUrl qUrl(url);
+    if (url.startsWith("http"))
+    {
+        QDesktopServices::openUrl(qUrl);
+    }
+    else if (url.startsWith("/watch"))
+    {
+        scrollArea->verticalScrollBar()->setValue(0);
+        QUrlQuery query(qUrl);
+        if (query.queryItemValue("continuePlayback") == "1")
+        {
+            int progress = query.queryItemValue("t").replace("s", "").toInt();
+#ifdef USEMPV
+    media->seek(progress);
+#else
+    wePlayer->seek(progress);
+#endif
+        }
+        else
+        {
+            hotLoadVideo(query.queryItemValue("v"), query.queryItemValue("t").toInt());
+            toggleShowMore();
+        }
+    }
+    else
+    {
+        qDebug() << "Ran into unsupported description link:" << url;
+    }
 }
 
 void WatchView::navigateChannel()

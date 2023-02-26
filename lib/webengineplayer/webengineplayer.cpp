@@ -49,6 +49,11 @@ void WebEnginePlayer::play(const QString& vId, int progress)
                       .arg(SettingsStore::instance().preferredVolume)));
 }
 
+void WebEnginePlayer::seek(int progress)
+{
+    m_view->page()->runJavaScript(QStringLiteral("document.getElementById(\"movie_player\").seekTo(%1);").arg(progress));
+}
+
 void WebEnginePlayer::fullScreenRequested(QWebEngineFullScreenRequest request)
 {
     request.accept();
