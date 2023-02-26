@@ -326,9 +326,21 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
     topLevelButtons->addWidget(likeLabel);
+    connect(likeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, true, nextResp.primaryInfo.videoActions.likeButton));
+    if (nextResp.primaryInfo.videoActions.likeButton.isToggled)
+    {
+        likeLabel->icon->setPixmap(QPixmap(":/like-toggled.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        likeLabel->textLabel->setStyleSheet("color: #167ac6");
+    }
 
     dislikeLabel = new IconLabel("dislike");
     topLevelButtons->addWidget(dislikeLabel);
+    connect(dislikeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, false, nextResp.primaryInfo.videoActions.dislikeButton));
+    if (nextResp.primaryInfo.videoActions.dislikeButton.isToggled)
+    {
+        dislikeLabel->icon->setPixmap(QPixmap(":/dislike-toggled.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        dislikeLabel->textLabel->setStyleSheet("color: #167ac6");
+    }
 
     QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.owner.thumbnails;
     if (!channelIcons.isEmpty())
@@ -511,6 +523,45 @@ void WatchView::descriptionLinkActivated(const QString& url)
     else
     {
         qDebug() << "Ran into unsupported description link:" << url;
+    }
+}
+
+void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton)
+{
+    IconLabel* senderLabel = qobject_cast<IconLabel*>(sender());
+
+    bool textIsNumber;
+    int count = QLocale::system().toInt(senderLabel->textLabel->text(), &textIsNumber);
+
+    if (senderLabel->textLabel->styleSheet().isEmpty()) // if untoggled
+    {
+        if (like)
+            senderLabel->icon->setPixmap(QPixmap(":/like-toggled.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        else
+            senderLabel->icon->setPixmap(QPixmap(":/dislike-toggled.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+        senderLabel->textLabel->setStyleSheet("color: #167ac6");
+        if (textIsNumber)
+            senderLabel->textLabel->setText(QLocale::system().toString(count + 1));
+
+        const QJsonArray defaultCommands = toggleButton.defaultServiceEndpoint["commandExecutorCommand"]["commands"].toArray();
+        QJsonValue defaultCommand = *std::find_if(defaultCommands.begin(), defaultCommands.end(),
+            [](const QJsonValue& v) { return v.toObject().contains("commandMetadata"); });
+        InnerTube::instance().like(defaultCommand["likeEndpoint"], like);
+    }
+    else
+    {
+        bool preferDark = qApp->palette().alternateBase().color().lightness() < 60;
+        if (like)
+            senderLabel->icon->setPixmap(QPixmap(preferDark ? ":/like-light.png" : ":/like.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        else
+            senderLabel->icon->setPixmap(QPixmap(preferDark ? ":/dislike-light.png" : ":/dislike.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+        senderLabel->textLabel->setStyleSheet(QString());
+        if (textIsNumber)
+            senderLabel->textLabel->setText(QLocale::system().toString(count - 1));
+
+        InnerTube::instance().like(toggleButton.toggledServiceEndpoint["likeEndpoint"], like);
     }
 }
 

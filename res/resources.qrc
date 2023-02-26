@@ -7,10 +7,16 @@
         <file>dislike-light.png</file>
     </qresource>
     <qresource>
+        <file>dislike-toggled.png</file>
+    </qresource>
+    <qresource>
         <file>like.png</file>
     </qresource>
     <qresource>
         <file>like-light.png</file>
+    </qresource>
+    <qresource>
+        <file>like-toggled.png</file>
     </qresource>
     <qresource>
         <file>notif-bell.png</file>

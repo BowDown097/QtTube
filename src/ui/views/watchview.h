@@ -37,6 +37,7 @@ public slots:
 private slots:
     void copyChannelUrl();
     void descriptionLinkActivated(const QString& url);
+    void likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton);
     void processNext(const InnertubeEndpoints::Next& endpoint);
     void processPlayer(const InnertubeEndpoints::Player& endpoint);
     void showContextMenu(const QPoint& pos);
