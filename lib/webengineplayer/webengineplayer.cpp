@@ -27,11 +27,13 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     webChannelJs.setSourceCode(webChannelJsFile.readAll());
     m_view->page()->scripts().insert(webChannelJs);
 
-    QWebEngineScript inject;
-    inject.setInjectionPoint(QWebEngineScript::DocumentReady);
-    inject.setWorldId(QWebEngineScript::MainWorld);
-    inject.setSourceCode(m_playerJs);
-    m_view->page()->scripts().insert(inject);
+    QWebEngineScript playerJs;
+    playerJs.setInjectionPoint(QWebEngineScript::DocumentReady);
+    playerJs.setWorldId(QWebEngineScript::MainWorld);
+    QFile playerJsFile(":/playerjs.txt");
+    playerJsFile.open(QFile::ReadOnly);
+    playerJs.setSourceCode(playerJsFile.readAll());
+    m_view->page()->scripts().insert(playerJs);
 
     m_view->page()->profile()->setUrlRequestInterceptor(m_interceptor);
     m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);

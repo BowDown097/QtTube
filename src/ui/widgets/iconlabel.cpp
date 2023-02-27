@@ -24,7 +24,7 @@ IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, QWi
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 void IconLabel::enterEvent(QEnterEvent*)
 #else
-void TubeLabel::enterEvent(QEvent*)
+void IconLabel::enterEvent(QEvent*)
 #endif
 {
     setCursor(QCursor(Qt::CursorShape::PointingHandCursor));

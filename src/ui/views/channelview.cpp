@@ -146,9 +146,6 @@ ChannelView::Rgb ChannelView::getDominantRgb(const QImage& img)
 {
     QRgb* ct;
     QList<int> red, green, blue;
-    red.resize(256);
-    green.resize(256);
-    blue.resize(256);
 
     for (int i = 0; i < img.height(); i++)
     {

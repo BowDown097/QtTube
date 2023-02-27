@@ -1,6 +1,6 @@
 QT += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-lessThan(QT_MAJOR_VERSION, 6): QT += x11extras
+lessThan(QT_MAJOR_VERSION, 6):unix:!macx: QT += x11extras
 
 INCLUDEPATH += $$PWD/src
 DEPENDPATH += $$PWD/src
