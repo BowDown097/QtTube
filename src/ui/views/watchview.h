@@ -86,7 +86,7 @@ private:
     void resizeEvent(QResizeEvent* event) override; // webengine views don't resize automatically
     QSize calcPlayerSize();
     QString generateFormattedDescription(const InnertubeObjects::InnertubeString& description);
-    void navigateChannel();
+    void navigateChannel(const QString& inChannelId);
     void setChannelIcon(const HttpReply& reply);
     void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo);
     void toggleIdleSleep(bool toggle);

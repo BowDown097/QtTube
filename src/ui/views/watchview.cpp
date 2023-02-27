@@ -279,13 +279,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     channelId = nextResp.secondaryInfo.subscribeButton.channelId;
     channelLabel->setInfo(nextResp.secondaryInfo.owner.title.text, nextResp.secondaryInfo.owner.badges);
 
-    connect(channelLabel->text, &TubeLabel::clicked, this, [this, nextResp] {
-        disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
-        toggleIdleSleep(false);
-        navigateChannel();
-        UIUtilities::clearLayout(frame->layout());
-        frame->layout()->deleteLater();
-    });
+    connect(channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannel, this, channelId));
 
     subscribersLabel->setStyleSheet(R"(
     border: 1px solid #333;
@@ -473,6 +467,10 @@ void WatchView::descriptionLinkActivated(const QString& url)
     {
         QDesktopServices::openUrl(qUrl);
     }
+    else if (url.startsWith("/channel"))
+    {
+        navigateChannel(url.mid(url.lastIndexOf('/') + 1));
+    }
     else if (url.startsWith("/watch"))
     {
         scrollArea->verticalScrollBar()->setValue(0);
@@ -511,14 +509,15 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
 
             if (navigationEndpoint.contains("urlEndpoint"))
             {
-                QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
+                QUrl url(navigationEndpoint["urlEndpoint"]["url"].toString());
                 QUrlQuery query(url);
                 href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
             }
             else
             {
-                href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString()
-                       + "&continuePlayback=" + QString::number(run.navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
+                href = navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
+                if (navigationEndpoint.contains("watchEndpoint"))
+                    href += "&continuePlayback=" + QString::number(navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
             }
 
             descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, run.text);
@@ -571,16 +570,22 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
     }
 }
 
-void WatchView::navigateChannel()
+void WatchView::navigateChannel(const QString& inChannelId)
 {
+    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
+    toggleIdleSleep(false);
+
     try
     {
-        ChannelView::instance()->loadChannel(channelId);
+        ChannelView::instance()->loadChannel(inChannelId);
     }
     catch (const InnertubeException& ie)
     {
         QMessageBox::critical(nullptr, "Failed to load channel", ie.message());
     }
+
+    UIUtilities::clearLayout(frame->layout());
+    frame->layout()->deleteLater();
 }
 
 void WatchView::setChannelIcon(const HttpReply& reply)
