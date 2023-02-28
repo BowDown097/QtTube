@@ -45,7 +45,7 @@ private:
     TubeLabel* subscribersLabel;
     SubscribeWidget* subscribeWidget;
 
-    int getDominant(const QList<int>& arr);
+    int getDominant(int arr[256]);
     Rgb getDominantRgb(const QImage& img);
     void setSubscriberCount(const InnertubeEndpoints::ChannelResponse& channelResp);
     void setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& channelResp);

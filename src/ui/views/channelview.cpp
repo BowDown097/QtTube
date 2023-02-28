@@ -126,7 +126,7 @@ void ChannelView::hotLoadChannel(const QString& channelId)
 }
 
 // below 2 methods courtesy of https://stackoverflow.com/a/61581999 (with some improvements)
-int ChannelView::getDominant(const QList<int>& arr)
+int ChannelView::getDominant(int arr[256])
 {
     int max = arr[0];
     int index = 0;
@@ -145,7 +145,9 @@ int ChannelView::getDominant(const QList<int>& arr)
 ChannelView::Rgb ChannelView::getDominantRgb(const QImage& img)
 {
     QRgb* ct;
-    QList<int> red, green, blue;
+    int red[256] = {};
+    int green[256] = {};
+    int blue[256] = {};
 
     for (int i = 0; i < img.height(); i++)
     {
