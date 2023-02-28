@@ -28,7 +28,6 @@ class WatchView : public QWidget
 {
     Q_OBJECT
 public:
-    Q_DISABLE_COPY(WatchView)
     static WatchView* instance();
     void hotLoadVideo(const QString& videoId, int progress = 0);
     void loadVideo(const QString& videoId, int progress = 0);
@@ -43,7 +42,8 @@ private slots:
     void showContextMenu(const QPoint& pos);
     void toggleShowMore();
 private:
-    WatchView() {}
+    Q_DISABLE_COPY(WatchView)
+    WatchView() = default;
     static inline WatchView* m_watchView;
 
     TubeLabel* channelIcon;

@@ -12,7 +12,6 @@ class ChannelView : public QWidget
 {
     Q_OBJECT
 public:
-    Q_DISABLE_COPY(ChannelView)
     static ChannelView* instance();
     void hotLoadChannel(const QString& channelId);
     void loadChannel(const QString& channelId);
@@ -20,7 +19,8 @@ public slots:
     void clear();
     void goBack();
 private:
-    ChannelView() {}
+    Q_DISABLE_COPY(ChannelView)
+    ChannelView() = default;
     static inline ChannelView* m_channelView;
 
     struct Rgb
