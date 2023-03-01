@@ -93,6 +93,14 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 
     QSize playerSize = calcPlayerSize();
 
+    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
+    connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
+    connect(next, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
+    {
+        QMessageBox::critical(this, "Failed to load video", ie.message());
+        WatchView::goBack();
+    });
+
     InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
     connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
     connect(player, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
@@ -263,6 +271,14 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
     UIUtilities::clearLayout(topLevelButtons);
     disconnect(channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
 
+    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
+    connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
+    connect(next, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
+    {
+        QMessageBox::critical(this, "Failed to load video", ie.message());
+        WatchView::goBack();
+    });
+
     InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
     connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
     connect(player, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
@@ -381,14 +397,6 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 {
     InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
-
-    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(playerResp.videoDetails.videoId);
-    connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
-    connect(next, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
-    {
-        QMessageBox::critical(this, "Failed to load video", ie.message());
-        WatchView::goBack();
-    });
 
     titleLabel->setText(playerResp.videoDetails.title);
     setWindowTitle(playerResp.videoDetails.title + " - QtTube");
