@@ -30,19 +30,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
 
     connect(notificationMenu->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::GetNotificationMenu>(value, notificationMenu, "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", 5);
+        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::GetNotificationMenu>(value, notificationMenu, "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", 5);
     });
     connect(ui->historyWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHistory>(value, ui->historyWidget, lastSearchQuery);
+        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::BrowseHistory>(value, ui->historyWidget, lastSearchQuery);
     });
     connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget);
+        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget);
     });
     connect(ui->searchWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, lastSearchQuery);
+        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, lastSearchQuery);
     });
     connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance().tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget);
+        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget);
     });
 
     ui->historySearchWidget->verticalScrollBar()->setSingleStep(25);
@@ -78,15 +78,15 @@ void MainWindow::browse()
     {
     case 0:
         setWindowTitle("Home - QtTube");
-        BrowseHelper::instance().browseHome(ui->homeWidget);
+        BrowseHelper::instance()->browseHome(ui->homeWidget);
         break;
     case 1:
         setWindowTitle("Trending - QtTube");
-        BrowseHelper::instance().browseTrending(ui->trendingWidget);
+        BrowseHelper::instance()->browseTrending(ui->trendingWidget);
         break;
     case 2:
         setWindowTitle("Subscriptions - QtTube");
-        BrowseHelper::instance().browseSubscriptions(ui->subscriptionsWidget);
+        BrowseHelper::instance()->browseSubscriptions(ui->subscriptionsWidget);
         break;
     case 3:
         setWindowTitle("History - QtTube");
@@ -96,7 +96,7 @@ void MainWindow::browse()
         ui->additionalWidgets->addWidget(historySearch);
         connect(historySearch, &QLineEdit::returnPressed, this, &MainWindow::searchWatchHistory);
 
-        BrowseHelper::instance().browseHistory(ui->historyWidget);
+        BrowseHelper::instance()->browseHistory(ui->historyWidget);
         break;
     }
 }
@@ -201,58 +201,58 @@ void MainWindow::search()
     }
 
     lastSearchQuery = m_topbar->searchBox->text();
-    BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery);
+    BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     connect(dateCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(),
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(),
                                         featCmb->currentIndex(), sortCmb->currentIndex());
     });
     connect(typeCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), index, durCmb->currentIndex(),
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), index, durCmb->currentIndex(),
                                         featCmb->currentIndex(), sortCmb->currentIndex());
     });
     connect(durCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), index,
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), index,
                                         featCmb->currentIndex(), sortCmb->currentIndex());
     });
     connect(featCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
                                         durCmb->currentIndex(), index, sortCmb->currentIndex());
     });
     connect(sortCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
                                         durCmb->currentIndex(), featCmb->currentIndex(), index);
     });
 #else
     connect(dateCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(),
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(),
                                         featCmb->currentIndex(), sortCmb->currentIndex());
     });
     connect(typeCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), index, durCmb->currentIndex(),
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), index, durCmb->currentIndex(),
                                         featCmb->currentIndex(), sortCmb->currentIndex());
     });
     connect(durCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), index,
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), index,
                                         featCmb->currentIndex(), sortCmb->currentIndex());
     });
     connect(featCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
                                         durCmb->currentIndex(), index, sortCmb->currentIndex());
     });
     connect(sortCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
         ui->searchWidget->clear();
-        BrowseHelper::instance().search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
+        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
                                         durCmb->currentIndex(), featCmb->currentIndex(), index);
     });
 #endif
@@ -264,7 +264,7 @@ void MainWindow::searchWatchHistory()
     {
         ui->historySearchWidget->clear();
         lastSearchQuery = qobject_cast<QLineEdit*>(sender())->text();
-        BrowseHelper::instance().browseHistory(ui->historySearchWidget, lastSearchQuery);
+        BrowseHelper::instance()->browseHistory(ui->historySearchWidget, lastSearchQuery);
         return;
     }
 
@@ -276,7 +276,7 @@ void MainWindow::searchWatchHistory()
     ui->tabWidget->setCurrentIndex(5);
 
     lastSearchQuery = qobject_cast<QLineEdit*>(sender())->text();
-    BrowseHelper::instance().browseHistory(ui->historySearchWidget, lastSearchQuery);
+    BrowseHelper::instance()->browseHistory(ui->historySearchWidget, lastSearchQuery);
 }
 
 void MainWindow::showNotifications()
@@ -292,7 +292,7 @@ void MainWindow::showNotifications()
 
     m_topbar->alwaysShow = true;
     notificationMenu->setVisible(true);
-    BrowseHelper::instance().browseNotificationMenu(notificationMenu);
+    BrowseHelper::instance()->browseNotificationMenu(notificationMenu);
 }
 
 void MainWindow::tryRestoreData()

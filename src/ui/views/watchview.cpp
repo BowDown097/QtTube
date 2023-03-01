@@ -95,19 +95,11 @@ void WatchView::loadVideo(const QString& videoId, int progress)
 
     InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
     connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
-    connect(next, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
-    {
-        QMessageBox::critical(this, "Failed to load video", ie.message());
-        WatchView::goBack();
-    });
+    connect(next, &InnertubeReply::exception, this, &WatchView::loadFailed);
 
     InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
     connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
-    connect(player, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
-    {
-        QMessageBox::critical(this, "Failed to load video", ie.message());
-        WatchView::goBack();
-    });
+    connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
 
 #ifdef USEMPV
     media = new MediaMPV;
@@ -273,19 +265,11 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
 
     InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
     connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
-    connect(next, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
-    {
-        QMessageBox::critical(this, "Failed to load video", ie.message());
-        WatchView::goBack();
-    });
+    connect(next, &InnertubeReply::exception, this, &WatchView::loadFailed);
 
     InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
     connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
-    connect(player, &InnertubeReply::exception, this, [this](const InnertubeException& ie)
-    {
-        QMessageBox::critical(this, "Failed to load video", ie.message());
-        WatchView::goBack();
-    });
+    connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
 }
 
 void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
@@ -576,6 +560,12 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
 
         InnerTube::instance().like(toggleButton.toggledServiceEndpoint["likeEndpoint"], like);
     }
+}
+
+void WatchView::loadFailed(const InnertubeException& ie)
+{
+    QMessageBox::critical(this, "Failed to load video", ie.message());
+    goBack();
 }
 
 void WatchView::navigateChannel(const QString& inChannelId)

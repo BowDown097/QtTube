@@ -119,8 +119,7 @@ void TopBar::trySignIn()
 void TopBar::updateNotificationCount()
 {
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>();
-    connect(reply, qOverload<InnertubeEndpoints::UnseenCount>(&InnertubeReply::finished), this,
-            [this](const InnertubeEndpoints::UnseenCount& endpoint)
+    connect(reply, qOverload<InnertubeEndpoints::UnseenCount>(&InnertubeReply::finished), this, [this](const auto& endpoint)
     {
         notificationBell->setPixmap(endpoint.unseenCount > 0
                                     ? QPixmap(preferDark ? ":/notif-bell-hasnotif-light.png" : ":/notif-bell-hasnotif.png")

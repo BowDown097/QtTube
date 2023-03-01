@@ -229,7 +229,7 @@ void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& ch
         for (QListWidget* l : channelTabs->findChildren<QListWidget*>())
             l->clear();
         QListWidget* list = channelTabs->widget(index)->findChild<QListWidget*>();
-        BrowseHelper::instance().browseChannel(list, index, channelResp);
+        BrowseHelper::instance()->browseChannel(list, index, channelResp);
     });
 
     const QJsonArray tabs = channelResp.contents["twoColumnBrowseResultsRenderer"]["tabs"].toArray();

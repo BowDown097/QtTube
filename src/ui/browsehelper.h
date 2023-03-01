@@ -1,6 +1,7 @@
 #ifndef BROWSEHELPER_H
 #define BROWSEHELPER_H
 #include "innertube/endpoints/base/baseendpoint.h"
+#include "innertube/innertubeexception.h"
 #include "innertube/objects/channel/channel.h"
 #include "innertube/objects/notification/notification.h"
 #include "innertube/objects/video/video.h"
@@ -8,10 +9,11 @@
 #include <QListWidget>
 #include <type_traits>
 
-class BrowseHelper
+class BrowseHelper : public QObject
 {
+    Q_OBJECT
 public:
-    static BrowseHelper& instance() { static BrowseHelper bh; return bh; }
+    static BrowseHelper* instance();
     void browseChannel(QListWidget* channelTab, int index, const InnertubeEndpoints::ChannelResponse& channelResp);
     void browseHistory(QListWidget* historyWidget, const QString& query = "");
     void browseHome(QListWidget* homeWidget);
@@ -22,7 +24,13 @@ public:
 
     template<typename T> requires std::derived_from<T, InnertubeEndpoints::BaseEndpoint>
     void tryContinuation(int value, QListWidget* widget, const QString& data = "", int threshold = 10);
+private slots:
+    void browseFailed(const InnertubeException& ie, const QString& title);
 private:
+    Q_DISABLE_COPY(BrowseHelper)
+    BrowseHelper() = default;
+    static inline BrowseHelper* m_browseHelper;
+
     void setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget);
     void setupNotificationList(const QList<InnertubeObjects::Notification>& notifications, QListWidget* widget);
     void setupVideoList(const QList<InnertubeObjects::Video>& videos, QListWidget* widget);

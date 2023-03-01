@@ -3,6 +3,7 @@
 #include "httpreply.h"
 #include "innertube/endpoints/video/next.h"
 #include "innertube/endpoints/video/player.h"
+#include "innertube/innertubeexception.h"
 #include "innertube/responses/video/updatedmetadataresponse.h"
 #include "ui/widgets/channellabel.h"
 #include "ui/widgets/iconlabel.h"
@@ -37,6 +38,7 @@ private slots:
     void copyChannelUrl();
     void descriptionLinkActivated(const QString& url);
     void likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton);
+    void loadFailed(const InnertubeException& ie);
     void processNext(const InnertubeEndpoints::Next& endpoint);
     void processPlayer(const InnertubeEndpoints::Player& endpoint);
     void showContextMenu(const QPoint& pos);

@@ -55,7 +55,7 @@ void BrowseVideoRenderer::copyDirectUrl()
         QMessageBox::critical(this, "Failed to copy to clipboard",
             "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
     });
-    connect(reply, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::Player& endpoint)
+    connect(reply, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, [this](const auto& endpoint)
     {
         if (endpoint.response.videoDetails.isLive || endpoint.response.videoDetails.isLiveContent)
         {
