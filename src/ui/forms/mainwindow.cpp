@@ -77,20 +77,15 @@ void MainWindow::browse()
     switch (ui->tabWidget->currentIndex())
     {
     case 0:
-        setWindowTitle("Home - QtTube");
         BrowseHelper::instance()->browseHome(ui->homeWidget);
         break;
     case 1:
-        setWindowTitle("Trending - QtTube");
         BrowseHelper::instance()->browseTrending(ui->trendingWidget);
         break;
     case 2:
-        setWindowTitle("Subscriptions - QtTube");
         BrowseHelper::instance()->browseSubscriptions(ui->subscriptionsWidget);
         break;
     case 3:
-        setWindowTitle("History - QtTube");
-
         QLineEdit* historySearch = new QLineEdit;
         historySearch->setPlaceholderText("Search watch history");
         ui->additionalWidgets->addWidget(historySearch);

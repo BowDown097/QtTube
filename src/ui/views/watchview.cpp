@@ -381,9 +381,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 {
     InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
-
     titleLabel->setText(playerResp.videoDetails.title);
-    setWindowTitle(playerResp.videoDetails.title + " - QtTube");
 
 #ifdef USEMPV
     if (SettingsStore::instance().playbackTracking)
@@ -461,7 +459,8 @@ void WatchView::descriptionLinkActivated(const QString& url)
     }
     else if (url.startsWith("/channel"))
     {
-        navigateChannel(url.mid(url.lastIndexOf('/') + 1));
+        QString funnyPath = qUrl.path().replace("/channel/", "");
+        navigateChannel(funnyPath.left(funnyPath.indexOf('/')));
     }
     else if (url.startsWith("/watch"))
     {
@@ -498,12 +497,25 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
         {
             const QJsonObject navigationEndpoint = run.navigationEndpoint.toObject();
             QString href;
+            QString runText = run.text;
 
             if (navigationEndpoint.contains("urlEndpoint"))
             {
                 QUrl url(navigationEndpoint["urlEndpoint"]["url"].toString());
                 QUrlQuery query(url);
-                href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
+                if (query.hasQueryItem("q"))
+                {
+                    href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
+                }
+                else if (url.host() == "www.youtube.com" && url.path().startsWith("/channel"))
+                {
+                    href = url.toString().replace("https://www.youtube.com", "");
+                    runText = url.toString().left(37) + "...";
+                }
+                else
+                {
+                    href = url.toString();
+                }
             }
             else
             {
@@ -512,7 +524,7 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
                     href += "&continuePlayback=" + QString::number(navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
             }
 
-            descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, run.text);
+            descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, runText);
         }
         else
         {
