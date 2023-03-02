@@ -14,9 +14,11 @@ include(lib/innertube-qt/innertube-qt.pri)
 contains(DEFINES, USEMPV) {
     LIBS += -lmpv
     QT += openglwidgets
+
     SOURCES += \
         lib/media/mpv/mediampv.cpp \
         lib/media/mpv/mpvwidget.cpp
+
     HEADERS += \
         lib/media/media.h \
         lib/media/mpv/mediampv.h \
@@ -25,7 +27,21 @@ contains(DEFINES, USEMPV) {
 }
 
 !contains(DEFINES, USEMPV) {
-    include(lib/webengineplayer/WebEnginePlayer.pri)
+    QT += webenginewidgets
+
+    SOURCES += \
+        src/ui/widgets/webengineplayer/fullscreennotification.cpp \
+        src/ui/widgets/webengineplayer/fullscreenwindow.cpp \
+        src/ui/widgets/webengineplayer/playerinterceptor.cpp \
+        src/ui/widgets/webengineplayer/webchannelinterface.cpp \
+        src/ui/widgets/webengineplayer/webengineplayer.cpp
+
+    HEADERS += \
+        src/ui/widgets/webengineplayer/fullscreennotification.h \
+        src/ui/widgets/webengineplayer/fullscreenwindow.h \
+        src/ui/widgets/webengineplayer/playerinterceptor.h \
+        src/ui/widgets/webengineplayer/webchannelinterface.h \
+        src/ui/widgets/webengineplayer/webengineplayer.h
 }
 
 # You can make your code fail to compile if it uses deprecated APIs.

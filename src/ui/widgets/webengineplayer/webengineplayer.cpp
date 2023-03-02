@@ -20,13 +20,17 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     channel->registerObject("interface", WebChannelInterface::instance());
 
     loadScriptFile(":/qtwebchannel/qwebchannel.js", QWebEngineScript::DocumentCreation);
+    loadScriptFile(":/player/annotationlib/AnnotationParser.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/player/annotationlib/AnnotationRenderer.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/player/annotations.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/global.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/integration.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/sponsorblock.js", QWebEngineScript::DocumentReady);
 
+    QString annotationStylesData = getFileContents(":/player/annotationlib/AnnotationRenderer.css");
     QString patchesData = getFileContents(":/player/patches.js");
     QString stylesData = getFileContents(":/player/styles.css");
-    loadScriptString(patchesData.arg(stylesData), QWebEngineScript::DocumentReady);
+    loadScriptString(patchesData.arg(annotationStylesData + stylesData), QWebEngineScript::DocumentReady);
 
     m_view->page()->profile()->setUrlRequestInterceptor(m_interceptor);
     m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
@@ -74,10 +78,11 @@ void WebEnginePlayer::play(const QString& vId, int progress)
 {
     QString sbc = QJsonDocument(QJsonArray::fromStringList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
     QString q = QMetaEnum::fromType<SettingsStore::PlayerQuality>().valueToKey(SettingsStore::instance().preferredQuality);
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5")
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5&annot=%6")
                       .arg(vId, sbc, q.toLower())
                       .arg(progress)
-                      .arg(SettingsStore::instance().preferredVolume)));
+                      .arg(SettingsStore::instance().preferredVolume)
+                      .arg(SettingsStore::instance().restoreAnnotations)));
 }
 
 void WebEnginePlayer::seek(int progress)

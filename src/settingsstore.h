@@ -19,6 +19,7 @@ public:
     bool playbackTracking;
     PlayerQuality preferredQuality;
     int preferredVolume;
+    bool restoreAnnotations;
     bool returnDislikes;
     bool showSBToasts;
     QStringList sponsorBlockCategories;

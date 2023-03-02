@@ -19,10 +19,12 @@ This project is in desperate need of contributors should it not take an eternity
 
 # Used Libraries
 This program makes use of:
+- [AnnotationsRestored](https://github.com/isaackd/AnnotationsRestored) - Self-explanatory.
 - [http](https://github.com/flaviotordini/http) - Makes QtNetwork much less of a headache to use
 - [innertube-qt](https://github.com/BowDown097/innertube-qt) - The backend for the program
 - [media](https://github.com/flaviotordini/media) - For the libmpv-based player
 - [QWebEngineYtPlayer](https://github.com/keshavbhatt/QWebengineYtPlayer) - For the YouTube-embed-based player. Pretty heavily modified but still, credit where credit's due.
+- [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) - Also self-explanatory.
 
 # Screenshots
 As of February 14th, 2023. Depending on how long it's been since said date, things may look different and/or have more content.

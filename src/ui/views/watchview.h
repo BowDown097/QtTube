@@ -18,7 +18,7 @@
 #ifdef USEMPV
 #include "lib/media/media.h"
 #else
-#include "webengineplayer.h"
+#include "ui/widgets/webengineplayer/webengineplayer.h"
 #endif
 
 #ifdef Q_OS_MACOS

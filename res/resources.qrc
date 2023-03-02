@@ -31,6 +31,18 @@
         <file>notif-bell-light.png</file>
     </qresource>
     <qresource>
+        <file>player/annotationlib/AnnotationParser.js</file>
+    </qresource>
+    <qresource>
+        <file>player/annotationlib/AnnotationRenderer.css</file>
+    </qresource>
+    <qresource>
+        <file>player/annotationlib/AnnotationRenderer.js</file>
+    </qresource>
+    <qresource>
+        <file>player/annotations.js</file>
+    </qresource>
+    <qresource>
         <file>player/global.js</file>
     </qresource>
     <qresource>

@@ -14,7 +14,8 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->homeShelves->setChecked(store.homeShelves);
     ui->preferredQuality->setCurrentIndex(store.preferredQuality);
     ui->preferredVolume->setValue(store.preferredVolume);
-    ui->returnDislike->setChecked(store.returnDislikes);
+    ui->restoreAnnotations->setChecked(store.restoreAnnotations);
+    ui->returnDislikes->setChecked(store.returnDislikes);
     ui->themedChannels->setChecked(store.themedChannels);
     // privacy
     ui->playbackTracking->setChecked(store.playbackTracking);
@@ -28,7 +29,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->blockPreview->setChecked(store.sponsorBlockCategories.contains("preview"));
     ui->blockSelfPromo->setChecked(store.sponsorBlockCategories.contains("selfpromo"));
     ui->blockSponsor->setChecked(store.sponsorBlockCategories.contains("sponsor"));
-    ui->showToasts->setChecked(store.showSBToasts);
+    ui->showSBToasts->setChecked(store.showSBToasts);
 
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
 }
@@ -42,7 +43,8 @@ void SettingsForm::saveSettings()
     store.homeShelves = ui->homeShelves->isChecked();
     store.preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
     store.preferredVolume = ui->preferredVolume->value();
-    store.returnDislikes = ui->returnDislike->isChecked();
+    store.restoreAnnotations = ui->restoreAnnotations->isChecked();
+    store.returnDislikes = ui->returnDislikes->isChecked();
     store.themedChannels = ui->themedChannels->isChecked();
     // privacy
     store.playbackTracking = ui->playbackTracking->isChecked();
@@ -64,7 +66,7 @@ void SettingsForm::saveSettings()
         store.sponsorBlockCategories.append("selfpromo");
     if (ui->blockSponsor->isChecked() && !store.sponsorBlockCategories.contains("sponsor"))
         store.sponsorBlockCategories.append("sponsor");
-    store.showSBToasts = ui->showToasts->isChecked();
+    store.showSBToasts = ui->showSBToasts->isChecked();
 
     store.saveToSettingsFile();
     store.initializeFromSettingsFile();

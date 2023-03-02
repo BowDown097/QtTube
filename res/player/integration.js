@@ -20,9 +20,16 @@ waitForElement("#movie_player").then(function(p) {
     p.setVolume(params.get("v")); // seek to saved volume
     p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. there's no way out of doing this. wtf???
 
+    // annotations
+    var annotPref = params.get("annot");
+    if (annotPref == 1) {
+        waitForElement(".ytp-panel-menu").then(el => addAnnotationSwitch(el));
+        handleAnnotations(document.location.pathname.split("/").pop());
+    }
+
     // quality preference
-    var pref = params.get("q");
-    if (!pref || pref == "auto") {
+    var qPref = params.get("q");
+    if (!qPref || qPref == "auto") {
         p.playVideo();
         return;
     }
@@ -35,10 +42,10 @@ waitForElement("#movie_player").then(function(p) {
         if (!avail?.length)
             return;
 
-        if (!avail.includes(pref)) // if our pref is not available, pick (should be) next best one
-            pref = avail[0];
+        if (!avail.includes(qPref)) // if our pref is not available, pick (should be) next best one
+            qPref = avail[0];
 
-        p.setPlaybackQualityRange(pref, pref);
+        p.setPlaybackQualityRange(qPref, qPref);
         p.playVideo();
         clearInterval(iv);
     }, 100);

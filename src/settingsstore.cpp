@@ -10,6 +10,7 @@ void SettingsStore::initializeFromSettingsFile()
     homeShelves = settings.value("homeShelves", false).toBool();
     preferredQuality = settings.value("preferredQuality", PlayerQuality::Auto).value<PlayerQuality>();
     preferredVolume = settings.value("preferredVolume", 100).toInt();
+    restoreAnnotations = settings.value("restoreAnnotations", false).toBool();
     returnDislikes = settings.value("returnDislikes", true).toBool();
     themedChannels = settings.value("themedChannels", false).toBool();
 
@@ -17,7 +18,6 @@ void SettingsStore::initializeFromSettingsFile()
     watchtimeTracking = settings.value("privacy/watchtimeTracking", true).toBool();
 
     showSBToasts = settings.value("sponsorBlock/toasts", true).toBool();
-
     sponsorBlockCategories.clear();
 
     int size = settings.beginReadArray("sponsorBlock/categories");
@@ -38,6 +38,7 @@ void SettingsStore::saveToSettingsFile()
     settings.setValue("homeShelves", homeShelves);
     settings.setValue("preferredQuality", preferredQuality);
     settings.setValue("preferredVolume", preferredVolume);
+    settings.setValue("restoreAnnotations", restoreAnnotations);
     settings.setValue("returnDislikes", returnDislikes);
     settings.setValue("themedChannels", themedChannels);
 
