@@ -509,7 +509,7 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
                 }
                 else if (url.host() == "www.youtube.com" && url.path().startsWith("/channel"))
                 {
-                    href = url.toString().replace("https://www.youtube.com", "");
+                    href = url.path();
                     runText = url.toString().left(37) + "...";
                 }
                 else

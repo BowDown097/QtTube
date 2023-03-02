@@ -3,13 +3,13 @@
 #include "fullscreenwindow.h"
 #include "playerinterceptor.h"
 #include <QWebEngineFullScreenRequest>
+#include <QWebEngineScript>
 
 class WebEnginePlayer : public QWidget
 {
     Q_OBJECT
 public:
     explicit WebEnginePlayer(QWidget* parent = nullptr);
-
     void setAuthStore(InnertubeAuthStore* authStore) { m_interceptor->setAuthStore(authStore); }
     void setContext(InnertubeContext* context) { m_interceptor->setContext(context); }
     void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp) { m_interceptor->setPlayerResponse(resp); }
@@ -22,6 +22,10 @@ private:
     QScopedPointer<FullScreenWindow> m_fullScreenWindow;
     PlayerInterceptor* m_interceptor;
     QWebEngineView* m_view = nullptr;
+
+    QString getFileContents(const QString& path);
+    void loadScriptFile(const QString& path, QWebEngineScript::InjectionPoint injectionPoint);
+    void loadScriptString(const QString& data, QWebEngineScript::InjectionPoint injectionPoint);
 };
 
 #endif // WEBENGINEPLAYER_H

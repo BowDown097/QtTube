@@ -31,7 +31,19 @@
         <file>notif-bell-light.png</file>
     </qresource>
     <qresource>
-        <file>playerjs.txt</file>
+        <file>player/global.js</file>
+    </qresource>
+    <qresource>
+        <file>player/integration.js</file>
+    </qresource>
+    <qresource>
+        <file>player/patches.js</file>
+    </qresource>
+    <qresource>
+        <file>player/sponsorblock.js</file>
+    </qresource>
+    <qresource>
+        <file>player/styles.css</file>
     </qresource>
     <qresource>
         <file>playlist_add.png</file>

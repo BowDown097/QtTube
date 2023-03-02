@@ -1,6 +1,6 @@
 #include "webengineplayer.h"
 #include "settingsstore.h"
-#include "webchannelmethods.h"
+#include "webchannelinterface.h"
 #include <QVBoxLayout>
 #include <QWebChannel>
 #include <QWebEngineProfile>
@@ -17,43 +17,21 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
 
     QWebChannel* channel = new QWebChannel(m_view->page());
     m_view->page()->setWebChannel(channel);
-    channel->registerObject("methods", WebChannelMethods::instance());
+    channel->registerObject("interface", WebChannelInterface::instance());
 
-    QWebEngineScript webChannelJs;
-    webChannelJs.setInjectionPoint(QWebEngineScript::DocumentCreation);
-    webChannelJs.setWorldId(QWebEngineScript::MainWorld);
-    QFile webChannelJsFile(":/qtwebchannel/qwebchannel.js");
-    webChannelJsFile.open(QFile::ReadOnly);
-    webChannelJs.setSourceCode(webChannelJsFile.readAll());
-    m_view->page()->scripts().insert(webChannelJs);
+    loadScriptFile(":/qtwebchannel/qwebchannel.js", QWebEngineScript::DocumentCreation);
+    loadScriptFile(":/player/global.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/player/integration.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/player/sponsorblock.js", QWebEngineScript::DocumentReady);
 
-    QWebEngineScript playerJs;
-    playerJs.setInjectionPoint(QWebEngineScript::DocumentReady);
-    playerJs.setWorldId(QWebEngineScript::MainWorld);
-    QFile playerJsFile(":/playerjs.txt");
-    playerJsFile.open(QFile::ReadOnly);
-    playerJs.setSourceCode(playerJsFile.readAll());
-    m_view->page()->scripts().insert(playerJs);
+    QString patchesData = getFileContents(":/player/patches.js");
+    QString stylesData = getFileContents(":/player/styles.css");
+    loadScriptString(patchesData.arg(stylesData), QWebEngineScript::DocumentReady);
 
     m_view->page()->profile()->setUrlRequestInterceptor(m_interceptor);
     m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
     m_view->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
     connect(m_view->page(), &QWebEnginePage::fullScreenRequested, this, &WebEnginePlayer::fullScreenRequested);
-}
-
-void WebEnginePlayer::play(const QString& vId, int progress)
-{
-    QString sbc = QJsonDocument(QJsonArray::fromStringList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
-    QString q = QMetaEnum::fromType<SettingsStore::PlayerQuality>().valueToKey(SettingsStore::instance().preferredQuality);
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5")
-                      .arg(vId, sbc, q.toLower())
-                      .arg(progress)
-                      .arg(SettingsStore::instance().preferredVolume)));
-}
-
-void WebEnginePlayer::seek(int progress)
-{
-    m_view->page()->runJavaScript(QStringLiteral("document.getElementById(\"movie_player\").seekTo(%1);").arg(progress));
 }
 
 void WebEnginePlayer::fullScreenRequested(QWebEngineFullScreenRequest request)
@@ -69,4 +47,40 @@ void WebEnginePlayer::fullScreenRequested(QWebEngineFullScreenRequest request)
         if (!m_fullScreenWindow) return;
         m_fullScreenWindow.reset();
     }
+}
+
+QString WebEnginePlayer::getFileContents(const QString& path)
+{
+    QFile file(path);
+    file.open(QFile::ReadOnly);
+    return file.readAll();
+}
+
+void WebEnginePlayer::loadScriptFile(const QString& path, QWebEngineScript::InjectionPoint injectionPoint)
+{
+    loadScriptString(getFileContents(path), injectionPoint);
+}
+
+void WebEnginePlayer::loadScriptString(const QString& data, QWebEngineScript::InjectionPoint injectionPoint)
+{
+    QWebEngineScript script;
+    script.setInjectionPoint(injectionPoint);
+    script.setSourceCode(data);
+    script.setWorldId(QWebEngineScript::MainWorld);
+    m_view->page()->scripts().insert(script);
+}
+
+void WebEnginePlayer::play(const QString& vId, int progress)
+{
+    QString sbc = QJsonDocument(QJsonArray::fromStringList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
+    QString q = QMetaEnum::fromType<SettingsStore::PlayerQuality>().valueToKey(SettingsStore::instance().preferredQuality);
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5")
+                      .arg(vId, sbc, q.toLower())
+                      .arg(progress)
+                      .arg(SettingsStore::instance().preferredVolume)));
+}
+
+void WebEnginePlayer::seek(int progress)
+{
+    m_view->page()->runJavaScript(QStringLiteral("document.getElementById(\"movie_player\").seekTo(%1);").arg(progress));
 }
