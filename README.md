@@ -1,21 +1,14 @@
 ![QtTube Logo](https://user-images.githubusercontent.com/42720004/192839093-ff0565f2-862f-4cee-a026-5cc0cadb20b5.png)
 
-QtTube is a Qt frontend for YouTube, made in C++. It aims to provide all of the features of the YouTube website, many of which other frontends do not include, while maintaining as much privacy as possible.
+QtTube is a Qt frontend for YouTube made in C++ that aims to emulate the normal YouTube experience as close as possible.
 
-# Features
-- **FULLY FUNCTIONAL** YouTube login.
-- **TOTAL INTEGRATION** with YouTube. This means, assuming you haven't turned the features off in the Settings and you are logged in, videos you watch will be saved in your History and tweak your recommendations across not only this application but also the YouTube website and app.
-- Home page and watch page.
+This frontend offers considerable improvements in performance, privacy, and resource usage over the YouTube website. Furthermore, it supports logging in, and with that, total integration with the YouTube website and app.
 
-# Roadmap
-This list is ordered by priority. Everything will likely be added in this order.
-- Description, recommendations, etc. on watch page
-- Account menu
-- Switch video player from an embed of YouTube's player to one based off of libmpv
-- Subscriptions/history export
+# Installation
+The latest development versions can be installed on Arch Linux and its derivatives through the AUR:<br>
+[![qttube-git](https://img.shields.io/badge/aur-qttube--git-blue)](https://aur.archlinux.org/packages/qttube-git/)
 
-# Contributing
-This project is in desperate need of contributors should it not take an eternity to finish. No matter how small, pull requests are **GREATLY** appreciated. This is, at the moment, a one-man effort. And there will be no codes of conduct here - I don't care who you are: if your code is good and works, that's all that matters!
+Outside of that, you will need to build the program yourself - [instructions are provided if needed](https://github.com/BowDown097/QtTube/blob/master/BUILD_INSTRUCTIONS.md). There are no releases yet and there is no ETA for when there will be one.
 
 # Used Libraries
 - [AnnotationsRestored](https://github.com/isaackd/AnnotationsRestored)
@@ -27,7 +20,7 @@ This project is in desperate need of contributors should it not take an eternity
 - [SponsorBlock](https://github.com/ajayyy/SponsorBlock)
 
 # Screenshots
-As of February 14th, 2023. Depending on how long it's been since said date, things may look different and/or have more content.
+As of February 14th, 2023. Depending on how long it's been since said date, things may be different.
 <div display="flex">
 <img src="https://user-images.githubusercontent.com/42720004/218771944-0bbc6274-b035-49db-9164-25362063f830.png" width="348" height="261" />
 <img src="https://user-images.githubusercontent.com/42720004/218772018-54a62777-3b73-4691-b1f1-e86d32a57805.png" width="348" height="261" />
