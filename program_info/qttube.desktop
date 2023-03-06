@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=QtTube
+Comment=A Qt frontend for YouTube.
+Icon=qttube
+Exec=qttube
+Categories=AudioVideo;Video;
+GenericName=Unofficial YouTube desktop app
