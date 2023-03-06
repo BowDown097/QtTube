@@ -1,15 +1,23 @@
-QT += core gui network
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-lessThan(QT_MAJOR_VERSION, 6):unix:!macx: QT += x11extras
-
+QT += core gui network widgets
 INCLUDEPATH += $$PWD/src
 DEPENDPATH += $$PWD/src
-
 CONFIG += c++2a
-unix:!macx: LIBS += -lX11 -lXss
 
 include(lib/http/http.pri)
 include(lib/innertube-qt/innertube-qt.pri)
+
+unix:!macx {
+    load(configure)
+    qtCompileTest(xscreensaver)
+    CONFIG(config_xscreensaver) {
+        qtHaveModule(x11extras) {
+            DEFINES += QTTUBE_HAS_X11EXTRAS
+            QT += x11extras
+        }
+        DEFINES += QTTUBE_HAS_XSS
+        LIBS += -lX11 -lXss
+    }
+}
 
 contains(DEFINES, USEMPV) {
     LIBS += -lmpv
@@ -44,10 +52,6 @@ contains(DEFINES, USEMPV) {
         src/ui/widgets/webengineplayer/webengineplayer.h
 }
 
-# You can make your code fail to compile if it uses deprecated APIs.
-# In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
 SOURCES += \
     src/main.cpp \
     src/qttubeapplication.cpp \
@@ -76,9 +80,9 @@ HEADERS += \
     src/ui/browsehelper.tpp \
     src/ui/channelbrowser.h \
     src/ui/uiutilities.h \
+    src/ui/uiutilities.tpp \
     src/ui/forms/mainwindow.h \
     src/ui/forms/settingsform.h \
-    src/ui/uiutilities.tpp \
     src/ui/views/channelview.h \
     src/ui/views/watchview.h \
     src/ui/widgets/browsechannelrenderer.h \
