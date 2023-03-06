@@ -5,7 +5,7 @@
 #include "settingsstore.h"
 #include "uiutilities.h"
 #include "ui/forms/mainwindow.h"
-#include "ui/widgets/browsenotificationrenderer.h"
+#include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include <QApplication>
 #include <QListWidgetItem>
 

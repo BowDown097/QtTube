@@ -2,7 +2,7 @@
 #define BROWSENOTIFICATIONRENDERER_H
 #include "httpreply.h"
 #include "innertube/objects/notification/notification.h"
-#include "tubelabel.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include <QHBoxLayout>
 
 class BrowseNotificationRenderer : public QWidget

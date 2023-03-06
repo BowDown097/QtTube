@@ -1,6 +1,6 @@
 #ifndef TOPBAR_H
 #define TOPBAR_H
-#include "tubelabel.h"
+#include "labels/tubelabel.h"
 #include <QLineEdit>
 #include <QPropertyAnimation>
 #include <QPushButton>

@@ -1,87 +1,54 @@
 #include "subscribewidget.h"
-#include "innertube.h"
-#include <QMessageBox>
+#include "http.h"
+#include "settingsstore.h"
 
-SubscribeWidget::SubscribeWidget(QWidget* parent, Qt::WindowFlags f) : QLabel(parent, f)
+SubscribeWidget::SubscribeWidget(QWidget* parent) : QWidget(parent)
 {
-    setFixedSize(80, 24);
+    m_layout = new QHBoxLayout(this);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
+
+    m_subscribeLabel = new SubscribeLabel(this);
+    m_layout->addWidget(m_subscribeLabel);
+
+    m_subscribersCountLabel = new TubeLabel(this);
+    m_subscribersCountLabel->setFixedHeight(24);
+    m_subscribersCountLabel->setStyleSheet(subscribersCountStyle);
+    m_layout->addWidget(m_subscribersCountLabel);
 }
 
 void SubscribeWidget::setPreferredPalette(const QPalette& pal)
 {
-    preferredPalette = pal;
-    setPalette(pal);
+    m_subscribeLabel->setPreferredPalette(pal);
+    m_subscribersCountLabel->setPalette(pal);
 }
 
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
-    this->subscribeButton = subscribeButton;
-    setStyleSheet(subscribeButton.subscribed ? subscribedStyle : subscribeStyle);
-    setText(subscribeButton.buttonText.text.isEmpty() ? "Subscribe" : subscribeButton.buttonText.text);
+    m_subscribeLabel->setSubscribeButton(subscribeButton);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-void SubscribeWidget::enterEvent(QEnterEvent*)
-#else
-void SubscribeWidget::enterEvent(QEvent*)
-#endif
+void SubscribeWidget::setSubscriberCount(const QString& subscriberCountText, const QString& channelId)
 {
-    setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
-    if (subscribeButton.subscribed)
+    if (!SettingsStore::instance().fullSubs)
     {
-        setStyleSheet(unsubscribeStyle);
-        setText(subscribeButton.unsubscribeButtonText.text);
-    }
-    else
-    {
-        setStyleSheet(subscribeHoveredStyle);
-    }
-    setPalette(preferredPalette);
-}
-
-void SubscribeWidget::leaveEvent(QEvent*)
-{
-    setCursor(QCursor());
-    if (subscribeButton.subscribed)
-    {
-        setStyleSheet(subscribedStyle);
-        setText(subscribeButton.subscribedButtonText.text);
-    }
-    else
-    {
-        setStyleSheet(subscribeStyle);
-    }
-    setPalette(preferredPalette);
-}
-
-void SubscribeWidget::mousePressEvent(QMouseEvent*)
-{
-    if (!InnerTube::instance().hasAuthenticated())
-    {
-        QMessageBox::information(nullptr, "Need to log in", "You must be logged in to subscribe to channels.\nLocal subscriptions are planned, but not implemented.");
+        m_subscribersCountLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
+        m_subscribersCountLabel->adjustSize();
         return;
     }
 
-    if (subscribeButton.subscribed)
-    {
-        if (QMessageBox::question(nullptr, "Unsubscribe?", "Unsubscribe from this channel?") != QMessageBox::StandardButton::Yes)
-            return;
-        InnerTube::instance().subscribe(
-            qAsConst(subscribeButton.onUnsubscribeEndpoints)[0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]
-                ["confirmDialogRenderer"]["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"],
-            false
-        );
-        setStyleSheet(subscribeStyle);
-        setText(subscribeButton.unsubscribedButtonText.text);
-        subscribeButton.subscribed = false;
-    }
-    else
-    {
-        InnerTube::instance().subscribe(qAsConst(subscribeButton.onSubscribeEndpoints)[0]["subscribeEndpoint"], true);
-        setStyleSheet(subscribedStyle);
-        setText(subscribeButton.subscribedButtonText.text);
-        subscribeButton.subscribed = true;
-    }
+    Http http;
+    http.setReadTimeout(2000);
+    http.setMaxRetries(5);
 
-    setPalette(preferredPalette);
+    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId));
+    connect(reply, &HttpReply::error, this, [this, subscriberCountText] {
+        m_subscribersCountLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
+        m_subscribersCountLabel->adjustSize();
+    });
+    connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
+        int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
+        m_subscribersCountLabel->setText(QLocale::system().toString(subs));
+        m_subscribersCountLabel->adjustSize();
+    });
 }

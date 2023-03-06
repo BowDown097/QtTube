@@ -1,8 +1,8 @@
 #ifndef BROWSEVIDEORENDERER_H
 #define BROWSEVIDEORENDERER_H
-#include "channellabel.h"
 #include "httpreply.h"
 #include "innertube/objects/video/videoowner.h"
+#include "ui/widgets/labels/channellabel.h"
 #include <QVBoxLayout>
 
 class BrowseVideoRenderer : public QWidget

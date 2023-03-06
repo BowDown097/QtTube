@@ -70,28 +70,11 @@ void ChannelView::loadChannel(const QString& channelId)
     metaHbox->addLayout(metaVbox);
     channelHeader->addLayout(metaHbox);
 
-    subscribeHbox = new QHBoxLayout(this);
-    subscribeHbox->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    subscribeHbox->setContentsMargins(0, 0, 0, 0);
-    subscribeHbox->setSpacing(0);
-
     subscribeWidget = new SubscribeWidget(this);
+    subscribeWidget->layout()->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     subscribeWidget->setSubscribeButton(channelResp.header.subscribeButton);
-    subscribeHbox->addWidget(subscribeWidget);
-
-    subscribersLabel = new TubeLabel(this);
-    subscribersLabel->setStyleSheet(R"(
-    border: 1px solid #333;
-    font-size: 11px;
-    line-height: 24px;
-    padding: 0 6px 0 4.5px;
-    border-radius: 2px;
-    text-align: center;
-    )");
-    setSubscriberCount(channelResp);
-    subscribeHbox->addWidget(subscribersLabel);
-
-    channelHeader->addLayout(subscribeHbox);
+    subscribeWidget->setSubscriberCount(channelResp.header.subscriberCountText.text, channelResp.header.channelId);
+    channelHeader->addWidget(subscribeWidget);
 
     pageLayout->addWidget(channelHeaderWidget);
 
@@ -118,7 +101,7 @@ void ChannelView::hotLoadChannel(const QString& channelId)
     channelName->setText(channelResp.header.title);
     handleAndVideos->setText(channelResp.header.channelHandleText.text + " • " + channelResp.header.videosCountText.text);
     subscribeWidget->setSubscribeButton(channelResp.header.subscribeButton);
-    setSubscriberCount(channelResp);
+    subscribeWidget->setSubscriberCount(channelResp.header.subscriberCountText.text, channelResp.header.channelId);
 
     disconnect(channelTabs, &QTabWidget::currentChanged, nullptr, nullptr);
     channelTabs->clear();
@@ -175,7 +158,6 @@ void ChannelView::setBanner(const HttpReply& reply)
         QPalette domPal(QColor(domRgb.r, domRgb.g, domRgb.b));
         channelHeaderWidget->setPalette(domPal);
         channelTabs->tabBar()->setPalette(domPal);
-        subscribersLabel->setPalette(domPal);
         subscribeWidget->setPreferredPalette(domPal);
         MainWindow::topbar()->updatePalette(domPal);
     }
@@ -186,41 +168,6 @@ void ChannelView::setIcon(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-}
-
-void ChannelView::setSubscriberCount(const InnertubeEndpoints::ChannelResponse& channelResp)
-{
-    QString subscriberCountText = channelResp.header.subscriberCountText.text;
-    if (!SettingsStore::instance().fullSubs)
-    {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
-#else
-        subscribersLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
-#endif
-        subscribersLabel->adjustSize();
-        return;
-    }
-
-    Http http;
-    http.setReadTimeout(2000);
-    http.setMaxRetries(5);
-
-    // have to catch errors here because this API really, REALLY likes to stop working
-    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelResp.header.channelId));
-    connect(reply, &HttpReply::error, this, [this, subscriberCountText] {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
-#else
-        subscribersLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
-#endif
-        subscribersLabel->adjustSize();
-    });
-    connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
-        int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
-        subscribersLabel->setText(QLocale::system().toString(subs));
-        subscribersLabel->adjustSize();
-    });
 }
 
 void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& channelResp)

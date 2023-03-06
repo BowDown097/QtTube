@@ -1,7 +1,7 @@
 #ifndef BROWSECHANNELRENDERER_H
 #define BROWSECHANNELRENDERER_H
 #include "httpreply.h"
-#include "tubelabel.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include <QVBoxLayout>
 
 class BrowseChannelRenderer : public QWidget

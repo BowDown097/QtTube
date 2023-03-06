@@ -5,15 +5,13 @@
 #include "innertube/endpoints/video/player.h"
 #include "innertube/innertubeexception.h"
 #include "innertube/responses/video/updatedmetadataresponse.h"
-#include "ui/widgets/channellabel.h"
-#include "ui/widgets/iconlabel.h"
+#include "ui/widgets/labels/channellabel.h"
+#include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/subscribewidget.h"
-#include "ui/widgets/tubelabel.h"
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QSpacerItem>
 #include <QTimer>
-#include <QVBoxLayout>
 
 #ifdef USEMPV
 #include "lib/media/media.h"
@@ -67,9 +65,7 @@ private:
     QWidget* primaryInfoWrapper;
     QScrollArea* scrollArea;
     TubeLabel* showMoreLabel;
-    QHBoxLayout* subscribeHbox;
     SubscribeWidget* subscribeWidget;
-    TubeLabel* subscribersLabel;
     TubeLabel* titleLabel;
     QHBoxLayout* topLevelButtons;
     TubeLabel* viewCount;
@@ -90,7 +86,6 @@ private:
     QString generateFormattedDescription(const InnertubeObjects::InnertubeString& description);
     void navigateChannel(const QString& inChannelId);
     void setChannelIcon(const HttpReply& reply);
-    void setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo);
     void toggleIdleSleep(bool toggle);
     void updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp);
 

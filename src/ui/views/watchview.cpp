@@ -147,21 +147,10 @@ void WatchView::loadVideo(const QString& videoId, int progress)
             primaryInfoVbox->addWidget(channelLabel);
             connect(channelLabel->text, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
 
-            { // begin subscribeHbox
-                subscribeHbox = new QHBoxLayout(this);
-                subscribeHbox->setContentsMargins(0, 0, 0, 0);
-                subscribeHbox->setSpacing(0);
-
-                subscribeWidget = new SubscribeWidget(this);
-                subscribeHbox->addWidget(subscribeWidget);
-
-                subscribersLabel = new TubeLabel(this);
-                subscribeHbox->addWidget(subscribersLabel);
-
-                subscribeHbox->addStretch();
-
-                primaryInfoVbox->addLayout(subscribeHbox);
-            } // end subscribeHbox
+            subscribeWidget = new SubscribeWidget(this);
+            subscribeWidget->layout()->addStretch();
+            subscribeWidget->subscribersCountLabel()->setVisible(false);
+            primaryInfoVbox->addWidget(subscribeWidget);
 
             primaryInfoHbox->addLayout(primaryInfoVbox);
         } // end primaryInfoVbox
@@ -283,17 +272,9 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     connect(channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannel, this, channelId));
 
-    subscribersLabel->setStyleSheet(R"(
-    border: 1px solid #333;
-    font-size: 11px;
-    line-height: 24px;
-    padding: 0 6px 0 4.5px;
-    border-radius: 2px;
-    text-align: center;
-    )");
-
     subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
-    setSubscriberCount(nextResp.secondaryInfo);
+    subscribeWidget->setSubscriberCount(nextResp.secondaryInfo.owner.subscriberCountText.text, nextResp.secondaryInfo.subscribeButton.channelId);
+    subscribeWidget->subscribersCountLabel()->setVisible(true);
 
     viewCount->setText(nextResp.primaryInfo.viewCount.text);
 
@@ -605,40 +586,6 @@ void WatchView::setChannelIcon(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-}
-
-void WatchView::setSubscriberCount(const InnertubeObjects::VideoSecondaryInfo& secondaryInfo)
-{
-    QString subscriberCountText = secondaryInfo.owner.subscriberCountText.text;
-    if (!SettingsStore::instance().fullSubs)
-    {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
-#else
-        subscribersLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
-#endif
-        subscribersLabel->adjustSize();
-        return;
-    }
-
-    Http http;
-    http.setReadTimeout(2000);
-    http.setMaxRetries(5);
-
-    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + secondaryInfo.subscribeButton.channelId));
-    connect(reply, &HttpReply::error, this, [this, subscriberCountText] {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        subscribersLabel->setText(subscriberCountText.first(subscriberCountText.lastIndexOf(" ")));
-#else
-        subscribersLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
-#endif
-        subscribersLabel->adjustSize();
-    });
-    connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
-        int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
-        subscribersLabel->setText(QLocale::system().toString(subs));
-        subscribersLabel->adjustSize();
-    });
 }
 
 void WatchView::showContextMenu(const QPoint& pos)

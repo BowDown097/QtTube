@@ -1,9 +1,9 @@
 #include "uiutilities.h"
 #include "http.h"
 #include "settingsstore.h"
-#include "widgets/browsechannelrenderer.h"
-#include "widgets/browsevideorenderer.h"
-#include "widgets/tubelabel.h"
+#include "widgets/labels/tubelabel.h"
+#include "widgets/renderers/browsechannelrenderer.h"
+#include "widgets/renderers/browsevideorenderer.h"
 #include <QApplication>
 #include <QClipboard>
 

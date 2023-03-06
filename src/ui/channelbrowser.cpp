@@ -1,8 +1,8 @@
 #include "channelbrowser.h"
 #include "innertube/innertubeexception.h"
 #include "innertube/objects/channel/aboutfullmetadata.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include "uiutilities.h"
-#include "ui/widgets/tubelabel.h"
 #include <QApplication>
 #include <QDesktopServices>
 #include <QJsonObject>
