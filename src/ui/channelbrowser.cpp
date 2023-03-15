@@ -44,6 +44,7 @@ void ChannelBrowser::setupAbout(QListWidget* channelTab, const QJsonValue& tabRe
             TubeLabel* label = new TubeLabel(link.title);
             label->setClickable(true, false);
             label->setStyleSheet("color: #167ac6");
+            UIUtilities::addWidgetToList(channelTab, label);
 
             QObject::connect(label, &TubeLabel::clicked, [link]
             {
@@ -51,11 +52,6 @@ void ChannelBrowser::setupAbout(QListWidget* channelTab, const QJsonValue& tabRe
                 QUrlQuery query(url);
                 QDesktopServices::openUrl(QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8()));
             });
-
-            QListWidgetItem* item = new QListWidgetItem(channelTab);
-            item->setSizeHint(label->sizeHint());
-            channelTab->addItem(item);
-            channelTab->setItemWidget(item, label);
         }
     }
 }
@@ -190,12 +186,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
             TubeLabel* membershipTitle = new TubeLabel(InnertubeObjects::InnertubeString(perks["title"]));
             perksHeader->addWidget(membershipTitle);
 
-            QListWidgetItem* perksHeaderItem = new QListWidgetItem(channelTab);
-            perksHeaderItem->setSizeHint(perksHeaderWrapper->sizeHint());
-            channelTab->addItem(perksHeaderItem);
-            channelTab->setItemWidget(perksHeaderItem, perksHeaderWrapper);
-
-            UIUtilities::addSeparatorToList(channelTab);
+            UIUtilities::addWidgetToList(channelTab, perksHeaderWrapper);
         } // end perksHeader
 
         { // begin perkInfo
@@ -215,22 +206,14 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
             perkInfoHeader->addWidget(showPerkInfo);
 
             perkInfoHeader->addStretch();
-
-            QListWidgetItem* perkInfoHeaderItem = new QListWidgetItem(channelTab);
-            perkInfoHeaderItem->setSizeHint(perkInfoHeaderWrapper->sizeHint());
-            channelTab->addItem(perkInfoHeaderItem);
-            channelTab->setItemWidget(perkInfoHeaderItem, perkInfoHeaderWrapper);
+            UIUtilities::addWidgetToList(channelTab, perkInfoHeaderWrapper);
 
             QVBoxLayout* perkInfo = new QVBoxLayout;
             perkInfo->setContentsMargins(0, 0, 0, 0);
 
             QWidget* perkInfoWrapper = new QWidget;
             perkInfoWrapper->setLayout(perkInfo);
-
-            QListWidgetItem* perkInfoItem = new QListWidgetItem(channelTab);
-            perkInfoItem->setSizeHint(perkInfoWrapper->sizeHint());
-            channelTab->addItem(perkInfoItem);
-            channelTab->setItemWidget(perkInfoItem, perkInfoWrapper);
+            QListWidgetItem* perkInfoItem = UIUtilities::addWidgetToList(channelTab, perkInfoWrapper);
 
             QObject::connect(showPerkInfo, &TubeLabel::clicked, showPerkInfo, [perkInfo, perkInfoItem, perkInfoWrapper, perks, showPerkInfo]
             {

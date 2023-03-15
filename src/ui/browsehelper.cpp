@@ -7,7 +7,6 @@
 #include "ui/forms/mainwindow.h"
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include <QApplication>
-#include <QListWidgetItem>
 
 BrowseHelper* BrowseHelper::instance()
 {
@@ -182,11 +181,7 @@ void BrowseHelper::setupNotificationList(const QList<InnertubeObjects::Notificat
     {
         BrowseNotificationRenderer* renderer = new BrowseNotificationRenderer(widget);
         renderer->setData(n);
-
-        QListWidgetItem* item = new QListWidgetItem(widget);
-        item->setSizeHint(renderer->sizeHint());
-        widget->addItem(item);
-        widget->setItemWidget(item, renderer);
+        UIUtilities::addWidgetToList(widget, renderer);
 
         HttpReply* iconReply = Http::instance().get(n.channelIcon.url);
         connect(iconReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setChannelIcon);

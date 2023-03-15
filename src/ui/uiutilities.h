@@ -19,6 +19,7 @@ public:
     static void addShelfTitleToList(QListWidget* list, const QString& title);
     static void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel);
     static void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video);
+    static QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
     static void addWrappedLabelToList(QListWidget* list, const QString& text);
     static void clearLayout(QLayout* layout);
     static void copyToClipboard(const QString& text);

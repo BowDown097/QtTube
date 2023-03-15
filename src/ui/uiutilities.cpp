@@ -15,11 +15,7 @@ void UIUtilities::addBoldLabelToList(QListWidget* list, const QString& text)
 {
     QLabel* label = new QLabel(text);
     label->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(label->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, label);
+    addWidgetToList(list, label);
 }
 
 void UIUtilities::addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel)
@@ -27,11 +23,7 @@ void UIUtilities::addChannelRendererToList(QListWidget* list, const InnertubeObj
     BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
     renderer->setData(channel.channelId, channel.descriptionSnippet.text, channel.title.text, channel.subscribed,
                       channel.subscriberCountText.text, channel.videoCountText.text);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(renderer->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, renderer);
+    addWidgetToList(list, renderer);
 
     HttpReply* reply = Http::instance().get(channel.thumbnails.last().url);
     QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
@@ -42,11 +34,7 @@ void UIUtilities::addSeparatorToList(QListWidget* list)
     QFrame* line = new QFrame;
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(line->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, line);
+    addWidgetToList(list, line);
 }
 
 void UIUtilities::addShelfTitleToList(QListWidget* list, const QJsonValue& shelf)
@@ -58,11 +46,7 @@ void UIUtilities::addShelfTitleToList(QListWidget* list, const QString& title)
 {
     TubeLabel* shelfLabel = new TubeLabel(title);
     shelfLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(shelfLabel->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, shelfLabel);
+    addWidgetToList(list, shelfLabel);
 }
 
 void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
@@ -71,11 +55,7 @@ void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjec
     renderer->setChannelData(reel.owner);
     renderer->setTargetElisionWidth(list->width() - 240);
     renderer->setVideoData("SHORTS", "", 0, reel.headline, reel.videoId, reel.viewCountText.text);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(renderer->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, renderer);
+    addWidgetToList(list, renderer);
 
     HttpReply* reply = Http::instance().get(reel.thumbnails[0].url);
     QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
@@ -88,25 +68,26 @@ void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjec
     renderer->setTargetElisionWidth(list->width() - 240);
     renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.startTimeSeconds, video.title.text,
         video.videoId, SettingsStore::instance().condensedViews ? video.shortViewCountText.text : video.viewCountText.text);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(renderer->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, renderer);
+    addWidgetToList(list, renderer);
 
     HttpReply* reply = Http::instance().get(video.thumbnail.mqdefault);
     QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
+}
+
+QListWidgetItem* UIUtilities::addWidgetToList(QListWidget* list, QWidget* widget)
+{
+    QListWidgetItem* item = new QListWidgetItem(list);
+    item->setSizeHint(widget->sizeHint());
+    list->addItem(item);
+    list->setItemWidget(item, widget);
+    return item;
 }
 
 void UIUtilities::addWrappedLabelToList(QListWidget* list, const QString& text)
 {
     QLabel* label = new QLabel(text);
     label->setWordWrap(true);
-
-    QListWidgetItem* item = new QListWidgetItem(list);
-    item->setSizeHint(label->sizeHint());
-    list->addItem(item);
-    list->setItemWidget(item, label);
+    addWidgetToList(list, label);
 }
 
 void UIUtilities::clearLayout(QLayout* layout)
