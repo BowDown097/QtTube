@@ -25,6 +25,7 @@ public:
     static void elide(QLabel* label, int targetWidth);
     static void setMaximumLines(QWidget* widget, int lines);
     static void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
+    static void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);
 
     template<typename T>
     static T findParent(QWidget* widget);

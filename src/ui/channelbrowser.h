@@ -10,6 +10,7 @@ public:
     static void setupChannels(QListWidget* channelTab, const QJsonValue& tabRenderer);
     static void setupHome(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp);
     static void setupLive(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp);
+    static void setupMembership(QListWidget* channelTab, const QJsonValue& tabRenderer);
     static void setupShorts(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp);
     static void setupUnimplemented(QListWidget* channelTab);
     static void setupVideos(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp);

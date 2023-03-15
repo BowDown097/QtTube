@@ -6,6 +6,11 @@ TubeLabel::TubeLabel(QWidget* parent, Qt::WindowFlags f) : QLabel(parent, f)
     setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 }
 
+TubeLabel::TubeLabel(const InnertubeObjects::InnertubeString& itStr, QWidget* parent, Qt::WindowFlags f) : TubeLabel(parent, f)
+{
+    setText(itStr.text);
+}
+
 TubeLabel::TubeLabel(const QString& text, QWidget* parent, Qt::WindowFlags f) : TubeLabel(parent, f)
 {
     setText(text);

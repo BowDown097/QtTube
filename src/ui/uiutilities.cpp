@@ -155,3 +155,21 @@ void UIUtilities::setTabsEnabled(QTabWidget* widget, bool enabled, std::initiali
     for (int i : indexes)
         widget->setTabEnabled(i, enabled);
 }
+
+void UIUtilities::setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest)
+{
+    QJsonArray::const_iterator thumbsBegin = getBest
+        ? std::max_element(thumbsArr.begin(), thumbsArr.end(), [](const QJsonValue& a, const QJsonValue& b) { return a["height"].toInt() < b["height"].toInt(); })
+        : thumbsArr.begin();
+    if (thumbsBegin == thumbsArr.end())
+        return;
+
+    QJsonValue thumbnail = *thumbsBegin;
+    HttpReply* reply = Http::instance().get(QUrl(thumbnail["url"].toString()));
+    QObject::connect(reply, &HttpReply::finished, reply, [label](const HttpReply& reply)
+    {
+        QPixmap pixmap;
+        pixmap.loadFromData(reply.body());
+        label->setPixmap(pixmap.scaled(label->width(), label->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    });
+}

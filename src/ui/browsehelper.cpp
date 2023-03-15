@@ -37,6 +37,8 @@ void BrowseHelper::browseChannel(QListWidget* channelTab, int index, const Inner
             ChannelBrowser::setupShorts(channelTab, tabRenderer, channelResp);
         else if (title == "Live")
             ChannelBrowser::setupLive(channelTab, tabRenderer, channelResp);
+        else if (title == "Membership")
+            ChannelBrowser::setupMembership(channelTab, tabRenderer);
         else if (title == "Channels")
             ChannelBrowser::setupChannels(channelTab, tabRenderer);
         else if (title == "About")
