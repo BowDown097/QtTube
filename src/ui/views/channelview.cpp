@@ -4,38 +4,19 @@
 #include "settingsstore.h"
 #include "ui/browsehelper.h"
 #include "ui/forms/mainwindow.h"
-#include "ui/uiutilities.h"
 #include <QApplication>
 #include <QScrollBar>
 
-ChannelView* ChannelView::instance()
+ChannelView::~ChannelView()
 {
-    if (!m_channelView)
-        m_channelView = new ChannelView;
-    return m_channelView;
-}
-
-void ChannelView::clear()
-{
-    MainWindow::topbar()->alwaysShow = true;
     MainWindow::topbar()->updatePalette(qApp->palette().alternateBase().color());
-    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
-    UIUtilities::clearLayout(pageLayout);
-    pageLayout->deleteLater();
+    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, nullptr, nullptr);
 }
 
-void ChannelView::goBack()
-{
-    clear();
-    MainWindow::centralWidget()->setCurrentIndex(0);
-}
-
-void ChannelView::loadChannel(const QString& channelId)
+ChannelView::ChannelView(const QString& channelId)
 {
     auto channelResp = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
     this->channelId = channelId;
-
-    MainWindow::centralWidget()->setCurrentIndex(2);
 
     pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
@@ -87,7 +68,6 @@ void ChannelView::loadChannel(const QString& channelId)
 
     MainWindow::topbar()->alwaysShow = false;
     MainWindow::topbar()->setVisible(false);
-    connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &ChannelView::goBack);
 }
 
 void ChannelView::hotLoadChannel(const QString& channelId)

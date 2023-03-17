@@ -62,6 +62,7 @@ SOURCES += \
     src/ui/forms/mainwindow.cpp \
     src/ui/forms/settingsform.cpp \
     src/ui/views/channelview.cpp \
+    src/ui/views/viewcontroller.cpp \
     src/ui/views/watchview.cpp \
     src/ui/widgets/labels/channellabel.cpp \
     src/ui/widgets/labels/iconlabel.cpp \
@@ -85,6 +86,7 @@ HEADERS += \
     src/ui/forms/mainwindow.h \
     src/ui/forms/settingsform.h \
     src/ui/views/channelview.h \
+    src/ui/views/viewcontroller.h \
     src/ui/views/watchview.h \
     src/ui/widgets/labels/channellabel.h \
     src/ui/widgets/labels/iconlabel.h \

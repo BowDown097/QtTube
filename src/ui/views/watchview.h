@@ -26,26 +26,25 @@
 class WatchView : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY(WatchView)
 public:
-    static WatchView* instance();
+    explicit WatchView(const QString& videoId, int progress = 0, QWidget* parent = nullptr);
+    ~WatchView();
     void hotLoadVideo(const QString& videoId, int progress = 0);
-    void loadVideo(const QString& videoId, int progress = 0);
-public slots:
-    void goBack();
 private slots:
     void copyChannelUrl();
     void descriptionLinkActivated(const QString& url);
     void likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton);
-    void loadFailed(const InnertubeException& ie);
     void processNext(const InnertubeEndpoints::Next& endpoint);
     void processPlayer(const InnertubeEndpoints::Player& endpoint);
     void showContextMenu(const QPoint& pos);
     void toggleShowMore();
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+signals:
+    void loadFailed(const InnertubeException& ie);
+    void navigateChannelRequested(const QString& channelId);
 private:
-    Q_DISABLE_COPY(WatchView)
-    WatchView() = default;
-    static inline WatchView* m_watchView;
-
     TubeLabel* channelIcon;
     QString channelId;
     ChannelLabel* channelLabel;
@@ -59,7 +58,7 @@ private:
     IconLabel* likeLabel;
     QVBoxLayout* menuVbox;
     QWidget* menuWrapper;
-    QTimer* metadataUpdateTimer = nullptr;
+    QPointer<QTimer> metadataUpdateTimer;
     QHBoxLayout* primaryInfoHbox;
     QVBoxLayout* primaryInfoVbox;
     QWidget* primaryInfoWrapper;
@@ -71,8 +70,8 @@ private:
     TubeLabel* viewCount;
 
 #ifdef USEMPV
-    Media* media = nullptr;
-    QTimer* watchtimeTimer = nullptr;
+    Media* media;
+    QTimer* watchtimeTimer;
 #else
     WebEnginePlayer* wePlayer;
 #endif
@@ -81,10 +80,8 @@ private:
     inline static IOPMAssertionID sleepAssert;
 #endif
 
-    void resizeEvent(QResizeEvent* event) override; // webengine views don't resize automatically
-    QSize calcPlayerSize();
+    QSize calcPlayerSize(QSize maxSize);
     QString generateFormattedDescription(const InnertubeObjects::InnertubeString& description);
-    void navigateChannel(const QString& inChannelId);
     void setChannelIcon(const HttpReply& reply);
     void toggleIdleSleep(bool toggle);
     void updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp);

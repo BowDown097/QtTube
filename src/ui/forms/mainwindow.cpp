@@ -56,8 +56,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP"));
     tryRestoreData();
 
-    ui->centralwidget->addWidget(WatchView::instance());
-    ui->centralwidget->addWidget(ChannelView::instance());
     ui->tabWidget->setCurrentIndex(5); // just some blank tab so you can pick one
 }
 
@@ -107,8 +105,9 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     QWidget::keyPressEvent(event);
 }
 
-void MainWindow::resizeEvent(QResizeEvent*)
+void MainWindow::resizeEvent(QResizeEvent* event)
 {
+    m_size = event->size();
     notificationMenu->setFixedSize(width() >= 800 ? 600 : 600 - (800 - width()), height() / 2);
     m_topbar->resize(width(), 35);
     m_topbar->scaleAppropriately();
@@ -140,18 +139,14 @@ void MainWindow::returnFromWatchHistorySearch()
 
 void MainWindow::search()
 {
+    m_topbar->alwaysShow = true;
     UIUtilities::clearLayout(ui->additionalWidgets);
     ui->historySearchWidget->clear();
 
-    switch (ui->centralwidget->currentIndex())
-    {
-    case 1:
-        WatchView::instance()->goBack();
-        break;
-    case 2:
-        ChannelView::instance()->goBack();
-        break;
-    }
+    if (ChannelView* channelView = qobject_cast<ChannelView*>(ui->centralwidget->currentWidget()))
+        channelView->deleteLater();
+    else if (WatchView* watchView = qobject_cast<WatchView*>(ui->centralwidget->currentWidget()))
+        watchView->deleteLater();
 
     TubeLabel* filtersLabel = new TubeLabel("Filters:");
     ui->additionalWidgets->addWidget(filtersLabel);

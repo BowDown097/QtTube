@@ -1,5 +1,5 @@
 #include "webchannelinterface.h"
-#include "ui/views/watchview.h"
+#include "ui/views/viewcontroller.h"
 
 WebChannelInterface* WebChannelInterface::instance()
 {
@@ -10,5 +10,5 @@ WebChannelInterface* WebChannelInterface::instance()
 
 void WebChannelInterface::switchWatchViewVideo(const QString& videoId)
 {
-    WatchView::instance()->hotLoadVideo(videoId);
+    ViewController::loadVideo(videoId);
 }

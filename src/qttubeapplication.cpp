@@ -1,6 +1,6 @@
 #include "qttubeapplication.h"
 #include "ui/forms/mainwindow.h"
-#include "ui/views/watchview.h"
+#include "ui/views/viewcontroller.h"
 #include <array>
 #include <QMouseEvent>
 
@@ -14,7 +14,7 @@ bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
     if (event->type() == QEvent::MouseMove)
     {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-        TopBar* topbar = qobject_cast<MainWindow*>(receiver)->topbar();
+        TopBar* topbar = MainWindow::topbar();
         if (!topbar->alwaysShow)
         {
             if (mouseEvent->pos().y() < 35)
@@ -53,7 +53,7 @@ bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
         if (m_sneedProgress == (int)sneed.size())
         {
             m_sneedProgress = 0;
-            WatchView::instance()->loadVideo("T3ElIvNBYj0");
+            ViewController::loadVideo("T3ElIvNBYj0");
         }
     }
 

@@ -17,8 +17,8 @@ public:
     void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp) { this->m_playerResponse = resp; }
 private:
     void setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore);
-    InnertubeAuthStore* m_authStore = nullptr;
-    InnertubeContext* m_context = nullptr;
+    QPointer<InnertubeAuthStore> m_authStore;
+    InnertubeContext* m_context;
     InnertubeEndpoints::PlayerResponse m_playerResponse;
 };
 

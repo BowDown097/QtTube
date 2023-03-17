@@ -1,5 +1,4 @@
 #include "watchview.h"
-#include "channelview.h"
 #include "http.h"
 #include "innertube.h"
 #include "settingsstore.h"
@@ -29,56 +28,16 @@
 #include <Windows.h>
 #endif
 
-WatchView* WatchView::instance()
+WatchView::~WatchView()
 {
-    if (!m_watchView)
-        m_watchView = new WatchView;
-    return m_watchView;
-}
-
-void WatchView::goBack()
-{
-#ifdef USEMPV
-    if (media)
-    {
-        media->stop();
-        media->clearQueue();
-        media->deleteLater();
-        media = nullptr;
-    }
-
-    if (watchtimeTimer)
-    {
-        watchtimeTimer->stop();
-        watchtimeTimer->deleteLater();
-        watchtimeTimer = nullptr;
-    }
-
-    for (QAction* action : actions())
-        removeAction(action);
-#endif
-    MainWindow::topbar()->alwaysShow = true;
-    MainWindow::centralWidget()->setCurrentIndex(0);
-    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
-
-    UIUtilities::clearLayout(frame->layout());
-    frame->layout()->deleteLater();
+    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, nullptr, nullptr);
     toggleIdleSleep(false);
-
-    if (metadataUpdateTimer)
-    {
-        metadataUpdateTimer->stop();
-        metadataUpdateTimer->deleteLater();
-        metadataUpdateTimer = nullptr;
-    }
 }
 
-void WatchView::loadVideo(const QString& videoId, int progress)
+WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QWidget(parent)
 {
-    MainWindow::centralWidget()->setCurrentIndex(1);
-
     scrollArea = new QScrollArea(this);
-    scrollArea->setFixedSize(size());
+    scrollArea->setFixedSize(MainWindow::size());
     scrollArea->setFrameShape(QFrame::NoFrame);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -93,7 +52,7 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     frame->layout()->setSpacing(5);
     scrollArea->setWidget(frame);
 
-    QSize playerSize = calcPlayerSize();
+    QSize playerSize = calcPlayerSize(MainWindow::size());
 
     InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
     connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
@@ -238,11 +197,13 @@ void WatchView::loadVideo(const QString& videoId, int progress)
     toggleIdleSleep(true);
     MainWindow::topbar()->setVisible(false);
     MainWindow::topbar()->alwaysShow = false;
-    connect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
 }
 
 void WatchView::hotLoadVideo(const QString& videoId, int progress)
 {
+    if (metadataUpdateTimer)
+        metadataUpdateTimer->deleteLater();
+
 #ifdef USEMPV
     media->play("https://www.youtube.com/watch?v=" + videoId);
     media->seek(progress);
@@ -270,7 +231,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     channelId = nextResp.secondaryInfo.subscribeButton.channelId;
     channelLabel->setInfo(nextResp.secondaryInfo.owner.title.text, nextResp.secondaryInfo.owner.badges);
 
-    connect(channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannel, this, channelId));
+    connect(channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannelRequested, this, channelId));
 
     subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
     subscribeWidget->setSubscriberCount(nextResp.secondaryInfo.owner.subscriberCountText.text, nextResp.secondaryInfo.subscribeButton.channelId);
@@ -372,7 +333,7 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 
     if (SettingsStore::instance().watchtimeTracking)
     {
-        watchtimeTimer = new QTimer;
+        watchtimeTimer = new QTimer(this);
         watchtimeTimer->setInterval(5000);
         connect(watchtimeTimer, &QTimer::timeout, this, std::bind(&WatchView::reportWatchtime, this, playerResp, media->position));
         watchtimeTimer->start();
@@ -383,7 +344,7 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 
     if (playerResp.videoDetails.isLive)
     {
-        metadataUpdateTimer = new QTimer;
+        metadataUpdateTimer = new QTimer(this);
         metadataUpdateTimer->setInterval(60000);
         connect(metadataUpdateTimer, &QTimer::timeout, this, [playerResp, this]
         {
@@ -398,7 +359,7 @@ void WatchView::resizeEvent(QResizeEvent* event)
 {
     if (!primaryInfoWrapper || !event->oldSize().isValid()) return;
 
-    QSize playerSize = calcPlayerSize();
+    QSize playerSize = calcPlayerSize(size());
     description->setFixedWidth(playerSize.width());
     menuWrapper->setFixedWidth(playerSize.width());
     primaryInfoWrapper->setFixedWidth(playerSize.width());
@@ -414,14 +375,14 @@ void WatchView::resizeEvent(QResizeEvent* event)
     scrollArea->setFixedSize(event->size());
 }
 
-QSize WatchView::calcPlayerSize()
+QSize WatchView::calcPlayerSize(QSize maxSize)
 {
-    int playerWidth = width();
+    int playerWidth = maxSize.width();
     int playerHeight = playerWidth * 9/16;
 
-    if (playerHeight > height() - 150)
+    if (playerHeight > maxSize.height() - 150)
     {
-        playerHeight = height() - 150;
+        playerHeight = maxSize.height() - 150;
         playerWidth = playerHeight * 16/9;
     }
 
@@ -443,7 +404,7 @@ void WatchView::descriptionLinkActivated(const QString& url)
     else if (url.startsWith("/channel"))
     {
         QString funnyPath = qUrl.path().replace("/channel/", "");
-        navigateChannel(funnyPath.left(funnyPath.indexOf('/')));
+        emit navigateChannelRequested(funnyPath.left(funnyPath.indexOf('/')));
     }
     else if (url.startsWith("/watch"))
     {
@@ -555,30 +516,6 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
 
         InnerTube::instance().like(toggleButton.toggledServiceEndpoint["likeEndpoint"], like);
     }
-}
-
-void WatchView::loadFailed(const InnertubeException& ie)
-{
-    QMessageBox::critical(this, "Failed to load video", ie.message());
-    goBack();
-}
-
-void WatchView::navigateChannel(const QString& inChannelId)
-{
-    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, &WatchView::goBack);
-    toggleIdleSleep(false);
-
-    try
-    {
-        ChannelView::instance()->loadChannel(inChannelId);
-    }
-    catch (const InnertubeException& ie)
-    {
-        QMessageBox::critical(nullptr, "Failed to load channel", ie.message());
-    }
-
-    UIUtilities::clearLayout(frame->layout());
-    frame->layout()->deleteLater();
 }
 
 void WatchView::setChannelIcon(const HttpReply& reply)

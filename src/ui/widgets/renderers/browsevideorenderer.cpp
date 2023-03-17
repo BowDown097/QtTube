@@ -3,7 +3,7 @@
 #include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
 #include "ui/views/channelview.h"
-#include "ui/views/watchview.h"
+#include "ui/views/viewcontroller.h"
 #include <QApplication>
 #include <QMenu>
 #include <QMessageBox>
@@ -88,24 +88,14 @@ void BrowseVideoRenderer::copyVideoUrl()
 
 void BrowseVideoRenderer::navigateChannel()
 {
-    try
-    {
-        if (MainWindow::centralWidget()->currentIndex() == 2)
-            ChannelView::instance()->hotLoadChannel(channelId);
-        else
-            ChannelView::instance()->loadChannel(channelId);
-    }
-    catch (const InnertubeException& ie)
-    {
-        QMessageBox::critical(this, "Failed to load channel", ie.message());
-    }
+    ViewController::loadChannel(channelId);
 }
 
 void BrowseVideoRenderer::navigateVideo()
 {
-    if (MainWindow::centralWidget()->currentIndex() == 2)
-        ChannelView::instance()->clear();
-    WatchView::instance()->loadVideo(videoId, progress);
+    if (ChannelView* channelView = qobject_cast<ChannelView*>(MainWindow::centralWidget()->currentWidget()))
+        channelView->deleteLater();
+    ViewController::loadVideo(videoId, progress);
 }
 
 void BrowseVideoRenderer::setChannelData(const InnertubeObjects::VideoOwner& owner)

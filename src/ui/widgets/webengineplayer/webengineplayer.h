@@ -21,7 +21,7 @@ private slots:
 private:
     QScopedPointer<FullScreenWindow> m_fullScreenWindow;
     PlayerInterceptor* m_interceptor;
-    QWebEngineView* m_view = nullptr;
+    QWebEngineView* m_view;
 
     QString getFileContents(const QString& path);
     void loadScriptFile(const QString& path, QWebEngineScript::InjectionPoint injectionPoint);

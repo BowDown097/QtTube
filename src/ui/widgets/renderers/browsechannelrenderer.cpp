@@ -1,10 +1,8 @@
 #include "browsechannelrenderer.h"
 #include "http.h"
-#include "innertube/innertubeexception.h"
 #include "settingsstore.h"
-#include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
-#include "ui/views/channelview.h"
+#include "ui/views/viewcontroller.h"
 #include <QApplication>
 #include <QMenu>
 #include <QMessageBox>
@@ -49,17 +47,7 @@ void BrowseChannelRenderer::copyChannelUrl()
 
 void BrowseChannelRenderer::navigateChannel()
 {
-    try
-    {
-        if (MainWindow::centralWidget()->currentIndex() == 2)
-            ChannelView::instance()->hotLoadChannel(channelId);
-        else
-            ChannelView::instance()->loadChannel(channelId);
-    }
-    catch (const InnertubeException& ie)
-    {
-        QMessageBox::critical(this, "Failed to load channel", ie.message());
-    }
+    ViewController::loadChannel(channelId);
 }
 
 void BrowseChannelRenderer::setData(const QString& channelId, const QString& descriptionSnippet, const QString& name, bool subbed,

@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 #include <QListWidget>
 #include <QMainWindow>
+#include <QResizeEvent>
 #include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
@@ -20,6 +21,7 @@ public:
     ~MainWindow();
 
     static QStackedWidget* centralWidget() { return m_centralWidget; }
+    static QSize size() { return m_size; }
     static TopBar* topbar() { return m_topbar; }
 public slots:
     void showNotifications();
@@ -31,10 +33,11 @@ private slots:
 private:
     void browse();
     void keyPressEvent(QKeyEvent* event) override;
-    void resizeEvent(QResizeEvent*) override;
+    void resizeEvent(QResizeEvent* event) override;
     void tryRestoreData();
 
     static inline QStackedWidget* m_centralWidget;
+    static inline QSize m_size;
     static inline TopBar* m_topbar;
 
     bool doNotBrowse = false;
