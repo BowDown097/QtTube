@@ -1,6 +1,6 @@
 #ifndef VIEWCONTROLLER_H
 #define VIEWCONTROLLER_H
-#include <QStackedWidget>
+#include <QString>
 
 class ViewController
 {

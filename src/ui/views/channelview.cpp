@@ -10,7 +10,7 @@
 ChannelView::~ChannelView()
 {
     MainWindow::topbar()->updatePalette(qApp->palette().alternateBase().color());
-    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, nullptr, nullptr);
+    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
 }
 
 ChannelView::ChannelView(const QString& channelId)
@@ -107,14 +107,13 @@ int ChannelView::getDominant(int arr[256])
 
 ChannelView::Rgb ChannelView::getDominantRgb(const QImage& img)
 {
-    QRgb* ct;
     int red[256] = {};
     int green[256] = {};
     int blue[256] = {};
 
     for (int i = 0; i < img.height(); i++)
     {
-        ct = (QRgb*)img.scanLine(i);
+        const QRgb* ct = reinterpret_cast<const QRgb*>(img.scanLine(i));
         for (int j = 0; j < img.width(); j++)
         {
             red[qRed(ct[j])]++;

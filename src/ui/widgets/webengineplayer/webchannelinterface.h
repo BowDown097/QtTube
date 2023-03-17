@@ -5,12 +5,12 @@
 class WebChannelInterface : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(WebChannelInterface)
 public:
     static WebChannelInterface* instance();
 public slots:
     void switchWatchViewVideo(const QString& videoId);
 private:
-    Q_DISABLE_COPY(WebChannelInterface)
     WebChannelInterface() = default;
     static inline WebChannelInterface* m_interface;
 };

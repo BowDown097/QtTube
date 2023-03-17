@@ -9,10 +9,7 @@ public:
     SubscribeLabel(QWidget* parent = nullptr);
     void setPreferredPalette(const QPalette& pal);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
-private:
-    QPalette preferredPalette;
-    InnertubeObjects::SubscribeButton subscribeButton;
-
+protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent*) override;
 #else
@@ -20,6 +17,9 @@ private:
 #endif
     void leaveEvent(QEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
+private:
+    QPalette preferredPalette;
+    InnertubeObjects::SubscribeButton subscribeButton;
 
     const QString subscribeStyle = R"(
     background: red;

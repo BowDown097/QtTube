@@ -25,6 +25,9 @@ public:
     static TopBar* topbar() { return m_topbar; }
 public slots:
     void showNotifications();
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 private slots:
     void returnFromSearch();
     void returnFromWatchHistorySearch();
@@ -32,8 +35,6 @@ private slots:
     void searchWatchHistory();
 private:
     void browse();
-    void keyPressEvent(QKeyEvent* event) override;
-    void resizeEvent(QResizeEvent* event) override;
     void tryRestoreData();
 
     static inline QStackedWidget* m_centralWidget;

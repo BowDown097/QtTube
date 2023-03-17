@@ -11,7 +11,6 @@ class PlayerInterceptor : public QWebEngineUrlRequestInterceptor
 public:
     explicit PlayerInterceptor(QObject* parent = nullptr) : QWebEngineUrlRequestInterceptor(parent) {}
     void interceptRequest(QWebEngineUrlRequestInfo& info) override;
-
     void setAuthStore(InnertubeAuthStore* authStore) { this->m_authStore = authStore; }
     void setContext(InnertubeContext* context) { this->m_context = context; }
     void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp) { this->m_playerResponse = resp; }

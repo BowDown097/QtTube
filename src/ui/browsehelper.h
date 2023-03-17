@@ -12,6 +12,7 @@
 class BrowseHelper : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(BrowseHelper)
 public:
     static BrowseHelper* instance();
     void browseChannel(QListWidget* channelTab, int index, const InnertubeEndpoints::ChannelResponse& channelResp);
@@ -27,7 +28,6 @@ public:
 private slots:
     void browseFailed(const InnertubeException& ie, const QString& title);
 private:
-    Q_DISABLE_COPY(BrowseHelper)
     BrowseHelper() = default;
     static inline BrowseHelper* m_browseHelper;
 

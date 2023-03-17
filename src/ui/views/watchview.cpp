@@ -30,7 +30,7 @@
 
 WatchView::~WatchView()
 {
-    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, nullptr, nullptr);
+    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
     toggleIdleSleep(false);
 }
 
