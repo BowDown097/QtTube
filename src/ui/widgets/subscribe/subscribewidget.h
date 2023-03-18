@@ -1,14 +1,15 @@
 #ifndef SUBSCRIBEWIDGET_H
 #define SUBSCRIBEWIDGET_H
-#include "labels/tubelabel.h"
+#include "notificationbell.h"
 #include "subscribelabel.h"
 #include <QHBoxLayout>
 
 class SubscribeWidget : public QWidget
 {
 public:
-    SubscribeWidget(QWidget* parent = nullptr);
+    explicit SubscribeWidget(QWidget* parent = nullptr);
     QHBoxLayout* layout() const { return m_layout; }
+    NotificationBell* notificationBell() const { return m_notificationBell; }
     SubscribeLabel* subscribeLabel() const { return m_subscribeLabel; }
     TubeLabel* subscribersCountLabel() const { return m_subscribersCountLabel; }
     void setPreferredPalette(const QPalette& pal);
@@ -16,6 +17,7 @@ public:
     void setSubscriberCount(const QString& subscriberCountText, const QString& channelId);
 private:
     QHBoxLayout* m_layout;
+    NotificationBell* m_notificationBell;
     InnertubeObjects::SubscribeButton m_subscribeButton;
     SubscribeLabel* m_subscribeLabel;
     TubeLabel* m_subscribersCountLabel;

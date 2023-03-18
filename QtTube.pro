@@ -71,8 +71,9 @@ SOURCES += \
     src/ui/widgets/renderers/browsenotificationrenderer.cpp \
     src/ui/widgets/renderers/browsevideorenderer.cpp \
     src/ui/widgets/findbar.cpp \
-    src/ui/widgets/subscribelabel.cpp \
-    src/ui/widgets/subscribewidget.cpp \
+    src/ui/widgets/subscribe/notificationbell.cpp \
+    src/ui/widgets/subscribe/subscribelabel.cpp \
+    src/ui/widgets/subscribe/subscribewidget.cpp \
     src/ui/widgets/topbar.cpp
 
 HEADERS += \
@@ -95,8 +96,9 @@ HEADERS += \
     src/ui/widgets/renderers/browsenotificationrenderer.h \
     src/ui/widgets/renderers/browsevideorenderer.h \
     src/ui/widgets/findbar.h \
-    src/ui/widgets/subscribelabel.h \
-    src/ui/widgets/subscribewidget.h \
+    src/ui/widgets/subscribe/notificationbell.h \
+    src/ui/widgets/subscribe/subscribelabel.h \
+    src/ui/widgets/subscribe/subscribewidget.h \
     src/ui/widgets/topbar.h
 
 FORMS += \

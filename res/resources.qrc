@@ -1,34 +1,34 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
-        <file>dislike.png</file>
+        <file>dislike.svg</file>
     </qresource>
     <qresource>
-        <file>dislike-light.png</file>
+        <file>dislike-light.svg</file>
     </qresource>
     <qresource>
-        <file>dislike-toggled.png</file>
+        <file>dislike-toggled.svg</file>
     </qresource>
     <qresource>
-        <file>like.png</file>
+        <file>like.svg</file>
     </qresource>
     <qresource>
-        <file>like-light.png</file>
+        <file>like-light.svg</file>
     </qresource>
     <qresource>
-        <file>like-toggled.png</file>
+        <file>like-toggled.svg</file>
     </qresource>
     <qresource>
-        <file>notif-bell.png</file>
+        <file>notif-bell.svg</file>
     </qresource>
     <qresource>
-        <file>notif-bell-hasnotif.png</file>
+        <file>notif-bell-light.svg</file>
     </qresource>
     <qresource>
-        <file>notif-bell-hasnotif-light.png</file>
+        <file>notif-bell-hasnotif.svg</file>
     </qresource>
     <qresource>
-        <file>notif-bell-light.png</file>
+        <file>notif-bell-hasnotif-light.svg</file>
     </qresource>
     <qresource>
         <file>player/annotationlib/AnnotationParser.js</file>
@@ -58,30 +58,30 @@
         <file>player/styles.css</file>
     </qresource>
     <qresource>
-        <file>playlist_add.png</file>
+        <file>playlist_add.svg</file>
     </qresource>
     <qresource>
-        <file>playlist_add-light.png</file>
+        <file>playlist_add-light.svg</file>
     </qresource>
     <qresource>
         <file>qttube.svg</file>
     </qresource>
     <qresource>
-        <file>qttube-full.png</file>
+        <file>qttube-full.svg</file>
     </qresource>
     <qresource>
-        <file>qttube-full-light.png</file>
+        <file>qttube-full-light.svg</file>
     </qresource>
     <qresource>
-        <file>settings.png</file>
+        <file>settings.svg</file>
     </qresource>
     <qresource>
-        <file>settings-light.png</file>
+        <file>settings-light.svg</file>
     </qresource>
     <qresource>
-        <file>share.png</file>
+        <file>share.svg</file>
     </qresource>
     <qresource>
-        <file>share-light.png</file>
+        <file>share-light.svg</file>
     </qresource>
 </RCC>

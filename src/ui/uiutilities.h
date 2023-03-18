@@ -24,6 +24,7 @@ public:
     static void clearLayout(QLayout* layout);
     static void copyToClipboard(const QString& text);
     static void elide(QLabel* label, int targetWidth);
+    static bool preferDark();
     static void setMaximumLines(QWidget* widget, int lines);
     static void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
     static void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);

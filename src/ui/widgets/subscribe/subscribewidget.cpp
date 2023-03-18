@@ -11,6 +11,10 @@ SubscribeWidget::SubscribeWidget(QWidget* parent) : QWidget(parent)
     m_subscribeLabel = new SubscribeLabel(this);
     m_layout->addWidget(m_subscribeLabel);
 
+    m_notificationBell = new NotificationBell(this);
+    m_notificationBell->setVisible(false);
+    m_layout->addWidget(m_notificationBell);
+
     m_subscribersCountLabel = new TubeLabel(this);
     m_subscribersCountLabel->setFixedHeight(24);
     m_subscribersCountLabel->setStyleSheet(subscribersCountStyle);
@@ -19,6 +23,7 @@ SubscribeWidget::SubscribeWidget(QWidget* parent) : QWidget(parent)
 
 void SubscribeWidget::setPreferredPalette(const QPalette& pal)
 {
+    m_notificationBell->setPreferredPalette(pal);
     m_subscribeLabel->setPreferredPalette(pal);
     m_subscribersCountLabel->setPalette(pal);
 }
@@ -26,6 +31,8 @@ void SubscribeWidget::setPreferredPalette(const QPalette& pal)
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
     m_subscribeLabel->setSubscribeButton(subscribeButton);
+    if (subscribeButton.subscribed)
+        m_notificationBell->setVisible(true);
 }
 
 void SubscribeWidget::setSubscriberCount(const QString& subscriberCountText, const QString& channelId)

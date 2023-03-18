@@ -7,7 +7,7 @@
 #include "innertube/responses/video/updatedmetadataresponse.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/iconlabel.h"
-#include "ui/widgets/subscribewidget.h"
+#include "ui/widgets/subscribe/subscribewidget.h"
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QSpacerItem>

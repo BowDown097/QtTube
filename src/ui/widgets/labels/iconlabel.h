@@ -9,8 +9,8 @@ class IconLabel : public QWidget
 public:
     QLabel* icon;
     QLabel* textLabel;
-    IconLabel(const QString& iconId, const QMargins& contentsMargins = QMargins(0, 0, 0, 0), QWidget* parent = nullptr);
-    void setText(const QString& text) { textLabel->setText(text); }
+    explicit IconLabel(const QString& iconId, const QMargins& contentsMargins = QMargins(0, 0, 0, 0), QWidget* parent = nullptr);
+    void setText(const QString& text);
 signals:
     void clicked();
 protected:

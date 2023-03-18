@@ -1,5 +1,5 @@
 #include "iconlabel.h"
-#include <QApplication>
+#include "ui/uiutilities.h"
 #include <QMouseEvent>
 
 IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, QWidget* parent) : QWidget(parent)
@@ -8,11 +8,10 @@ IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, QWi
     layout->setContentsMargins(contentsMargins);
     setLayout(layout);
 
-    bool preferDark = qApp->palette().alternateBase().color().lightness() < 60;
-
     icon = new QLabel(this);
-    icon->setPixmap(QPixmap(QString(preferDark ? ":/%1-light.png" : ":/%1.png").arg(iconId))
-                    .scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    icon->setFixedSize(16, 16);
+    icon->setPixmap(QPixmap(QString(UIUtilities::preferDark() ? ":/%1-light.svg" : ":/%1.svg").arg(iconId)));
+    icon->setScaledContents(true);
 
     textLabel = new QLabel(this);
 
@@ -39,4 +38,9 @@ void IconLabel::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton)
         emit clicked();
+}
+
+void IconLabel::setText(const QString& text)
+{
+    textLabel->setText(text);
 }

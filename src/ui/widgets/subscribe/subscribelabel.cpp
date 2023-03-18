@@ -23,7 +23,7 @@ void SubscribeLabel::setSubscribeButton(const InnertubeObjects::SubscribeButton&
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 void SubscribeLabel::enterEvent(QEnterEvent*)
 #else
-void SubscribeButton::enterEvent(QEvent*)
+void SubscribeLabel::enterEvent(QEvent*)
 #endif
 {
     setCursor(QCursor(Qt::CursorShape::PointingHandCursor));

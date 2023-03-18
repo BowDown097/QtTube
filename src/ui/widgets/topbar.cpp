@@ -2,14 +2,13 @@
 #include "innertube.h"
 #include "settingsstore.h"
 #include "ui/forms/settingsform.h"
+#include "ui/uiutilities.h"
 #include <QApplication>
 
 TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimation(this, "geometry"))
 {
     animation->setDuration(250);
     animation->setEasingCurve(QEasingCurve::InOutQuint);
-
-    preferDark = qApp->palette().alternateBase().color().lightness() < 60;
 
     resize(parent->width(), 35);
     setAutoFillBackground(true);
@@ -19,11 +18,13 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     logo->move(10, 2);
     logo->resize(134, 30);
     logo->setClickable(true, false);
-    logo->setPixmap(QPixmap(preferDark ? ":/qttube-full-light.png" : ":/qttube-full.png"));
+    logo->setPixmap(QPixmap(UIUtilities::preferDark() ? ":/qttube-full-light.svg" : ":/qttube-full.svg"));
+    logo->setScaledContents(true);
 
     notificationBell = new TubeLabel(this);
     notificationBell->resize(30, 30);
     notificationBell->setClickable(true, false);
+    notificationBell->setScaledContents(true);
     connect(notificationBell, &TubeLabel::clicked, this, &TopBar::notificationBellClicked);
 
     notificationCount = new QLabel(this);
@@ -38,7 +39,8 @@ TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimat
     settingsButton->move(673, 3);
     settingsButton->resize(30, 30);
     settingsButton->setClickable(true, false);
-    settingsButton->setPixmap(QPixmap(preferDark ? ":/settings-light.png" : ":/settings.png"));
+    settingsButton->setPixmap(QPixmap(UIUtilities::preferDark() ? ":/settings-light.svg" : ":/settings.svg"));
+    settingsButton->setScaledContents(true);
     connect(settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);
 
     signInButton = new QPushButton(this);
@@ -122,8 +124,8 @@ void TopBar::updateNotificationCount()
     connect(reply, qOverload<InnertubeEndpoints::UnseenCount>(&InnertubeReply::finished), this, [this](const auto& endpoint)
     {
         notificationBell->setPixmap(endpoint.unseenCount > 0
-                                    ? QPixmap(preferDark ? ":/notif-bell-hasnotif-light.png" : ":/notif-bell-hasnotif.png")
-                                    : QPixmap(preferDark ? ":/notif-bell-light.png" : ":/notif-bell.png"));
+                                    ? QPixmap(UIUtilities::preferDark() ? ":/notif-bell-hasnotif-light.svg" : ":/notif-bell-hasnotif.svg")
+                                    : QPixmap(UIUtilities::preferDark() ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
         notificationBell->setVisible(true);
         notificationCount->setText(QString::number(endpoint.unseenCount));
         notificationCount->setVisible(endpoint.unseenCount > 0);
@@ -133,10 +135,9 @@ void TopBar::updateNotificationCount()
 void TopBar::updatePalette(const QPalette& palette)
 {
     setPalette(palette);
-    preferDark = palette.color(QPalette::Window).lightness() < 60;
-    logo->setPixmap(QPixmap(preferDark ? ":/qttube-full-light.png" : ":/qttube-full.png"));
-    settingsButton->setPixmap(QPixmap(preferDark ? ":/settings-light.png" : ":/settings.png"));
+    logo->setPixmap(QPixmap(UIUtilities::preferDark() ? ":/qttube-full-light.svg" : ":/qttube-full.svg"));
+    settingsButton->setPixmap(QPixmap(UIUtilities::preferDark() ? ":/settings-light.svg" : ":/settings.svg"));
     notificationBell->setPixmap(notificationCount->isVisible()
-                                ? QPixmap(preferDark ? ":/notif-bell-hasnotif-light.png" : ":/notif-bell-hasnotif.png")
-                                : QPixmap(preferDark ? ":/notif-bell-light.png" : ":/notif-bell.png"));
+                                ? QPixmap(UIUtilities::preferDark() ? ":/notif-bell-hasnotif-light.svg" : ":/notif-bell-hasnotif.svg")
+                                : QPixmap(UIUtilities::preferDark() ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
 }

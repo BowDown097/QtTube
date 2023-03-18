@@ -267,7 +267,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     connect(likeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, true, nextResp.primaryInfo.videoActions.likeButton));
     if (nextResp.primaryInfo.videoActions.likeButton.isToggled)
     {
-        likeLabel->icon->setPixmap(QPixmap(":/like-toggled.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        likeLabel->icon->setPixmap(QPixmap(":/like-toggled.svg"));
         likeLabel->textLabel->setStyleSheet("color: #167ac6");
     }
 
@@ -276,7 +276,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     connect(dislikeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, false, nextResp.primaryInfo.videoActions.dislikeButton));
     if (nextResp.primaryInfo.videoActions.dislikeButton.isToggled)
     {
-        dislikeLabel->icon->setPixmap(QPixmap(":/dislike-toggled.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        dislikeLabel->icon->setPixmap(QPixmap(":/dislike-toggled.svg"));
         dislikeLabel->textLabel->setStyleSheet("color: #167ac6");
     }
 
@@ -488,11 +488,7 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
 
     if (senderLabel->textLabel->styleSheet().isEmpty()) // if untoggled
     {
-        if (like)
-            senderLabel->icon->setPixmap(QPixmap(":/like-toggled.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-        else
-            senderLabel->icon->setPixmap(QPixmap(":/dislike-toggled.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-
+        senderLabel->icon->setPixmap(like ? QPixmap(":/like-toggled.svg") : QPixmap(":/dislike-toggled.svg"));
         senderLabel->textLabel->setStyleSheet("color: #167ac6");
         if (textIsNumber)
             senderLabel->textLabel->setText(QLocale::system().toString(count + 1));
@@ -504,11 +500,10 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
     }
     else
     {
-        bool preferDark = qApp->palette().alternateBase().color().lightness() < 60;
         if (like)
-            senderLabel->icon->setPixmap(QPixmap(preferDark ? ":/like-light.png" : ":/like.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            senderLabel->icon->setPixmap(UIUtilities::preferDark() ? QPixmap(":/like-light.svg") : QPixmap(":/like.svg"));
         else
-            senderLabel->icon->setPixmap(QPixmap(preferDark ? ":/dislike-light.png" : ":/dislike.png").scaled(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            senderLabel->icon->setPixmap(UIUtilities::preferDark() ? QPixmap(":/dislike-light.svg") : QPixmap(":/dislike.svg"));
 
         senderLabel->textLabel->setStyleSheet(QString());
         if (textIsNumber)

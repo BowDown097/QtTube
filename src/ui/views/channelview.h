@@ -2,7 +2,7 @@
 #define CHANNELVIEW_H
 #include "httpreply.h"
 #include "innertube/responses/browse/channelresponse.h"
-#include "ui/widgets/subscribewidget.h"
+#include "ui/widgets/subscribe/subscribewidget.h"
 #include <QStackedWidget>
 #include <QTabWidget>
 

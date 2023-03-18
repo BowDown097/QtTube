@@ -6,7 +6,7 @@
 class SubscribeLabel : public QLabel
 {
 public:
-    SubscribeLabel(QWidget* parent = nullptr);
+    explicit SubscribeLabel(QWidget* parent = nullptr);
     void setPreferredPalette(const QPalette& pal);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
 protected:

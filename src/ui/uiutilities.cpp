@@ -124,6 +124,11 @@ void UIUtilities::elide(QLabel* label, int targetWidth)
     label->setText(elidedText);
 }
 
+bool UIUtilities::preferDark()
+{
+    return qApp->palette().alternateBase().color().lightness() < 60;
+}
+
 // this will be used for the description and perhaps elsewhere
 void UIUtilities::setMaximumLines(QWidget* widget, int lines)
 {
