@@ -19,6 +19,6 @@ void NotificationBell::displayNotificationMenu()
 
 void NotificationBell::setPreferredPalette(const QPalette& pal)
 {
-    preferredPalette = pal;
     setPalette(pal);
+    setPixmap(QPixmap(UIUtilities::preferDark(pal) ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
 }

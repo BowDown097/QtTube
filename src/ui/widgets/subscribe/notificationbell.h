@@ -9,8 +9,6 @@ public:
     void setPreferredPalette(const QPalette& pal);
 public slots:
     void displayNotificationMenu();
-private:
-    QPalette preferredPalette;
 };
 
 #endif // NOTIFICATIONBELL_H

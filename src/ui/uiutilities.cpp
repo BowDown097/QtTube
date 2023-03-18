@@ -124,9 +124,11 @@ void UIUtilities::elide(QLabel* label, int targetWidth)
     label->setText(elidedText);
 }
 
-bool UIUtilities::preferDark()
+bool UIUtilities::preferDark(const QPalette& pal)
 {
-    return qApp->palette().alternateBase().color().lightness() < 60;
+    return pal == QPalette()
+            ? qApp->palette().alternateBase().color().lightness() < 60
+            : pal.alternateBase().color().lightness() < 60;
 }
 
 // this will be used for the description and perhaps elsewhere

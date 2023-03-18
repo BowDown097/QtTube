@@ -124,8 +124,8 @@ void TopBar::updateNotificationCount()
     connect(reply, qOverload<InnertubeEndpoints::UnseenCount>(&InnertubeReply::finished), this, [this](const auto& endpoint)
     {
         notificationBell->setPixmap(endpoint.unseenCount > 0
-                                    ? QPixmap(UIUtilities::preferDark() ? ":/notif-bell-hasnotif-light.svg" : ":/notif-bell-hasnotif.svg")
-                                    : QPixmap(UIUtilities::preferDark() ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
+                                    ? QPixmap(UIUtilities::preferDark(palette()) ? ":/notif-bell-hasnotif-light.svg" : ":/notif-bell-hasnotif.svg")
+                                    : QPixmap(UIUtilities::preferDark(palette()) ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
         notificationBell->setVisible(true);
         notificationCount->setText(QString::number(endpoint.unseenCount));
         notificationCount->setVisible(endpoint.unseenCount > 0);
@@ -135,9 +135,9 @@ void TopBar::updateNotificationCount()
 void TopBar::updatePalette(const QPalette& palette)
 {
     setPalette(palette);
-    logo->setPixmap(QPixmap(UIUtilities::preferDark() ? ":/qttube-full-light.svg" : ":/qttube-full.svg"));
-    settingsButton->setPixmap(QPixmap(UIUtilities::preferDark() ? ":/settings-light.svg" : ":/settings.svg"));
+    logo->setPixmap(QPixmap(UIUtilities::preferDark(palette) ? ":/qttube-full-light.svg" : ":/qttube-full.svg"));
+    settingsButton->setPixmap(QPixmap(UIUtilities::preferDark(palette) ? ":/settings-light.svg" : ":/settings.svg"));
     notificationBell->setPixmap(notificationCount->isVisible()
-                                ? QPixmap(UIUtilities::preferDark() ? ":/notif-bell-hasnotif-light.svg" : ":/notif-bell-hasnotif.svg")
-                                : QPixmap(UIUtilities::preferDark() ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
+                                ? QPixmap(UIUtilities::preferDark(palette) ? ":/notif-bell-hasnotif-light.svg" : ":/notif-bell-hasnotif.svg")
+                                : QPixmap(UIUtilities::preferDark(palette) ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
 }
