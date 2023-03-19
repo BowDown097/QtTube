@@ -6,7 +6,6 @@
 
 class ChannelLabel : public QWidget
 {
-    Q_OBJECT
 public:
     TubeLabel* text;
     ChannelLabel(QWidget* parent = nullptr);

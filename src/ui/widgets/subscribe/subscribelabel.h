@@ -5,6 +5,7 @@
 
 class SubscribeLabel : public QLabel
 {
+    Q_OBJECT
 public:
     explicit SubscribeLabel(QWidget* parent = nullptr);
     void setPreferredPalette(const QPalette& pal);
@@ -17,9 +18,12 @@ protected:
 #endif
     void leaveEvent(QEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
+signals:
+    void subscribeStatusChanged(bool subscribed);
 private:
     QPalette preferredPalette;
     InnertubeObjects::SubscribeButton subscribeButton;
+    void toggleSubscriptionStatus(const QString& styleSheet, const QString& newText);
 
     const QString subscribeStyle = R"(
     background: red;

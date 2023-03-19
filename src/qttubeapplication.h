@@ -4,7 +4,6 @@
 
 class QtTubeApplication final : public QApplication
 {
-    Q_OBJECT
     int m_sneedProgress = 0;
 public:
     QtTubeApplication(int& argc, char** argv) : QApplication(argc, argv) {}

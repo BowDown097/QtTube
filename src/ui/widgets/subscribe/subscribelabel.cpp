@@ -66,22 +66,25 @@ void SubscribeLabel::mousePressEvent(QMouseEvent*)
     {
         if (QMessageBox::question(nullptr, "Unsubscribe?", "Unsubscribe from this channel?") != QMessageBox::StandardButton::Yes)
             return;
+        toggleSubscriptionStatus(subscribeStyle, subscribeButton.unsubscribedButtonText.text);
         InnerTube::instance().subscribe(
             qAsConst(subscribeButton.onUnsubscribeEndpoints)[0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]
                 ["confirmDialogRenderer"]["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"],
             false
         );
-        setStyleSheet(subscribeStyle);
-        setText(subscribeButton.unsubscribedButtonText.text);
-        subscribeButton.subscribed = false;
     }
     else
     {
+        toggleSubscriptionStatus(subscribedStyle, subscribeButton.subscribedButtonText.text);
         InnerTube::instance().subscribe(qAsConst(subscribeButton.onSubscribeEndpoints)[0]["subscribeEndpoint"], true);
-        setStyleSheet(subscribedStyle);
-        setText(subscribeButton.subscribedButtonText.text);
-        subscribeButton.subscribed = true;
     }
+}
 
+void SubscribeLabel::toggleSubscriptionStatus(const QString& styleSheet, const QString& newText)
+{
+    setStyleSheet(styleSheet);
+    setText(newText);
     setPalette(preferredPalette);
+    subscribeButton.subscribed = !subscribeButton.subscribed;
+    emit subscribeStatusChanged(subscribeButton.subscribed);
 }

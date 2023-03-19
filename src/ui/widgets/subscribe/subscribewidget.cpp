@@ -19,6 +19,9 @@ SubscribeWidget::SubscribeWidget(QWidget* parent) : QWidget(parent)
     m_subscribersCountLabel->setFixedHeight(24);
     m_subscribersCountLabel->setStyleSheet(subscribersCountStyle);
     m_layout->addWidget(m_subscribersCountLabel);
+
+    connect(m_subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this,
+            std::bind(&NotificationBell::setVisible, m_notificationBell, std::placeholders::_1));
 }
 
 void SubscribeWidget::setPreferredPalette(const QPalette& pal)
