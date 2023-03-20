@@ -86,40 +86,6 @@
 }
 /* end heatmap disabling */
 
-/* old embed head */
-.ytp-title-channel {
-    display: none !important;
-}
-
-.ytp-title-text {
-    padding-left: 4px !important;
-    padding-top: 12px !important;
-}
-
-.ytp-big-mode .ytp-title-text {
-    padding-left: 6px !important;
-    padding-top: 18px !important;
-}
-
-.ytp-overflow-button, .ytp-playlist-menu-button {
-    padding-top: 6px !important;
-    margin: 0 !important;
-}
-
-.ytp-overflow-button-text, .ytp-playlist-menu-button-text {
-    display: none !important;
-}
-
-.ytp-watch-later-title, .ytp-share-title, .ytp-overflow-title, .ytp-copylink-title, .ytp-cards-button-title {
-    display: none !important;
-}
-
-.ytp-watch-later-button, .ytp-share-button, .ytp-overflow-button, .ytp-copylink-button {
-    min-width: 0 !important;
-    margin: 0 !important;
-}
-/* end old embed head */
-
 /* 2019 chrome scaling */
 .ytp-embed:not(.ytp-big-mode) .ytp-chrome-bottom {
     height: 36px !important;
@@ -152,13 +118,13 @@
 }
 /* end 2019 chrome scaling */
 
-/* lighter bottom gradient */
-.ytp-gradient-bottom, .ytp-gradient-top {
+/* top + bottom gradients */
+.ytp-gradient-bottom {
     height: 50px !important;
     padding: 0 !important;
 }
 
-.ytp-big-mode .ytp-gradient-bottom, .ytp-big-mode .ytp-gradient-top {
+.ytp-big-mode .ytp-gradient-bottom {
     height: 75px !important;
 }
 
@@ -167,9 +133,9 @@
 }
 
 .ytp-gradient-top {
-    background: linear-gradient(to bottom, #0009, #0000) !important;
+    display: none !important;
 }
-/* end lighter bottom gradient */
+/* top + bottom gradients */
 
 /* general styles */
 .ytp-pause-overlay-container {
@@ -300,6 +266,10 @@
 
 .ytp-swatch-color-white {
     color: red;
+}
+
+.ytp-chrome-top {
+    display: none !important;
 }
 /* end general styles */
 
