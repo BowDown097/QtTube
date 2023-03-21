@@ -76,7 +76,7 @@ void BrowseHelper::browseHome(QListWidget* homeWidget)
     if (SettingsStore::instance().homeShelves)
     {
         InnerTube::instance().context()->client.clientName = "ANDROID";
-        InnerTube::instance().context()->client.clientVersion = "15.14.33";
+        InnerTube::instance().context()->client.clientVersion = "17.01";
     }
 
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHome>();
