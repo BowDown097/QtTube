@@ -348,8 +348,16 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
         metadataUpdateTimer->setInterval(60000);
         connect(metadataUpdateTimer, &QTimer::timeout, this, [playerResp, this]
         {
-            auto updatedMetadata = InnerTube::instance().getBlocking<InnertubeEndpoints::UpdatedMetadata>(playerResp.videoDetails.videoId);
-            updateMetadata(updatedMetadata.response);
+            try
+            {
+                auto updatedMetadata = InnerTube::instance().getBlocking<InnertubeEndpoints::UpdatedMetadata>(playerResp.videoDetails.videoId);
+                updateMetadata(updatedMetadata.response);
+            }
+            catch (const InnertubeException& ie)
+            {
+                qDebug() << "InnertubeException on UpdateMetadata. Stream/premiere likely ended. Killing update timer.";
+                metadataUpdateTimer->deleteLater();
+            }
         });
         metadataUpdateTimer->start();
     }
