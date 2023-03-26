@@ -26,6 +26,20 @@ NotificationBell::NotificationBell(QWidget* parent) : QToolButton(parent)
     setToolButtonStyle(Qt::ToolButtonIconOnly);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+void NotificationBell::enterEvent(QEnterEvent*)
+#else
+void NotificationBell::enterEvent(QEvent*)
+#endif
+{
+    setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+}
+
+void NotificationBell::leaveEvent(QEvent*)
+{
+    setCursor(QCursor());
+}
+
 void NotificationBell::setNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb)
 {
     notificationPreferenceButton = npb;

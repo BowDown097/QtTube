@@ -12,6 +12,13 @@ public:
     void setNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb);
     void setPreferredPalette(const QPalette& pal);
     void setVisualNotificationState(int stateId);
+protected:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    void enterEvent(QEnterEvent*) override;
+#else
+    void enterEvent(QEvent*) override;
+#endif
+    void leaveEvent(QEvent*) override;
 private:
     QAction* allAction;
     QAction* noneAction;
