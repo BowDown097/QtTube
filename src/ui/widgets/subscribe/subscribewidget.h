@@ -2,6 +2,7 @@
 #define SUBSCRIBEWIDGET_H
 #include "notificationbell.h"
 #include "subscribelabel.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include <QHBoxLayout>
 
 class SubscribeWidget : public QWidget

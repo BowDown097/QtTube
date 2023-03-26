@@ -25,10 +25,22 @@
         <file>notif-bell-light.svg</file>
     </qresource>
     <qresource>
+        <file>notif-bell-all.svg</file>
+    </qresource>
+    <qresource>
+        <file>notif-bell-all-light.svg</file>
+    </qresource>
+    <qresource>
         <file>notif-bell-hasnotif.svg</file>
     </qresource>
     <qresource>
         <file>notif-bell-hasnotif-light.svg</file>
+    </qresource>
+    <qresource>
+        <file>notif-bell-none.svg</file>
+    </qresource>
+    <qresource>
+        <file>notif-bell-none-light.svg</file>
     </qresource>
     <qresource>
         <file>player/annotationlib/AnnotationParser.js</file>

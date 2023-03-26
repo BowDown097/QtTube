@@ -20,8 +20,11 @@ SubscribeWidget::SubscribeWidget(QWidget* parent) : QWidget(parent)
     m_subscribersCountLabel->setStyleSheet(subscribersCountStyle);
     m_layout->addWidget(m_subscribersCountLabel);
 
-    connect(m_subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this,
-            std::bind(&NotificationBell::setVisible, m_notificationBell, std::placeholders::_1));
+    connect(m_subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
+    {
+        m_notificationBell->setVisualNotificationState(3);
+        m_notificationBell->setVisible(subscribed);
+    });
 }
 
 void SubscribeWidget::setPreferredPalette(const QPalette& pal)
@@ -35,7 +38,10 @@ void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton
 {
     m_subscribeLabel->setSubscribeButton(subscribeButton);
     if (subscribeButton.subscribed)
+    {
+        m_notificationBell->setNotificationPreferenceButton(subscribeButton.notificationPreferenceButton);
         m_notificationBell->setVisible(true);
+    }
 }
 
 void SubscribeWidget::setSubscriberCount(const QString& subscriberCountText, const QString& channelId)

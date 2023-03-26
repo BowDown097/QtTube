@@ -1,24 +1,72 @@
 #include "notificationbell.h"
+#include "innertube.h"
 #include "ui/uiutilities.h"
 
-NotificationBell::NotificationBell(QWidget* parent) : TubeLabel(parent)
+NotificationBell::NotificationBell(QWidget* parent) : QToolButton(parent)
 {
-    setContentsMargins(3, 0, 0, 2);
-    setClickable(true, false);
     setFixedSize(24, 24);
-    setPixmap(QPixmap(UIUtilities::preferDark() ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
-    setScaledContents(true);
-    setStyleSheet("border: 1px solid #333; border-radius: 2px");
-    connect(this, &TubeLabel::clicked, this, &NotificationBell::displayNotificationMenu);
+    setStyleSheet(styles);
+    connect(this, &QToolButton::triggered, this, &QToolButton::setDefaultAction);
+
+    allAction = new QAction("All", this);
+    noneAction = new QAction("None", this);
+    personalizedAction = new QAction("Personalized", this);
+
+    connect(allAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_ACTIVE"));
+    connect(noneAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_OFF"));
+    connect(personalizedAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_NONE"));
+
+    notificationMenu = new QMenu(this);
+    notificationMenu->addAction(allAction);
+    notificationMenu->addAction(personalizedAction);
+    notificationMenu->addAction(noneAction);
+
+    setMenu(notificationMenu);
+    setPopupMode(QToolButton::InstantPopup);
+    setToolButtonStyle(Qt::ToolButtonIconOnly);
 }
 
-void NotificationBell::displayNotificationMenu()
+void NotificationBell::setNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb)
 {
-    qDebug() << "sneed";
+    notificationPreferenceButton = npb;
+    setVisualNotificationState(npb.getCurrentState().stateId);
 }
 
 void NotificationBell::setPreferredPalette(const QPalette& pal)
 {
     setPalette(pal);
-    setPixmap(QPixmap(UIUtilities::preferDark(pal) ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
+    updateIcons();
+}
+
+void NotificationBell::setVisualNotificationState(int stateId)
+{
+    switch (stateId)
+    {
+    case 0:
+        setDefaultAction(noneAction);
+        break;
+    case 2:
+        setDefaultAction(allAction);
+        break;
+    default:
+        setDefaultAction(personalizedAction);
+        break;
+    }
+
+    updateIcons();
+}
+
+
+void NotificationBell::updateIcons()
+{
+    allAction->setIcon(QPixmap(UIUtilities::preferDark(palette()) ? ":/notif-bell-all-light.svg" : ":/notif-bell-all.svg"));
+    noneAction->setIcon(QPixmap(UIUtilities::preferDark(palette()) ? ":/notif-bell-none-light.svg" : ":/notif-bell-none.svg"));
+    personalizedAction->setIcon(QPixmap(UIUtilities::preferDark(palette()) ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
+}
+
+void NotificationBell::updateNotificationState(const QString& iconType)
+{
+    const InnertubeObjects::MenuServiceItem& msi = notificationPreferenceButton.getService(iconType);
+    const QString params = msi.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString();
+    InnerTube::instance().get<InnertubeEndpoints::ModifyChannelPreference>(params);
 }

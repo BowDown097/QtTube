@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<svg width="400" height="467.05884" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" version="1.1" xml:space="preserve">
+ <metadata id="metadata42">image/svg+xml</metadata>
+
+ <g class="layer">
+  <title>Layer 1</title>
+  <g fill="#000000" id="g3" stroke="#000000" stroke-width="22.82" transform="matrix(0.48108932,0,0,0.57781359,32.131065,107.54019)">
+   <g fill="#000000" id="notifications" stroke="#000000" stroke-width="22.82">
+    <path d="m255,510c28.05,0 51,-22.95 51,-51l-102,0c0,28.05 22.95,51 51,51zm165.75,-153l0,-140.25c0,-79.05 -53.55,-142.8 -127.5,-160.65l0,-17.85c0,-20.4 -17.85,-38.25 -38.25,-38.25c-20.4,0 -38.25,17.85 -38.25,38.25l0,17.85c-73.95,17.85 -127.5,81.6 -127.5,160.65l0,140.25l-51,51l0,25.5l433.5,0l0,-25.5l-51,-51z" fill="#000000" id="path6" stroke="#000000" stroke-width="22.82"/>
+   </g>
+  </g>
+  <g id="g8" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g10" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g12" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g14" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g16" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g18" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g20" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g22" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g24" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g26" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g28" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g30" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g32" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g34" transform="translate(-54.999999,-21.470588)"/>
+  <g id="g36" transform="translate(-54.999999,-21.470588)"/>
+  <path d="m146.9,393.45c-4.67,-2.85 -9.14,-8.5 -9.14,-11.57l0,-2.62l17.85,0l17.84,0l-1.69,4.04c-4.47,10.71 -16.13,15.47 -24.86,10.15z" fill="#000000" id="path1638" stroke="#000000" stroke-width="5"/>
+  <path d="m172.53,143.35l-37.75,0.31" fill="#000000" id="path1750" stroke="#000000" stroke-width="5"/>
+  <path d="m141.91,133.04c0.21,-8.54 0.63,-10.03 4.08,-14.56c1.64,-2.16 6.21,-4.49 8.79,-4.49c3,0 7.37,2.46 9.5,5.34c2.76,3.74 3.47,6.75 3.47,14.75l0,6.93l-13.02,0l-13.01,0l0.19,-7.97z" fill="#000000" id="path1781" stroke="#000000" stroke-width="2.7"/>
+ </g>
+</svg>
