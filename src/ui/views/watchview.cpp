@@ -1,5 +1,6 @@
 #include "watchview.h"
 #include "watchview_ui.h"
+#include "http.h"
 #include "innertube.h"
 #include "osutilities.h"
 #include "settingsstore.h"
@@ -7,10 +8,6 @@
 #include "ui/uiutilities.h"
 #include <QDesktopServices>
 #include <QScrollBar>
-
-#ifdef USEMPV
-#include <QRandomGenerator>
-#endif
 
 WatchView::~WatchView()
 {
@@ -35,15 +32,7 @@ WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QW
     connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
     connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
 
-#ifdef USEMPV
-    ui->media->play("https://www.youtube.com/watch?v=" + videoId);
-    ui->media->seek(progress);
-#else
-    ui->wePlayer->setAuthStore(InnerTube::instance().authStore());
-    ui->wePlayer->setContext(InnerTube::instance().context());
-    ui->wePlayer->play(videoId, progress);
-#endif
-
+    ui->player->play(videoId, progress);
     connect(ui->channelLabel->text, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
     connect(ui->description, &TubeLabel::linkActivated, this, &WatchView::descriptionLinkActivated);
 }
@@ -67,11 +56,7 @@ void WatchView::descriptionLinkActivated(const QString& url)
         if (query.queryItemValue("continuePlayback") == "1")
         {
             int progress = query.queryItemValue("t").replace("s", "").toInt();
-#ifdef USEMPV
-    ui->media->seek(progress);
-#else
-    ui->wePlayer->seek(progress);
-#endif
+            ui->player->seek(progress);
         }
         else
         {
@@ -134,16 +119,9 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
 
 void WatchView::hotLoadVideo(const QString& videoId, int progress)
 {
+    ui->player->stopTracking();
     if (metadataUpdateTimer)
         metadataUpdateTimer->deleteLater();
-
-#ifdef USEMPV
-    ui->media->play("https://www.youtube.com/watch?v=" + videoId);
-    ui->media->seek(progress);
-    watchtimeTimer->deleteLater();
-#else
-    ui->wePlayer->play(videoId, progress);
-#endif
 
     UIUtilities::clearLayout(ui->topLevelButtons);
     disconnect(ui->channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
@@ -155,6 +133,8 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
     InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
     connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
     connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
+
+    ui->player->play(videoId, progress);
 }
 
 void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton)
@@ -227,6 +207,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     ui->topLevelButtons->addStretch();
 
+    ui->likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
     ui->topLevelButtons->addWidget(ui->likeLabel);
     connect(ui->likeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, true, nextResp.primaryInfo.videoActions.likeButton));
     if (nextResp.primaryInfo.videoActions.likeButton.isToggled)
@@ -235,6 +216,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         ui->likeLabel->textLabel->setStyleSheet("color: #167ac6");
     }
 
+    ui->dislikeLabel = new IconLabel("dislike");
     ui->topLevelButtons->addWidget(ui->dislikeLabel);
     connect(ui->dislikeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, false, nextResp.primaryInfo.videoActions.dislikeButton));
     if (nextResp.primaryInfo.videoActions.dislikeButton.isToggled)
@@ -272,22 +254,8 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 {
     InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
+    ui->player->startTracking(playerResp);
     ui->titleLabel->setText(playerResp.videoDetails.title);
-
-#ifdef USEMPV
-    if (SettingsStore::instance().playbackTracking)
-        reportPlayback(playerResp);
-
-    if (SettingsStore::instance().watchtimeTracking)
-    {
-        watchtimeTimer = new QTimer(this);
-        watchtimeTimer->setInterval(5000);
-        connect(watchtimeTimer, &QTimer::timeout, this, std::bind(&WatchView::reportWatchtime, this, playerResp, ui->media->position));
-        watchtimeTimer->start();
-    }
-#else
-    ui->wePlayer->setPlayerResponse(playerResp);
-#endif
 
     if (playerResp.videoDetails.isLive)
     {
@@ -314,20 +282,14 @@ void WatchView::resizeEvent(QResizeEvent* event)
 {
     if (!ui->primaryInfoWrapper || !event->oldSize().isValid()) return;
 
-    const QSize playerSize = ui->calcPlayerSize(size());
-    ui->description->setFixedWidth(playerSize.width());
-    ui->menuWrapper->setFixedWidth(playerSize.width());
-    ui->primaryInfoWrapper->setFixedWidth(playerSize.width());
-    ui->showMoreLabel->setFixedWidth(playerSize.width());
-    ui->titleLabel->setFixedWidth(playerSize.width());
-
-#ifdef USEMPV
-    ui->media->videoWidget()->setFixedSize(playerSize);
-#else
-    ui->wePlayer->setFixedSize(playerSize);
-#endif
-
+    ui->player->calcAndSetSize(size());
     ui->scrollArea->setFixedSize(event->size());
+
+    ui->description->setFixedWidth(ui->player->size().width());
+    ui->menuWrapper->setFixedWidth(ui->player->size().width());
+    ui->primaryInfoWrapper->setFixedWidth(ui->player->size().width());
+    ui->showMoreLabel->setFixedWidth(ui->player->size().width());
+    ui->titleLabel->setFixedWidth(ui->player->size().width());
 }
 
 void WatchView::setChannelIcon(const HttpReply& reply)
@@ -385,122 +347,3 @@ void WatchView::updateRatings(const HttpReply& reply)
     ui->dislikeLabel->setText(QLocale::system().toString(dislikes));
     ui->likeLabel->setText(QLocale::system().toString(likes));
 }
-
-#ifdef USEMPV // MPV backend exclusive methods
-QString WatchView::getCpn()
-{
-    QString out;
-    constexpr std::string_view chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-    for (int i = 0; i < 16; i++)
-        out += chars[QRandomGenerator::global()->bounded((int)chars.size())];
-    return out;
-}
-
-void WatchView::reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp)
-{
-    InnertubeClient itc = InnerTube::instance().context()->client;
-
-    QUrlQuery playbackQuery(QUrl(playerResp.playbackTracking.videostatsPlaybackUrl));
-    QUrl outPlaybackUrl("https://www.youtube.com/api/stats/playback");
-    QUrlQuery outPlaybackQuery;
-
-    QList<QPair<QString, QString>> map =
-    {
-        { "ns", "yt" },
-        { "el", "detailpage" },
-        { "cpn", getCpn() },
-        { "ver", "2" },
-        { "fmt", "243" },
-        { "fs", "0" },
-        { "rt", QString::number(QRandomGenerator::global()->bounded(191) + 10) },
-        { "euri", "" },
-        { "lact", QString::number(QRandomGenerator::global()->bounded(7001) + 1000) },
-        { "cl", playbackQuery.queryItemValue("cl") },
-        { "mos", "0" },
-        { "volume", "100" },
-        { "cbr", itc.browserName },
-        { "cbrver", itc.browserVersion },
-        { "c", itc.clientName },
-        { "cver", itc.clientVersion },
-        { "cplayer", "UNIPLAYER" },
-        { "cos", itc.osName },
-        { "cosver", itc.osVersion },
-        { "cplatform", itc.platform },
-        { "hl", itc.hl + "_" + itc.gl },
-        { "cr", itc.gl },
-        { "uga", playbackQuery.queryItemValue("uga") },
-        { "len", playbackQuery.queryItemValue("len") },
-        { "fexp", playbackQuery.queryItemValue("fexp") },
-        { "rtn", "4" },
-        { "afmt", "251" },
-        { "muted", "0" },
-        { "docid", playbackQuery.queryItemValue("docid") },
-        { "ei", playbackQuery.queryItemValue("ei") },
-        { "plid", playbackQuery.queryItemValue("plid") },
-        { "sdetail", playbackQuery.queryItemValue("sdetail") },
-        { "of", playbackQuery.queryItemValue("of") },
-        { "vm", playbackQuery.queryItemValue("vm") }
-    };
-
-    outPlaybackQuery.setQueryItems(map);
-    outPlaybackUrl.setQuery(outPlaybackQuery);
-    Http::instance().get(outPlaybackUrl);
-}
-
-void WatchView::reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position)
-{
-    InnertubeClient itc = InnerTube::instance().context()->client;
-
-    QUrlQuery watchtimeQuery(QUrl(playerResp.playbackTracking.videostatsWatchtimeUrl));
-    QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
-    QUrlQuery outWatchtimeQuery;
-    QString rt = QString::number(QRandomGenerator::global()->bounded(191) + 10);
-    QString posStr = QString::number(position);
-
-    QList<QPair<QString, QString>> map =
-    {
-        { "ns", "yt" },
-        { "el", "detailpage" },
-        { "cpn", getCpn() },
-        { "ver", "2" },
-        { "fmt", "243" },
-        { "fs", "0" },
-        { "rt", rt },
-        { "euri", "" },
-        { "lact", QString::number(QRandomGenerator::global()->bounded(7001) + 1000) },
-        { "cl", watchtimeQuery.queryItemValue("cl") },
-        { "state", "playing" },
-        { "volume", "100" },
-        { "subscribed", watchtimeQuery.queryItemValue("subscribed") },
-        { "cbr", itc.browserName },
-        { "cbrver", itc.browserVersion },
-        { "c", itc.clientName },
-        { "cver", itc.clientVersion },
-        { "cplayer", "UNIPLAYER" },
-        { "cos", itc.osName },
-        { "cosver", itc.osVersion },
-        { "cplatform", itc.platform },
-        { "hl", itc.hl + "_" + itc.gl },
-        { "cr", itc.gl },
-        { "uga", watchtimeQuery.queryItemValue("uga") },
-        { "len", watchtimeQuery.queryItemValue("len") },
-        { "afmt", "251" },
-        { "idpj", "-1" },
-        { "ldpj", "-10" },
-        { "rti", rt },
-        { "st", posStr },
-        { "et", posStr },
-        { "muted", "0" },
-        { "docid", watchtimeQuery.queryItemValue("docid") },
-        { "ei", watchtimeQuery.queryItemValue("ei") },
-        { "plid", watchtimeQuery.queryItemValue("plid") },
-        { "sdetail", watchtimeQuery.queryItemValue("sdetail") },
-        { "of", watchtimeQuery.queryItemValue("of") },
-        { "vm", watchtimeQuery.queryItemValue("vm") }
-    };
-
-    outWatchtimeQuery.setQueryItems(map);
-    outWatchtimeUrl.setQuery(outWatchtimeQuery);
-    Http::instance().get(outWatchtimeUrl);
-}
-#endif // MPV backend exclusive methods

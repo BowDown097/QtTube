@@ -28,13 +28,6 @@ private:
     QPointer<QTimer> metadataUpdateTimer;
     Ui::WatchView* ui;
 
-#ifdef USEMPV
-    QTimer* watchtimeTimer;
-    QString getCpn();
-    void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp);
-    void reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position);
-#endif
-
     QString generateFormattedDescription(const InnertubeObjects::InnertubeString& description);
     void updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp);
 private slots:

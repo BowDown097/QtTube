@@ -4,15 +4,10 @@
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
+#include "watchviewplayer.h"
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QSpacerItem>
-
-#ifdef USEMPV
-#include "lib/media/media.h"
-#else
-#include "ui/widgets/webengineplayer/webengineplayer.h"
-#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -32,6 +27,7 @@ public:
     IconLabel* likeLabel;
     QVBoxLayout* menuVbox;
     QWidget* menuWrapper;
+    WatchViewPlayer* player;
     QHBoxLayout* primaryInfoHbox;
     QVBoxLayout* primaryInfoVbox;
     QWidget* primaryInfoWrapper;
@@ -42,13 +38,6 @@ public:
     QHBoxLayout* topLevelButtons;
     TubeLabel* viewCount;
 
-#ifdef USEMPV
-    Media* media;
-#else
-    WebEnginePlayer* wePlayer;
-#endif
-
-    QSize calcPlayerSize(const QSize& maxSize) const;
     void setupUi(QWidget* watchView);
 public slots:
     void toggleShowMore();
@@ -64,17 +53,12 @@ private:
     })";
 
     void setupDate(QWidget* watchView);
-    void setupDescription(QWidget* watchView, const QSize& playerSize);
+    void setupDescription(QWidget* watchView);
     void setupFrame(QWidget* watchView);
-    void setupMenu(QWidget* watchView, const QSize& playerSize);
-    void setupPlayer(QWidget* watchView, const QSize& playerSize);
-    void setupPrimaryInfo(QWidget* watchView, const QSize& playerSize);
-    void setupTitle(QWidget* watchView, const QSize& playerSize);
-#ifdef USEMPV
-private slots:
-    void mediaStateChanged(Media::State state);
-    void volumeChanged(double volume);
-#endif
+    void setupMenu(QWidget* watchView);
+    void setupPlayer(QWidget* watchView);
+    void setupPrimaryInfo(QWidget* watchView);
+    void setupTitle(QWidget* watchView);
 };
 
 namespace Ui

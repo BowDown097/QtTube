@@ -66,6 +66,7 @@ SOURCES += \
     src/ui/views/viewcontroller.cpp \
     src/ui/views/watchview.cpp \
     src/ui/views/watchview_ui.cpp \
+    src/ui/views/watchviewplayer.cpp \
     src/ui/widgets/labels/channellabel.cpp \
     src/ui/widgets/labels/iconlabel.cpp \
     src/ui/widgets/labels/tubelabel.cpp \
@@ -93,6 +94,7 @@ HEADERS += \
     src/ui/views/viewcontroller.h \
     src/ui/views/watchview.h \
     src/ui/views/watchview_ui.h \
+    src/ui/views/watchviewplayer.h \
     src/ui/widgets/labels/channellabel.h \
     src/ui/widgets/labels/iconlabel.h \
     src/ui/widgets/labels/tubelabel.h \

@@ -37,11 +37,9 @@ void SubscribeWidget::setPreferredPalette(const QPalette& pal)
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
     m_subscribeLabel->setSubscribeButton(subscribeButton);
+    m_notificationBell->setVisible(subscribeButton.subscribed);
     if (subscribeButton.subscribed)
-    {
         m_notificationBell->setNotificationPreferenceButton(subscribeButton.notificationPreferenceButton);
-        m_notificationBell->setVisible(true);
-    }
 }
 
 void SubscribeWidget::setSubscriberCount(const QString& subscriberCountText, const QString& channelId)

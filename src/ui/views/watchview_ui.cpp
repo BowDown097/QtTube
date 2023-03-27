@@ -4,23 +4,15 @@
 #include "ui/uiutilities.h"
 #include <QApplication>
 
-#ifdef USEMPV
-#include "lib/media/mpv/mediampv.h"
-#include <QMessageBox>
-#endif
-
 void WatchView_Ui::setupUi(QWidget* watchView)
 {
-    const QSize playerSize = calcPlayerSize(MainWindow::size());
-
     setupFrame(watchView);
-    setupPlayer(watchView, playerSize);
-    setupTitle(watchView, playerSize);
-    setupPrimaryInfo(watchView, playerSize);
-    setupMenu(watchView, playerSize);
+    setupPlayer(watchView);
+    setupTitle(watchView);
+    setupPrimaryInfo(watchView);
+    setupMenu(watchView);
     setupDate(watchView);
-    setupDescription(watchView, playerSize);
-
+    setupDescription(watchView);
     qobject_cast<QVBoxLayout*>(frame->layout())->addStretch(); // disable the layout from stretching on resize
 }
 
@@ -34,10 +26,10 @@ void WatchView_Ui::setupDate(QWidget* watchView)
     frame->layout()->addWidget(date);
 }
 
-void WatchView_Ui::setupDescription(QWidget* watchView, const QSize& playerSize)
+void WatchView_Ui::setupDescription(QWidget* watchView)
 {
     description = new TubeLabel(watchView);
-    description->setFixedWidth(playerSize.width());
+    description->setFixedWidth(player->size().width());
     description->setTextFormat(Qt::RichText);
     description->setWordWrap(true);
     UIUtilities::setMaximumLines(description, 3);
@@ -46,7 +38,7 @@ void WatchView_Ui::setupDescription(QWidget* watchView, const QSize& playerSize)
     showMoreLabel = new TubeLabel(watchView);
     showMoreLabel->setAlignment(Qt::AlignCenter);
     showMoreLabel->setClickable(true, false);
-    showMoreLabel->setFixedWidth(playerSize.width());
+    showMoreLabel->setFixedWidth(player->size().width());
     showMoreLabel->setStyleSheet("border-top: 1px solid " + qApp->palette().text().color().name());
     showMoreLabel->setText("SHOW MORE");
     frame->layout()->addWidget(showMoreLabel);
@@ -70,7 +62,7 @@ void WatchView_Ui::setupFrame(QWidget* watchView)
     scrollArea->setWidget(frame);
 }
 
-void WatchView_Ui::setupMenu(QWidget* watchView, const QSize& playerSize)
+void WatchView_Ui::setupMenu(QWidget* watchView)
 {
     menuVbox = new QVBoxLayout(watchView);
     menuVbox->setContentsMargins(0, 0, 20, 0);
@@ -102,35 +94,19 @@ void WatchView_Ui::setupMenu(QWidget* watchView, const QSize& playerSize)
     topLevelButtons->setSpacing(0);
     menuVbox->addLayout(topLevelButtons);
 
-    dislikeLabel = new IconLabel("dislike");
-    likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
-
     menuWrapper = new QWidget(watchView);
-    menuWrapper->setFixedWidth(playerSize.width());
+    menuWrapper->setFixedWidth(player->size().width());
     menuWrapper->setLayout(menuVbox);
     frame->layout()->addWidget(menuWrapper);
 }
 
-void WatchView_Ui::setupPlayer(QWidget* watchView, const QSize& playerSize)
+void WatchView_Ui::setupPlayer(QWidget* watchView)
 {
-#ifdef USEMPV
-    media = new MediaMPV(watchView);
-    media->init();
-    media->setVolume(SettingsStore::instance().preferredVolume);
-    media->videoWidget()->setFixedSize(playerSize);
-    frame->layout()->addWidget(media->videoWidget());
-
-    connect(media, &Media::error, this, [this](const QString& message) { QMessageBox::warning(this, "Media error", message); });
-    connect(media, &Media::stateChanged, this, &WatchView_Ui::mediaStateChanged);
-    connect(media, &Media::volumeChanged, this, &WatchView_Ui::volumeChanged);
-#else
-    wePlayer = new WebEnginePlayer(watchView);
-    wePlayer->setFixedSize(playerSize);
-    frame->layout()->addWidget(wePlayer);
-#endif
+    player = new WatchViewPlayer(watchView, MainWindow::size());
+    frame->layout()->addWidget(player->widget());
 }
 
-void WatchView_Ui::setupPrimaryInfo(QWidget* watchView, const QSize& playerSize)
+void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
 {
     primaryInfoHbox = new QHBoxLayout(watchView);
     primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
@@ -155,32 +131,18 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView, const QSize& playerSize)
     primaryInfoHbox->addStretch();
 
     primaryInfoWrapper = new QWidget(watchView);
-    primaryInfoWrapper->setFixedWidth(playerSize.width());
+    primaryInfoWrapper->setFixedWidth(player->size().width());
     primaryInfoWrapper->setLayout(primaryInfoHbox);
     frame->layout()->addWidget(primaryInfoWrapper);
 }
 
-void WatchView_Ui::setupTitle(QWidget* watchView, const QSize& playerSize)
+void WatchView_Ui::setupTitle(QWidget* watchView)
 {
     titleLabel = new TubeLabel(watchView);
-    titleLabel->setFixedWidth(playerSize.width());
+    titleLabel->setFixedWidth(player->size().width());
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 4));
     titleLabel->setWordWrap(true);
     frame->layout()->addWidget(titleLabel);
-}
-
-QSize WatchView_Ui::calcPlayerSize(const QSize& maxSize) const
-{
-    int playerWidth = maxSize.width();
-    int playerHeight = playerWidth * 9/16;
-
-    if (playerHeight > maxSize.height() - 150)
-    {
-        playerHeight = maxSize.height() - 150;
-        playerWidth = playerHeight * 16/9;
-    }
-
-    return QSize(playerWidth, playerHeight);
 }
 
 void WatchView_Ui::toggleShowMore()
@@ -196,18 +158,3 @@ void WatchView_Ui::toggleShowMore()
         showMoreLabel->setText("SHOW MORE");
     }
 }
-
-#ifdef USEMPV
-void WatchView_Ui::mediaStateChanged(Media::State state)
-{
-    if (state == Media::ErrorState)
-        QMessageBox::critical(this, "Media error", media->errorString());
-}
-
-void WatchView_Ui::volumeChanged(double volume)
-{
-    Q_UNUSED(volume);
-    if (media->volumeMuted())
-        media->setVolumeMuted(false);
-}
-#endif

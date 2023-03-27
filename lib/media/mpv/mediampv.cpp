@@ -20,11 +20,6 @@ void wakeup(void *ctx) {
 } // namespace
 
 MediaMPV::MediaMPV(QObject *parent) : Media(parent), widget(nullptr) {
-    QThread *thread = new QThread(this);
-    thread->start();
-    moveToThread(thread);
-    connect(this, &QObject::destroyed, thread, &QThread::quit);
-
 #ifndef Q_OS_WIN
     // Qt sets the locale in the QApplication constructor, but libmpv requires
     // the LC_NUMERIC category to be set to "C", so change it back.
@@ -48,7 +43,7 @@ MediaMPV::MediaMPV(QObject *parent) : Media(parent), widget(nullptr) {
     mpv_set_option_string(mpv, "load-scripts", "no");
     mpv_set_option_string(mpv, "audio-client-name",
                           QCoreApplication::applicationName().toUtf8().data());
-    // mpv_set_option_string(mpv, "hwdec", "auto");
+    mpv_set_option_string(mpv, "hwdec", "auto");
 
     mpv_set_option_string(mpv, "cache", "no");
     mpv_set_option_string(mpv, "demuxer-max-bytes", "10485760");

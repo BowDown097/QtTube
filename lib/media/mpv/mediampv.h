@@ -11,7 +11,6 @@ class MediaMPV : public Media {
 
 public:
     MediaMPV(QObject *parent = nullptr);
-
     void setAudioOnly(bool value);
 #ifndef MEDIA_AUDIOONLY
     void setRenderer(const QString &name);
