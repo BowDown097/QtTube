@@ -1,58 +1,31 @@
 #include "watchview.h"
-#include "http.h"
+#include "watchview_ui.h"
 #include "innertube.h"
+#include "osutilities.h"
 #include "settingsstore.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
-#include <QApplication>
 #include <QDesktopServices>
-#include <QMenu>
-#include <QMessageBox>
-#include <QResizeEvent>
 #include <QScrollBar>
 
 #ifdef USEMPV
-#include "lib/media/mpv/mediampv.h"
 #include <QRandomGenerator>
-#endif
-
-#ifdef QTTUBE_HAS_XSS
-#include <X11/extensions/scrnsaver.h>
-#ifdef QTTUBE_HAS_X11EXTRAS
-#include <QtX11Extras/QX11Info>
-#endif // X11Extras check
-#endif // XScreenSaver check
-
-#ifdef Q_OS_WIN
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #endif
 
 WatchView::~WatchView()
 {
+    delete ui;
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
-    toggleIdleSleep(false);
+    OSUtilities::toggleIdleSleep(false);
 }
 
-WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QWidget(parent)
+WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QWidget(parent), ui(new Ui::WatchView)
 {
-    scrollArea = new QScrollArea(this);
-    scrollArea->setFixedSize(MainWindow::size());
-    scrollArea->setFrameShape(QFrame::NoFrame);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->show();
+    OSUtilities::toggleIdleSleep(true);
+    MainWindow::topbar()->setVisible(false);
+    MainWindow::topbar()->alwaysShow = false;
 
-    // it seems, for whatever reason, if i just use a QVBoxLayout as opposed to one wrapped in a frame,
-    // it does not resize, meaning all the content is just squished.
-    frame = new QFrame(scrollArea);
-    frame->setLayout(new QVBoxLayout);
-    frame->layout()->setContentsMargins(0, 0, 0, 0);
-    frame->layout()->setSpacing(5);
-    scrollArea->setWidget(frame);
-
-    QSize playerSize = calcPlayerSize(MainWindow::size());
+    ui->setupUi(this);
 
     InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
     connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
@@ -63,140 +36,100 @@ WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QW
     connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
 
 #ifdef USEMPV
-    media = new MediaMPV;
-    media->init();
-    media->play("https://www.youtube.com/watch?v=" + videoId);
-    media->seek(progress);
-    media->setVolume(SettingsStore::instance().preferredVolume);
-    media->videoWidget()->setFixedSize(playerSize);
-    frame->layout()->addWidget(media->videoWidget());
-
-    connect(media, &Media::error, this, [this](const QString& message) { QMessageBox::warning(this, "Media error", message); });
-    connect(media, &Media::stateChanged, this, &WatchView::mediaStateChanged);
-    connect(media, &Media::volumeChanged, this, &WatchView::volumeChanged);
+    ui->media->play("https://www.youtube.com/watch?v=" + videoId);
+    ui->media->seek(progress);
 #else
-    wePlayer = new WebEnginePlayer(this);
-    wePlayer->setAuthStore(InnerTube::instance().authStore());
-    wePlayer->setContext(InnerTube::instance().context());
-    wePlayer->setFixedSize(playerSize);
-    wePlayer->play(videoId, progress);
-    frame->layout()->addWidget(wePlayer);
+    ui->wePlayer->setAuthStore(InnerTube::instance().authStore());
+    ui->wePlayer->setContext(InnerTube::instance().context());
+    ui->wePlayer->play(videoId, progress);
 #endif
 
-    titleLabel = new TubeLabel(this);
-    titleLabel->setFixedWidth(playerSize.width());
-    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 4));
-    titleLabel->setWordWrap(true);
-    frame->layout()->addWidget(titleLabel);
+    connect(ui->channelLabel->text, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
+    connect(ui->description, &TubeLabel::linkActivated, this, &WatchView::descriptionLinkActivated);
+}
 
-    { // begin primaryInfoHbox
-        primaryInfoHbox = new QHBoxLayout(this);
-        primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
-
-        channelIcon = new TubeLabel(this);
-        channelIcon->setClickable(true, false);
-        channelIcon->setMaximumSize(55, 48);
-        channelIcon->setMinimumSize(55, 48);
-        primaryInfoHbox->addWidget(channelIcon);
-
-        { // begin primaryInfoVbox
-            primaryInfoVbox = new QVBoxLayout(this);
-
-            channelLabel = new ChannelLabel(this);
-            primaryInfoVbox->addWidget(channelLabel);
-            connect(channelLabel->text, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
-
-            subscribeWidget = new SubscribeWidget(this);
-            subscribeWidget->layout()->addStretch();
-            subscribeWidget->subscribersCountLabel()->setVisible(false);
-            primaryInfoVbox->addWidget(subscribeWidget);
-
-            primaryInfoHbox->addLayout(primaryInfoVbox);
-        } // end primaryInfoVbox
-
-        primaryInfoHbox->addStretch();
-
-        primaryInfoWrapper = new QWidget(this);
-        primaryInfoWrapper->setFixedWidth(playerSize.width());
-        primaryInfoWrapper->setLayout(primaryInfoHbox);
-        frame->layout()->addWidget(primaryInfoWrapper);
-    } // end primaryInfoHbox
-
-    { // begin menuVbox
-        menuVbox = new QVBoxLayout(this);
-        menuVbox->setContentsMargins(0, 0, 20, 0);
-        menuVbox->setSpacing(3);
-
-        viewCount = new TubeLabel(this);
-        viewCount->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        viewCount->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 3));
-        menuVbox->addWidget(viewCount);
-
-        if (SettingsStore::instance().returnDislikes)
+void WatchView::descriptionLinkActivated(const QString& url)
+{
+    QUrl qUrl(url);
+    if (url.startsWith("http"))
+    {
+        QDesktopServices::openUrl(qUrl);
+    }
+    else if (url.startsWith("/channel"))
+    {
+        QString funnyPath = qUrl.path().replace("/channel/", "");
+        emit navigateChannelRequested(funnyPath.left(funnyPath.indexOf('/')));
+    }
+    else if (url.startsWith("/watch"))
+    {
+        ui->scrollArea->verticalScrollBar()->setValue(0);
+        QUrlQuery query(qUrl);
+        if (query.queryItemValue("continuePlayback") == "1")
         {
-            // i have to wrap the like bar for alignment to work... cringe!
-            likeBarWrapper = new QHBoxLayout(this);
-            likeBarWrapper->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+            int progress = query.queryItemValue("t").replace("s", "").toInt();
+#ifdef USEMPV
+    ui->media->seek(progress);
+#else
+    ui->wePlayer->seek(progress);
+#endif
+        }
+        else
+        {
+            hotLoadVideo(query.queryItemValue("v"), query.queryItemValue("t").toInt());
+            ui->toggleShowMore();
+        }
+    }
+    else
+    {
+        qDebug() << "Ran into unsupported description link:" << url;
+    }
+}
 
-            likeBar = new QProgressBar(this);
-            likeBar->setFixedSize(155, 2);
-            likeBar->setStyleSheet(R"(
-            QProgressBar {
-                border-radius: 2px;
-                background-color: #606060;
-            }
+QString WatchView::generateFormattedDescription(const InnertubeObjects::InnertubeString& description)
+{
+    QString descriptionText;
 
-            QProgressBar::chunk {
-                background-color: #1879c6;
-            }
-            )");
-            likeBar->setTextVisible(false);
-            likeBar->setVisible(false);
-            likeBarWrapper->addWidget(likeBar);
-
-            menuVbox->addLayout(likeBarWrapper);
+    for (const InnertubeObjects::InnertubeRun& run : description.runs)
+    {
+        if (run.navigationEndpoint.isNull() || run.navigationEndpoint.isUndefined())
+        {
+            descriptionText += run.text;
+            continue;
         }
 
-        topLevelButtons = new QHBoxLayout(this);
-        topLevelButtons->setContentsMargins(0, 3, 0, 0);
-        topLevelButtons->setSpacing(0);
-        menuVbox->addLayout(topLevelButtons);
+        const QJsonObject navigationEndpoint = run.navigationEndpoint.toObject();
+        QString href;
+        QString runText = run.text;
 
-        menuWrapper = new QWidget(this);
-        menuWrapper->setFixedWidth(playerSize.width());
-        menuWrapper->setLayout(menuVbox);
-        frame->layout()->addWidget(menuWrapper);
-    } // end menuVbox
+        if (navigationEndpoint.contains("urlEndpoint"))
+        {
+            QUrl url(navigationEndpoint["urlEndpoint"]["url"].toString());
+            QUrlQuery query(url);
+            if (query.hasQueryItem("q"))
+            {
+                href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
+            }
+            else if (url.host() == "www.youtube.com" && url.path().startsWith("/channel"))
+            {
+                href = url.path();
+                runText = url.toString().left(37) + "...";
+            }
+            else
+            {
+                href = url.toString();
+            }
+        }
+        else
+        {
+            href = navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
+            if (navigationEndpoint.contains("watchEndpoint"))
+                href += "&continuePlayback=" + QString::number(navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
+        }
 
-    infoSpacer = new QSpacerItem(20, 20);
-    frame->layout()->addItem(infoSpacer);
+        descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, runText);
+    }
 
-    date = new TubeLabel(this);
-    date->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
-    frame->layout()->addWidget(date);
-
-    description = new TubeLabel(this);
-    description->setFixedWidth(playerSize.width());
-    description->setTextFormat(Qt::RichText);
-    description->setWordWrap(true);
-    UIUtilities::setMaximumLines(description, 3);
-    frame->layout()->addWidget(description);
-    connect(description, &TubeLabel::linkActivated, this, &WatchView::descriptionLinkActivated);
-
-    showMoreLabel = new TubeLabel(this);
-    showMoreLabel->setAlignment(Qt::AlignCenter);
-    showMoreLabel->setClickable(true, false);
-    showMoreLabel->setFixedWidth(playerSize.width());
-    showMoreLabel->setStyleSheet("border-top: 1px solid " + qApp->palette().text().color().name());
-    showMoreLabel->setText("SHOW MORE");
-    frame->layout()->addWidget(showMoreLabel);
-    connect(showMoreLabel, &TubeLabel::clicked, this, &WatchView::toggleShowMore);
-
-    qobject_cast<QVBoxLayout*>(frame->layout())->addStretch(); // disable the layout from stretching on resize
-
-    toggleIdleSleep(true);
-    MainWindow::topbar()->setVisible(false);
-    MainWindow::topbar()->alwaysShow = false;
+    return descriptionText.replace("\n", "<br>");
 }
 
 void WatchView::hotLoadVideo(const QString& videoId, int progress)
@@ -205,15 +138,15 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
         metadataUpdateTimer->deleteLater();
 
 #ifdef USEMPV
-    media->play("https://www.youtube.com/watch?v=" + videoId);
-    media->seek(progress);
+    ui->media->play("https://www.youtube.com/watch?v=" + videoId);
+    ui->media->seek(progress);
     watchtimeTimer->deleteLater();
 #else
-    wePlayer->play(videoId, progress);
+    ui->wePlayer->play(videoId, progress);
 #endif
 
-    UIUtilities::clearLayout(topLevelButtons);
-    disconnect(channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
+    UIUtilities::clearLayout(ui->topLevelButtons);
+    disconnect(ui->channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
 
     InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
     connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
@@ -224,20 +157,52 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
     connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
 }
 
+void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton)
+{
+    IconLabel* senderLabel = qobject_cast<IconLabel*>(sender());
+
+    bool textIsNumber;
+    int count = QLocale::system().toInt(senderLabel->textLabel->text(), &textIsNumber);
+
+    if (senderLabel->textLabel->styleSheet().isEmpty()) // if untoggled
+    {
+        senderLabel->icon->setPixmap(like ? QPixmap(":/like-toggled.svg") : QPixmap(":/dislike-toggled.svg"));
+        senderLabel->textLabel->setStyleSheet("color: #167ac6");
+        if (textIsNumber)
+            senderLabel->textLabel->setText(QLocale::system().toString(count + 1));
+
+        const QJsonArray defaultCommands = toggleButton.defaultServiceEndpoint["commandExecutorCommand"]["commands"].toArray();
+        QJsonValue defaultCommand = *std::find_if(defaultCommands.cbegin(), defaultCommands.cend(),
+            [](const QJsonValue& v) { return v.toObject().contains("commandMetadata"); });
+        InnerTube::instance().like(defaultCommand["likeEndpoint"], like);
+    }
+    else
+    {
+        if (like)
+            senderLabel->icon->setPixmap(UIUtilities::preferDark() ? QPixmap(":/like-light.svg") : QPixmap(":/like.svg"));
+        else
+            senderLabel->icon->setPixmap(UIUtilities::preferDark() ? QPixmap(":/dislike-light.svg") : QPixmap(":/dislike.svg"));
+
+        senderLabel->textLabel->setStyleSheet(QString());
+        if (textIsNumber)
+            senderLabel->textLabel->setText(QLocale::system().toString(count - 1));
+
+        InnerTube::instance().like(toggleButton.toggledServiceEndpoint["likeEndpoint"], like);
+    }
+}
+
 void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 {
     InnertubeEndpoints::NextResponse nextResp = endpoint.response;
-
     channelId = nextResp.secondaryInfo.subscribeButton.channelId;
-    channelLabel->setInfo(nextResp.secondaryInfo.owner.title.text, nextResp.secondaryInfo.owner.badges);
 
-    connect(channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannelRequested, this, channelId));
+    ui->channelLabel->setInfo(nextResp.secondaryInfo.owner.title.text, nextResp.secondaryInfo.owner.badges);
+    connect(ui->channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannelRequested, this, channelId));
 
-    subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
-    subscribeWidget->setSubscriberCount(nextResp.secondaryInfo.owner.subscriberCountText.text, nextResp.secondaryInfo.subscribeButton.channelId);
-    subscribeWidget->subscribersCountLabel()->setVisible(true);
-
-    viewCount->setText(nextResp.primaryInfo.viewCount.text);
+    ui->subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
+    ui->subscribeWidget->setSubscriberCount(nextResp.secondaryInfo.owner.subscriberCountText.text, nextResp.secondaryInfo.subscribeButton.channelId);
+    ui->subscribeWidget->subscribersCountLabel()->setVisible(true);
+    ui->viewCount->setText(nextResp.primaryInfo.viewCount.text);
 
     for (const InnertubeObjects::MenuFlexibleItem& fi : nextResp.primaryInfo.videoActions.flexibleItems)
     {
@@ -250,43 +215,38 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
         IconLabel* label = new IconLabel(
             fi.topLevelButton.iconType.toLower(),
-            topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0)
+            ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0)
         );
         label->setText(labelText);
-        topLevelButtons->addWidget(label);
+        ui->topLevelButtons->addWidget(label);
     }
 
-    IconLabel* shareLabel = new IconLabel("share", topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0));
+    IconLabel* shareLabel = new IconLabel("share", ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0));
     shareLabel->setText("Share");
-    topLevelButtons->addWidget(shareLabel);
+    ui->topLevelButtons->addWidget(shareLabel);
 
-    topLevelButtons->addStretch();
+    ui->topLevelButtons->addStretch();
 
-    likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
-    topLevelButtons->addWidget(likeLabel);
-    connect(likeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, true, nextResp.primaryInfo.videoActions.likeButton));
+    ui->topLevelButtons->addWidget(ui->likeLabel);
+    connect(ui->likeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, true, nextResp.primaryInfo.videoActions.likeButton));
     if (nextResp.primaryInfo.videoActions.likeButton.isToggled)
     {
-        likeLabel->icon->setPixmap(QPixmap(":/like-toggled.svg"));
-        likeLabel->textLabel->setStyleSheet("color: #167ac6");
+        ui->likeLabel->icon->setPixmap(QPixmap(":/like-toggled.svg"));
+        ui->likeLabel->textLabel->setStyleSheet("color: #167ac6");
     }
 
-    dislikeLabel = new IconLabel("dislike");
-    topLevelButtons->addWidget(dislikeLabel);
-    connect(dislikeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, false, nextResp.primaryInfo.videoActions.dislikeButton));
+    ui->topLevelButtons->addWidget(ui->dislikeLabel);
+    connect(ui->dislikeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, false, nextResp.primaryInfo.videoActions.dislikeButton));
     if (nextResp.primaryInfo.videoActions.dislikeButton.isToggled)
     {
-        dislikeLabel->icon->setPixmap(QPixmap(":/dislike-toggled.svg"));
-        dislikeLabel->textLabel->setStyleSheet("color: #167ac6");
+        ui->dislikeLabel->icon->setPixmap(QPixmap(":/dislike-toggled.svg"));
+        ui->dislikeLabel->textLabel->setStyleSheet("color: #167ac6");
     }
 
     QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.owner.thumbnails;
     if (!channelIcons.isEmpty())
     {
-        auto bestThumb = *std::find_if(channelIcons.cbegin(), channelIcons.cend(), [](const InnertubeObjects::GenericThumbnail& t)
-        {
-            return t.width >= 48;
-        });
+        InnertubeObjects::GenericThumbnail bestThumb = *std::find_if(channelIcons.cbegin(), channelIcons.cend(), [](const auto& t) { return t.width >= 48; });
         HttpReply* reply = Http::instance().get(bestThumb.url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
@@ -294,38 +254,25 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     if (SettingsStore::instance().returnDislikes)
     {
         HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + nextResp.videoId);
-        connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
-            QJsonDocument doc = QJsonDocument::fromJson(reply.body());
-            int dislikes = doc["dislikes"].toInt();
-            int likes = doc["likes"].toInt();
-            if (likes != 0 || dislikes != 0)
-            {
-                likeBar->setMaximum(likes + dislikes);
-                likeBar->setValue(likes);
-            }
-            likeBar->setVisible(true);
-
-            dislikeLabel->setText(QLocale::system().toString(dislikes));
-            likeLabel->setText(QLocale::system().toString(likes));
-        });
+        connect(reply, &HttpReply::finished, this, &WatchView::updateRatings);
     }
     else
     {
-        likeLabel->setText(nextResp.primaryInfo.videoActions.likeButton.defaultText.text);
+        ui->likeLabel->setText(nextResp.primaryInfo.videoActions.likeButton.defaultText.text);
     }
 
     QString dateText = nextResp.primaryInfo.dateText.text;
     if (!dateText.startsWith("Premier") && !dateText.startsWith("Stream") && !dateText.startsWith("Start") && !dateText.startsWith("Sched"))
         dateText = "Published on " + dateText;
-    date->setText(dateText);
+    ui->date->setText(dateText);
 
-    description->setText(generateFormattedDescription(nextResp.secondaryInfo.description));
+    ui->description->setText(generateFormattedDescription(nextResp.secondaryInfo.description));
 }
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 {
     InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
-    titleLabel->setText(playerResp.videoDetails.title);
+    ui->titleLabel->setText(playerResp.videoDetails.title);
 
 #ifdef USEMPV
     if (SettingsStore::instance().playbackTracking)
@@ -335,11 +282,11 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
     {
         watchtimeTimer = new QTimer(this);
         watchtimeTimer->setInterval(5000);
-        connect(watchtimeTimer, &QTimer::timeout, this, std::bind(&WatchView::reportWatchtime, this, playerResp, media->position));
+        connect(watchtimeTimer, &QTimer::timeout, this, std::bind(&WatchView::reportWatchtime, this, playerResp, ui->media->position));
         watchtimeTimer->start();
     }
 #else
-    wePlayer->setPlayerResponse(playerResp);
+    ui->wePlayer->setPlayerResponse(playerResp);
 #endif
 
     if (playerResp.videoDetails.isLive)
@@ -365,167 +312,29 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 
 void WatchView::resizeEvent(QResizeEvent* event)
 {
-    if (!primaryInfoWrapper || !event->oldSize().isValid()) return;
+    if (!ui->primaryInfoWrapper || !event->oldSize().isValid()) return;
 
-    QSize playerSize = calcPlayerSize(size());
-    description->setFixedWidth(playerSize.width());
-    menuWrapper->setFixedWidth(playerSize.width());
-    primaryInfoWrapper->setFixedWidth(playerSize.width());
-    showMoreLabel->setFixedWidth(playerSize.width());
-    titleLabel->setFixedWidth(playerSize.width());
+    const QSize playerSize = ui->calcPlayerSize(size());
+    ui->description->setFixedWidth(playerSize.width());
+    ui->menuWrapper->setFixedWidth(playerSize.width());
+    ui->primaryInfoWrapper->setFixedWidth(playerSize.width());
+    ui->showMoreLabel->setFixedWidth(playerSize.width());
+    ui->titleLabel->setFixedWidth(playerSize.width());
 
 #ifdef USEMPV
-    media->videoWidget()->setFixedSize(playerSize);
+    ui->media->videoWidget()->setFixedSize(playerSize);
 #else
-    wePlayer->setFixedSize(playerSize);
+    ui->wePlayer->setFixedSize(playerSize);
 #endif
 
-    scrollArea->setFixedSize(event->size());
-}
-
-QSize WatchView::calcPlayerSize(QSize maxSize)
-{
-    int playerWidth = maxSize.width();
-    int playerHeight = playerWidth * 9/16;
-
-    if (playerHeight > maxSize.height() - 150)
-    {
-        playerHeight = maxSize.height() - 150;
-        playerWidth = playerHeight * 16/9;
-    }
-
-    return QSize(playerWidth, playerHeight);
-}
-
-void WatchView::copyChannelUrl()
-{
-    UIUtilities::copyToClipboard("https://www.youtube.com/channel/" + channelId);
-}
-
-void WatchView::descriptionLinkActivated(const QString& url)
-{
-    QUrl qUrl(url);
-    if (url.startsWith("http"))
-    {
-        QDesktopServices::openUrl(qUrl);
-    }
-    else if (url.startsWith("/channel"))
-    {
-        QString funnyPath = qUrl.path().replace("/channel/", "");
-        emit navigateChannelRequested(funnyPath.left(funnyPath.indexOf('/')));
-    }
-    else if (url.startsWith("/watch"))
-    {
-        scrollArea->verticalScrollBar()->setValue(0);
-        QUrlQuery query(qUrl);
-        if (query.queryItemValue("continuePlayback") == "1")
-        {
-            int progress = query.queryItemValue("t").replace("s", "").toInt();
-#ifdef USEMPV
-    media->seek(progress);
-#else
-    wePlayer->seek(progress);
-#endif
-        }
-        else
-        {
-            hotLoadVideo(query.queryItemValue("v"), query.queryItemValue("t").toInt());
-            toggleShowMore();
-        }
-    }
-    else
-    {
-        qDebug() << "Ran into unsupported description link:" << url;
-    }
-}
-
-QString WatchView::generateFormattedDescription(const InnertubeObjects::InnertubeString& description)
-{
-    QString descriptionText;
-
-    for (const InnertubeObjects::InnertubeRun& run : description.runs)
-    {
-        if (!run.navigationEndpoint.isNull() && !run.navigationEndpoint.isUndefined())
-        {
-            const QJsonObject navigationEndpoint = run.navigationEndpoint.toObject();
-            QString href;
-            QString runText = run.text;
-
-            if (navigationEndpoint.contains("urlEndpoint"))
-            {
-                QUrl url(navigationEndpoint["urlEndpoint"]["url"].toString());
-                QUrlQuery query(url);
-                if (query.hasQueryItem("q"))
-                {
-                    href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
-                }
-                else if (url.host() == "www.youtube.com" && url.path().startsWith("/channel"))
-                {
-                    href = url.path();
-                    runText = url.toString().left(37) + "...";
-                }
-                else
-                {
-                    href = url.toString();
-                }
-            }
-            else
-            {
-                href = navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
-                if (navigationEndpoint.contains("watchEndpoint"))
-                    href += "&continuePlayback=" + QString::number(navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
-            }
-
-            descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, runText);
-        }
-        else
-        {
-            descriptionText += run.text;
-        }
-    }
-
-    return descriptionText.replace("\n", "<br>");
-}
-
-void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton)
-{
-    IconLabel* senderLabel = qobject_cast<IconLabel*>(sender());
-
-    bool textIsNumber;
-    int count = QLocale::system().toInt(senderLabel->textLabel->text(), &textIsNumber);
-
-    if (senderLabel->textLabel->styleSheet().isEmpty()) // if untoggled
-    {
-        senderLabel->icon->setPixmap(like ? QPixmap(":/like-toggled.svg") : QPixmap(":/dislike-toggled.svg"));
-        senderLabel->textLabel->setStyleSheet("color: #167ac6");
-        if (textIsNumber)
-            senderLabel->textLabel->setText(QLocale::system().toString(count + 1));
-
-        const QJsonArray defaultCommands = toggleButton.defaultServiceEndpoint["commandExecutorCommand"]["commands"].toArray();
-        QJsonValue defaultCommand = *std::find_if(defaultCommands.begin(), defaultCommands.end(),
-            [](const QJsonValue& v) { return v.toObject().contains("commandMetadata"); });
-        InnerTube::instance().like(defaultCommand["likeEndpoint"], like);
-    }
-    else
-    {
-        if (like)
-            senderLabel->icon->setPixmap(UIUtilities::preferDark() ? QPixmap(":/like-light.svg") : QPixmap(":/like.svg"));
-        else
-            senderLabel->icon->setPixmap(UIUtilities::preferDark() ? QPixmap(":/dislike-light.svg") : QPixmap(":/dislike.svg"));
-
-        senderLabel->textLabel->setStyleSheet(QString());
-        if (textIsNumber)
-            senderLabel->textLabel->setText(QLocale::system().toString(count - 1));
-
-        InnerTube::instance().like(toggleButton.toggledServiceEndpoint["likeEndpoint"], like);
-    }
+    ui->scrollArea->setFixedSize(event->size());
 }
 
 void WatchView::setChannelIcon(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    ui->channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
 void WatchView::showContextMenu(const QPoint& pos)
@@ -533,136 +342,51 @@ void WatchView::showContextMenu(const QPoint& pos)
     QMenu* menu = new QMenu(this);
 
     QAction* copyUrlAction = new QAction("Copy channel page URL", this);
-    connect(copyUrlAction, &QAction::triggered, this, &WatchView::copyChannelUrl);
+    connect(copyUrlAction, &QAction::triggered, this, std::bind(&UIUtilities::copyToClipboard, "https://www.youtube.com/channel/" + channelId));
 
     menu->addAction(copyUrlAction);
-    menu->popup(channelLabel->text->mapToGlobal(pos));
-}
-
-void WatchView::toggleIdleSleep(bool toggle)
-{
-#if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
-    #ifdef QTTUBE_HAS_XSS
-        if (qApp->platformName() != "xcb")
-        {
-            qDebug() << "Failed to toggle idle sleep: Can only toggle sleep on X11 on Unix systems. Screen may sleep while watching videos.";
-            return;
-        }
-
-        #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-            Display* display = qApp->nativeInterface<QNativeInterface::QX11Application>()->display();
-        #elif defined(QTTUBE_HAS_X11EXTRAS)
-            Display* display = QX11Info::display();
-        #else
-            Display* display = XOpenDisplay(NULL); // last resort!
-        #endif // X11 display getter
-
-        if (!display)
-        {
-            qDebug() << "Failed to toggle idle sleep: Failed to get X11 display";
-            return;
-        }
-
-        int event, error, major, minor;
-        if (XScreenSaverQueryExtension(display, &event, &error) != 1)
-        {
-            qDebug() << "Failed to toggle idle sleep: XScreenSaverQueryExtension failed";
-            return;
-        }
-        if (XScreenSaverQueryVersion(display, &major, &minor) != 1 || major < 1 || (major == 1 && minor < 1))
-        {
-            qDebug() << "Failed to toggle idle sleep: XScreenSaverQueryVersion failed or definitely returned the wrong version";
-            return;
-        }
-
-        XScreenSaverSuspend(display, toggle);
-    #else
-        qDebug() << "Failed to toggle idle sleep: XScreenSaver support is not enabled in this build";
-        Q_UNUSED(toggle);
-    #endif // XScreenSaver check
-#elif defined(Q_OS_WIN)
-    if (SetThreadExecutionState(toggle ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS | ES_SYSTEM_REQUIRED : ES_CONTINUOUS) == NULL)
-        qDebug() << "Failed to toggle idle sleep: SetThreadExecutionState failed";
-#elif defined(Q_OS_MACOS)
-    if (!toggle && sleepAssert)
-    {
-        IOPMAssertionRelease(sleepAssert);
-        return;
-    }
-
-    CFStringRef reason = CFSTR("QtTube video playing");
-    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, reason, &sleepAssert);
-    if (success != kIOReturnSuccess)
-        qDebug() << "Failed to toggle idle sleep: Creating IOPM assertion failed";
-#else
-    qDebug() << "Failed to toggle idle sleep: Unsupported OS";
-    Q_UNUSED(toggle);
-#endif // OS checks
-}
-
-void WatchView::toggleShowMore()
-{
-    if (showMoreLabel->text() == "SHOW MORE")
-    {
-        description->setMaximumHeight(QWIDGETSIZE_MAX);
-        showMoreLabel->setText("SHOW LESS");
-    }
-    else
-    {
-        UIUtilities::setMaximumLines(description, 3);
-        showMoreLabel->setText("SHOW MORE");
-    }
+    menu->popup(ui->channelLabel->text->mapToGlobal(pos));
 }
 
 void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)
 {
-    description->setText(generateFormattedDescription(resp.description));
-    titleLabel->setText(resp.title.text);
-    viewCount->setText(resp.viewCount);
+    ui->description->setText(generateFormattedDescription(resp.description));
+    ui->titleLabel->setText(resp.title.text);
+    ui->viewCount->setText(resp.viewCount);
 
     QString dateText = resp.dateText;
     if (!dateText.startsWith("Premier") && !dateText.startsWith("Stream") && !dateText.startsWith("Start") && !dateText.startsWith("Sched"))
         dateText = "Published on " + dateText;
-    date->setText(dateText);
+    ui->date->setText(dateText);
 
     if (SettingsStore::instance().returnDislikes)
     {
         HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + resp.videoId);
-        connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
-            QJsonDocument doc = QJsonDocument::fromJson(reply.body());
-            int dislikes = doc["dislikes"].toInt();
-            int likes = doc["likes"].toInt();
-            if (likes != 0 || dislikes != 0)
-            {
-                likeBar->setMaximum(likes + dislikes);
-                likeBar->setValue(likes);
-            }
-            likeBar->setVisible(true);
-
-            dislikeLabel->setText(QLocale::system().toString(dislikes));
-            likeLabel->setText(QLocale::system().toString(likes));
-        });
+        connect(reply, &HttpReply::finished, this, &WatchView::updateRatings);
     }
     else
     {
-        likeLabel->setText(resp.likeDefaultText);
+        ui->likeLabel->setText(resp.likeDefaultText);
     }
 }
 
+void WatchView::updateRatings(const HttpReply& reply)
+{
+    QJsonDocument doc = QJsonDocument::fromJson(reply.body());
+    int dislikes = doc["dislikes"].toInt();
+    int likes = doc["likes"].toInt();
+    if (likes != 0 || dislikes != 0)
+    {
+        ui->likeBar->setMaximum(likes + dislikes);
+        ui->likeBar->setValue(likes);
+    }
+    ui->likeBar->setVisible(true);
+
+    ui->dislikeLabel->setText(QLocale::system().toString(dislikes));
+    ui->likeLabel->setText(QLocale::system().toString(likes));
+}
+
 #ifdef USEMPV // MPV backend exclusive methods
-void WatchView::mediaStateChanged(Media::State state)
-{
-    if (state == Media::ErrorState)
-        QMessageBox::critical(this, "Media error", media->errorString());
-}
-
-void WatchView::volumeChanged(double volume)
-{
-    Q_UNUSED(volume);
-    if (media->volumeMuted())
-        media->setVolumeMuted(false);
-}
-
 QString WatchView::getCpn()
 {
     QString out;

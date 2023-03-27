@@ -54,6 +54,7 @@ contains(DEFINES, USEMPV) {
 
 SOURCES += \
     src/main.cpp \
+    src/osutilities.cpp \
     src/qttubeapplication.cpp \
     src/settingsstore.cpp \
     src/ui/browsehelper.cpp \
@@ -64,6 +65,7 @@ SOURCES += \
     src/ui/views/channelview.cpp \
     src/ui/views/viewcontroller.cpp \
     src/ui/views/watchview.cpp \
+    src/ui/views/watchview_ui.cpp \
     src/ui/widgets/labels/channellabel.cpp \
     src/ui/widgets/labels/iconlabel.cpp \
     src/ui/widgets/labels/tubelabel.cpp \
@@ -77,6 +79,7 @@ SOURCES += \
     src/ui/widgets/topbar.cpp
 
 HEADERS += \
+    src/osutilities.h \
     src/qttubeapplication.h \
     src/settingsstore.h \
     src/ui/browsehelper.h \
@@ -89,6 +92,7 @@ HEADERS += \
     src/ui/views/channelview.h \
     src/ui/views/viewcontroller.h \
     src/ui/views/watchview.h \
+    src/ui/views/watchview_ui.h \
     src/ui/widgets/labels/channellabel.h \
     src/ui/widgets/labels/iconlabel.h \
     src/ui/widgets/labels/tubelabel.h \
