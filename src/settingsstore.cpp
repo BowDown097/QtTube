@@ -8,11 +8,13 @@ void SettingsStore::initializeFromSettingsFile()
     condensedViews = settings.value("condensedViews", false).toBool();
     fullSubs = settings.value("fullSubs", false).toBool();
     homeShelves = settings.value("homeShelves", false).toBool();
-    preferredQuality = settings.value("preferredQuality", PlayerQuality::Auto).value<PlayerQuality>();
-    preferredVolume = settings.value("preferredVolume", 100).toInt();
-    restoreAnnotations = settings.value("restoreAnnotations", false).toBool();
     returnDislikes = settings.value("returnDislikes", true).toBool();
     themedChannels = settings.value("themedChannels", false).toBool();
+
+    h264Only = settings.value("player/h264Only", false).toBool();
+    preferredQuality = settings.value("player/preferredQuality", PlayerQuality::Auto).value<PlayerQuality>();
+    preferredVolume = settings.value("player/preferredVolume", 100).toInt();
+    restoreAnnotations = settings.value("player/restoreAnnotations", false).toBool();
 
     playbackTracking = settings.value("privacy/playbackTracking", true).toBool();
     watchtimeTracking = settings.value("privacy/watchtimeTracking", true).toBool();
@@ -36,11 +38,13 @@ void SettingsStore::saveToSettingsFile()
     settings.setValue("condensedViews", condensedViews);
     settings.setValue("fullSubs", fullSubs);
     settings.setValue("homeShelves", homeShelves);
-    settings.setValue("preferredQuality", preferredQuality);
-    settings.setValue("preferredVolume", preferredVolume);
-    settings.setValue("restoreAnnotations", restoreAnnotations);
     settings.setValue("returnDislikes", returnDislikes);
     settings.setValue("themedChannels", themedChannels);
+
+    settings.setValue("player/h264Only", h264Only);
+    settings.setValue("player/preferredQuality", preferredQuality);
+    settings.setValue("player/preferredVolume", preferredVolume);
+    settings.setValue("player/restoreAnnotations", restoreAnnotations);
 
     settings.setValue("privacy/playbackTracking", playbackTracking);
     settings.setValue("privacy/watchtimeTracking", watchtimeTracking);

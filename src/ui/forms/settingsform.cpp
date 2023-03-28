@@ -12,11 +12,13 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->condensedViews->setChecked(store.condensedViews);
     ui->fullSubs->setChecked(store.fullSubs);
     ui->homeShelves->setChecked(store.homeShelves);
+    ui->returnDislikes->setChecked(store.returnDislikes);
+    ui->themedChannels->setChecked(store.themedChannels);
+    // player
+    ui->h264Only->setChecked(store.h264Only);
     ui->preferredQuality->setCurrentIndex(store.preferredQuality);
     ui->preferredVolume->setValue(store.preferredVolume);
     ui->restoreAnnotations->setChecked(store.restoreAnnotations);
-    ui->returnDislikes->setChecked(store.returnDislikes);
-    ui->themedChannels->setChecked(store.themedChannels);
     // privacy
     ui->playbackTracking->setChecked(store.playbackTracking);
     ui->watchtimeTracking->setChecked(store.watchtimeTracking);
@@ -41,11 +43,13 @@ void SettingsForm::saveSettings()
     store.condensedViews = ui->condensedViews->isChecked();
     store.fullSubs = ui->fullSubs->isChecked();
     store.homeShelves = ui->homeShelves->isChecked();
+    store.returnDislikes = ui->returnDislikes->isChecked();
+    store.themedChannels = ui->themedChannels->isChecked();
+    // player
+    store.h264Only = ui->h264Only->isChecked();
     store.preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
     store.preferredVolume = ui->preferredVolume->value();
     store.restoreAnnotations = ui->restoreAnnotations->isChecked();
-    store.returnDislikes = ui->returnDislikes->isChecked();
-    store.themedChannels = ui->themedChannels->isChecked();
     // privacy
     store.playbackTracking = ui->playbackTracking->isChecked();
     store.watchtimeTracking = ui->watchtimeTracking->isChecked();

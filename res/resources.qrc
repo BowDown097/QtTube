@@ -58,6 +58,9 @@
         <file>player/global.js</file>
     </qresource>
     <qresource>
+        <file>player/h264ify.js</file>
+    </qresource>
+    <qresource>
         <file>player/integration.js</file>
     </qresource>
     <qresource>

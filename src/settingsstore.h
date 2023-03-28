@@ -15,6 +15,7 @@ public:
 
     bool condensedViews;
     bool fullSubs;
+    bool h264Only;
     bool homeShelves;
     bool playbackTracking;
     PlayerQuality preferredQuality;

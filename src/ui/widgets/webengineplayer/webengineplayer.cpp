@@ -24,6 +24,7 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     loadScriptFile(":/player/annotationlib/AnnotationRenderer.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/annotations.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/global.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/player/h264ify.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/integration.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/sponsorblock.js", QWebEngineScript::DocumentReady);
 
@@ -78,11 +79,12 @@ void WebEnginePlayer::play(const QString& vId, int progress)
 {
     QString sbc = QJsonDocument(QJsonArray::fromStringList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
     QString q = QMetaEnum::fromType<SettingsStore::PlayerQuality>().valueToKey(SettingsStore::instance().preferredQuality);
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5&annot=%6")
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5&annot=%6&h264Only=%7")
                       .arg(vId, sbc, q.toLower())
                       .arg(progress)
                       .arg(SettingsStore::instance().preferredVolume)
-                      .arg(SettingsStore::instance().restoreAnnotations)));
+                      .arg(SettingsStore::instance().restoreAnnotations)
+                      .arg(SettingsStore::instance().h264Only)));
 }
 
 void WebEnginePlayer::seek(int progress)
