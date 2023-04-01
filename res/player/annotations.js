@@ -1,4 +1,4 @@
-const annotationsEndpoint = "https://thughunting.party/qttube_annotations";
+const annotationsEndpoint = "https://sperg.rodeo/qttube_annotations";
 const annotationParser = new AnnotationParser();
 let renderer;
 
