@@ -2,6 +2,7 @@
 #define WEBENGINEPLAYER_H
 #include "fullscreenwindow.h"
 #include "playerinterceptor.h"
+#include "webchannelinterface.h"
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineScript>
 
@@ -21,6 +22,7 @@ private slots:
 private:
     QScopedPointer<FullScreenWindow> m_fullScreenWindow;
     PlayerInterceptor* m_interceptor;
+    WebChannelInterface* m_interface;
     QWebEngineView* m_view;
 
     QString getFileContents(const QString& path);

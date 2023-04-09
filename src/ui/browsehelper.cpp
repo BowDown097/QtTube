@@ -10,9 +10,8 @@
 
 BrowseHelper* BrowseHelper::instance()
 {
-    if (!m_browseHelper)
-        m_browseHelper = new BrowseHelper;
-    return m_browseHelper;
+    std::call_once(m_onceFlag, [] { m_instance = new BrowseHelper; });
+    return m_instance;
 }
 
 void BrowseHelper::browseChannel(QListWidget* channelTab, int index, const InnertubeEndpoints::ChannelResponse& channelResp)

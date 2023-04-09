@@ -6,6 +6,7 @@
 #include "innertube/objects/notification/notification.h"
 #include "innertube/objects/video/video.h"
 #include "innertube/responses/browse/channelresponse.h"
+#include <mutex>
 #include <QListWidget>
 #include <type_traits>
 
@@ -15,6 +16,8 @@ class BrowseHelper : public QObject
     Q_DISABLE_COPY(BrowseHelper)
 public:
     static BrowseHelper* instance();
+    explicit BrowseHelper(QObject* parent = nullptr) : QObject(parent) {}
+
     void browseChannel(QListWidget* channelTab, int index, const InnertubeEndpoints::ChannelResponse& channelResp);
     void browseHistory(QListWidget* historyWidget, const QString& query = "");
     void browseHome(QListWidget* homeWidget);
@@ -28,8 +31,8 @@ public:
 private slots:
     void browseFailed(const InnertubeException& ie, const QString& title);
 private:
-    BrowseHelper() = default;
-    static inline BrowseHelper* m_browseHelper;
+    static inline BrowseHelper* m_instance;
+    static inline std::once_flag m_onceFlag;
 
     void setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget);
     void setupNotificationList(const QList<InnertubeObjects::Notification>& notifications, QListWidget* widget);

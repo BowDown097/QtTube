@@ -6,6 +6,7 @@
 class SettingsStore : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(SettingsStore)
 public:
     // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
     static inline const QDir configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "QtTube";
@@ -28,6 +29,8 @@ public:
     bool watchtimeTracking;
 
     static SettingsStore& instance() { static SettingsStore ss; return ss; }
+    explicit SettingsStore(QObject* parent = nullptr) : QObject(parent) {}
+
     void initializeFromSettingsFile();
     void saveToSettingsFile();
 };

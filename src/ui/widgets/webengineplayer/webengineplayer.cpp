@@ -10,14 +10,16 @@
 WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     : QWidget(parent), m_interceptor(new PlayerInterceptor(this)), m_view(new QWebEngineView(this))
 {
-    QVBoxLayout* layout = new QVBoxLayout;
+    QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addWidget(m_view);
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
+    m_interface = new WebChannelInterface(this);
+
     QWebChannel* channel = new QWebChannel(m_view->page());
     m_view->page()->setWebChannel(channel);
-    channel->registerObject("interface", WebChannelInterface::instance());
+    channel->registerObject("interface", m_interface);
 
     loadScriptFile(":/qtwebchannel/qwebchannel.js", QWebEngineScript::DocumentCreation);
     loadScriptFile(":/player/annotationlib/AnnotationParser.js", QWebEngineScript::DocumentReady);
