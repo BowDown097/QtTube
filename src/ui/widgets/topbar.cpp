@@ -5,6 +5,10 @@
 #include "ui/uiutilities.h"
 #include <QApplication>
 
+#ifdef INNERTUBE_NO_WEBENGINE
+#include <QMessageBox>
+#endif
+
 TopBar::TopBar(QWidget* parent) : QWidget(parent), animation(new QPropertyAnimation(this, "geometry"))
 {
     animation->setDuration(250);
@@ -104,18 +108,43 @@ void TopBar::trySignIn()
     if (InnerTube::instance().hasAuthenticated())
         return;
 
+#ifndef INNERTUBE_NO_WEBENGINE
     InnerTube::instance().authenticate();
-    if (InnerTube::instance().hasAuthenticated())
-    {
-        QSettings store(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat);
-        InnerTube::instance().authStore()->writeToSettings(store);
+    if (!InnerTube::instance().hasAuthenticated())
+        return;
 
-        setUpNotifications();
-        signInButton->setText("Sign out");
-        disconnect(signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
-        connect(signInButton, &QPushButton::clicked, this, &TopBar::signOut);
-        emit signInStatusChanged();
+    QSettings store(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat);
+    InnerTube::instance().authStore()->writeToSettings(store);
+#else
+    QMessageBox::StandardButton box = QMessageBox::information(nullptr, "YouTube Login",
+R"(
+Could not bring up the YouTube login page because the Qt web engine is not available.
+You will need to provide authentication credentials manually to log in.
+For info on how to do this, see https://github.com/BowDown097/innertube-qt/wiki/Manually-getting-login-credentials.
+)");
+    if (box != QMessageBox::StandardButton::Ok)
+        return;
+
+    QSettings store(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat);
+    InnerTube::instance().authenticateFromSettings(store);
+    if (!InnerTube::instance().hasAuthenticated())
+    {
+        QMessageBox::information(nullptr, "Not Logged In",
+R"(
+You didn't provide authentication credentials or the credentials you provided are invalid.
+If you provided credentials, please check them, refer back to the previous linked guide if needed, and try again.
+)");
+        return;
     }
+
+    SettingsStore::instance().saveToSettingsFile();
+#endif
+
+    setUpNotifications();
+    signInButton->setText("Sign out");
+    disconnect(signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
+    connect(signInButton, &QPushButton::clicked, this, &TopBar::signOut);
+    emit signInStatusChanged();
 }
 
 void TopBar::updateNotificationCount()
