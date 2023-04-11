@@ -91,10 +91,17 @@ void FindBar::jumpToLabel()
         {
             for (int i = 0; i < list->count(); i++)
             {
-                QList<QLabel*> labels = list->itemWidget(list->item(i))->findChildren<QLabel*>();
-                bool foundMatch = std::any_of(labels.begin(), labels.end(), [this](const QLabel* label) { return label == matches[currentIndex]; });
-                if (foundMatch)
-                    list->scrollToItem(list->item(i));
+                if (QWidget* itemWidget = list->itemWidget(list->item(i)))
+                {
+                    QList<QLabel*> labels = itemWidget->findChildren<QLabel*>();
+                    bool foundMatch = std::any_of(labels.begin(), labels.end(), [this](const QLabel* label)
+                                                  { return label == matches[currentIndex]; });
+                    if (foundMatch)
+                    {
+                        list->scrollToItem(list->item(i));
+                        break;
+                    }
+                }
             }
         }
     }
