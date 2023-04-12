@@ -52,8 +52,7 @@ void BrowseVideoRenderer::copyDirectUrl()
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
     connect(reply, &InnertubeReply::exception, this, [this]
     {
-        QMessageBox::critical(this, "Failed to copy to clipboard",
-            "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
+        QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
     });
     connect(reply, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, [this](const auto& endpoint)
     {
@@ -63,16 +62,14 @@ void BrowseVideoRenderer::copyDirectUrl()
         }
         else
         {
-            QList<InnertubeObjects::StreamingFormat>::const_iterator best = std::max_element(
-                endpoint.response.streamingData.formats.cbegin(),
-                endpoint.response.streamingData.formats.cend(),
+            QList<InnertubeObjects::StreamingFormat>::const_iterator best = std::ranges::max_element(
+                endpoint.response.streamingData.formats,
                 [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; }
             );
 
             if (best == endpoint.response.streamingData.formats.cend())
             {
-                QMessageBox::critical(this, "Failed to copy to clipboard",
-                    "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
+                QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
                 return;
             }
 

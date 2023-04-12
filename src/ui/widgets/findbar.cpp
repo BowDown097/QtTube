@@ -2,6 +2,7 @@
 #include "ui/uiutilities.h"
 #include <QApplication>
 #include <QListWidget>
+#include <ranges>
 
 FindBar::FindBar(QWidget* parent) : QWidget(parent)
 {
@@ -94,8 +95,7 @@ void FindBar::jumpToLabel()
                 if (QWidget* itemWidget = list->itemWidget(list->item(i)))
                 {
                     QList<QLabel*> labels = itemWidget->findChildren<QLabel*>();
-                    bool foundMatch = std::any_of(labels.begin(), labels.end(), [this](const QLabel* label)
-                                                  { return label == matches[currentIndex]; });
+                    bool foundMatch = std::ranges::any_of(labels, [this](const QLabel* label) { return label == matches[currentIndex]; });
                     if (foundMatch)
                     {
                         list->scrollToItem(list->item(i));

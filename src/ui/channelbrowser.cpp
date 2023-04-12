@@ -164,143 +164,141 @@ void ChannelBrowser::setupLive(QListWidget* channelTab, const QJsonValue& tabRen
 void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& tabRenderer)
 {
     const QJsonArray slr = tabRenderer["content"]["sectionListRenderer"]["contents"].toArray();
+    QJsonArray::const_iterator perksIter = std::ranges::find_if(slr, [](const QJsonValue& v)
+                                                                { return v.toObject().contains("sponsorshipsExpandablePerksRenderer"); });
 
-    auto perksIter = std::find_if(slr.begin(), slr.end(), [](const QJsonValue& v) { return v.toObject().contains("sponsorshipsExpandablePerksRenderer"); });
     if (perksIter != slr.end())
     {
-        QJsonValue perksParent = *perksIter;
+        const QJsonValue& perksParent = *perksIter;
         QJsonValue perks = perksParent["sponsorshipsExpandablePerksRenderer"];
 
-        { // begin perksHeader
-            QHBoxLayout* perksHeader = new QHBoxLayout;
-            perksHeader->setContentsMargins(0, 0, 0, 0);
+        QHBoxLayout* perksHeader = new QHBoxLayout;
+        perksHeader->setContentsMargins(0, 0, 0, 0);
 
-            QWidget* perksHeaderWrapper = new QWidget;
-            perksHeaderWrapper->setLayout(perksHeader);
+        QWidget* perksHeaderWrapper = new QWidget;
+        perksHeaderWrapper->setLayout(perksHeader);
 
-            QLabel* badgeLabel = new QLabel;
-            badgeLabel->setFixedSize(18, 18);
-            UIUtilities::setThumbnail(badgeLabel, perks["badge"]["thumbnails"].toArray());
-            perksHeader->addWidget(badgeLabel);
+        QLabel* badgeLabel = new QLabel;
+        badgeLabel->setFixedSize(18, 18);
+        UIUtilities::setThumbnail(badgeLabel, perks["badge"]["thumbnails"].toArray());
+        perksHeader->addWidget(badgeLabel);
 
-            TubeLabel* membershipTitle = new TubeLabel(InnertubeObjects::InnertubeString(perks["title"]));
-            perksHeader->addWidget(membershipTitle);
+        TubeLabel* membershipTitle = new TubeLabel(InnertubeObjects::InnertubeString(perks["title"]));
+        perksHeader->addWidget(membershipTitle);
 
-            UIUtilities::addWidgetToList(channelTab, perksHeaderWrapper);
-        } // end perksHeader
+        UIUtilities::addWidgetToList(channelTab, perksHeaderWrapper);
 
-        { // begin perkInfo
-            QHBoxLayout* perkInfoHeader = new QHBoxLayout;
-            perkInfoHeader->setContentsMargins(0, 0, 0, 5);
+        QHBoxLayout* perkInfoHeader = new QHBoxLayout;
+        perkInfoHeader->setContentsMargins(0, 0, 0, 5);
 
-            QWidget* perkInfoHeaderWrapper = new QWidget;
-            perkInfoHeaderWrapper->setLayout(perkInfoHeader);
+        QWidget* perkInfoHeaderWrapper = new QWidget;
+        perkInfoHeaderWrapper->setLayout(perkInfoHeader);
 
-            TubeLabel* tier = new TubeLabel(perks["expandableHeader"]["simpleText"].toString());
-            tier->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
-            perkInfoHeader->addWidget(tier);
+        TubeLabel* tier = new TubeLabel(perks["expandableHeader"]["simpleText"].toString());
+        tier->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+        perkInfoHeader->addWidget(tier);
 
-            TubeLabel* showPerkInfo = new TubeLabel("Show perks info");
-            showPerkInfo->setClickable(true, false);
-            showPerkInfo->setStyleSheet("color: #3ea6ff");
-            perkInfoHeader->addWidget(showPerkInfo);
+        TubeLabel* showPerkInfo = new TubeLabel("Show perks info");
+        showPerkInfo->setClickable(true, false);
+        showPerkInfo->setStyleSheet("color: #3ea6ff");
+        perkInfoHeader->addWidget(showPerkInfo);
 
-            perkInfoHeader->addStretch();
-            UIUtilities::addWidgetToList(channelTab, perkInfoHeaderWrapper);
+        perkInfoHeader->addStretch();
+        UIUtilities::addWidgetToList(channelTab, perkInfoHeaderWrapper);
 
-            QVBoxLayout* perkInfo = new QVBoxLayout;
-            perkInfo->setContentsMargins(0, 0, 0, 0);
+        QVBoxLayout* perkInfo = new QVBoxLayout;
+        perkInfo->setContentsMargins(0, 0, 0, 0);
 
-            QWidget* perkInfoWrapper = new QWidget;
-            perkInfoWrapper->setLayout(perkInfo);
-            QListWidgetItem* perkInfoItem = UIUtilities::addWidgetToList(channelTab, perkInfoWrapper);
+        QWidget* perkInfoWrapper = new QWidget;
+        perkInfoWrapper->setLayout(perkInfo);
+        QListWidgetItem* perkInfoItem = UIUtilities::addWidgetToList(channelTab, perkInfoWrapper);
 
-            QObject::connect(showPerkInfo, &TubeLabel::clicked, showPerkInfo, [perkInfo, perkInfoItem, perkInfoWrapper, perks, showPerkInfo]
+        QObject::connect(showPerkInfo, &TubeLabel::clicked, showPerkInfo, [perkInfo, perkInfoItem, perkInfoWrapper, perks, showPerkInfo]
+        {
+            if (!perkInfo->isEmpty())
             {
-                if (!perkInfo->isEmpty())
-                {
-                    UIUtilities::clearLayout(perkInfo);
-                    showPerkInfo->setText("Show perks info");
-                    perkInfoItem->setSizeHint(perkInfoWrapper->sizeHint());
-                    return;
-                }
-
-                showPerkInfo->setText("Hide perks info");
-
-                const QJsonArray expandableItems = perks["expandableItems"].toArray();
-                for (const QJsonValue& v : expandableItems)
-                {
-                    const QJsonObject perkRenderer = v["sponsorshipsPerkRenderer"].toObject();
-                    if (perkRenderer.isEmpty())
-                        continue;
-
-                    TubeLabel* titleLabel = new TubeLabel(InnertubeObjects::InnertubeString(perkRenderer["title"]));
-                    titleLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
-                    perkInfo->addWidget(titleLabel);
-
-                    if (perkRenderer.contains("loyaltyBadges"))
-                    {
-                        const QJsonArray loyaltyBadges = perkRenderer["loyaltyBadges"]["sponsorshipsLoyaltyBadgesRenderer"]["loyaltyBadges"].toArray();
-                        for (const QJsonValue& v2 : loyaltyBadges)
-                        {
-                            QJsonValue loyaltyBadge = v2["sponsorshipsLoyaltyBadgeRenderer"];
-
-                            QHBoxLayout* loyaltyBadgeLayout = new QHBoxLayout;
-                            loyaltyBadgeLayout->setContentsMargins(0, 0, 0, 0);
-
-                            QWidget* loyaltyBadgeWrapper = new QWidget;
-                            loyaltyBadgeWrapper->setFixedWidth(180);
-                            loyaltyBadgeWrapper->setLayout(loyaltyBadgeLayout);
-
-                            TubeLabel* loyaltyBadgeLabel = new TubeLabel(InnertubeObjects::InnertubeString(loyaltyBadge["title"]));
-                            loyaltyBadgeLayout->addWidget(loyaltyBadgeLabel);
-
-                            QLabel* loyaltyBadgeIcon = new QLabel;
-                            loyaltyBadgeIcon->setFixedSize(18, 18);
-                            UIUtilities::setThumbnail(loyaltyBadgeIcon, loyaltyBadge["icon"]["thumbnails"].toArray());
-                            loyaltyBadgeLayout->addWidget(loyaltyBadgeIcon);
-
-                            perkInfo->addWidget(loyaltyBadgeWrapper);
-                        }
-                    }
-                    else if (perkRenderer.contains("images"))
-                    {
-                        QHBoxLayout* imagesLayout = new QHBoxLayout;
-                        imagesLayout->setContentsMargins(0, 0, 0, 0);
-
-                        QWidget* imagesWrapper = new QWidget;
-                        imagesWrapper->setLayout(imagesLayout);
-
-                        const QJsonArray images = perkRenderer["images"].toArray();
-                        for (const QJsonValue& v2 : images)
-                        {
-                            QLabel* thumbnailLabel = new QLabel;
-                            thumbnailLabel->setFixedSize(32, 32);
-                            UIUtilities::setThumbnail(thumbnailLabel, v2["thumbnails"].toArray(), true);
-                            imagesLayout->addWidget(thumbnailLabel);
-                        }
-
-                        imagesLayout->addStretch();
-                        perkInfo->addWidget(imagesWrapper);
-                    }
-                    else if (perkRenderer.contains("description"))
-                    {
-                        TubeLabel* descriptionLabel = new TubeLabel(perkRenderer["description"]["simpleText"].toString());
-                        perkInfo->addWidget(descriptionLabel);
-                    }
-                }
-
+                UIUtilities::clearLayout(perkInfo);
+                showPerkInfo->setText("Show perks info");
                 perkInfoItem->setSizeHint(perkInfoWrapper->sizeHint());
-            });
-        } // end perkInfo
+                return;
+            }
+
+            showPerkInfo->setText("Hide perks info");
+
+            const QJsonArray expandableItems = perks["expandableItems"].toArray();
+            for (const QJsonValue& v : expandableItems)
+            {
+                const QJsonObject perkRenderer = v["sponsorshipsPerkRenderer"].toObject();
+                if (perkRenderer.isEmpty())
+                    continue;
+
+                TubeLabel* titleLabel = new TubeLabel(InnertubeObjects::InnertubeString(perkRenderer["title"]));
+                titleLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+                perkInfo->addWidget(titleLabel);
+
+                if (perkRenderer.contains("loyaltyBadges"))
+                {
+                    const QJsonArray loyaltyBadges = perkRenderer["loyaltyBadges"]["sponsorshipsLoyaltyBadgesRenderer"]["loyaltyBadges"].toArray();
+                    for (const QJsonValue& v2 : loyaltyBadges)
+                    {
+                        QJsonValue loyaltyBadge = v2["sponsorshipsLoyaltyBadgeRenderer"];
+
+                        QHBoxLayout* loyaltyBadgeLayout = new QHBoxLayout;
+                        loyaltyBadgeLayout->setContentsMargins(0, 0, 0, 0);
+
+                        QWidget* loyaltyBadgeWrapper = new QWidget;
+                        loyaltyBadgeWrapper->setFixedWidth(180);
+                        loyaltyBadgeWrapper->setLayout(loyaltyBadgeLayout);
+
+                        TubeLabel* loyaltyBadgeLabel = new TubeLabel(InnertubeObjects::InnertubeString(loyaltyBadge["title"]));
+                        loyaltyBadgeLayout->addWidget(loyaltyBadgeLabel);
+
+                        QLabel* loyaltyBadgeIcon = new QLabel;
+                        loyaltyBadgeIcon->setFixedSize(18, 18);
+                        UIUtilities::setThumbnail(loyaltyBadgeIcon, loyaltyBadge["icon"]["thumbnails"].toArray());
+                        loyaltyBadgeLayout->addWidget(loyaltyBadgeIcon);
+
+                        perkInfo->addWidget(loyaltyBadgeWrapper);
+                    }
+                }
+                else if (perkRenderer.contains("images"))
+                {
+                    QHBoxLayout* imagesLayout = new QHBoxLayout;
+                    imagesLayout->setContentsMargins(0, 0, 0, 0);
+
+                    QWidget* imagesWrapper = new QWidget;
+                    imagesWrapper->setLayout(imagesLayout);
+
+                    const QJsonArray images = perkRenderer["images"].toArray();
+                    for (const QJsonValue& v2 : images)
+                    {
+                        QLabel* thumbnailLabel = new QLabel;
+                        thumbnailLabel->setFixedSize(32, 32);
+                        UIUtilities::setThumbnail(thumbnailLabel, v2["thumbnails"].toArray(), true);
+                        imagesLayout->addWidget(thumbnailLabel);
+                    }
+
+                    imagesLayout->addStretch();
+                    perkInfo->addWidget(imagesWrapper);
+                }
+                else if (perkRenderer.contains("description"))
+                {
+                    TubeLabel* descriptionLabel = new TubeLabel(perkRenderer["description"]["simpleText"].toString());
+                    perkInfo->addWidget(descriptionLabel);
+                }
+            }
+
+            perkInfoItem->setSizeHint(perkInfoWrapper->sizeHint());
+        });
     }
 
-    auto itemSectionIter = std::find_if(slr.begin(), slr.end(), [](const QJsonValue& v) { return v.toObject().contains("itemSectionRenderer"); });
+    QJsonArray::const_iterator itemSectionIter = std::ranges::find_if(slr, [](const QJsonValue& v) { return v.toObject().contains("itemSectionRenderer"); });
     if (itemSectionIter == slr.end())
         return;
 
-    QJsonValue itemSectionRenderer = *itemSectionIter;
+    const QJsonValue& itemSectionRenderer = *itemSectionIter;
     const QJsonArray itemSectionContents = itemSectionRenderer["itemSectionRenderer"]["contents"].toArray();
+
     for (const QJsonValue& v : itemSectionContents)
     {
         const QJsonObject o = v.toObject();

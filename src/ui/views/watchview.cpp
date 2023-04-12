@@ -152,8 +152,12 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
             senderLabel->textLabel->setText(QLocale::system().toString(count + 1));
 
         const QJsonArray defaultCommands = toggleButton.defaultServiceEndpoint["commandExecutorCommand"]["commands"].toArray();
-        QJsonValue defaultCommand = *std::find_if(defaultCommands.cbegin(), defaultCommands.cend(),
-            [](const QJsonValue& v) { return v.toObject().contains("commandMetadata"); });
+        QJsonArray::const_iterator defaultCommandIt = std::ranges::find_if(defaultCommands, [](const QJsonValue& v)
+                                                                           { return v.toObject().contains("commandMetadata"); });
+        if (defaultCommandIt == defaultCommands.cend())
+            return;
+
+        const QJsonValue& defaultCommand = *defaultCommandIt;
         InnerTube::instance().like(defaultCommand["likeEndpoint"], like);
     }
     else
@@ -225,10 +229,10 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         ui->dislikeLabel->textLabel->setStyleSheet("color: #167ac6");
     }
 
-    QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.owner.thumbnails;
+    const QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.owner.thumbnails;
     if (!channelIcons.isEmpty())
     {
-        InnertubeObjects::GenericThumbnail bestThumb = *std::find_if(channelIcons.cbegin(), channelIcons.cend(), [](const auto& t) { return t.width >= 48; });
+        const InnertubeObjects::GenericThumbnail& bestThumb = *std::ranges::find_if(channelIcons, [](const auto& t) { return t.width >= 48; });
         HttpReply* reply = Http::instance().get(bestThumb.url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
