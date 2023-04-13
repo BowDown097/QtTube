@@ -81,15 +81,16 @@ void WebEnginePlayer::play(const QString& vId, int progress)
 {
     QString sbc = QJsonDocument(QJsonArray::fromStringList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
     QString q = QMetaEnum::fromType<SettingsStore::PlayerQuality>().valueToKey(SettingsStore::instance().preferredQuality);
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5&annot=%6&h264Only=%7")
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5&annot=%6&h264Only=%7&no60Fps=%8")
                       .arg(vId, sbc, q.toLower())
                       .arg(progress)
                       .arg(SettingsStore::instance().preferredVolume)
                       .arg(SettingsStore::instance().restoreAnnotations)
-                      .arg(SettingsStore::instance().h264Only)));
+                      .arg(SettingsStore::instance().h264Only)
+                      .arg(SettingsStore::instance().disable60Fps)));
 }
 
 void WebEnginePlayer::seek(int progress)
 {
-    m_view->page()->runJavaScript(QStringLiteral("document.getElementById(\"movie_player\").seekTo(%1);").arg(progress));
+    m_view->page()->runJavaScript(QStringLiteral("document.getElementById('movie_player').seekTo(%1);").arg(progress));
 }

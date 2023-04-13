@@ -126,7 +126,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>90</y>
+         <y>130</y>
          <width>170</width>
          <height>26</height>
         </rect>
@@ -139,7 +139,7 @@
        <property name="geometry">
         <rect>
          <x>180</x>
-         <y>88</y>
+         <y>128</y>
          <width>70</width>
          <height>34</height>
         </rect>
@@ -155,7 +155,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>130</y>
+         <y>170</y>
          <width>170</width>
          <height>26</height>
         </rect>
@@ -168,7 +168,7 @@
        <property name="geometry">
         <rect>
          <x>180</x>
-         <y>128</y>
+         <y>168</y>
          <width>135</width>
          <height>34</height>
         </rect>
@@ -235,6 +235,19 @@
        </property>
        <property name="text">
         <string>Use H.264 only where possible</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="disable60Fps">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>400</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Disable &gt;30 FPS video</string>
        </property>
       </widget>
      </widget>

@@ -15,12 +15,7 @@ document.addEventListener("mousedown", function(e) {
 });
 
 const params = new URLSearchParams(document.location.search);
-
-// h264ify
-var h264OnlyPref = params.get("h264Only");
-if (h264OnlyPref == 1) {
-    h264ify();
-}
+h264ify(params.get("h264Only"), params.get("no60Fps"));
 
 waitForElement("#movie_player").then(function(p) {
     p.seekTo(params.get("t")); // seek to saved time
@@ -28,7 +23,7 @@ waitForElement("#movie_player").then(function(p) {
     p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. there's no way out of doing this. wtf???
 
     // annotations
-    var annotPref = params.get("annot");
+    const annotPref = params.get("annot");
     if (annotPref == 1) {
         waitForElement(".ytp-panel-menu").then(el => addAnnotationSwitch(el));
         handleAnnotations(document.location.pathname.split("/").pop());
@@ -41,7 +36,7 @@ waitForElement("#movie_player").then(function(p) {
         return;
     }
 
-    var iv = setInterval(function() {
+    const iv = setInterval(function() {
         if (!p.getAvailableQualityLevels || !p.setPlaybackQualityRange)
             return;
 

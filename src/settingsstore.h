@@ -15,6 +15,7 @@ public:
     Q_ENUM(PlayerQuality)
 
     bool condensedViews;
+    bool disable60Fps;
     bool fullSubs;
     bool h264Only;
     bool homeShelves;
