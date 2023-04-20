@@ -1,7 +1,9 @@
 #include "settingsform.h"
 #include "ui_settingsform.h"
 #include "settingsstore.h"
+#include "ui/uiutilities.h"
 #include <QMessageBox>
+#include <QStyleFactory>
 
 SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::SettingsForm)
 {
@@ -9,6 +11,8 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
 
     SettingsStore& store = SettingsStore::instance();
     // general
+    ui->appStyle->addItems(QStyleFactory::keys());
+    ui->appStyle->setCurrentIndex(ui->appStyle->findText(store.appStyle));
     ui->condensedViews->setChecked(store.condensedViews);
     ui->fullSubs->setChecked(store.fullSubs);
     ui->homeShelves->setChecked(store.homeShelves);
@@ -41,6 +45,7 @@ void SettingsForm::saveSettings()
 {
     SettingsStore& store = SettingsStore::instance();
     // general
+    store.appStyle = ui->appStyle->currentText();
     store.condensedViews = ui->condensedViews->isChecked();
     store.fullSubs = ui->fullSubs->isChecked();
     store.homeShelves = ui->homeShelves->isChecked();
@@ -76,6 +81,8 @@ void SettingsForm::saveSettings()
 
     store.saveToSettingsFile();
     store.initializeFromSettingsFile();
+    UIUtilities::setAppStyle(store.appStyle);
+
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
 }
 

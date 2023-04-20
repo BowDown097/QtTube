@@ -6,6 +6,7 @@
 #include "widgets/renderers/browsevideorenderer.h"
 #include <QApplication>
 #include <QClipboard>
+#include <QStyleFactory>
 
 #ifdef Q_OS_LINUX
 #include <QThread>
@@ -129,6 +130,19 @@ bool UIUtilities::preferDark(const QPalette& pal)
     return pal == QPalette()
             ? qApp->palette().alternateBase().color().lightness() < 60
             : pal.alternateBase().color().lightness() < 60;
+}
+
+void UIUtilities::setAppStyle(const QString& styleName)
+{
+    if (styleName == "Default")
+    {
+        if (qApp->style()->objectName() != defaultStyle)
+            qApp->setStyle(QStyleFactory::create(defaultStyle));
+    }
+    else if (QStyle* style = QStyleFactory::create(styleName))
+    {
+        qApp->setStyle(style);
+    }
 }
 
 // this will be used for the description and perhaps elsewhere

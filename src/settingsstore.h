@@ -14,6 +14,7 @@ public:
     enum PlayerQuality { Auto, HighRes, HD2160, HD1440, HD1080, HD720, Large, Medium, Small, Tiny };
     Q_ENUM(PlayerQuality)
 
+    QString appStyle;
     bool condensedViews;
     bool disable60Fps;
     bool fullSubs;

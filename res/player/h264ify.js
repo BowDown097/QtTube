@@ -25,7 +25,6 @@ function makeModifiedTypeChecker(origChecker, h264Only, no60Fps) {
 
         if (h264Only == 1) {
             const disallowedTypes = ['webm', 'vp8', 'vp08', 'vp9', 'vp09', 'av01'];
-            console.log(type);
             if (disallowedTypes.some(disallowedType => type.includes(disallowedType)))
                 return '';
         }

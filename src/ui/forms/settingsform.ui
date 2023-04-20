@@ -104,6 +104,34 @@
         <bool>true</bool>
        </property>
       </widget>
+      <widget class="QLabel" name="appStyleLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>210</y>
+         <width>170</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Application style</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="appStyle">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>208</y>
+         <width>135</width>
+         <height>34</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Default</string>
+        </property>
+       </item>
+      </widget>
      </widget>
      <widget class="QWidget" name="player">
       <attribute name="title">

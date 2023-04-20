@@ -12,6 +12,8 @@
 class UIUtilities
 {
 public:
+    static inline QString defaultStyle;
+
     static void addBoldLabelToList(QListWidget* list, const QString& text);
     static void addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel);
     static void addSeparatorToList(QListWidget* list);
@@ -25,6 +27,7 @@ public:
     static void copyToClipboard(const QString& text);
     static void elide(QLabel* label, int targetWidth);
     static bool preferDark(const QPalette& pal = QPalette());
+    static void setAppStyle(const QString& styleName);
     static void setMaximumLines(QWidget* widget, int lines);
     static void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
     static void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);

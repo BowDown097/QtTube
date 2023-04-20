@@ -53,6 +53,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->trendingWidget->verticalScrollBar()->setSingleStep(25);
 
     SettingsStore::instance().initializeFromSettingsFile();
+    UIUtilities::defaultStyle = qApp->style()->objectName();
+    UIUtilities::setAppStyle(SettingsStore::instance().appStyle);
+
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP"));
     tryRestoreData();
 

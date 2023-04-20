@@ -5,6 +5,7 @@ void SettingsStore::initializeFromSettingsFile()
 {
     QSettings settings(configPath.filePath("settings.ini"), QSettings::IniFormat);
 
+    appStyle = settings.value("appStyle", "Default").toString();
     condensedViews = settings.value("condensedViews", false).toBool();
     fullSubs = settings.value("fullSubs", false).toBool();
     homeShelves = settings.value("homeShelves", false).toBool();
@@ -36,6 +37,7 @@ void SettingsStore::saveToSettingsFile()
 {
     QSettings settings(configPath.filePath("settings.ini"), QSettings::IniFormat);
 
+    settings.setValue("appStyle", appStyle);
     settings.setValue("condensedViews", condensedViews);
     settings.setValue("fullSubs", fullSubs);
     settings.setValue("homeShelves", homeShelves);
