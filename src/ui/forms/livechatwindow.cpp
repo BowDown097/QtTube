@@ -204,8 +204,6 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
         }
     }
 
-    qDebug() << ui->listWidget->count() << "1";
-
     if (ui->listWidget->count() > 200)
     {
         for (int i = 0; i < ui->listWidget->count() - 200; i++)
@@ -214,8 +212,6 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
             delete item;
         }
     }
-
-    qDebug() << ui->listWidget->count() << "2";
 
     currentContinuation = liveChat.response.continuations[0].continuation;
 
