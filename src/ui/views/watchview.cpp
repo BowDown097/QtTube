@@ -4,6 +4,7 @@
 #include "innertube.h"
 #include "osutilities.h"
 #include "settingsstore.h"
+#include "ui/forms/livechatwindow.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
 #include <QDesktopServices>
@@ -209,6 +210,20 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     shareLabel->setText("Share");
     ui->topLevelButtons->addWidget(shareLabel);
 
+    if (nextResp.liveChat.has_value())
+    {
+        IconLabel* liveChatLabel = new IconLabel("live-chat", QMargins(15, 0, 0, 0));
+        liveChatLabel->setText("Chat");
+        ui->topLevelButtons->addWidget(liveChatLabel);
+
+        connect(liveChatLabel, &IconLabel::clicked, this, [nextResp]
+        {
+            LiveChatWindow* liveChatWindow = new LiveChatWindow;
+            liveChatWindow->show();
+            liveChatWindow->initialize(nextResp.liveChat.value());
+        });
+    }
+
     ui->topLevelButtons->addStretch();
 
     ui->likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
@@ -272,7 +287,7 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
                 auto updatedMetadata = InnerTube::instance().getBlocking<InnertubeEndpoints::UpdatedMetadata>(playerResp.videoDetails.videoId);
                 updateMetadata(updatedMetadata.response);
             }
-            catch (const InnertubeException& ie)
+            catch (const InnertubeException&)
             {
                 qDebug() << "InnertubeException on UpdateMetadata. Stream/premiere likely ended. Killing update timer.";
                 metadataUpdateTimer->deleteLater();

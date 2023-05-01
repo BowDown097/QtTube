@@ -59,6 +59,7 @@ SOURCES += \
     src/settingsstore.cpp \
     src/ui/browsehelper.cpp \
     src/ui/channelbrowser.cpp \
+    src/ui/forms/livechatwindow.cpp \
     src/ui/uiutilities.cpp \
     src/ui/forms/mainwindow.cpp \
     src/ui/forms/settingsform.cpp \
@@ -86,6 +87,7 @@ HEADERS += \
     src/ui/browsehelper.h \
     src/ui/browsehelper.tpp \
     src/ui/channelbrowser.h \
+    src/ui/forms/livechatwindow.h \
     src/ui/uiutilities.h \
     src/ui/uiutilities.tpp \
     src/ui/forms/mainwindow.h \
@@ -108,12 +110,15 @@ HEADERS += \
     src/ui/widgets/topbar.h
 
 FORMS += \
+    src/ui/forms/livechatwindow.ui \
     src/ui/forms/mainwindow.ui \
     src/ui/forms/settingsform.ui
 
 RESOURCES += res/resources.qrc
 win32: RC_ICONS = res/qttube.ico
 macx: ICON = res/qttube.icns
+
+QTQUICK_COMPILER_SKIPPED_RESOURCES += res/resources.qrc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

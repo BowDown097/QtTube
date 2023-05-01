@@ -19,6 +19,12 @@
         <file>like-toggled.svg</file>
     </qresource>
     <qresource>
+        <file>live-chat.svg</file>
+    </qresource>
+    <qresource>
+        <file>live-chat-light.svg</file>
+    </qresource>
+    <qresource>
         <file>notif-bell.svg</file>
     </qresource>
     <qresource>
