@@ -1,9 +1,10 @@
 #ifndef LIVECHATWINDOW_H
 #define LIVECHATWINDOW_H
+#include "httpreply.h"
 #include "innertube/endpoints/live_chat/getlivechat.h"
 #include "innertube/objects/live_chat/livechat.h"
+#include <QLabel>
 #include <QTimer>
-#include <QWidget>
 
 namespace Ui {
 class LiveChatWindow;
@@ -30,6 +31,7 @@ private:
 private slots:
     void processChatData(const InnertubeEndpoints::GetLiveChat& liveChat);
     void sendMessage();
+    void setAuthorIcon(const HttpReply& reply, QLabel* iconLabel);
 };
 
 #endif // LIVECHATWINDOW_H

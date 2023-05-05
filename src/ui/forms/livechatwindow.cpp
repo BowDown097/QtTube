@@ -1,8 +1,8 @@
 #include "livechatwindow.h"
 #include "ui_livechatwindow.h"
+#include "http.h"
 #include "innertube.h"
 #include "ui/uiutilities.h"
-#include <QLabel>
 #include <QScrollBar>
 #include <QVBoxLayout>
 
@@ -94,24 +94,37 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 
                 QWidget* messageWidget = new QWidget(this);
 
-                QVBoxLayout* messageLayout = new QVBoxLayout(this);
+                QHBoxLayout* messageLayout = new QHBoxLayout(this);
                 messageLayout->setContentsMargins(0, 0, 0, 0);
                 messageLayout->setSpacing(0);
 
+                QLabel* authorIcon = new QLabel(this);
+                authorIcon->setFixedSize(38, 32);
+                messageLayout->addWidget(authorIcon);
+
+                HttpReply* iconReply = Http::instance().get(liveChatTextMessage["authorPhoto"]["thumbnails"][0]["url"].toString());
+                connect(iconReply, &HttpReply::finished, this, std::bind(&LiveChatWindow::setAuthorIcon, this, std::placeholders::_1, authorIcon));
+
+                QVBoxLayout* contentLayout = new QVBoxLayout(this);
+                contentLayout->setContentsMargins(0, 0, 0, 0);
+                contentLayout->setSpacing(0);
+
                 QLabel* authorLabel = new QLabel(liveChatTextMessage["authorName"]["simpleText"].toString(), this);
+                authorLabel->setFixedWidth(ui->listWidget->width() - 50);
                 authorLabel->setStyleSheet(liveChatTextMessage.toObject().contains("authorBadges")
                                            ? "font-weight: bold; color: #2ba640"
                                            : "font-weight: bold");
-                messageLayout->addWidget(authorLabel);
+                contentLayout->addWidget(authorLabel);
 
                 QLabel* messageLabel = new QLabel(InnertubeObjects::InnertubeString(liveChatTextMessage["message"]).text, this);
-                messageLabel->setFixedWidth(ui->listWidget->width() - 20);
+                messageLabel->setFixedWidth(ui->listWidget->width() - 50);
                 messageLabel->setWordWrap(true);
-                messageLayout->addWidget(messageLabel);
+                contentLayout->addWidget(messageLabel);
 
-                messageLayout->addStretch();
+                contentLayout->addStretch();
+                messageLayout->addLayout(contentLayout);
+
                 messageWidget->setLayout(messageLayout);
-
                 UIUtilities::addWidgetToList(ui->listWidget, messageWidget);
             }
             else if (item.contains("liveChatMembershipItemRenderer"))
@@ -233,6 +246,13 @@ void LiveChatWindow::sendMessage()
 
     InnerTube::instance().get<InnertubeEndpoints::SendMessage>(ui->messageBox->text().trimmed(), clientMessageId, params);
     ui->messageBox->clear();
+}
+
+void LiveChatWindow::setAuthorIcon(const HttpReply& reply, QLabel* iconLabel)
+{
+    QPixmap pixmap;
+    pixmap.loadFromData(reply.body());
+    iconLabel->setPixmap(pixmap.scaled(32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
 LiveChatWindow::~LiveChatWindow()
