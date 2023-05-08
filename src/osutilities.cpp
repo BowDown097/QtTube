@@ -9,42 +9,83 @@
 #endif // XScreenSaver check
 
 #ifdef Q_OS_WIN
-QPair<int, int> OSUtilities::getWinVer()
+void OSUtilities::allowDarkModeForWindow(HWND hWnd, BOOL enable)
 {
-    NTSTATUS(WINAPI *RtlGetVersion)(LPOSVERSIONINFOEXW);
-    OSVERSIONINFOEXW osInfo;
-
-    *(FARPROC*)&RtlGetVersion = GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlGetVersion");
-    if (RtlGetVersion != NULL)
-    {
-        osInfo.dwOSVersionInfoSize = sizeof(osInfo);
-        RtlGetVersion(&osInfo);
-    }
-
-    return qMakePair(osInfo.dwMajorVersion, osInfo.dwMinorVersion);
+    if (hWnd)
+        applyStringProp(hWnd, enable ? L"Enabled" : NULL, 0xA91E);
+    return;
 }
 
-void OSUtilities::setDarkWinTitlebar(WId winid, bool darkmode)
+void OSUtilities::applyStringProp(HWND hWnd, LPCWSTR lpString, WORD property)
 {
-    HWND hwnd = reinterpret_cast<HWND>(winid);
-    BOOL dark = (BOOL)darkmode;
+    WORD prop = (uint16_t)(uint64_t)GetPropW(hWnd, (LPCWSTR)(uint64_t)property);
+    if (prop)
+    {
+        DeleteAtom(prop);
+        RemovePropW(hWnd, (LPCWSTR)(uint64_t)property);
+    }
+    if (lpString)
+    {
+        ATOM v = AddAtomW(lpString);
+        if (v)
+            SetPropW(hWnd, (LPCWSTR)(uint64_t)property, (HANDLE)(uint64_t)v);
+    }
+}
 
-    HMODULE hUxtheme = LoadLibraryExW(L"uxtheme.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
-    HMODULE hUser32 = GetModuleHandleW(L"user32.dll");
+bool OSUtilities::isWin8_0()
+{
+    HMODULE hKern32 = GetModuleHandleW(L"kernel32.dll");
+    return GetProcAddress(hKern32, "CreateFile2") != NULL //  Export added in 6.2 (8)
+           && GetProcAddress(hKern32, "AppXFreeMemory") != NULL;  // Export added in 6.2 (8), removed in 6.3 (8.1)
+}
 
-    // For those confused how this works, dlls have export numbers but some can have no name and these have no name. So an address is gotten by export number. If this ever changes, it will break.
-    fnAllowDarkModeForWindow AllowDarkModeForWindow = (fnAllowDarkModeForWindow)(PVOID)GetProcAddress(hUxtheme, MAKEINTRESOURCEA(133));
-    fnSetPreferredAppMode SetPreferredAppMode = (fnSetPreferredAppMode)(PVOID)GetProcAddress(hUxtheme, MAKEINTRESOURCEA(135));
-    fnSetWindowCompositionAttribute SetWindowCompositionAttribute = (fnSetWindowCompositionAttribute)(PVOID)GetProcAddress(hUser32, "SetWindowCompositionAttribute");
+bool OSUtilities::isWin8_1()
+{
+    HMODULE hKern32 = GetModuleHandleW(L"kernel32.dll");
+    return GetProcAddress(hKern32, "CalloutOnFiberStack") != NULL //  Export added in 6.3 (8.1), Removed in 10.0.10586
+           && GetProcAddress(hKern32, "SetThreadSelectedCpuSets") == NULL; // Export added in 10.0 (10)
+}
 
-    SetPreferredAppMode(AllowDark);
-    AllowDarkModeForWindow(hwnd, dark);
+bool OSUtilities::isWin10()
+{
+    HMODULE hKern32 = GetModuleHandleW(L"kernel32.dll");
+    HMODULE hNtuser = GetModuleHandleW(L"ntdll.dll");
+    return GetProcAddress(hKern32, "SetThreadSelectedCpuSets") != NULL
+           && GetProcAddress(hNtuser, "ZwSetInformationCpuPartition") == NULL;
+}
+
+bool OSUtilities::isWin11()
+{
+    HMODULE hKern32 = GetModuleHandleW(L"kernel32.dll");
+    return GetProcAddress(hKern32, "Wow64SetThreadDefaultGuestMachine") != NULL; // Win11 21h2+
+}
+
+void OSUtilities::setWinDarkModeEnabled(WId winid, bool enabled)
+{
+    HWND hWnd = reinterpret_cast<HWND>(winid);
+    allowDarkModeForWindow(hWnd, enabled);
+
+    BOOL darkEnabled = (BOOL)enabled;
     WINDOWCOMPOSITIONATTRIBDATA data = {
         WCA_USEDARKMODECOLORS,
-        &dark,
-        sizeof(dark)
+        &darkEnabled,
+        sizeof(darkEnabled)
     };
-    SetWindowCompositionAttribute(hwnd, &data);
+
+    constexpr int NtUserSetWindowCompositionAttribute_NT6_2 = 0x13b4;
+    constexpr int NtUserSetWindowCompositionAttribute_NT6_3 = 0x13e5;
+
+    if (isWin8_0())
+        WinSyscall<NtUserSetWindowCompositionAttribute_NT6_2>(hWnd, &data);
+    if (isWin8_1())
+        WinSyscall<NtUserSetWindowCompositionAttribute_NT6_3>(hWnd, &data);
+    if (isWin10() || isWin11())
+    {
+        ((fnSetWindowCompositionAttribute)(PVOID)GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetWindowCompositionAttribute"))
+            (hWnd, &data);
+        ((fnSetPreferredAppMode)(PVOID)GetProcAddress(GetModuleHandleW(L"uxtheme.dll"), MAKEINTRESOURCEA(135)))
+            (AppMode_AllowDark);
+    }
 }
 #endif
 

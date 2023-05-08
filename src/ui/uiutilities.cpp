@@ -139,17 +139,14 @@ bool UIUtilities::preferDark(const QPalette& pal)
 
 void UIUtilities::setAppStyle(const QString& styleName)
 {
+#ifdef Q_OS_WIN
+    OSUtilities::setWinDarkModeEnabled(MainWindow::windowId(), styleName == "Dark");
+#endif
     if (styleName == "Default")
     {
         if (qApp->style()->objectName() != defaultStyle)
             qApp->setStyle(QStyleFactory::create(defaultStyle));
     }
-#ifdef Q_OS_WIN
-    else if (styleName == "Dark")
-    {
-        OSUtilities::setDarkWinTitlebar(MainWindow::windowId(), true);
-    }
-#endif
     else if (QStyle* style = QStyleFactory::create(styleName))
     {
         qApp->setStyle(style);

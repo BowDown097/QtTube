@@ -17,8 +17,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     // app style
     ui->appStyle->addItems(QStyleFactory::keys());
 #ifdef Q_OS_WIN
-    QPair<int, int> winver = OSUtilities::getWinVer();
-    if (winver.first == 10 && winver.second == 0) // if windows 10
+    if (OSUtilities::isWin8_0() || OSUtilities::isWin8_1() || OSUtilities::isWin10() || OSUtilities::isWin11())
         ui->appStyle->addItem("Dark");
 #endif
     ui->appStyle->setCurrentIndex(ui->appStyle->findText(store.appStyle));

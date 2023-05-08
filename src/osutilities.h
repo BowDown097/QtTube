@@ -6,20 +6,28 @@
 #endif
 
 #ifdef Q_OS_WIN
-#include <QPair>
 #include <Windows.h>
 #include <dwmapi.h>
 #endif
 
+// Windows-related code skidded from https://github.com/PolyMC/PolyMC/blob/develop/launcher/ui/WinDarkmode.cpp
 class OSUtilities
 {
 public:
+#ifdef Q_OS_WIN
+    static bool isWin8_0();
+    static bool isWin8_1();
+    static bool isWin10();
+    static bool isWin11();
+    static void setWinDarkModeEnabled(WId winid, bool enabled);
+#endif
+    static void toggleIdleSleep(bool toggle);
 #ifdef Q_OS_MACOS
 private:
     inline static IOPMAssertionID sleepAssert;
 #endif
-
 #ifdef Q_OS_WIN
+private:
     enum PreferredAppMode {
         Default,
         AllowDark,
@@ -65,15 +73,18 @@ private:
         SIZE_T cbData;
     };
 
-    using fnAllowDarkModeForWindow =  BOOL (WINAPI *)(HWND hWnd, BOOL allow);
+    using fnAllowDarkModeForWindow = BOOL (WINAPI *)(HWND hWnd, BOOL allow);
     using fnSetPreferredAppMode = PreferredAppMode (WINAPI *)(PreferredAppMode appMode);
-    using fnSetWindowCompositionAttribute =  BOOL (WINAPI *)(HWND hwnd, WINDOWCOMPOSITIONATTRIBDATA *);
+    using fnSetWindowCompositionAttribute = BOOL (WINAPI *)(HWND hwnd, WINDOWCOMPOSITIONATTRIBDATA *);
 
-    static QPair<int, int> getWinVer(); // major, minor
-    static void setDarkWinTitlebar(WId winid, bool darkmode);
+    static template<int syscall_id, typename... arglist> __attribute((naked)) uint32_t __fastcall WinSyscall([[maybe_unused]] arglist... args)
+    {
+        asm volatile("mov %%rcx, %%r10; movl %0, %%eax; syscall; ret" :: "i"(syscall_id));
+    }
+
+    static void allowDarkModeForWindow(HWND hWnd, BOOL enable);
+    static void applyStringProp(HWND hWnd, LPCWSTR lpString, WORD property);
 #endif
-
-    static void toggleIdleSleep(bool toggle);
 };
 
 #endif // OSUTILITIES_H
