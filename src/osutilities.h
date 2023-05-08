@@ -1,33 +1,22 @@
 #ifndef OSUTILITIES_H
 #define OSUTILITIES_H
 
-#ifdef Q_OS_MACOS
-#include <IOKit/pwr_mgt/IOPMLib.h>
-#endif
-
 #ifdef Q_OS_WIN
 #include <Windows.h>
 #include <dwmapi.h>
 #endif
 
 // Windows-related code skidded from https://github.com/PolyMC/PolyMC/blob/develop/launcher/ui/WinDarkmode.cpp
-class OSUtilities
+namespace OSUtilities
 {
-public:
+    void toggleIdleSleep(bool toggle);
 #ifdef Q_OS_WIN
-    static bool isWin8_0();
-    static bool isWin8_1();
-    static bool isWin10();
-    static bool isWin11();
-    static void setWinDarkModeEnabled(WId winid, bool enabled);
-#endif
-    static void toggleIdleSleep(bool toggle);
-#ifdef Q_OS_MACOS
-private:
-    inline static IOPMAssertionID sleepAssert;
-#endif
-#ifdef Q_OS_WIN
-private:
+    bool isWin8_0();
+    bool isWin8_1();
+    bool isWin10();
+    bool isWin11();
+    void setWinDarkModeEnabled(WId winid, bool enabled);
+
     enum PreferredAppMode {
         Default,
         AllowDark,
@@ -76,15 +65,7 @@ private:
     using fnAllowDarkModeForWindow = BOOL (WINAPI *)(HWND hWnd, BOOL allow);
     using fnSetPreferredAppMode = PreferredAppMode (WINAPI *)(PreferredAppMode appMode);
     using fnSetWindowCompositionAttribute = BOOL (WINAPI *)(HWND hwnd, WINDOWCOMPOSITIONATTRIBDATA *);
-
-    static template<int syscall_id, typename... arglist> __attribute((naked)) uint32_t __fastcall WinSyscall([[maybe_unused]] arglist... args)
-    {
-        asm volatile("mov %%rcx, %%r10; movl %0, %%eax; syscall; ret" :: "i"(syscall_id));
-    }
-
-    static void allowDarkModeForWindow(HWND hWnd, BOOL enable);
-    static void applyStringProp(HWND hWnd, LPCWSTR lpString, WORD property);
 #endif
-};
+}
 
 #endif // OSUTILITIES_H
