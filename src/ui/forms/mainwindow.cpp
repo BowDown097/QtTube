@@ -12,7 +12,9 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     m_centralWidget = ui->centralwidget;
+    m_winId = winId();
 
     notificationMenu = new QListWidget(this);
     notificationMenu->setVisible(false);

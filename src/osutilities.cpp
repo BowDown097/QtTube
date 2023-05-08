@@ -9,8 +9,43 @@
 #endif // XScreenSaver check
 
 #ifdef Q_OS_WIN
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+QPair<int, int> OSUtilities::getWinVer()
+{
+    NTSTATUS(WINAPI *RtlGetVersion)(LPOSVERSIONINFOEXW);
+    OSVERSIONINFOEXW osInfo;
+
+    *(FARPROC*)&RtlGetVersion = GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlGetVersion");
+    if (RtlGetVersion != NULL)
+    {
+        osInfo.dwOSVersionInfoSize = sizeof(osInfo);
+        RtlGetVersion(&osInfo);
+    }
+
+    return qMakePair(osInfo.dwMajorVersion, osInfo.dwMinorVersion);
+}
+
+void OSUtilities::setDarkWinTitlebar(WId winid, bool darkmode)
+{
+    HWND hwnd = reinterpret_cast<HWND>(winid);
+    BOOL dark = (BOOL)darkmode;
+
+    HMODULE hUxtheme = LoadLibraryExW(L"uxtheme.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    HMODULE hUser32 = GetModuleHandleW(L"user32.dll");
+
+    // For those confused how this works, dlls have export numbers but some can have no name and these have no name. So an address is gotten by export number. If this ever changes, it will break.
+    fnAllowDarkModeForWindow AllowDarkModeForWindow = (fnAllowDarkModeForWindow)(PVOID)GetProcAddress(hUxtheme, MAKEINTRESOURCEA(133));
+    fnSetPreferredAppMode SetPreferredAppMode = (fnSetPreferredAppMode)(PVOID)GetProcAddress(hUxtheme, MAKEINTRESOURCEA(135));
+    fnSetWindowCompositionAttribute SetWindowCompositionAttribute = (fnSetWindowCompositionAttribute)(PVOID)GetProcAddress(hUser32, "SetWindowCompositionAttribute");
+
+    SetPreferredAppMode(AllowDark);
+    AllowDarkModeForWindow(hwnd, dark);
+    WINDOWCOMPOSITIONATTRIBDATA data = {
+        WCA_USEDARKMODECOLORS,
+        &dark,
+        sizeof(dark)
+    };
+    SetWindowCompositionAttribute(hwnd, &data);
+}
 #endif
 
 void OSUtilities::toggleIdleSleep(bool toggle)

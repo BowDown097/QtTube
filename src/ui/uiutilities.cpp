@@ -12,6 +12,11 @@
 #include <QThread>
 #endif
 
+#ifdef Q_OS_WIN
+#include "osutilities.h"
+#include "ui/forms/mainwindow.h"
+#endif
+
 void UIUtilities::addBoldLabelToList(QListWidget* list, const QString& text)
 {
     QLabel* label = new QLabel(text);
@@ -139,6 +144,12 @@ void UIUtilities::setAppStyle(const QString& styleName)
         if (qApp->style()->objectName() != defaultStyle)
             qApp->setStyle(QStyleFactory::create(defaultStyle));
     }
+#ifdef Q_OS_WIN
+    else if (styleName == "Dark")
+    {
+        OSUtilities::setDarkWinTitlebar(MainWindow::windowId(), true);
+    }
+#endif
     else if (QStyle* style = QStyleFactory::create(styleName))
     {
         qApp->setStyle(style);

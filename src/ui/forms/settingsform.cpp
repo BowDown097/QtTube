@@ -5,14 +5,24 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 
+#ifdef Q_OS_WIN
+#include "osutilities.h"
+#endif
+
 SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::SettingsForm)
 {
     ui->setupUi(this);
 
     SettingsStore& store = SettingsStore::instance();
-    // general
+    // app style
     ui->appStyle->addItems(QStyleFactory::keys());
+#ifdef Q_OS_WIN
+    QPair<int, int> winver = OSUtilities::getWinVer();
+    if (winver.first == 10 && winver.second == 0) // if windows 10
+        ui->appStyle->addItem("Dark");
+#endif
     ui->appStyle->setCurrentIndex(ui->appStyle->findText(store.appStyle));
+    // general
     ui->condensedViews->setChecked(store.condensedViews);
     ui->fullSubs->setChecked(store.fullSubs);
     ui->homeShelves->setChecked(store.homeShelves);
