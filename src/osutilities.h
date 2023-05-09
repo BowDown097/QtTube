@@ -2,8 +2,9 @@
 #define OSUTILITIES_H
 
 #ifdef Q_OS_WIN
-#include <Windows.h>
 #include <dwmapi.h>
+#include <qwindowdefs.h>
+#include <Windows.h>
 #endif
 
 // Windows-related code skidded from https://github.com/PolyMC/PolyMC/blob/develop/launcher/ui/WinDarkmode.cpp
@@ -18,11 +19,11 @@ namespace OSUtilities
     void setWinDarkModeEnabled(WId winid, bool enabled);
 
     enum PreferredAppMode {
-        Default,
-        AllowDark,
-        ForceDark,
-        ForceLight,
-        Max
+        AppMode_Default,
+        AppMode_AllowDark,
+        AppMode_ForceDark,
+        AppMode_ForceLight,
+        AppMode_Max
     };
 
     enum WINDOWCOMPOSITIONATTRIB {

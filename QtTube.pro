@@ -3,6 +3,8 @@ INCLUDEPATH += $$PWD/src
 DEPENDPATH += $$PWD/src
 CONFIG += c++2a
 
+win32: LIBS += -luser32
+
 include(lib/http/http.pri)
 include(lib/innertube-qt/innertube-qt.pri)
 

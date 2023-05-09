@@ -16,8 +16,8 @@ static IOPMAssertionID sleepAssert;
 #endif
 
 #ifdef Q_OS_WIN
-static constexpr int NtUserSetWindowCompositionAttribute_NT6_2 = 0x13b4;
-static constexpr int NtUserSetWindowCompositionAttribute_NT6_3 = 0x13e5;
+static constexpr std::array<byte, 4> NtUserSetWindowCompositionAttribute_NT6_2 = { 0xB4, 0x13, 0x00, 0x00 };
+static constexpr std::array<byte, 4> NtUserSetWindowCompositionAttribute_NT6_3 = { 0xE5, 0x13, 0x00, 0x00 };
 #endif
 
 namespace OSUtilities
@@ -81,13 +81,6 @@ namespace OSUtilities
     }
 
 #ifdef Q_OS_WIN
-    void allowDarkModeForWindow(HWND hWnd, BOOL enable)
-    {
-        if (hWnd)
-            applyStringProp(hWnd, enable ? L"Enabled" : NULL, 0xA91E);
-        return;
-    }
-
     void applyStringProp(HWND hWnd, LPCWSTR lpString, WORD property)
     {
         WORD prop = (uint16_t)(uint64_t)GetPropW(hWnd, (LPCWSTR)(uint64_t)property);
@@ -102,6 +95,13 @@ namespace OSUtilities
             if (v)
                 SetPropW(hWnd, (LPCWSTR)(uint64_t)property, (HANDLE)(uint64_t)v);
         }
+    }
+
+    void allowDarkModeForWindow(HWND hWnd, BOOL enable)
+    {
+        if (hWnd)
+            applyStringProp(hWnd, enable ? L"Enabled" : NULL, 0xA91E);
+        return;
     }
 
     bool isWin8_0()
@@ -132,6 +132,26 @@ namespace OSUtilities
         return GetProcAddress(hKern32, "Wow64SetThreadDefaultGuestMachine") != NULL; // Win11 21h2+
     }
 
+    template<std::array<BYTE, 4> syscall_id, typename... arglist> void __fastcall WinSyscall([[maybe_unused]] arglist... args)
+    {
+        BYTE pCode[] =
+        {
+            0x4C, 0x8B, 0xD1, // mov rcx, r10
+            0xB8, syscall_id[0], syscall_id[1], syscall_id[2], syscall_id[3], // mov syscall_id, eax
+            0x0F, 0x05, // syscall
+            0xC3 // ret
+        };
+
+        LPVOID buf = VirtualAlloc(nullptr, sizeof(pCode), MEM_COMMIT, PAGE_READWRITE);
+        memcpy(buf, pCode, sizeof(pCode));
+
+        DWORD oldProtect;
+        VirtualProtect(buf, sizeof(pCode), PAGE_EXECUTE_READWRITE, &oldProtect);
+
+        reinterpret_cast<void(*)()>(buf)();
+        VirtualFree(buf, 0, MEM_RELEASE);
+    }
+
     void setWinDarkModeEnabled(WId winid, bool enabled)
     {
         HWND hWnd = reinterpret_cast<HWND>(winid);
@@ -144,10 +164,6 @@ namespace OSUtilities
             sizeof(darkEnabled)
         };
 
-        if (isWin8_0())
-            WinSyscall<NtUserSetWindowCompositionAttribute_NT6_2>(hWnd, &data);
-        if (isWin8_1())
-            WinSyscall<NtUserSetWindowCompositionAttribute_NT6_3>(hWnd, &data);
         if (isWin10() || isWin11())
         {
             ((fnSetWindowCompositionAttribute)(PVOID)GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetWindowCompositionAttribute"))
@@ -155,11 +171,10 @@ namespace OSUtilities
             ((fnSetPreferredAppMode)(PVOID)GetProcAddress(GetModuleHandleW(L"uxtheme.dll"), MAKEINTRESOURCEA(135)))
                 (AppMode_AllowDark);
         }
-    }
-
-    template<int syscall_id, typename... arglist> __attribute((naked)) uint32_t __fastcall WinSyscall([[maybe_unused]] arglist... args)
-    {
-        asm volatile("mov %%rcx, %%r10; movl %0, %%eax; syscall; ret" :: "i"(syscall_id));
+        else if (isWin8_1())
+            WinSyscall<NtUserSetWindowCompositionAttribute_NT6_3>(hWnd, &data);
+        else if (isWin8_0())
+            WinSyscall<NtUserSetWindowCompositionAttribute_NT6_2>(hWnd, &data);
     }
 #endif
 }

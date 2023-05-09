@@ -1,18 +1,21 @@
 #ifndef UIUTILITIES_TPP
 #define UIUTILITIES_TPP
 
-template<typename T>
-T UIUtilities::findParent(QWidget* widget)
+namespace UIUtilities
 {
-    QWidget* parentWidget = widget->parentWidget();
-    while (parentWidget)
+    template<typename T>
+    T findParent(QWidget* widget)
     {
-        if (T castedWidget = qobject_cast<T>(parentWidget))
-            return castedWidget;
-        parentWidget = parentWidget->parentWidget();
-    }
+        QWidget* parentWidget = widget->parentWidget();
+        while (parentWidget)
+        {
+            if (T castedWidget = qobject_cast<T>(parentWidget))
+                return castedWidget;
+            parentWidget = parentWidget->parentWidget();
+        }
 
-    return nullptr;
+        return nullptr;
+    }
 }
 
 #endif // UIUTILITIES_TPP
