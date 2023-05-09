@@ -134,6 +134,8 @@ namespace OSUtilities
 
     template<std::array<BYTE, 4> syscall_id, typename... arglist> void __fastcall WinSyscall([[maybe_unused]] arglist... args)
     {
+        // i have to do this disgusting horrendous shit because stupid fucking microsoft decided
+        // "OH NO ONE WILL EVER NEED INLINE ASSEMBLY" FUCK MICROSOFT AND FUCK MSVC!!!
         BYTE pCode[] =
         {
             0x4C, 0x8B, 0xD1, // mov rcx, r10
