@@ -22,7 +22,7 @@ void WatchView_Ui::setupDate(QWidget* watchView)
     frame->layout()->addItem(infoSpacer);
 
     date = new TubeLabel(watchView);
-    date->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+    date->setFont(QFont(qApp->font().toString(), -1, QFont::DemiBold));
     frame->layout()->addWidget(date);
 }
 
@@ -120,6 +120,7 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
     primaryInfoVbox = new QVBoxLayout(watchView);
 
     channelLabel = new ChannelLabel(watchView);
+    channelLabel->text->setFont(QFont(qApp->font().toString(), -1, QFont::DemiBold));
     primaryInfoVbox->addWidget(channelLabel);
 
     subscribeWidget = new SubscribeWidget(watchView);
