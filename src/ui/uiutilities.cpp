@@ -176,7 +176,7 @@ namespace UIUtilities
                 QListView::item {
                     background: rgb(49,49,49);
                 }
-                QComboBox, QPushButton, QScrollBar::vertical, QSpinBox, QTabBar::tab {
+                QComboBox, QMessageBox, QPushButton, QScrollBar::vertical, QSpinBox, QTabBar::tab {
                     background: rgb(42,42,42);
                 }
                 QPushButton::hover, QTabBar::tab::hover, QTabBar::tab::selected {
