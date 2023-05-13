@@ -1,4 +1,5 @@
 #include "osutilities.h"
+#include <QString>
 
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
 # include <QApplication>
@@ -24,59 +25,59 @@ namespace OSUtilities
 {
     void toggleIdleSleep(bool toggle)
     {
-        const char* statusString = toggle ? "enable" : "disable";
+        const QString status = toggle ? "enable" : "disable";
         #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
-            #ifdef QTTUBE_HAS_XSS
-                if (qApp->platformName() != "xcb")
-                {
-                    qDebug().noquote() << "Failed to" << statusString << "idle sleep: Can only toggle sleep on X11 on Unix systems. Screen may sleep while watching videos.";
-                    return;
-                }
+        # ifdef QTTUBE_HAS_XSS
+        if (qApp->platformName() != "xcb")
+        {
+            qDebug().noquote() << "Failed to" << status << "idle sleep: Can only toggle sleep on X11 on Unix systems. Screen may sleep while watching videos.";
+            return;
+        }
 
-                #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-                    Display* display = qApp->nativeInterface<QNativeInterface::QX11Application>()->display();
-                #elif defined(QTTUBE_HAS_X11EXTRAS)
-                    Display* display = QX11Info::display();
-                #else
-                    Display* display = XOpenDisplay(NULL); // last resort!
-                #endif // X11 display getter
+        #  if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            Display* display = qApp->nativeInterface<QNativeInterface::QX11Application>()->display();
+        #  elif defined(QTTUBE_HAS_X11EXTRAS)
+            Display* display = QX11Info::display();
+        #  else
+            Display* display = XOpenDisplay(NULL); // last resort!
+        #  endif // X11 display getter
 
-                if (!display)
-                {
-                    qDebug().noquote() << "Failed to" << statusString << "idle sleep: Failed to get X11 display";
-                    return;
-                }
+        if (!display)
+        {
+            qDebug().noquote() << "Failed to" << status << "idle sleep: Failed to get X11 display";
+            return;
+        }
 
-                int event, error, major, minor;
-                if (XScreenSaverQueryExtension(display, &event, &error) != 1)
-                {
-                    qDebug().noquote() << "Failed to" << statusString << "idle sleep: XScreenSaverQueryExtension failed";
-                    return;
-                }
-                if (XScreenSaverQueryVersion(display, &major, &minor) != 1 || major < 1 || (major == 1 && minor < 1))
-                {
-                    qDebug().noquote() << "Failed to" << statusString << "idle sleep: XScreenSaverQueryVersion failed";
-                    return;
-                }
+        int event, error, major, minor;
+        if (XScreenSaverQueryExtension(display, &event, &error) != 1)
+        {
+            qDebug().noquote() << "Failed to" << status << "idle sleep: XScreenSaverQueryExtension failed";
+            return;
+        }
+        if (XScreenSaverQueryVersion(display, &major, &minor) != 1 || major < 1 || (major == 1 && minor < 1))
+        {
+            qDebug().noquote() << "Failed to" << status << "idle sleep: XScreenSaverQueryVersion failed";
+            return;
+        }
 
-                XScreenSaverSuspend(display, toggle);
-            #else
-                qDebug().noquote() << "Failed to" << statusString << "idle sleep: XScreenSaver support is not enabled in this build";
-            #endif // XScreenSaver check
+        XScreenSaverSuspend(display, toggle);
+        # else
+            qDebug().noquote() << "Failed to" << status << "idle sleep: XScreenSaver support is not enabled in this build";
+        # endif // XScreenSaver check
         #elif defined(Q_OS_WIN)
-            if (SetThreadExecutionState(toggle ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS | ES_SYSTEM_REQUIRED : ES_CONTINUOUS) == NULL)
-                qDebug().noquote() << "Failed to" << statusString << "idle sleep: SetThreadExecutionState failed";
+        if (SetThreadExecutionState(toggle ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS | ES_SYSTEM_REQUIRED : ES_CONTINUOUS) == NULL)
+            qDebug().noquote() << "Failed to" << status << "idle sleep: SetThreadExecutionState failed";
         #elif defined(Q_OS_MACOS)
-            if (!toggle && sleepAssert)
-            {
-                IOPMAssertionRelease(sleepAssert);
-                return;
-            }
+        if (!toggle && sleepAssert)
+        {
+            IOPMAssertionRelease(sleepAssert);
+            return;
+        }
 
-            CFStringRef reason = CFSTR("QtTube video playing");
-            IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, reason, &sleepAssert);
-            if (success != kIOReturnSuccess)
-                qDebug().noquote() << "Failed to" << statusString << "idle sleep: Creating IOPM assertion failed";
+        CFStringRef reason = CFSTR("QtTube video playing");
+        IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, reason, &sleepAssert);
+        if (success != kIOReturnSuccess)
+            qDebug().noquote() << "Failed to" << status << "idle sleep: Creating IOPM assertion failed";
         #endif // OS checks
     }
 
