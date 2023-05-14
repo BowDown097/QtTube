@@ -15,6 +15,10 @@ document.addEventListener("mousedown", function(e) {
 });
 
 const params = new URLSearchParams(document.location.search);
+
+if (params.get("noInfoPanels") == 1)
+    addStyle(".ytp-info-panel-preview { display: none; }");
+
 h264ify(params.get("h264Only"), params.get("no60Fps"));
 
 waitForElement("#movie_player").then(function(p) {

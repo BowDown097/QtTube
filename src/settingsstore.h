@@ -17,6 +17,7 @@ public:
     QString appStyle;
     bool condensedViews;
     bool disable60Fps;
+    bool disablePlayerInfoPanels;
     bool fullSubs;
     bool h264Only;
     bool homeShelves;

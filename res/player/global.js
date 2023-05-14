@@ -1,3 +1,10 @@
+function addStyle(css) {
+    let style = document.createElement("style");
+    style.type = "text/css";
+    style.appendChild(document.createTextNode(css));
+    document.documentElement.appendChild(style);
+}
+
 function waitForElement(selector) {
     return new Promise(resolve => {
         const query = document.querySelector(selector);

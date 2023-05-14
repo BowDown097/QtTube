@@ -26,6 +26,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->themedChannels->setChecked(store.themedChannels);
     // player
     ui->disable60Fps->setChecked(store.disable60Fps);
+    ui->disablePlayerInfoPanels->setChecked(store.disablePlayerInfoPanels);
     ui->h264Only->setChecked(store.h264Only);
     ui->preferredQuality->setCurrentIndex(store.preferredQuality);
     ui->preferredVolume->setValue(store.preferredVolume);
@@ -62,6 +63,7 @@ void SettingsForm::saveSettings()
 #endif
     // player
     store.disable60Fps = ui->disable60Fps->isChecked();
+    store.disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
     store.h264Only = ui->h264Only->isChecked();
     store.preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
     store.preferredVolume = ui->preferredVolume->value();

@@ -17,6 +17,7 @@ void SettingsStore::initializeFromSettingsFile()
 #endif
 
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
+    disablePlayerInfoPanels = settings.value("player/disableInfoPanels", false).toBool();
     h264Only = settings.value("player/h264Only", false).toBool();
     preferredQuality = settings.value("player/preferredQuality", PlayerQuality::Auto).value<PlayerQuality>();
     preferredVolume = settings.value("player/preferredVolume", 100).toInt();
@@ -53,6 +54,7 @@ void SettingsStore::saveToSettingsFile()
 #endif
 
     settings.setValue("player/disable60Fps", disable60Fps);
+    settings.setValue("player/disableInfoPanels", disablePlayerInfoPanels);
     settings.setValue("player/h264Only", h264Only);
     settings.setValue("player/preferredQuality", preferredQuality);
     settings.setValue("player/preferredVolume", preferredVolume);
