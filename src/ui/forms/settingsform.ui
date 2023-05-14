@@ -132,6 +132,19 @@
         </property>
        </item>
       </widget>
+      <widget class="QCheckBox" name="darkThemeWindows">
+       <property name="geometry">
+        <rect>
+         <x>330</x>
+         <y>210</y>
+         <width>93</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Dark</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="player">
       <attribute name="title">

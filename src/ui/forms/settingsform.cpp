@@ -5,10 +5,6 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 
-#ifdef Q_OS_WIN
-#include "osutilities.h"
-#endif
-
 SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::SettingsForm)
 {
     ui->setupUi(this);
@@ -16,11 +12,12 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     SettingsStore& store = SettingsStore::instance();
     // app style
     ui->appStyle->addItems(QStyleFactory::keys());
-#ifdef Q_OS_WIN
-    if (OSUtilities::isWin8_0() || OSUtilities::isWin8_1() || OSUtilities::isWin10() || OSUtilities::isWin11())
-        ui->appStyle->addItem("Dark");
-#endif
     ui->appStyle->setCurrentIndex(ui->appStyle->findText(store.appStyle));
+#ifndef Q_OS_WIN
+    ui->darkThemeWindows->setVisible(false);
+#else
+    ui->darkThemeWindows->setChecked(store.darkThemeWindows);
+#endif
     // general
     ui->condensedViews->setChecked(store.condensedViews);
     ui->fullSubs->setChecked(store.fullSubs);
@@ -60,6 +57,9 @@ void SettingsForm::saveSettings()
     store.homeShelves = ui->homeShelves->isChecked();
     store.returnDislikes = ui->returnDislikes->isChecked();
     store.themedChannels = ui->themedChannels->isChecked();
+#ifdef Q_OS_WIN
+    store.darkThemeWindows = ui->darkThemeWindows->isChecked();
+#endif
     // player
     store.disable60Fps = ui->disable60Fps->isChecked();
     store.h264Only = ui->h264Only->isChecked();
@@ -90,7 +90,12 @@ void SettingsForm::saveSettings()
 
     store.saveToSettingsFile();
     store.initializeFromSettingsFile();
+
+#ifdef Q_OS_WIN
+    UIUtilities::setAppStyle(store.appStyle, store.darkThemeWindows);
+#else
     UIUtilities::setAppStyle(store.appStyle);
+#endif
 
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
 }

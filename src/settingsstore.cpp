@@ -12,6 +12,10 @@ void SettingsStore::initializeFromSettingsFile()
     returnDislikes = settings.value("returnDislikes", true).toBool();
     themedChannels = settings.value("themedChannels", false).toBool();
 
+#ifdef Q_OS_WIN
+    darkThemeWindows = settings.value("darkThemeWindows", false).toBool();
+#endif
+
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
     h264Only = settings.value("player/h264Only", false).toBool();
     preferredQuality = settings.value("player/preferredQuality", PlayerQuality::Auto).value<PlayerQuality>();
@@ -43,6 +47,10 @@ void SettingsStore::saveToSettingsFile()
     settings.setValue("homeShelves", homeShelves);
     settings.setValue("returnDislikes", returnDislikes);
     settings.setValue("themedChannels", themedChannels);
+
+#ifdef Q_OS_WIN
+    settings.setValue("darkThemeWindows", darkThemeWindows);
+#endif
 
     settings.setValue("player/disable60Fps", disable60Fps);
     settings.setValue("player/h264Only", h264Only);
