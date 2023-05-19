@@ -217,6 +217,13 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
         }
     }
 
+    currentContinuation = liveChat.response.continuations[0].continuation;
+
+    if (firstTimerRun || ui->listWidget->verticalScrollBar()->value() == maximum)
+        ui->listWidget->scrollToBottom();
+    if (firstTimerRun)
+        firstTimerRun = false;
+
     if (ui->listWidget->count() > 200)
     {
         for (int i = 0; i < ui->listWidget->count() - 200; i++)
@@ -225,13 +232,6 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
             delete item;
         }
     }
-
-    currentContinuation = liveChat.response.continuations[0].continuation;
-
-    if (firstTimerRun || ui->listWidget->verticalScrollBar()->value() == maximum)
-        ui->listWidget->scrollToBottom();
-    if (firstTimerRun)
-        firstTimerRun = false;
 }
 
 void LiveChatWindow::sendMessage()
