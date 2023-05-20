@@ -1,21 +1,17 @@
 #include "channellabel.h"
 
-ChannelLabel::ChannelLabel(QWidget* parent) : QWidget(parent)
+ChannelLabel::ChannelLabel(QWidget* parent)
+    : QWidget(parent), text(new TubeLabel(this)), badgeLabel(new QLabel(this)), layout(new QHBoxLayout(this))
 {
-    layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    text = new TubeLabel(this);
     text->setClickable(true, true);
     text->setContextMenuPolicy(Qt::CustomContextMenu);
     layout->addWidget(text);
 
     layout->addSpacing(2);
-
-    badgeLabel = new QLabel(this);
     layout->addWidget(badgeLabel);
-
     layout->addStretch();
 }
 

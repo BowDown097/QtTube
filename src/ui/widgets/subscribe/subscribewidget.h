@@ -9,20 +9,15 @@ class SubscribeWidget : public QWidget
 {
 public:
     explicit SubscribeWidget(QWidget* parent = nullptr);
-    QHBoxLayout* layout() const { return m_layout; }
-    NotificationBell* notificationBell() const { return m_notificationBell; }
-    SubscribeLabel* subscribeLabel() const { return m_subscribeLabel; }
-    TubeLabel* subscribersCountLabel() const { return m_subscribersCountLabel; }
+    QHBoxLayout* layout;
+    NotificationBell* notificationBell;
+    SubscribeLabel* subscribeLabel;
+    TubeLabel* subscribersCountLabel;
     void setPreferredPalette(const QPalette& pal);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
     void setSubscriberCount(const QString& subscriberCountText, const QString& channelId);
 private:
-    QHBoxLayout* m_layout;
-    NotificationBell* m_notificationBell;
-    InnertubeObjects::SubscribeButton m_subscribeButton;
-    SubscribeLabel* m_subscribeLabel;
-    TubeLabel* m_subscribersCountLabel;
-
+    InnertubeObjects::SubscribeButton subscribeButton;
     const QString subscribersCountStyle = R"(
     border: 1px solid #333;
     font-size: 11px;

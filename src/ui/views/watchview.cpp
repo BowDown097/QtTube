@@ -186,7 +186,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     ui->subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
     ui->subscribeWidget->setSubscriberCount(nextResp.secondaryInfo.owner.subscriberCountText.text, nextResp.secondaryInfo.subscribeButton.channelId);
-    ui->subscribeWidget->subscribersCountLabel()->setVisible(true);
+    ui->subscribeWidget->subscribersCountLabel->setVisible(true);
     ui->viewCount->setText(nextResp.primaryInfo.viewCount.text);
 
     for (const InnertubeObjects::MenuFlexibleItem& fi : nextResp.primaryInfo.videoActions.flexibleItems)

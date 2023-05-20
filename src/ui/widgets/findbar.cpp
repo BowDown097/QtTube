@@ -2,7 +2,6 @@
 #include "ui/uiutilities.h"
 #include <QApplication>
 #include <QListWidget>
-#include <ranges>
 
 FindBar::FindBar(QWidget* parent) : QWidget(parent)
 {
@@ -85,8 +84,8 @@ void FindBar::jumpToLabel()
     {
         matches[currentIndex]->setStyleSheet("background-color: yellow");
         matchesLabel->setText(matches.length() > 1
-                              ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())
-                              : QStringLiteral("%1 of 1 match").arg(currentIndex + 1));
+                                  ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())
+                                  : QStringLiteral("%1 of 1 match").arg(currentIndex + 1));
 
         if (QListWidget* list = UIUtilities::findParent<QListWidget*>(matches[currentIndex]))
         {

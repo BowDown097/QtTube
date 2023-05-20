@@ -80,7 +80,8 @@ SOURCES += \
     src/ui/widgets/subscribe/notificationbell.cpp \
     src/ui/widgets/subscribe/subscribelabel.cpp \
     src/ui/widgets/subscribe/subscribewidget.cpp \
-    src/ui/widgets/topbar.cpp
+    src/ui/widgets/topbar/topbar.cpp \
+    src/ui/widgets/topbar/topbarbell.cpp
 
 HEADERS += \
     src/osutilities.h \
@@ -109,7 +110,8 @@ HEADERS += \
     src/ui/widgets/subscribe/notificationbell.h \
     src/ui/widgets/subscribe/subscribelabel.h \
     src/ui/widgets/subscribe/subscribewidget.h \
-    src/ui/widgets/topbar.h
+    src/ui/widgets/topbar/topbar.h \
+    src/ui/widgets/topbar/topbarbell.h
 
 FORMS += \
     src/ui/forms/livechatwindow.ui \

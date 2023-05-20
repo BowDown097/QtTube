@@ -2,20 +2,17 @@
 #include "ui/uiutilities.h"
 #include <QMouseEvent>
 
-IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, QWidget* parent) : QWidget(parent)
+IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, QWidget* parent)
+    : QWidget(parent), icon(new QLabel(this)), textLabel(new QLabel(this)), layout(new QHBoxLayout(this))
 {
-    layout = new QHBoxLayout(this);
     layout->setContentsMargins(contentsMargins);
     setLayout(layout);
 
-    icon = new QLabel(this);
     icon->setFixedSize(16, 16);
     icon->setPixmap(QPixmap(QString(UIUtilities::preferDark() ? ":/%1-light.svg" : ":/%1.svg").arg(iconId)));
     icon->setScaledContents(true);
-
-    textLabel = new QLabel(this);
-
     layout->addWidget(icon);
+
     layout->addSpacing(2);
     layout->addWidget(textLabel);
 }

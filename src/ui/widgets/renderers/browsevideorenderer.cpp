@@ -8,31 +8,30 @@
 #include <QMenu>
 #include <QMessageBox>
 
-BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent) : QWidget(parent)
+BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent)
+    : QWidget(parent),
+      channelLabel(new ChannelLabel(this)),
+      hbox(new QHBoxLayout(this)),
+      metadataLabel(new TubeLabel(this)),
+      textVbox(new QVBoxLayout(this)),
+      thumbLabel(new TubeLabel(this)),
+      titleLabel(new TubeLabel(this))
 {
-    hbox = new QHBoxLayout(this);
     setLayout(hbox);
 
-    textVbox = new QVBoxLayout(this);
-
-    titleLabel = new TubeLabel(this);
     titleLabel->setClickable(true, true);
     titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::DemiBold));
     textVbox->addWidget(titleLabel);
 
-    channelLabel = new ChannelLabel(this);
     textVbox->addWidget(channelLabel);
-
-    metadataLabel = new TubeLabel(this);
     textVbox->addWidget(metadataLabel);
 
-    thumbLabel = new TubeLabel(this);
     thumbLabel->setClickable(true, false);
     thumbLabel->setMinimumSize(1, 1);
     thumbLabel->setScaledContents(true);
-
     hbox->addWidget(thumbLabel);
+
     hbox->addLayout(textVbox, 1);
 
     connect(channelLabel->text, &TubeLabel::clicked, this, &BrowseVideoRenderer::navigateChannel);

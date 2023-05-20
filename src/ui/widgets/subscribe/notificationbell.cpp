@@ -2,21 +2,21 @@
 #include "innertube.h"
 #include "ui/uiutilities.h"
 
-NotificationBell::NotificationBell(QWidget* parent) : QToolButton(parent)
+NotificationBell::NotificationBell(QWidget* parent)
+    : QToolButton(parent),
+      allAction(new QAction("All", this)),
+      noneAction(new QAction("None", this)),
+      notificationMenu(new QMenu(this)),
+      personalizedAction(new QAction("Personalized", this))
 {
     setFixedSize(24, 24);
     setStyleSheet(styles);
     connect(this, &QToolButton::triggered, this, &QToolButton::setDefaultAction);
 
-    allAction = new QAction("All", this);
-    noneAction = new QAction("None", this);
-    personalizedAction = new QAction("Personalized", this);
-
     connect(allAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_ACTIVE"));
     connect(noneAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_OFF"));
     connect(personalizedAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_NONE"));
 
-    notificationMenu = new QMenu(this);
     notificationMenu->addAction(allAction);
     notificationMenu->addAction(personalizedAction);
     notificationMenu->addAction(noneAction);

@@ -1,6 +1,7 @@
 #ifndef TOPBAR_H
 #define TOPBAR_H
-#include "labels/tubelabel.h"
+#include "topbarbell.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include <QLineEdit>
 #include <QPropertyAnimation>
 #include <QPushButton>
@@ -12,8 +13,7 @@ public:
     bool alwaysShow = true;
     QPropertyAnimation* animation;
     TubeLabel* logo;
-    TubeLabel* notificationBell;
-    QLabel* notificationCount;
+    TopBarBell* notificationBell;
     QLineEdit* searchBox;
     TubeLabel* settingsButton;
     QPushButton* signInButton;
@@ -27,7 +27,6 @@ public slots:
     void trySignIn();
     void updateNotificationCount();
 signals:
-    void notificationBellClicked();
     void signInStatusChanged();
 };
 

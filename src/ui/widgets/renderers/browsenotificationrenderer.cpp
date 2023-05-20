@@ -1,15 +1,15 @@
 #include "browsenotificationrenderer.h"
 #include <QApplication>
 
-BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent) : QWidget(parent)
+BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
+    : QWidget(parent),
+      channelIcon(new TubeLabel(this)),
+      hbox(new QHBoxLayout(this)),
+      sentTimeText(new TubeLabel(this)),
+      shortMessage(new TubeLabel(this)),
+      textVbox(new QVBoxLayout(this)),
+      thumbLabel(new TubeLabel(this))
 {
-    channelIcon = new TubeLabel;
-    hbox = new QHBoxLayout;
-    sentTimeText = new TubeLabel;
-    shortMessage = new TubeLabel;
-    textVbox = new QVBoxLayout;
-    thumbLabel = new TubeLabel;
-
     channelIcon->setFixedSize(48, 48);
     thumbLabel->setFixedHeight(72);
 

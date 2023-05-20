@@ -52,7 +52,7 @@ ChannelView::ChannelView(const QString& channelId)
     channelHeader->addLayout(metaHbox);
 
     subscribeWidget = new SubscribeWidget(this);
-    subscribeWidget->layout()->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    subscribeWidget->layout->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     subscribeWidget->setSubscribeButton(channelResp.header.subscribeButton);
     subscribeWidget->setSubscriberCount(channelResp.header.subscriberCountText.text, channelResp.header.channelId);
     channelHeader->addWidget(subscribeWidget);

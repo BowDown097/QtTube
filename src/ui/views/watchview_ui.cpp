@@ -124,8 +124,8 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
     primaryInfoVbox->addWidget(channelLabel);
 
     subscribeWidget = new SubscribeWidget(watchView);
-    subscribeWidget->layout()->addStretch();
-    subscribeWidget->subscribersCountLabel()->setVisible(false);
+    subscribeWidget->layout->addStretch();
+    subscribeWidget->subscribersCountLabel->setVisible(false);
     primaryInfoVbox->addWidget(subscribeWidget);
 
     primaryInfoHbox->addLayout(primaryInfoVbox);

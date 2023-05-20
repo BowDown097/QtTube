@@ -7,32 +7,32 @@
 #include <QMenu>
 #include <QMessageBox>
 
-BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent) : QWidget(parent)
+BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
+    : QWidget(parent),
+      descriptionLabel(new TubeLabel(this)),
+      hbox(new QHBoxLayout(this)),
+      metadataLabel(new TubeLabel(this)),
+      textVbox(new QVBoxLayout(this)),
+      thumbLabel(new TubeLabel(this)),
+      titleLabel(new TubeLabel(this))
 {
-    hbox = new QHBoxLayout(this);
     setLayout(hbox);
 
-    textVbox = new QVBoxLayout(this);
-
-    titleLabel = new TubeLabel(this);
     titleLabel->setClickable(true, true);
     titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::DemiBold));
     textVbox->addWidget(titleLabel);
 
-    metadataLabel = new TubeLabel(this);
     textVbox->addWidget(metadataLabel);
 
-    descriptionLabel = new TubeLabel(this);
     descriptionLabel->setWordWrap(true);
     UIUtilities::setMaximumLines(descriptionLabel, 2);
     textVbox->addWidget(descriptionLabel);
 
-    thumbLabel = new TubeLabel(this);
     thumbLabel->setClickable(true, false);
     thumbLabel->setFixedSize(80, 80);
-
     hbox->addWidget(thumbLabel);
+
     hbox->addLayout(textVbox, 1);
 
     connect(thumbLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);

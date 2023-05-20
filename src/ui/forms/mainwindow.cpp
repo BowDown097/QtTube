@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     m_centralWidget = ui->centralwidget;
+    m_topbar = new TopBar(this);
     m_winId = winId();
 
     notificationMenu = new QListWidget(this);
@@ -22,13 +23,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     findbar = new FindBar(this);
     connect(ui->centralwidget, &QStackedWidget::currentChanged, this, [this] { if (findbar->isVisible()) { findbar->setReveal(false); } });
 
-    m_topbar = new TopBar(this);
-    connect(m_topbar, &TopBar::notificationBellClicked, this, &MainWindow::showNotifications);
     connect(m_topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
+    connect(m_topbar->notificationBell, &TopBarBell::clicked, this, &MainWindow::showNotifications);
     connect(m_topbar->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
 
     ui->tabWidget->setTabEnabled(4, false);
     ui->tabWidget->setTabEnabled(5, false);
+    ui->tabWidget->setCurrentIndex(5); // just some blank tab so you can pick one
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
 
     connect(notificationMenu->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
@@ -65,8 +66,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP"));
     tryRestoreData();
-
-    ui->tabWidget->setCurrentIndex(5); // just some blank tab so you can pick one
 }
 
 void MainWindow::browse()
@@ -203,33 +202,6 @@ void MainWindow::search()
     lastSearchQuery = m_topbar->searchBox->text();
     BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    connect(dateCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
-        ui->searchWidget->clear();
-        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(),
-                                        featCmb->currentIndex(), sortCmb->currentIndex());
-    });
-    connect(typeCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
-        ui->searchWidget->clear();
-        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), index, durCmb->currentIndex(),
-                                        featCmb->currentIndex(), sortCmb->currentIndex());
-    });
-    connect(durCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
-        ui->searchWidget->clear();
-        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(), index,
-                                        featCmb->currentIndex(), sortCmb->currentIndex());
-    });
-    connect(featCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
-        ui->searchWidget->clear();
-        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
-                                        durCmb->currentIndex(), index, sortCmb->currentIndex());
-    });
-    connect(sortCmb, &QComboBox::currentIndexChanged, this, [=, this](int index) {
-        ui->searchWidget->clear();
-        BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
-                                        durCmb->currentIndex(), featCmb->currentIndex(), index);
-    });
-#else
     connect(dateCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this](int index) {
         ui->searchWidget->clear();
         BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, index, typeCmb->currentIndex(), durCmb->currentIndex(),
@@ -255,7 +227,6 @@ void MainWindow::search()
         BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateCmb->currentIndex(), typeCmb->currentIndex(),
                                         durCmb->currentIndex(), featCmb->currentIndex(), index);
     });
-#endif
 }
 
 void MainWindow::searchWatchHistory()

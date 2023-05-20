@@ -3,11 +3,11 @@
 #include <QLabel>
 
 FullScreenWindow::FullScreenWindow(QWebEngineView* oldView, QWidget* parent)
-    : QWidget(parent)
-    , m_notification(new FullScreenNotification(this))
-    , m_oldGeometry(oldView->window()->geometry())
-    , m_oldView(oldView)
-    , m_view(new QWebEngineView(this))
+    : QWidget(parent),
+      m_notification(new FullScreenNotification(this)),
+      m_oldGeometry(oldView->window()->geometry()),
+      m_oldView(oldView),
+      m_view(new QWebEngineView(this))
 {
     m_view->stackUnder(m_notification);
 
