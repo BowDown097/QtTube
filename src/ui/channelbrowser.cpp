@@ -172,11 +172,9 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         const QJsonValue& perksParent = *perksIter;
         QJsonValue perks = perksParent["sponsorshipsExpandablePerksRenderer"];
 
-        QHBoxLayout* perksHeader = new QHBoxLayout;
-        perksHeader->setContentsMargins(0, 0, 0, 0);
-
         QWidget* perksHeaderWrapper = new QWidget;
-        perksHeaderWrapper->setLayout(perksHeader);
+        QHBoxLayout* perksHeader = new QHBoxLayout(perksHeaderWrapper);
+        perksHeader->setContentsMargins(0, 0, 0, 0);
 
         QLabel* badgeLabel = new QLabel;
         badgeLabel->setFixedSize(18, 18);
@@ -188,11 +186,9 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
 
         UIUtilities::addWidgetToList(channelTab, perksHeaderWrapper);
 
-        QHBoxLayout* perkInfoHeader = new QHBoxLayout;
-        perkInfoHeader->setContentsMargins(0, 0, 0, 5);
-
         QWidget* perkInfoHeaderWrapper = new QWidget;
-        perkInfoHeaderWrapper->setLayout(perkInfoHeader);
+        QHBoxLayout* perkInfoHeader = new QHBoxLayout(perkInfoHeaderWrapper);
+        perkInfoHeader->setContentsMargins(0, 0, 0, 5);
 
         TubeLabel* tier = new TubeLabel(perks["expandableHeader"]["simpleText"].toString());
         tier->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
@@ -206,13 +202,11 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         perkInfoHeader->addStretch();
         UIUtilities::addWidgetToList(channelTab, perkInfoHeaderWrapper);
 
-        QVBoxLayout* perkInfo = new QVBoxLayout;
+        QWidget* perkInfoWrapper = new QWidget;
+        QVBoxLayout* perkInfo = new QVBoxLayout(perkInfoWrapper);
         perkInfo->setContentsMargins(0, 0, 0, 0);
 
-        QWidget* perkInfoWrapper = new QWidget;
-        perkInfoWrapper->setLayout(perkInfo);
         QListWidgetItem* perkInfoItem = UIUtilities::addWidgetToList(channelTab, perkInfoWrapper);
-
         QObject::connect(showPerkInfo, &TubeLabel::clicked, showPerkInfo, [perkInfo, perkInfoItem, perkInfoWrapper, perks, showPerkInfo]
         {
             if (!perkInfo->isEmpty())
@@ -243,12 +237,11 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
                     {
                         QJsonValue loyaltyBadge = v2["sponsorshipsLoyaltyBadgeRenderer"];
 
-                        QHBoxLayout* loyaltyBadgeLayout = new QHBoxLayout;
-                        loyaltyBadgeLayout->setContentsMargins(0, 0, 0, 0);
-
                         QWidget* loyaltyBadgeWrapper = new QWidget;
                         loyaltyBadgeWrapper->setFixedWidth(180);
-                        loyaltyBadgeWrapper->setLayout(loyaltyBadgeLayout);
+
+                        QHBoxLayout* loyaltyBadgeLayout = new QHBoxLayout(loyaltyBadgeWrapper);
+                        loyaltyBadgeLayout->setContentsMargins(0, 0, 0, 0);
 
                         TubeLabel* loyaltyBadgeLabel = new TubeLabel(InnertubeObjects::InnertubeString(loyaltyBadge["title"]));
                         loyaltyBadgeLayout->addWidget(loyaltyBadgeLabel);
@@ -263,11 +256,9 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
                 }
                 else if (perkRenderer.contains("images"))
                 {
-                    QHBoxLayout* imagesLayout = new QHBoxLayout;
-                    imagesLayout->setContentsMargins(0, 0, 0, 0);
-
                     QWidget* imagesWrapper = new QWidget;
-                    imagesWrapper->setLayout(imagesLayout);
+                    QHBoxLayout* imagesLayout = new QHBoxLayout(imagesWrapper);
+                    imagesLayout->setContentsMargins(0, 0, 0, 0);
 
                     const QJsonArray images = perkRenderer["images"].toArray();
                     for (const QJsonValue& v2 : images)

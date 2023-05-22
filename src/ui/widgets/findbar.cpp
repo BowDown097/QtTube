@@ -25,7 +25,6 @@ FindBar::FindBar(QWidget* parent) : QWidget(parent)
     hbox->addWidget(matchesLabel);
 
     setAutoFillBackground(true);
-    setLayout(hbox);
     setPalette(qApp->palette().alternateBase().color());
     setVisible(false);
 

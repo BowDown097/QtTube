@@ -17,6 +17,9 @@
     if (sponsorBlockCategories && JSON.parse(sponsorBlockCategories).length) {
         const videoId = document.location.pathname.replace("/embed/", "");
         const sponsorResp = await fetch(`https://sponsor.ajay.app/api/skipSegments?videoID=${videoId}&categories=${sponsorBlockCategories}`);
+        if (!sponsorResp.ok)
+            return;
+
         sponsorBlockSegments = await sponsorResp.json();
         await initialSBSetup();
         setInterval(checkSegments, 1000);

@@ -12,12 +12,10 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
       descriptionLabel(new TubeLabel(this)),
       hbox(new QHBoxLayout(this)),
       metadataLabel(new TubeLabel(this)),
-      textVbox(new QVBoxLayout(this)),
+      textVbox(new QVBoxLayout),
       thumbLabel(new TubeLabel(this)),
       titleLabel(new TubeLabel(this))
 {
-    setLayout(hbox);
-
     titleLabel->setClickable(true, true);
     titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::DemiBold));

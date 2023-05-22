@@ -14,44 +14,47 @@ ChannelView::~ChannelView()
 }
 
 ChannelView::ChannelView(const QString& channelId)
+    : channelBanner(new QLabel(this)),
+      channelHeaderWidget(new QWidget(this)),
+      channelIcon(new QLabel(this)),
+      channelName(new TubeLabel(this)),
+      channelTabs(new QTabWidget(this)),
+      handleAndVideos(new TubeLabel(this)),
+      metaHbox(new QHBoxLayout),
+      metaVbox(new QVBoxLayout),
+      pageLayout(new QVBoxLayout(this)),
+      subscribeWidget(new SubscribeWidget(this))
 {
     auto channelResp = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
     this->channelId = channelId;
 
-    pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->setSpacing(0);
 
-    channelBanner = new QLabel(this);
     channelBanner->setFixedHeight(129);
     pageLayout->addWidget(channelBanner);
 
-    channelHeaderWidget = new QWidget(this);
     channelHeaderWidget->setFixedHeight(63);
     channelHeaderWidget->setAutoFillBackground(true);
 
     channelHeader = new QHBoxLayout(channelHeaderWidget);
     channelHeader->setSpacing(10);
 
-    metaHbox = new QHBoxLayout(this);
     metaHbox->setContentsMargins(0,0,0,0);
-    metaVbox = new QVBoxLayout(this);
 
-    channelIcon = new QLabel(this);
     channelIcon->setFixedSize(55, 48);
     metaHbox->addWidget(channelIcon);
 
-    channelName = new TubeLabel(channelResp.header.title, this);
+    channelName->setText(channelResp.header.title);
     metaVbox->addWidget(channelName);
 
-    handleAndVideos = new TubeLabel(channelResp.header.channelHandleText.text + " • " + channelResp.header.videosCountText.text, this);
     handleAndVideos->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
+    handleAndVideos->setText(channelResp.header.channelHandleText.text + " • " + channelResp.header.videosCountText.text);
     metaVbox->addWidget(handleAndVideos);
 
     metaHbox->addLayout(metaVbox);
     channelHeader->addLayout(metaHbox);
 
-    subscribeWidget = new SubscribeWidget(this);
     subscribeWidget->layout->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     subscribeWidget->setSubscribeButton(channelResp.header.subscribeButton);
     subscribeWidget->setSubscriberCount(channelResp.header.subscriberCountText.text, channelResp.header.channelId);
@@ -59,7 +62,6 @@ ChannelView::ChannelView(const QString& channelId)
 
     pageLayout->addWidget(channelHeaderWidget);
 
-    channelTabs = new QTabWidget(this);
     channelTabs->tabBar()->setAutoFillBackground(true);
     channelTabs->tabBar()->setDocumentMode(true);
     channelTabs->tabBar()->setExpanding(false);

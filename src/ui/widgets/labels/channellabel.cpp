@@ -3,13 +3,11 @@
 ChannelLabel::ChannelLabel(QWidget* parent)
     : QWidget(parent), text(new TubeLabel(this)), badgeLabel(new QLabel(this)), layout(new QHBoxLayout(this))
 {
-    layout->setContentsMargins(0, 0, 0, 0);
-    setLayout(layout);
-
     text->setClickable(true, true);
     text->setContextMenuPolicy(Qt::CustomContextMenu);
     layout->addWidget(text);
 
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addSpacing(2);
     layout->addWidget(badgeLabel);
     layout->addStretch();

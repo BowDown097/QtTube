@@ -16,7 +16,6 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addWidget(m_view);
     layout->setContentsMargins(0, 0, 0, 0);
-    setLayout(layout);
 
     QWebChannel* channel = new QWebChannel(m_view->page());
     m_view->page()->setWebChannel(channel);

@@ -38,7 +38,7 @@ void LiveChatWindow::addSpecialMessage(const QJsonValue& messageRenderer, const 
     messageWidget->setStyleSheet(QStringLiteral("background: %1; border: 1px solid transparent; border-radius: 4px")
                                      .arg(background));
 
-    QVBoxLayout* messageLayout = new QVBoxLayout(this);
+    QVBoxLayout* messageLayout = new QVBoxLayout(messageWidget);
     messageLayout->setContentsMargins(0, 0, 0, 0);
 
     if (!header.text.isEmpty())
@@ -56,7 +56,6 @@ void LiveChatWindow::addSpecialMessage(const QJsonValue& messageRenderer, const 
     subtextLabel->setWordWrap(true);
     messageLayout->addWidget(subtextLabel);
 
-    messageWidget->setLayout(messageLayout);
     UIUtilities::addWidgetToList(ui->listWidget, messageWidget);
 }
 
@@ -92,7 +91,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 
                 QWidget* messageWidget = new QWidget(this);
 
-                QHBoxLayout* messageLayout = new QHBoxLayout(this);
+                QHBoxLayout* messageLayout = new QHBoxLayout(messageWidget);
                 messageLayout->setContentsMargins(0, 0, 0, 0);
                 messageLayout->setSpacing(0);
 
@@ -103,7 +102,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                 HttpReply* iconReply = Http::instance().get(liveChatTextMessage["authorPhoto"]["thumbnails"][0]["url"].toString());
                 connect(iconReply, &HttpReply::finished, this, std::bind(&LiveChatWindow::setAuthorIcon, this, std::placeholders::_1, authorIcon));
 
-                QVBoxLayout* contentLayout = new QVBoxLayout(this);
+                QVBoxLayout* contentLayout = new QVBoxLayout;
                 contentLayout->setContentsMargins(0, 0, 0, 0);
                 contentLayout->setSpacing(0);
 
@@ -122,7 +121,6 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                 contentLayout->addStretch();
                 messageLayout->addLayout(contentLayout);
 
-                messageWidget->setLayout(messageLayout);
                 UIUtilities::addWidgetToList(ui->listWidget, messageWidget);
             }
             else if (item.contains("liveChatMembershipItemRenderer"))
@@ -139,7 +137,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 
                 QWidget* messageWidget = new QWidget(this);
 
-                QVBoxLayout* messageLayout = new QVBoxLayout(this);
+                QVBoxLayout* messageLayout = new QVBoxLayout(messageWidget);
                 messageLayout->setContentsMargins(0, 0, 0, 0);
                 messageLayout->setSpacing(0);
 
@@ -149,7 +147,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                                                 .arg("#" + QString::number(paidMessage["headerBackgroundColor"].toInteger(), 16),
                                                      "#" + QString::number(paidMessage["headerTextColor"].toInteger(), 16)));
 
-                QVBoxLayout* headerLayout = new QVBoxLayout(this);
+                QVBoxLayout* headerLayout = new QVBoxLayout(headerWidget);
                 headerLayout->setContentsMargins(0, 0, 0, 0);
                 headerLayout->setSpacing(0);
 
@@ -162,7 +160,6 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                 amountLabel->setWordWrap(true);
                 headerLayout->addWidget(amountLabel);
 
-                headerWidget->setLayout(headerLayout);
                 messageLayout->addWidget(headerWidget);
 
                 InnertubeObjects::InnertubeString message(paidMessage["message"]);
@@ -179,8 +176,6 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                     messageLayout->addWidget(messageLabel);
                 }
 
-                messageWidget->setLayout(messageLayout);
-
                 UIUtilities::addWidgetToList(ui->listWidget, messageWidget);
             }
             else if (item.contains("liveChatSponsorshipsGiftRedemptionAnnouncementRenderer"))
@@ -189,7 +184,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 
                 QWidget* announcementWidget = new QWidget(this);
 
-                QHBoxLayout* announcementLayout = new QHBoxLayout(this);
+                QHBoxLayout* announcementLayout = new QHBoxLayout(announcementWidget);
                 announcementLayout->setContentsMargins(0, 0, 0, 0);
                 announcementLayout->setSpacing(0);
 
@@ -203,8 +198,6 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                 messageLabel->setFont(QFont(qApp->font().toString(), -1, -1, true));
                 messageLabel->setWordWrap(true);
                 announcementLayout->addWidget(messageLabel);
-
-                announcementWidget->setLayout(announcementLayout);
 
                 UIUtilities::addWidgetToList(ui->listWidget, announcementWidget);
             }

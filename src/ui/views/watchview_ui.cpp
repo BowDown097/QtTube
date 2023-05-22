@@ -64,7 +64,11 @@ void WatchView_Ui::setupFrame(QWidget* watchView)
 
 void WatchView_Ui::setupMenu(QWidget* watchView)
 {
-    menuVbox = new QVBoxLayout(watchView);
+    menuWrapper = new QWidget(watchView);
+    menuWrapper->setFixedWidth(player->size().width());
+    frame->layout()->addWidget(menuWrapper);
+
+    menuVbox = new QVBoxLayout(menuWrapper);
     menuVbox->setContentsMargins(0, 0, 20, 0);
     menuVbox->setSpacing(3);
 
@@ -76,7 +80,7 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
     if (SettingsStore::instance().returnDislikes)
     {
         // i have to wrap the like bar for alignment to work... cringe!
-        likeBarWrapper = new QHBoxLayout(watchView);
+        likeBarWrapper = new QHBoxLayout;
         likeBarWrapper->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
         likeBar = new QProgressBar(watchView);
@@ -89,15 +93,10 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
         menuVbox->addLayout(likeBarWrapper);
     }
 
-    topLevelButtons = new QHBoxLayout(watchView);
+    topLevelButtons = new QHBoxLayout;
     topLevelButtons->setContentsMargins(0, 3, 0, 0);
     topLevelButtons->setSpacing(0);
     menuVbox->addLayout(topLevelButtons);
-
-    menuWrapper = new QWidget(watchView);
-    menuWrapper->setFixedWidth(player->size().width());
-    menuWrapper->setLayout(menuVbox);
-    frame->layout()->addWidget(menuWrapper);
 }
 
 void WatchView_Ui::setupPlayer(QWidget* watchView)
@@ -108,7 +107,11 @@ void WatchView_Ui::setupPlayer(QWidget* watchView)
 
 void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
 {
-    primaryInfoHbox = new QHBoxLayout(watchView);
+    primaryInfoWrapper = new QWidget(watchView);
+    primaryInfoWrapper->setFixedWidth(player->size().width());
+    frame->layout()->addWidget(primaryInfoWrapper);
+
+    primaryInfoHbox = new QHBoxLayout(primaryInfoWrapper);
     primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
 
     channelIcon = new TubeLabel(watchView);
@@ -117,7 +120,7 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
     channelIcon->setMinimumSize(55, 48);
     primaryInfoHbox->addWidget(channelIcon);
 
-    primaryInfoVbox = new QVBoxLayout(watchView);
+    primaryInfoVbox = new QVBoxLayout;
 
     channelLabel = new ChannelLabel(watchView);
     channelLabel->text->setFont(QFont(qApp->font().toString(), -1, QFont::DemiBold));
@@ -130,11 +133,6 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
 
     primaryInfoHbox->addLayout(primaryInfoVbox);
     primaryInfoHbox->addStretch();
-
-    primaryInfoWrapper = new QWidget(watchView);
-    primaryInfoWrapper->setFixedWidth(player->size().width());
-    primaryInfoWrapper->setLayout(primaryInfoHbox);
-    frame->layout()->addWidget(primaryInfoWrapper);
 }
 
 void WatchView_Ui::setupTitle(QWidget* watchView)

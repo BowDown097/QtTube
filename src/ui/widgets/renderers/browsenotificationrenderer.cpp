@@ -7,7 +7,7 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
       hbox(new QHBoxLayout(this)),
       sentTimeText(new TubeLabel(this)),
       shortMessage(new TubeLabel(this)),
-      textVbox(new QVBoxLayout(this)),
+      textVbox(new QVBoxLayout),
       thumbLabel(new TubeLabel(this))
 {
     channelIcon->setFixedSize(48, 48);
@@ -23,7 +23,6 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
     hbox->addWidget(channelIcon);
     hbox->addLayout(textVbox, 1);
     hbox->addWidget(thumbLabel);
-    setLayout(hbox);
 
     sentTimeText->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
 }
