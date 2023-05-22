@@ -26,6 +26,7 @@ public:
     static void clearLayout(QLayout* layout);
     static void copyToClipboard(const QString& text);
     static void elide(QLabel* label, int targetWidth);
+    static QPixmap icon(const QString& name, bool fromQIcon = false, const QSize& size = QSize(), const QPalette& pal = QPalette());
     static bool preferDark(const QPalette& pal = QPalette());
     static void setMaximumLines(QWidget* widget, int lines);
     static void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);

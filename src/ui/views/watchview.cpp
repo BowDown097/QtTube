@@ -163,10 +163,7 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
     }
     else
     {
-        if (like)
-            senderLabel->icon->setPixmap(UIUtilities::preferDark() ? QPixmap(":/like-light.svg") : QPixmap(":/like.svg"));
-        else
-            senderLabel->icon->setPixmap(UIUtilities::preferDark() ? QPixmap(":/dislike-light.svg") : QPixmap(":/dislike.svg"));
+        senderLabel->icon->setPixmap(like ? UIUtilities::icon("like") : UIUtilities::icon("dislike"));
 
         senderLabel->textLabel->setStyleSheet(QString());
         if (textIsNumber)

@@ -6,7 +6,7 @@ IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, QWi
     : QWidget(parent), icon(new QLabel(this)), textLabel(new QLabel(this)), layout(new QHBoxLayout(this))
 {
     icon->setFixedSize(16, 16);
-    icon->setPixmap(QPixmap(QString(UIUtilities::preferDark() ? ":/%1-light.svg" : ":/%1.svg").arg(iconId)));
+    icon->setPixmap(UIUtilities::icon(iconId));
     icon->setScaledContents(true);
     layout->addWidget(icon);
 

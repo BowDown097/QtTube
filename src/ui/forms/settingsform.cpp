@@ -9,6 +9,14 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
 {
     ui->setupUi(this);
 
+    ui->description->setText(QStringLiteral("A Qt frontend for YouTube.<br>"
+                                            "<a href=\"%1\">%1</a><br>"
+                                            "Version: %2<br>"
+                                            "Commit: %3 (%4)<br>"
+                                            "Build date: %5")
+                                 .arg(QTTUBE_REPO_URL, QTTUBE_VERSION, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
+    ui->qttubeLogo->setPixmap(UIUtilities::icon("qttube-full", true, ui->qttubeLogo->size()));
+
     SettingsStore& store = SettingsStore::instance();
     // app style
     ui->appStyle->addItems(QStyleFactory::keys());

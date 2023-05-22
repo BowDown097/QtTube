@@ -1,4 +1,5 @@
 #include "topbarbell.h"
+#include "ui/uiutilities.h"
 #include <QApplication>
 #include <QMouseEvent>
 
@@ -11,11 +12,9 @@ TopBarBell::TopBarBell(QWidget* parent) : QWidget(parent), bell(new QLabel(this)
     count->setFont(QFont(qApp->font().toString(), 9));
 }
 
-void TopBarBell::updatePixmap(bool hasNotif, bool preferDark)
+void TopBarBell::updatePixmap(bool hasNotif, const QPalette& pal)
 {
-    bell->setPixmap(hasNotif
-                        ? QPixmap(preferDark ? ":/notif-bell-hasnotif-light.svg" : ":/notif-bell-hasnotif.svg")
-                        : QPixmap(preferDark ? ":/notif-bell-light.svg" : ":/notif-bell.svg"));
+    bell->setPixmap(UIUtilities::icon(hasNotif ? "notif-bell-hasnotif" : "notif-bell", false, QSize(), pal));
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

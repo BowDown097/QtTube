@@ -130,6 +130,13 @@ void UIUtilities::elide(QLabel* label, int targetWidth)
     label->setText(elidedText);
 }
 
+QPixmap UIUtilities::icon(const QString& name, bool fromQIcon, const QSize& size, const QPalette& pal)
+{
+    return fromQIcon
+               ? QIcon(preferDark(pal) ? ":/" + name + "-light.svg" : ":/" + name + ".svg").pixmap(size)
+               : QPixmap(preferDark(pal) ? ":/" + name + "-light.svg" : ":/" + name + ".svg");
+}
+
 bool UIUtilities::preferDark(const QPalette& pal)
 {
     return pal == QPalette()

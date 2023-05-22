@@ -28,7 +28,7 @@ TopBar::TopBar(QWidget* parent)
     logo->move(10, 2);
     logo->resize(134, 30);
     logo->setClickable(true, false);
-    logo->setPixmap(QPixmap(UIUtilities::preferDark() ? ":/qttube-full-light.svg" : ":/qttube-full.svg"));
+    logo->setPixmap(UIUtilities::icon("qttube-full", true, logo->size()));
     logo->setScaledContents(true);
 
     searchBox->move(152, 0);
@@ -38,7 +38,7 @@ TopBar::TopBar(QWidget* parent)
     settingsButton->move(673, 3);
     settingsButton->resize(30, 30);
     settingsButton->setClickable(true, false);
-    settingsButton->setPixmap(QPixmap(UIUtilities::preferDark() ? ":/settings-light.svg" : ":/settings.svg"));
+    settingsButton->setPixmap(UIUtilities::icon("settings"));
     settingsButton->setScaledContents(true);
     connect(settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);
 
@@ -140,7 +140,7 @@ void TopBar::updateNotificationCount()
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>();
     connect(reply, qOverload<InnertubeEndpoints::UnseenCount>(&InnertubeReply::finished), this, [this](const auto& endpoint)
     {
-        notificationBell->updatePixmap(endpoint.unseenCount > 0, UIUtilities::preferDark(palette()));
+        notificationBell->updatePixmap(endpoint.unseenCount > 0, palette());
         notificationBell->setVisible(true);
         notificationBell->count->setText(QString::number(endpoint.unseenCount));
         notificationBell->count->setVisible(endpoint.unseenCount > 0);
@@ -150,7 +150,7 @@ void TopBar::updateNotificationCount()
 void TopBar::updatePalette(const QPalette& palette)
 {
     setPalette(palette);
-    logo->setPixmap(QPixmap(UIUtilities::preferDark(palette) ? ":/qttube-full-light.svg" : ":/qttube-full.svg"));
-    settingsButton->setPixmap(QPixmap(UIUtilities::preferDark(palette) ? ":/settings-light.svg" : ":/settings.svg"));
-    notificationBell->updatePixmap(notificationBell->count->isVisible(), UIUtilities::preferDark(palette));
+    logo->setPixmap(UIUtilities::icon("qttube-full", true, logo->size(), palette));
+    settingsButton->setPixmap(UIUtilities::icon("settings", false, QSize(), palette));
+    notificationBell->updatePixmap(notificationBell->count->isVisible(), palette);
 }

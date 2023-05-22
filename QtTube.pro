@@ -3,6 +3,11 @@ INCLUDEPATH += $$PWD/src
 DEPENDPATH += $$PWD/src
 CONFIG += c++2a
 
+DEFINES += QTTUBE_BRANCH=\\\"'$(shell git rev-parse --abbrev-ref HEAD)'\\\"
+DEFINES += QTTUBE_COMMIT_ID=\\\"'$(shell git rev-parse --short HEAD)'\\\"
+DEFINES += QTTUBE_REPO_URL=\\\"https://github.com/BowDown097/QtTube\\\"
+DEFINES += QTTUBE_VERSION=\\\"ALPHA\\\"
+
 win32: LIBS += -luser32
 
 include(lib/http/http.pri)
