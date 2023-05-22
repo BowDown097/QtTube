@@ -4,16 +4,18 @@
 #include "settingsstore.h"
 #include "ui/browsehelper.h"
 #include "ui/views/channelview.h"
+#include "ui/views/viewcontroller.h"
 #include "ui/views/watchview.h"
 #include "ui/uiutilities.h"
 #include <QComboBox>
 #include <QScrollBar>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
     m_centralWidget = ui->centralwidget;
+    m_size = geometry().size();
     m_topbar = new TopBar(this);
     m_winId = winId();
 
@@ -82,6 +84,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP"));
     tryRestoreData();
+
+    if (parser.isSet("channel"))
+        ViewController::loadChannel(parser.value("channel"));
+    else if (parser.isSet("video"))
+        ViewController::loadVideo(parser.value("video"));
 }
 
 void MainWindow::browse()

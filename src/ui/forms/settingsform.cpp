@@ -9,12 +9,12 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
 {
     ui->setupUi(this);
 
-    ui->description->setText(QStringLiteral("A Qt frontend for YouTube.<br>"
-                                            "<a href=\"%1\">%1</a><br>"
-                                            "Version: %2<br>"
-                                            "Commit: %3 (%4)<br>"
-                                            "Build date: %5")
-                                 .arg(QTTUBE_REPO_URL, QTTUBE_VERSION, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
+    ui->description->setText(QStringLiteral("%1<br>"
+                                            "<a href=\"%2\">%2</a><br>"
+                                            "Version: %3<br>"
+                                            "Commit: %4 (%5)<br>"
+                                            "Build date: %6")
+                                 .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
     ui->qttubeLogo->setPixmap(UIUtilities::icon("qttube-full", true, ui->qttubeLogo->size()));
 
     SettingsStore& store = SettingsStore::instance();

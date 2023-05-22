@@ -3,25 +3,25 @@
 #include <QApplication>
 #include <QListWidget>
 
-FindBar::FindBar(QWidget* parent) : QWidget(parent)
+FindBar::FindBar(QWidget* parent)
+    : QWidget(parent),
+      hbox(new QHBoxLayout(this)),
+      matchesLabel(new QLabel(this)),
+      nextButton(new QPushButton(this)),
+      previousButton(new QPushButton(this)),
+      searchBox(new QLineEdit(this))
 {
-    hbox = new QHBoxLayout(this);
-
-    searchBox = new QLineEdit(this);
     searchBox->setPlaceholderText("Find in program");
     hbox->addWidget(searchBox);
 
-    nextButton = new QPushButton(this);
     nextButton->setEnabled(false);
     nextButton->setText("Next");
     hbox->addWidget(nextButton);
 
-    previousButton = new QPushButton(this);
     previousButton->setEnabled(false);
     previousButton->setText("Previous");
     hbox->addWidget(previousButton);
 
-    matchesLabel = new QLabel(this);
     hbox->addWidget(matchesLabel);
 
     setAutoFillBackground(true);

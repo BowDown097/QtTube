@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 #include "ui/widgets/findbar.h"
 #include "ui/widgets/topbar/topbar.h"
+#include <QCommandLineParser>
 #include <QKeyEvent>
 #include <QListWidget>
 #include <QMainWindow>
@@ -17,7 +18,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    MainWindow(const QCommandLineParser& parser, QWidget* parent = nullptr);
     ~MainWindow();
 
     static QStackedWidget* centralWidget() { return m_centralWidget; }

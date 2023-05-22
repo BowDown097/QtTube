@@ -3,6 +3,8 @@ INCLUDEPATH += $$PWD/src
 DEPENDPATH += $$PWD/src
 CONFIG += c++2a
 
+DEFINES += "QTTUBE_APP_DESC=\\\"'A Qt frontend for YouTube.'\\\""
+DEFINES += QTTUBE_APP_NAME=\\\"QtTube\\\"
 DEFINES += QTTUBE_BRANCH=\\\"'$(shell git rev-parse --abbrev-ref HEAD)'\\\"
 DEFINES += QTTUBE_COMMIT_ID=\\\"'$(shell git rev-parse --short HEAD)'\\\"
 DEFINES += QTTUBE_REPO_URL=\\\"https://github.com/BowDown097/QtTube\\\"
