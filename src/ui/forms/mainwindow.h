@@ -30,6 +30,7 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 private slots:
+    void performFilteredSearch();
     void returnFromSearch();
     void returnFromWatchHistorySearch();
     void search();
@@ -45,8 +46,8 @@ private:
 
     bool doNotBrowse = false;
     FindBar* findbar;
-    QListWidget* notificationMenu;
     QString lastSearchQuery;
+    QListWidget* notificationMenu;
     Ui::MainWindow* ui;
 };
 #endif // MAINWINDOW_H
