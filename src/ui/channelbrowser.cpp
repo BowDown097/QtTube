@@ -10,9 +10,9 @@
 
 void ChannelBrowser::setupAbout(QListWidget* channelTab, const QJsonValue& tabRenderer)
 {
-    const QJsonObject metadataRenderer = tabRenderer["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]
-            ["contents"][0]["channelAboutFullMetadataRenderer"].toObject();
-    if (metadataRenderer.isEmpty())
+    QJsonValue metadataRenderer = tabRenderer["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]
+                                             ["channelAboutFullMetadataRenderer"];
+    if (!metadataRenderer.isObject())
         throw InnertubeException("[SetupAbout] channelAboutFullMetadataRenderer not found");
 
     InnertubeObjects::AboutFullMetadata metadata(metadataRenderer);
@@ -64,8 +64,7 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
         const QJsonArray itemSectionContents = v["itemSectionRenderer"]["contents"].toArray();
         for (const QJsonValue& v2 : itemSectionContents)
         {
-            const QJsonObject o2 = v2.toObject();
-            if (o2.contains("gridRenderer"))
+            if (v2["gridRenderer"].isObject())
             {
                 const QJsonArray gridItems = v2["gridRenderer"]["items"].toArray();
                 for (const QJsonValue& v3 : gridItems)
@@ -77,7 +76,7 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
                     UIUtilities::addChannelRendererToList(channelTab, channel);
                 }
             }
-            else if (o2.contains("shelfRenderer"))
+            else if (v2["shelfRenderer"].isObject())
             {
                 UIUtilities::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
                 QJsonArray shelfItems = v2["shelfRenderer"]["content"]["horizontalListRenderer"]["items"].toArray();
@@ -86,7 +85,7 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
 
                 for (const QJsonValue& v3 : qAsConst(shelfItems))
                 {
-                    const QJsonObject obj = v3.toObject();
+                    const QJsonObject& obj = v3.toObject();
                     QJsonObject::const_iterator it = obj.begin();
                     InnertubeObjects::Channel channel(it.value());
                     UIUtilities::addChannelRendererToList(channelTab, channel);
@@ -110,7 +109,7 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
         const QJsonArray itemSectionContents = v["itemSectionRenderer"]["contents"].toArray();
         for (const QJsonValue& v2 : itemSectionContents)
         {
-            if (!v2.toObject().contains("shelfRenderer"))
+            if (!v2["shelfRenderer"].isObject())
                 continue;
 
             UIUtilities::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
@@ -120,7 +119,7 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
 
             for (const QJsonValue& v3 : qAsConst(list))
             {
-                const QJsonObject obj = v3.toObject();
+                const QJsonObject& obj = v3.toObject();
                 QJsonObject::const_iterator it = obj.begin();
                 if (it.key() == "channelRenderer" || it.key() == "gridChannelRenderer")
                 {
@@ -145,7 +144,7 @@ void ChannelBrowser::setupLive(QListWidget* channelTab, const QJsonValue& tabRen
     const QJsonArray contents = tabRenderer["content"]["richGridRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {
-        if (!v.toObject().contains("richItemRenderer"))
+        if (!v["richItemRenderer"].isObject())
             continue;
 
         InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);
@@ -165,7 +164,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
 {
     const QJsonArray slr = tabRenderer["content"]["sectionListRenderer"]["contents"].toArray();
     QJsonArray::const_iterator perksIter = std::ranges::find_if(slr, [](const QJsonValue& v)
-                                                                { return v.toObject().contains("sponsorshipsExpandablePerksRenderer"); });
+                                                                { return v["sponsorshipsExpandablePerksRenderer"].isObject(); });
 
     if (perksIter != slr.end())
     {
@@ -222,15 +221,15 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
             const QJsonArray expandableItems = perks["expandableItems"].toArray();
             for (const QJsonValue& v : expandableItems)
             {
-                const QJsonObject perkRenderer = v["sponsorshipsPerkRenderer"].toObject();
-                if (perkRenderer.isEmpty())
+                QJsonValue perkRenderer = v["sponsorshipsPerkRenderer"];
+                if (perkRenderer.isObject())
                     continue;
 
                 TubeLabel* titleLabel = new TubeLabel(InnertubeObjects::InnertubeString(perkRenderer["title"]));
                 titleLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
                 perkInfo->addWidget(titleLabel);
 
-                if (perkRenderer.contains("loyaltyBadges"))
+                if (perkRenderer["loyaltyBadges"].isObject())
                 {
                     const QJsonArray loyaltyBadges = perkRenderer["loyaltyBadges"]["sponsorshipsLoyaltyBadgesRenderer"]["loyaltyBadges"].toArray();
                     for (const QJsonValue& v2 : loyaltyBadges)
@@ -254,7 +253,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
                         perkInfo->addWidget(loyaltyBadgeWrapper);
                     }
                 }
-                else if (perkRenderer.contains("images"))
+                else if (perkRenderer["images"].isArray())
                 {
                     QWidget* imagesWrapper = new QWidget;
                     QHBoxLayout* imagesLayout = new QHBoxLayout(imagesWrapper);
@@ -272,7 +271,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
                     imagesLayout->addStretch();
                     perkInfo->addWidget(imagesWrapper);
                 }
-                else if (perkRenderer.contains("description"))
+                else if (perkRenderer["description"].isObject())
                 {
                     TubeLabel* descriptionLabel = new TubeLabel(perkRenderer["description"]["simpleText"].toString());
                     perkInfo->addWidget(descriptionLabel);
@@ -283,7 +282,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         });
     }
 
-    QJsonArray::const_iterator itemSectionIter = std::ranges::find_if(slr, [](const QJsonValue& v) { return v.toObject().contains("itemSectionRenderer"); });
+    QJsonArray::const_iterator itemSectionIter = std::ranges::find_if(slr, [](const QJsonValue& v) { return v["itemSectionRenderer"].isObject(); });
     if (itemSectionIter == slr.end())
         return;
 
@@ -292,12 +291,10 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
 
     for (const QJsonValue& v : itemSectionContents)
     {
-        const QJsonObject o = v.toObject();
-        if (o.contains("videoRenderer"))
-        {
-            InnertubeObjects::Video video(v["videoRenderer"], false);
-            UIUtilities::addVideoRendererToList(channelTab, video);
-        }
+        if (!v["videoRenderer"].isObject())
+            continue;
+        InnertubeObjects::Video video(v["videoRenderer"], false);
+        UIUtilities::addVideoRendererToList(channelTab, video);
     }
 }
 
@@ -306,7 +303,7 @@ void ChannelBrowser::setupShorts(QListWidget* channelTab, const QJsonValue& tabR
     const QJsonArray contents = tabRenderer["content"]["richGridRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {
-        if (!v.toObject().contains("richItemRenderer"))
+        if (!v["richItemRenderer"].isObject())
             continue;
 
         InnertubeObjects::Reel reel(v["richItemRenderer"]["content"]["reelItemRenderer"]);
@@ -334,7 +331,7 @@ void ChannelBrowser::setupVideos(QListWidget* channelTab, const QJsonValue& tabR
     const QJsonArray contents = tabRenderer["content"]["richGridRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {
-        if (!v.toObject().contains("richItemRenderer"))
+        if (!v["richItemRenderer"].isObject())
             continue;
 
         InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);

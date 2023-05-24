@@ -83,13 +83,12 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
             continue;
         }
 
-        const QJsonObject navigationEndpoint = run.navigationEndpoint.toObject();
         QString href;
         QString runText = run.text;
 
-        if (navigationEndpoint.contains("urlEndpoint"))
+        if (run.navigationEndpoint["urlEndpoint"].isObject())
         {
-            QUrl url(navigationEndpoint["urlEndpoint"]["url"].toString());
+            QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
             QUrlQuery query(url);
             if (query.hasQueryItem("q"))
             {
@@ -107,9 +106,9 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
         }
         else
         {
-            href = navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
-            if (navigationEndpoint.contains("watchEndpoint"))
-                href += "&continuePlayback=" + QString::number(navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
+            href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
+            if (run.navigationEndpoint["watchEndpoint"].isObject())
+                href += "&continuePlayback=" + QString::number(run.navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
         }
 
         descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, runText);
