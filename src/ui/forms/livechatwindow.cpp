@@ -147,19 +147,31 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                                                 .arg("#" + QString::number(paidMessage["headerBackgroundColor"].toInteger(), 16),
                                                      "#" + QString::number(paidMessage["headerTextColor"].toInteger(), 16)));
 
-                QVBoxLayout* headerLayout = new QVBoxLayout(headerWidget);
-                headerLayout->setContentsMargins(0, 0, 0, 0);
+                QHBoxLayout* headerLayout = new QHBoxLayout(headerWidget);
+                headerLayout->setContentsMargins(5, 0, 0, 0);
                 headerLayout->setSpacing(0);
+
+                QLabel* authorIcon = new QLabel(this);
+                authorIcon->setFixedSize(38, 32);
+                headerLayout->addWidget(authorIcon);
+
+                HttpReply* iconReply = Http::instance().get(paidMessage["authorPhoto"]["thumbnails"][0]["url"].toString());
+                connect(iconReply, &HttpReply::finished, this, std::bind(&LiveChatWindow::setAuthorIcon, this, std::placeholders::_1, authorIcon));
+
+                QVBoxLayout* innerHeaderLayout = new QVBoxLayout(headerWidget);
+                innerHeaderLayout->setContentsMargins(0, 0, 0, 0);
+                innerHeaderLayout->setSpacing(0);
 
                 QLabel* authorLabel = new QLabel(paidMessage["authorName"]["simpleText"].toString(), this);
                 authorLabel->setWordWrap(true);
-                headerLayout->addWidget(authorLabel);
+                innerHeaderLayout->addWidget(authorLabel);
 
                 QLabel* amountLabel = new QLabel(paidMessage["purchaseAmountText"]["simpleText"].toString(), this);
                 amountLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
                 amountLabel->setWordWrap(true);
-                headerLayout->addWidget(amountLabel);
+                innerHeaderLayout->addWidget(amountLabel);
 
+                headerLayout->addLayout(innerHeaderLayout);
                 messageLayout->addWidget(headerWidget);
 
                 InnertubeObjects::InnertubeString message(paidMessage["message"]);
