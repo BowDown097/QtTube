@@ -240,10 +240,10 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         ui->dislikeLabel->textLabel->setStyleSheet("color: #167ac6");
     }
 
-    const QList<InnertubeObjects::GenericThumbnail> channelIcons = nextResp.secondaryInfo.owner.thumbnails;
-    if (!channelIcons.isEmpty())
+    if (!nextResp.secondaryInfo.owner.thumbnails.isEmpty())
     {
-        const InnertubeObjects::GenericThumbnail& bestThumb = *std::ranges::find_if(channelIcons, [](const auto& t) { return t.width >= 48; });
+        const InnertubeObjects::GenericThumbnail& bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.owner.thumbnails,
+                                                                                    [](const auto& t) { return t.width >= 48; });
         HttpReply* reply = Http::instance().get(bestThumb.url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }

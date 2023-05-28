@@ -115,7 +115,32 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 
             QLabel* messageLabel = new QLabel(InnertubeObjects::InnertubeString(liveChatTextMessage["message"]).text, this);
             messageLabel->setFixedWidth(ui->listWidget->width() - 50);
+            messageLabel->setTextFormat(Qt::RichText);
             messageLabel->setWordWrap(true);
+
+            QString messageText;
+            const QJsonArray runs = liveChatTextMessage["message"]["runs"].toArray();
+            for (const QJsonValue& v : runs)
+            {
+                if (v["emoji"].isObject())
+                {
+                    HttpReply* emojiReply = Http::instance().get(v["emoji"]["image"]["thumbnails"][0]["url"].toString());
+
+                    QEventLoop loop;
+                    connect(emojiReply, &HttpReply::finished, &loop, &QEventLoop::quit);
+                    loop.exec();
+
+                    messageText += QStringLiteral("<img src='data:%1;base64,%2' width='20' height='20'>")
+                                       .arg(emojiReply->header("content-type"), emojiReply->body().toBase64());
+                    emojiReply->deleteLater();
+                }
+                else if (v["text"].isString())
+                {
+                    messageText += v["text"].toString();
+                }
+            }
+
+            messageLabel->setText(messageText);
             contentLayout->addWidget(messageLabel);
 
             contentLayout->addStretch();
