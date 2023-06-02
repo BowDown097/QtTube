@@ -22,7 +22,7 @@ void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData)
     messagesTimer = new QTimer(this);
     connect(messagesTimer, &QTimer::timeout, this, [this] {
         InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChat>(currentContinuation);
-        connect(reply, qOverload<InnertubeEndpoints::GetLiveChat>(&InnertubeReply::finished), this, &LiveChatWindow::processChatData);
+        connect(reply, qOverload<const InnertubeEndpoints::GetLiveChat&>(&InnertubeReply::finished), this, &LiveChatWindow::processChatData);
     });
     messagesTimer->start(1000);
 }

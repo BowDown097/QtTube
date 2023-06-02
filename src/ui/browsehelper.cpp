@@ -20,8 +20,16 @@ void BrowseHelper::browseChannel(QListWidget* channelTab, int index, const Inner
     if (!tabRenderer["selected"].toBool())
     {
         QString params = tabRenderer["endpoint"]["browseEndpoint"]["params"].toString();
-        auto bc = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelResp.metadata.externalId, "", params);
-        tabRenderer = bc.response.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
+        InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseChannel>(channelResp.metadata.externalId, "", params);
+
+        QEventLoop loop;
+        connect(reply, qOverload<const InnertubeEndpoints::BrowseChannel&>(&InnertubeReply::finished), &loop,
+                [index, &loop, &tabRenderer](const auto& bc) {
+                    loop.quit();
+                    tabRenderer = bc.response.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
+                }
+        );
+        loop.exec();
     }
 
     try
@@ -60,7 +68,7 @@ void BrowseHelper::browseHistory(QListWidget* historyWidget, const QString& quer
 
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>(query);
     connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get history data"));
-    connect(reply, qOverload<InnertubeEndpoints::BrowseHistory>(&InnertubeReply::finished), this, [this, historyWidget](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::BrowseHistory&>(&InnertubeReply::finished), this, [this, historyWidget](const auto& endpoint)
     {
         setupVideoList(endpoint.response.videos, historyWidget);
         continuationToken = endpoint.continuationToken;
@@ -85,7 +93,7 @@ void BrowseHelper::browseHome(QListWidget* homeWidget)
         InnerTube::instance().context()->client.clientName = clientNameTemp;
         InnerTube::instance().context()->client.clientVersion = clientVerTemp;
     });
-    connect(reply, qOverload<InnertubeEndpoints::BrowseHome>(&InnertubeReply::finished), this, [this, clientNameTemp, clientVerTemp, homeWidget](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::BrowseHome&>(&InnertubeReply::finished), this, [this, clientNameTemp, clientVerTemp, homeWidget](const auto& endpoint)
     {
         setupVideoList(endpoint.response.videos, homeWidget);
         continuationToken = endpoint.continuationToken;
@@ -98,7 +106,7 @@ void BrowseHelper::browseNotificationMenu(QListWidget* menuWidget)
 {
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
     connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get notification data"));
-    connect(reply, qOverload<InnertubeEndpoints::GetNotificationMenu>(&InnertubeReply::finished), this, [this, menuWidget](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::GetNotificationMenu&>(&InnertubeReply::finished), this, [this, menuWidget](const auto& endpoint)
     {
         setupNotificationList(endpoint.response.notifications, menuWidget);
         continuationToken = endpoint.continuationToken;
@@ -116,7 +124,7 @@ void BrowseHelper::browseSubscriptions(QListWidget* subsWidget)
 
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseSubscriptions>();
     connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get subscriptions data"));
-    connect(reply, qOverload<InnertubeEndpoints::BrowseSubscriptions>(&InnertubeReply::finished), this, [this, subsWidget](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::BrowseSubscriptions&>(&InnertubeReply::finished), this, [this, subsWidget](const auto& endpoint)
     {
         setupVideoList(endpoint.response.videos, subsWidget);
         continuationToken = endpoint.continuationToken;
@@ -127,7 +135,7 @@ void BrowseHelper::browseTrending(QListWidget* trendingWidget)
 {
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseTrending>();
     connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get trending data"));
-    connect(reply, qOverload<InnertubeEndpoints::BrowseTrending>(&InnertubeReply::finished), this, [this, trendingWidget](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::BrowseTrending&>(&InnertubeReply::finished), this, [this, trendingWidget](const auto& endpoint)
     {
         setupVideoList(endpoint.response.videos, trendingWidget);
     });
@@ -149,7 +157,7 @@ void BrowseHelper::search(QListWidget* searchWidget, const QString& query, int d
 
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::Search>(query, "", compiledParams);
     connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get search data"));
-    connect(reply, qOverload<InnertubeEndpoints::Search>(&InnertubeReply::finished), this, [this, searchWidget](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::Search&>(&InnertubeReply::finished), this, [this, searchWidget](const auto& endpoint)
     {
         searchWidget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(endpoint.response.estimatedResults)));
         setupChannelList(endpoint.response.channels, searchWidget);

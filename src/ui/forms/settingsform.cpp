@@ -14,7 +14,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
                                             "Version: %3<br>"
                                             "Commit: %4 (%5)<br>"
                                             "Build date: %6")
-                                 .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
+                                 .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
     ui->qttubeLogo->setPixmap(UIUtilities::icon("qttube-full", true, ui->qttubeLogo->size()));
 
     SettingsStore& store = SettingsStore::instance();

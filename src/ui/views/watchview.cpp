@@ -26,11 +26,11 @@ WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QW
     ui->setupUi(this);
 
     InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
-    connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
+    connect(next, qOverload<const InnertubeEndpoints::Next&>(&InnertubeReply::finished), this, &WatchView::processNext);
     connect(next, &InnertubeReply::exception, this, &WatchView::loadFailed);
 
     InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
-    connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
+    connect(player, qOverload<const InnertubeEndpoints::Player&>(&InnertubeReply::finished), this, &WatchView::processPlayer);
     connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
 
     ui->player->play(videoId, progress);
@@ -127,11 +127,11 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
     disconnect(ui->channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
 
     InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
-    connect(next, qOverload<InnertubeEndpoints::Next>(&InnertubeReply::finished), this, &WatchView::processNext);
+    connect(next, qOverload<const InnertubeEndpoints::Next&>(&InnertubeReply::finished), this, &WatchView::processNext);
     connect(next, &InnertubeReply::exception, this, &WatchView::loadFailed);
 
     InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
-    connect(player, qOverload<InnertubeEndpoints::Player>(&InnertubeReply::finished), this, &WatchView::processPlayer);
+    connect(player, qOverload<const InnertubeEndpoints::Player&>(&InnertubeReply::finished), this, &WatchView::processPlayer);
     connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
 
     ui->player->play(videoId, progress);

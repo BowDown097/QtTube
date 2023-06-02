@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
     QApplication::setApplicationName(QTTUBE_APP_NAME);
-    QApplication::setApplicationVersion(QTTUBE_VERSION);
+    QApplication::setApplicationVersion(QTTUBE_VERSION_NAME);
     QtTubeApplication a(argc, argv);
 
     QCommandLineParser parser;

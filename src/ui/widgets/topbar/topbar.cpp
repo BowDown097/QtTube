@@ -138,7 +138,7 @@ If you provided credentials, please check them, refer back to the previous linke
 void TopBar::updateNotificationCount()
 {
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>();
-    connect(reply, qOverload<InnertubeEndpoints::UnseenCount>(&InnertubeReply::finished), this, [this](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::UnseenCount&>(&InnertubeReply::finished), this, [this](const auto& endpoint)
     {
         notificationBell->updatePixmap(endpoint.unseenCount > 0, palette());
         notificationBell->setVisible(true);

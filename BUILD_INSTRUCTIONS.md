@@ -4,19 +4,7 @@ First and foremost, you obviously have to clone the repository.
 Just run ``git clone --recursive https://github.com/BowDown097/QtTube`` or use the download ZIP feature I guess if that floats your boat.  
 VERY important that recursive flag is there, otherwise you won't be able to build this.
 
-## Prerequisites
-### Linux
-Make sure you have Qt 5/6 installed (6 recommended), then refer to [innertube-qt's build instructions](https://github.com/BowDown097/innertube-qt/blob/master/BUILD_INSTRUCTIONS.md).
-
-### macOS
-Highly recommend installing Qt through Homebrew if you haven't already. If you have, or don't want to install it through Homebrew and know what you're doing, just jump to the end of this section. Otherwise, two nice and easy steps:
-- Install Qt by running ``brew install qt`` in the terminal.
-- In Qt Creator, you will probably get an error saying no Qt version is available. You'll have to manually add the Qt version you installed as a kit. If you don't know how to do this, go to ``Kits > Qt versions`` in the settings and refer to [this StackOverflow answer](https://stackoverflow.com/a/55178810).
-
-Finally, refer to [innertube-qt's build instructions](https://github.com/BowDown097/innertube-qt/blob/master/BUILD_INSTRUCTIONS.md).
-
-### Windows
-Refer to [innertube-qt's build instructions](https://github.com/BowDown097/innertube-qt/blob/master/BUILD_INSTRUCTIONS.md).
+Then, get Qt 5 or 6 (6 recommended) and make sure you have the WebEngine module. Then you should be good to go!
 
 ## Using the experimental MPV-based player
 So, the normal player this program uses is just an embed of YouTube's player using Qt's web engine with some cool modifications. Don't want to use that? You can try the experimental MPV-based player. You'll just need youtube-dl/yt-dlp and MPV.
