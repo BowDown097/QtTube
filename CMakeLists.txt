@@ -30,10 +30,10 @@ option(QTTUBE_USEMPV "Use MPV for the video player." OFF)
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
 
 if(QT_VERSION_MAJOR EQUAL 5)
-    find_package(Qt5 REQUIRED COMPONENTS Concurrent Gui Network Widgets)
+    find_package(Qt5 REQUIRED COMPONENTS Gui Network Widgets)
     find_package(Qt5 OPTIONAL_COMPONENTS OpenGL WebEngineWidgets X11Extras)
 elseif(QT_VERSION_MAJOR EQUAL 6)
-    find_package(Qt6 REQUIRED COMPONENTS Concurrent Gui Network Widgets)
+    find_package(Qt6 REQUIRED COMPONENTS Gui Network Widgets)
     find_package(Qt6 OPTIONAL_COMPONENTS OpenGLWidgets WebEngineWidgets)
 else()
     message(FATAL_ERROR "Qt version ${QT_VERSION_MAJOR} is not supported")
@@ -148,7 +148,7 @@ target_compile_definitions(QtTube PRIVATE
 
 # Include directories, libraries
 target_include_directories(QtTube PRIVATE src lib/http/src lib/innertube-qt/src)
-target_link_libraries(QtTube PRIVATE cpr::cpr http innertube-qt Qt::Concurrent Qt::Core Qt::Gui Qt::Network Qt::Widgets)
+target_link_libraries(QtTube PRIVATE cpr::cpr http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Widgets)
 
 ## Optional
 if(QTTUBE_USEMPV)

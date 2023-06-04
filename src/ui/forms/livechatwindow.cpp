@@ -253,9 +253,9 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
         }
     }
 
-    currentContinuation = liveChat.response.continuations[0].continuation;
     ui->listWidget->scrollToBottom();
-
+    if (!liveChat.response.continuations.isEmpty())
+        currentContinuation = liveChat.response.continuations[0].continuation;
     if (firstTimerRun)
         firstTimerRun = false;
 }

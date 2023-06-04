@@ -20,16 +20,8 @@ void BrowseHelper::browseChannel(QListWidget* channelTab, int index, const Inner
     if (!tabRenderer["selected"].toBool())
     {
         QString params = tabRenderer["endpoint"]["browseEndpoint"]["params"].toString();
-        InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseChannel>(channelResp.metadata.externalId, "", params);
-
-        QEventLoop loop;
-        connect(reply, qOverload<const InnertubeEndpoints::BrowseChannel&>(&InnertubeReply::finished), &loop,
-                [index, &loop, &tabRenderer](const auto& bc) {
-                    loop.quit();
-                    tabRenderer = bc.response.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
-                }
-        );
-        loop.exec();
+        auto bc = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelResp.metadata.externalId, "", params);
+        tabRenderer = bc.response.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
     }
 
     try
