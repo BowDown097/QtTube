@@ -1,4 +1,6 @@
 #include "osutilities.h"
+#include <array>
+#include <QDebug>
 #include <QString>
 
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)

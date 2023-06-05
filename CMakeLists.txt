@@ -15,7 +15,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_C_STANDARD_REQUIRED true)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-Wall ${CMAKE_CXX_FLAGS}")
 
 # Application options
 set(QTTUBE_APP_DESC "A Qt frontend for YouTube." CACHE STRING "The description to use for the application.")

@@ -1,10 +1,11 @@
 #ifndef OSUTILITIES_H
 #define OSUTILITIES_H
+#include <qglobal.h>
 
 #ifdef Q_OS_WIN
 #include <dwmapi.h>
 #include <qwindowdefs.h>
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 // Windows-related code skidded from https://github.com/PolyMC/PolyMC/blob/develop/launcher/ui/WinDarkmode.cpp
