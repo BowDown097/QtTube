@@ -1,7 +1,10 @@
 #include "livechatwindow.h"
 #include "ui_livechatwindow.h"
+#include "emoji.h"
 #include "http.h"
 #include "innertube.h"
+#include "ui/forms/emojimenu.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include "ui/uiutilities.h"
 #include <QScrollBar>
 #include <QVBoxLayout>
@@ -11,6 +14,12 @@ LiveChatWindow::LiveChatWindow(QWidget* parent) : QWidget(parent), ui(new Ui::Li
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
 
+    TubeLabel* emojiMenuLabel = new TubeLabel(this);
+    emojiMenuLabel->setClickable(true, false);
+    emojiMenuLabel->setPixmap(UIUtilities::icon("emoji", true, QSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8)));
+    ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
+
+    connect(emojiMenuLabel, &TubeLabel::clicked, this, &LiveChatWindow::showEmojiMenu);
     connect(ui->messageBox, &QLineEdit::returnPressed, this, &LiveChatWindow::sendMessage);
     connect(ui->sendButton, &QPushButton::pressed, this, &LiveChatWindow::sendMessage);
 }
@@ -61,10 +70,10 @@ void LiveChatWindow::addSpecialMessage(const QJsonValue& messageRenderer, const 
 
 void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& liveChat)
 {
-    if (liveChat.response.actionPanel.isObject())
+    if (liveChat.liveChatContinuation["actionPanel"].isObject())
     {
-        actionPanel = liveChat.response.actionPanel.toObject();
-        if (actionPanel.toObject().contains("liveChatRestrictedParticipationRenderer"))
+        actionPanel = liveChat.liveChatContinuation["actionPanel"];
+        if (actionPanel["liveChatRestrictedParticipationRenderer"].isObject())
         {
             InnertubeObjects::InnertubeString message(actionPanel["liveChatRestrictedParticipationRenderer"]["message"]);
             ui->messageBox->setEnabled(false);
@@ -79,7 +88,8 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
         }
     }
 
-    for (const QJsonValue& v : qAsConst(liveChat.response.actions))
+    const QJsonArray actions = liveChat.liveChatContinuation["actions"].toArray();
+    for (const QJsonValue& v : actions)
     {
         if (!v["addChatItemAction"].isObject())
             continue;
@@ -168,9 +178,9 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 
             QWidget* headerWidget = new QWidget(this);
             headerWidget->setAutoFillBackground(true);
-            headerWidget->setStyleSheet(QStringLiteral("background: %1; color: %2; border-top: 1px solid transparent; border-top-left-radius: 4px; border-top-right-radius: 4px")
-                                            .arg("#" + QString::number(paidMessage["headerBackgroundColor"].toInteger(), 16),
-                                                 "#" + QString::number(paidMessage["headerTextColor"].toInteger(), 16)));
+            headerWidget->setStyleSheet(QStringLiteral("background: #%1; color: #%2; border-top: 1px solid transparent; border-top-left-radius: 4px; border-top-right-radius: 4px")
+                                            .arg(QString::number(paidMessage["headerBackgroundColor"].toInteger(), 16),
+                                                 QString::number(paidMessage["headerTextColor"].toInteger(), 16)));
 
             QHBoxLayout* headerLayout = new QHBoxLayout(headerWidget);
             headerLayout->setContentsMargins(5, 0, 0, 0);
@@ -206,9 +216,9 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                 messageLabel->setAlignment(Qt::AlignCenter);
                 messageLabel->setAutoFillBackground(true);
                 messageLabel->setStyleSheet(
-                    QStringLiteral("background: %1; color: %2; border-bottom: 1px solid transparent; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px")
-                        .arg("#" + QString::number(paidMessage["bodyBackgroundColor"].toInteger(), 16),
-                             "#" + QString::number(paidMessage["bodyTextColor"].toInteger(), 16)));
+                    QStringLiteral("background: #%1; color: #%2; border-bottom: 1px solid transparent; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px")
+                        .arg(QString::number(paidMessage["bodyBackgroundColor"].toInteger(), 16),
+                             QString::number(paidMessage["bodyTextColor"].toInteger(), 16)));
                 messageLabel->setWordWrap(true);
                 messageLayout->addWidget(messageLabel);
             }
@@ -254,8 +264,11 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
     }
 
     ui->listWidget->scrollToBottom();
-    if (!liveChat.response.continuations.isEmpty())
-        currentContinuation = liveChat.response.continuations[0].continuation;
+
+    const QJsonArray continuations = liveChat.liveChatContinuation["continuations"].toArray();
+    if (!continuations.isEmpty())
+        currentContinuation = continuations[0]["invalidationContinuationData"]["continuation"].toString();
+
     if (firstTimerRun)
         firstTimerRun = false;
 }
@@ -270,7 +283,7 @@ void LiveChatWindow::sendMessage()
     QString clientMessageId = sendLiveChatMessageEndpoint["clientIdPrefix"].toString() + QString::number(numSentMessages++);
     QString params = sendLiveChatMessageEndpoint["params"].toString();
 
-    InnerTube::instance().get<InnertubeEndpoints::SendMessage>(ui->messageBox->text().trimmed(), clientMessageId, params);
+    InnerTube::instance().get<InnertubeEndpoints::SendMessage>(emojicpp::emojize(ui->messageBox->text().trimmed()), clientMessageId, params);
     ui->messageBox->clear();
 }
 
@@ -279,6 +292,15 @@ void LiveChatWindow::setAuthorIcon(const HttpReply& reply, QLabel* iconLabel)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     iconLabel->setPixmap(pixmap.scaled(32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+}
+
+void LiveChatWindow::showEmojiMenu()
+{
+    EmojiMenu* emojiMenu = new EmojiMenu;
+    emojiMenu->show();
+    connect(emojiMenu, &EmojiMenu::emojiClicked, this, [this](const QString& emoji) {
+        ui->messageBox->insert(" " + emoji);
+    });
 }
 
 LiveChatWindow::~LiveChatWindow()

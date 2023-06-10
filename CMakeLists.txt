@@ -49,6 +49,7 @@ endif()
 
 # Source files
 set(SOURCE_FILES
+    src/emoji.cpp
     src/main.cpp
     src/osutilities.cpp
     src/qttubeapplication.cpp
@@ -56,6 +57,7 @@ set(SOURCE_FILES
     src/ui/browsehelper.cpp
     src/ui/channelbrowser.cpp
     src/ui/uiutilities.cpp
+    src/ui/forms/emojimenu.cpp
     src/ui/forms/livechatwindow.cpp
     src/ui/forms/mainwindow.cpp
     src/ui/forms/settingsform.cpp
@@ -65,6 +67,7 @@ set(SOURCE_FILES
     src/ui/views/watchview_ui.cpp
     src/ui/views/watchviewplayer.cpp
     src/ui/widgets/findbar.cpp
+    src/ui/widgets/flowlayout.cpp
     src/ui/widgets/labels/channellabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
@@ -80,6 +83,7 @@ set(SOURCE_FILES
 )
 
 set(HEADERS
+    src/emoji.h
     src/osutilities.h
     src/qttubeapplication.h
     src/settingsstore.h
@@ -88,6 +92,7 @@ set(HEADERS
     src/ui/channelbrowser.h
     src/ui/uiutilities.h
     src/ui/uiutilities.tpp
+    src/ui/forms/emojimenu.h
     src/ui/forms/livechatwindow.h
     src/ui/forms/mainwindow.h
     src/ui/forms/settingsform.h
@@ -97,6 +102,7 @@ set(HEADERS
     src/ui/views/watchview_ui.h
     src/ui/views/watchviewplayer.h
     src/ui/widgets/findbar.h
+    src/ui/widgets/flowlayout.h
     src/ui/widgets/labels/channellabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
@@ -111,6 +117,7 @@ set(HEADERS
 )
 
 set(FORMS
+    src/ui/forms/emojimenu.ui
     src/ui/forms/livechatwindow.ui
     src/ui/forms/mainwindow.ui
     src/ui/forms/settingsform.ui

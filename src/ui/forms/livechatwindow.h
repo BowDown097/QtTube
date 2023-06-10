@@ -32,6 +32,7 @@ private slots:
     void processChatData(const InnertubeEndpoints::GetLiveChat& liveChat);
     void sendMessage();
     void setAuthorIcon(const HttpReply& reply, QLabel* iconLabel);
+    void showEmojiMenu();
 };
 
 #endif // LIVECHATWINDOW_H
