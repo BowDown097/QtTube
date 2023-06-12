@@ -10,7 +10,6 @@ Then, get Qt 5 or 6 (6 recommended) and make sure you have the WebEngine module.
 So, the normal player this program uses is just an embed of YouTube's player using Qt's web engine with some cool modifications. Don't want to use that? You can try the experimental MPV-based player. You'll just need youtube-dl/yt-dlp and MPV.
 ### The Pros
 - It's more lightweight
-- You can watch age-restricted videos and other blocked videos, i.e. most music videos (sadly)
 ### The Cons
 - I've completely neglected the thing. It's buggy, there's no player UI at all, and chances are it might not even build depending on when you try to use it. I'll neglect it less at some point.
 - No SponsorBlock integration

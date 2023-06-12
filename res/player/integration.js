@@ -21,6 +21,30 @@ if (params.get("noInfoPanels") == 1)
 
 h264ify(params.get("h264Only"), params.get("no60Fps"));
 
+// unavailable video patcher
+waitForElement("#movie_player .ytp-error").then(function() {
+    let embeddedPlayerResponse = JSON.parse(ytcfg.data_.PLAYER_VARS.embedded_player_response);
+    if (embeddedPlayerResponse.previewPlayabilityStatus.status != "UNPLAYABLE")
+        return;
+
+    if (embeddedPlayerResponse.previewPlayabilityStatus.reason.includes("age-restricted")) {
+        yt.config_.INNERTUBE_CLIENT_NAME = "TVHTML5_SIMPLY_EMBEDDED_PLAYER";
+        yt.config_.INNERTUBE_CLIENT_VERSION = "2.0";
+    } else {
+        yt.config_.INNERTUBE_CLIENT_NAME = "WEB";
+        yt.config_.INNERTUBE_CLIENT_VERSION = "2.20230607.06.00";
+    }
+
+    embeddedPlayerResponse.previewPlayabilityStatus = {
+        contextParams: embeddedPlayerResponse.previewPlayabilityStatus.contextParams,
+        playableInEmbed: true,
+        status: "OK"
+    };
+
+    yt.config_.PLAYER_VARS.embedded_player_response = JSON.stringify(embeddedPlayerResponse);
+    document.querySelector("#movie_player").loadVideoByPlayerVars(yt.config_.PLAYER_VARS);
+});
+
 waitForElement("#movie_player").then(function(p) {
     p.seekTo(params.get("t")); // seek to saved time
     p.setVolume(params.get("v")); // seek to saved volume
