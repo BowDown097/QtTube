@@ -27,7 +27,7 @@ void UIUtilities::addBoldLabelToList(QListWidget* list, const QString& text)
 void UIUtilities::addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel)
 {
     BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
-    renderer->setData(channel.channelId, channel.descriptionSnippet.text, channel.title.text, channel.subscribed,
+    renderer->setData(channel.channelId, channel.descriptionSnippet.text, channel.title.text, channel.subscribeButton,
                       channel.subscriberCountText.text, channel.videoCountText.text);
     addWidgetToList(list, renderer);
 

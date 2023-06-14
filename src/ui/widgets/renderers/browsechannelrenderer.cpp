@@ -12,6 +12,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
       descriptionLabel(new TubeLabel(this)),
       hbox(new QHBoxLayout(this)),
       metadataLabel(new TubeLabel(this)),
+      subscribeWidget(new SubscribeWidget(this)),
       textVbox(new QVBoxLayout),
       thumbLabel(new TubeLabel(this)),
       titleLabel(new TubeLabel(this))
@@ -32,6 +33,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
     hbox->addWidget(thumbLabel);
 
     hbox->addLayout(textVbox, 1);
+    hbox->addWidget(subscribeWidget);
 
     connect(thumbLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
     connect(titleLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
@@ -48,10 +50,9 @@ void BrowseChannelRenderer::navigateChannel()
     ViewController::loadChannel(channelId);
 }
 
-void BrowseChannelRenderer::setData(const QString& channelId, const QString& descriptionSnippet, const QString& name, bool subbed,
-                                    const QString& subCount, const QString& videoCount)
+void BrowseChannelRenderer::setData(const QString& channelId, const QString& descriptionSnippet, const QString& name,
+                                    const InnertubeObjects::SubscribeButton& subButton, const QString& subCount, const QString& videoCount)
 {
-    Q_UNUSED(subbed); // TODO: sub button
     this->channelId = channelId;
 
     titleLabel->setText(name);
@@ -65,6 +66,9 @@ void BrowseChannelRenderer::setData(const QString& channelId, const QString& des
     {
         descriptionLabel->setText(descriptionSnippet);
     }
+
+    subscribeWidget->setSubscribeButton(subButton);
+    subscribeWidget->setSubscriberCount(subCount.contains("subscribers") ? subCount : videoCount, channelId);
 
     if (SettingsStore::instance().fullSubs)
     {

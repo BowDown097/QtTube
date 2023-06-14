@@ -37,9 +37,10 @@ void SubscribeWidget::setPreferredPalette(const QPalette& pal)
 
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
+    bool showBell = subscribeButton.subscribed && !subscribeButton.notificationPreferenceButton.states.isEmpty();
     subscribeLabel->setSubscribeButton(subscribeButton);
-    notificationBell->setVisible(subscribeButton.subscribed);
-    if (subscribeButton.subscribed)
+    notificationBell->setVisible(showBell);
+    if (showBell)
         notificationBell->setNotificationPreferenceButton(subscribeButton.notificationPreferenceButton);
 }
 
