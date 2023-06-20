@@ -21,7 +21,7 @@ jobs:
             qt_ver: 6
             qt_host: linux
             qt_version: '6.5.1'
-            qt_modules: 'qtwebchannel qtwebengine'
+            qt_modules: 'qt5compat qtpositioning qtwebchannel qtwebengine'
     
     runs-on: ${{ matrix.os }}
     
@@ -42,6 +42,11 @@ jobs:
         run: |
           ver_short=`git rev-parse --short HEAD`
           echo "VERSION=$ver_short" >> $GITHUB_ENV
+          
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install libxss1
       
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -65,7 +70,7 @@ jobs:
       - name: Build
         run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }}
       
-      - name: Package
+      - name: Package (tarball)
         run: |
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_DIR }}
           cd ${{ env.INSTALL_DIR }}
