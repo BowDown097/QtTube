@@ -21,7 +21,7 @@ jobs:
             qt_ver: 6
             qt_host: linux
             qt_version: '6.5.1'
-            qt_modules: 'qt5compat qtpositioning qtwebchannel qtwebengine'
+            qt_modules: 'qt5compat qtserialport qtpositioning qtwebchannel qtwebengine'
     
     runs-on: ${{ matrix.os }}
     
