@@ -13,13 +13,16 @@ namespace OSUtilities
 {
     void toggleIdleSleep(bool toggle);
 #ifdef Q_OS_WIN
+# if !_MSC_VER
     bool isWin8_0();
     bool isWin8_1();
+# endif
     bool isWin10();
     bool isWin11();
     void setWinDarkModeEnabled(WId winid, bool enabled);
 
-    enum PreferredAppMode {
+    enum PreferredAppMode
+    {
         AppMode_Default,
         AppMode_AllowDark,
         AppMode_ForceDark,
@@ -27,44 +30,45 @@ namespace OSUtilities
         AppMode_Max
     };
 
-    enum WINDOWCOMPOSITIONATTRIB {
-        WCA_UNDEFINED = 0,
-        WCA_NCRENDERING_ENABLED = 1,
-        WCA_NCRENDERING_POLICY = 2,
-        WCA_TRANSITIONS_FORCEDISABLED = 3,
-        WCA_ALLOW_NCPAINT = 4,
-        WCA_CAPTION_BUTTON_BOUNDS = 5,
-        WCA_NONCLIENT_RTL_LAYOUT = 6,
-        WCA_FORCE_ICONIC_REPRESENTATION = 7,
-        WCA_EXTENDED_FRAME_BOUNDS = 8,
-        WCA_HAS_ICONIC_BITMAP = 9,
-        WCA_THEME_ATTRIBUTES = 10,
-        WCA_NCRENDERING_EXILED = 11,
-        WCA_NCADORNMENTINFO = 12,
-        WCA_EXCLUDED_FROM_LIVEPREVIEW = 13,
-        WCA_VIDEO_OVERLAY_ACTIVE = 14,
-        WCA_FORCE_ACTIVEWINDOW_APPEARANCE = 15,
-        WCA_DISALLOW_PEEK = 16,
-        WCA_CLOAK = 17,
-        WCA_CLOAKED = 18,
-        WCA_ACCENT_POLICY = 19,
-        WCA_FREEZE_REPRESENTATION = 20,
-        WCA_EVER_UNCLOAKED = 21,
-        WCA_VISUAL_OWNER = 22,
-        WCA_HOLOGRAPHIC = 23,
-        WCA_EXCLUDED_FROM_DDA = 24,
-        WCA_PASSIVEUPDATEMODE = 25,
-        WCA_USEDARKMODECOLORS = 26,
-        WCA_LAST = 27
+    enum WINDOWCOMPOSITIONATTRIB
+    {
+        WCA_UNDEFINED,
+        WCA_NCRENDERING_ENABLED,
+        WCA_NCRENDERING_POLICY,
+        WCA_TRANSITIONS_FORCEDISABLED,
+        WCA_ALLOW_NCPAINT,
+        WCA_CAPTION_BUTTON_BOUNDS,
+        WCA_NONCLIENT_RTL_LAYOUT,
+        WCA_FORCE_ICONIC_REPRESENTATION,
+        WCA_EXTENDED_FRAME_BOUNDS,
+        WCA_HAS_ICONIC_BITMAP,
+        WCA_THEME_ATTRIBUTES,
+        WCA_NCRENDERING_EXILED,
+        WCA_NCADORNMENTINFO,
+        WCA_EXCLUDED_FROM_LIVEPREVIEW,
+        WCA_VIDEO_OVERLAY_ACTIVE,
+        WCA_FORCE_ACTIVEWINDOW_APPEARANCE,
+        WCA_DISALLOW_PEEK,
+        WCA_CLOAK,
+        WCA_CLOAKED,
+        WCA_ACCENT_POLICY,
+        WCA_FREEZE_REPRESENTATION,
+        WCA_EVER_UNCLOAKED,
+        WCA_VISUAL_OWNER,
+        WCA_HOLOGRAPHIC,
+        WCA_EXCLUDED_FROM_DDA,
+        WCA_PASSIVEUPDATEMODE,
+        WCA_USEDARKMODECOLORS,
+        WCA_LAST
     };
 
-    struct WINDOWCOMPOSITIONATTRIBDATA {
+    struct WINDOWCOMPOSITIONATTRIBDATA
+    {
         WINDOWCOMPOSITIONATTRIB Attrib;
         PVOID pvData;
         SIZE_T cbData;
     };
 
-    using fnAllowDarkModeForWindow = BOOL (WINAPI *)(HWND hWnd, BOOL allow);
     using fnSetPreferredAppMode = PreferredAppMode (WINAPI *)(PreferredAppMode appMode);
     using fnSetWindowCompositionAttribute = BOOL (WINAPI *)(HWND hwnd, WINDOWCOMPOSITIONATTRIBDATA *);
 #endif

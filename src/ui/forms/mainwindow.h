@@ -24,7 +24,9 @@ public:
     static QStackedWidget* centralWidget() { return m_centralWidget; }
     static QSize size() { return m_size; }
     static TopBar* topbar() { return m_topbar; }
+#ifdef Q_OS_WIN
     static WId windowId() { return m_winId; }
+#endif
 public slots:
     void showNotifications();
 protected:
@@ -43,7 +45,9 @@ private:
     static inline QStackedWidget* m_centralWidget;
     static inline QSize m_size;
     static inline TopBar* m_topbar;
+#ifdef Q_OS_WIN
     static inline WId m_winId;
+#endif
 
     bool doNotBrowse = false;
     FindBar* findbar;

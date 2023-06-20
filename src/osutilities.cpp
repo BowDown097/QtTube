@@ -1,5 +1,4 @@
 #include "osutilities.h"
-#include <array>
 #include <QDebug>
 #include <QString>
 
@@ -15,12 +14,6 @@
 
 #ifdef Q_OS_MACOS
 #include <IOKit/pwr_mgt/IOPMLib.h>
-static IOPMAssertionID sleepAssert;
-#endif
-
-#ifdef Q_OS_WIN
-static constexpr std::array<BYTE, 4> NtUserSetWindowCompositionAttribute_NT6_2 = { 0xB4, 0x13, 0x00, 0x00 };
-static constexpr std::array<BYTE, 4> NtUserSetWindowCompositionAttribute_NT6_3 = { 0xE5, 0x13, 0x00, 0x00 };
 #endif
 
 namespace OSUtilities
@@ -70,6 +63,8 @@ namespace OSUtilities
         if (SetThreadExecutionState(toggle ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS | ES_SYSTEM_REQUIRED : ES_CONTINUOUS) == NULL)
             qDebug().noquote() << "Failed to" << status << "idle sleep: SetThreadExecutionState failed";
         #elif defined(Q_OS_MACOS)
+        static IOPMAssertionID sleepAssert;
+
         if (!toggle && sleepAssert)
         {
             IOPMAssertionRelease(sleepAssert);
@@ -107,6 +102,13 @@ namespace OSUtilities
         return;
     }
 
+# if !_MSC_VER // inline assembly is unsupported on MSVC, so for the sake of simplicity, win 8 code is stripped out
+    template<int syscall_id, typename... arglist>
+    __attribute__((naked)) uint32_t __fastcall WinSyscall([[maybe_unused]] arglist... args)
+    {
+        asm volatile("mov %%rcx, %%r10; movl %0, %%eax; syscall; ret" :: "i"(syscall_id));
+    }
+
     bool isWin8_0()
     {
         HMODULE hKern32 = GetModuleHandleW(L"kernel32.dll");
@@ -120,6 +122,7 @@ namespace OSUtilities
         return GetProcAddress(hKern32, "CalloutOnFiberStack") != NULL //  Export added in 6.3 (8.1), Removed in 10.0.10586
                && GetProcAddress(hKern32, "SetThreadSelectedCpuSets") == NULL; // Export added in 10.0 (10)
     }
+# endif
 
     bool isWin10()
     {
@@ -135,28 +138,6 @@ namespace OSUtilities
         return GetProcAddress(hKern32, "Wow64SetThreadDefaultGuestMachine") != NULL; // Win11 21h2+
     }
 
-    template<std::array<BYTE, 4> syscall_id, typename... arglist> void WinSyscall([[maybe_unused]] arglist... args)
-    {
-        // i have to do this disgusting horrendous shit because stupid fucking microsoft decided
-        // "OH NO ONE WILL EVER NEED INLINE ASSEMBLY" FUCK MICROSOFT AND FUCK MSVC!!!
-        BYTE pCode[] =
-        {
-            0x4C, 0x8B, 0xD1, // mov rcx, r10
-            0xB8, syscall_id[0], syscall_id[1], syscall_id[2], syscall_id[3], // mov syscall_id, eax
-            0x0F, 0x05, // syscall
-            0xC3 // ret
-        };
-
-        LPVOID buf = VirtualAlloc(nullptr, sizeof(pCode), MEM_COMMIT, PAGE_READWRITE);
-        memcpy(buf, pCode, sizeof(pCode));
-
-        DWORD oldProtect;
-        VirtualProtect(buf, sizeof(pCode), PAGE_EXECUTE_READWRITE, &oldProtect);
-
-        reinterpret_cast<void(*)()>(buf)();
-        VirtualFree(buf, 0, MEM_RELEASE);
-    }
-
     void setWinDarkModeEnabled(WId winid, bool enabled)
     {
         HWND hWnd = reinterpret_cast<HWND>(winid);
@@ -169,6 +150,11 @@ namespace OSUtilities
             sizeof(darkEnabled)
         };
 
+# if !_MSC_VER
+        constexpr int NtUserSetWindowCompositionAttribute_NT6_2 = 0x13b4;
+        constexpr int NtUserSetWindowCompositionAttribute_NT6_3 = 0x13e5;
+# endif
+
         if (isWin10() || isWin11())
         {
             ((fnSetWindowCompositionAttribute)(PVOID)GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetWindowCompositionAttribute"))
@@ -176,10 +162,12 @@ namespace OSUtilities
             ((fnSetPreferredAppMode)(PVOID)GetProcAddress(GetModuleHandleW(L"uxtheme.dll"), MAKEINTRESOURCEA(135)))
                 (AppMode_AllowDark);
         }
+# if !_MSC_VER
         else if (isWin8_1())
             WinSyscall<NtUserSetWindowCompositionAttribute_NT6_3>(hWnd, &data);
         else if (isWin8_0())
             WinSyscall<NtUserSetWindowCompositionAttribute_NT6_2>(hWnd, &data);
+# endif
     }
 #endif
 }
