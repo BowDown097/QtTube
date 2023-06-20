@@ -45,8 +45,9 @@ jobs:
           
       - name: Install dependencies
         run: |
+          sudo add-apt-repository universe
           sudo apt-get -y update
-          sudo apt-get -y install libxss1
+          sudo apt-get -y install libxss-dev libfuse2
       
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
