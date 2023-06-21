@@ -19,7 +19,7 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent)
 {
     titleLabel->setClickable(true, true);
     titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::DemiBold));
+    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::Bold));
     textVbox->addWidget(titleLabel);
 
     textVbox->addWidget(channelLabel);
