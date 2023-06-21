@@ -28,39 +28,13 @@ public:
     static void elide(QLabel* label, int targetWidth);
     static QPixmap icon(const QString& name, bool fromQIcon = false, const QSize& size = QSize(), const QPalette& pal = QPalette());
     static bool preferDark(const QPalette& pal = QPalette());
+    static void setAppStyle(const QString& styleName, bool dark);
     static void setMaximumLines(QWidget* widget, int lines);
     static void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
     static void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);
 
-#ifdef Q_OS_WIN
-    static void setAppStyle(const QString& styleName, bool dark);
-#else
-    static void setAppStyle(const QString& styleName);
-#endif
-
     template<typename T>
     static T findParent(QWidget* widget);
-private:
-#ifdef Q_OS_WIN
-    static inline QString darkStylesheet = R"(
-        QLineEdit {
-            background: rgb(42,42,42);
-            border: 1px solid rgb(30,30,30);
-        }
-        QListView::item {
-            background: rgb(49,49,49);
-        }
-        QComboBox, QMessageBox, QPushButton, QScrollBar::vertical, QSpinBox, QTabBar::tab {
-            background: rgb(42,42,42);
-        }
-        QPushButton::hover, QTabBar::tab::hover, QTabBar::tab::selected {
-            background: rgb(30,30,30);
-        }
-        QTabWidget::pane {
-            border-color: rgb(30,30,30);
-        }
-    )";
-#endif
 };
 
 #include "uiutilities.tpp"

@@ -2,6 +2,39 @@
 #include "innertube.h"
 #include <QMessageBox>
 
+constexpr const char* subscribeStyle = R"(
+    background: red;
+    border: solid 1px transparent;
+    font-size: 12px;
+    line-height: 22px;
+    border-radius: 2px;
+    padding: 0 6px 1px 11px;
+    color: #fefefe;
+)";
+constexpr const char* subscribeHoveredStyle = R"(
+    background: #d90a17;
+    border: solid 1px transparent;
+    font-size: 12px;
+    line-height: 22px;
+    border-radius: 2px;
+    padding: 0 6px 1px 11px;
+    color: #fefefe;
+)";
+constexpr const char* subscribedStyle = R"(
+    border: 1px solid #555;
+    font-size: 12px;
+    line-height: 22px;
+    border-radius: 2px;
+    padding: 0 6px 1px 6px;
+)";
+constexpr const char* unsubscribeStyle = R"(
+    border: 1px solid #555;
+    font-size: 12px;
+    line-height: 22px;
+    border-radius: 2px;
+    padding: 0 6px 1px 2.5px;
+)";
+
 SubscribeLabel::SubscribeLabel(QWidget* parent) : QLabel(parent)
 {
     setFixedSize(80, 24);

@@ -2,6 +2,19 @@
 #include "innertube.h"
 #include "ui/uiutilities.h"
 
+constexpr const char* stylesheet = R"(
+    QToolButton {
+        border: 1px solid #555;
+        border-radius: 2px;
+        padding-left: 2px;
+        padding-bottom: 1px;
+    }
+
+    QToolButton::menu-indicator {
+        image: none;
+    }
+)";
+
 NotificationBell::NotificationBell(QWidget* parent)
     : QToolButton(parent),
       allAction(new QAction("All", this)),
@@ -10,7 +23,7 @@ NotificationBell::NotificationBell(QWidget* parent)
       personalizedAction(new QAction("Personalized", this))
 {
     setFixedSize(24, 24);
-    setStyleSheet(styles);
+    setStyleSheet(stylesheet);
     connect(this, &QToolButton::triggered, this, &QToolButton::setDefaultAction);
 
     connect(allAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_ACTIVE"));

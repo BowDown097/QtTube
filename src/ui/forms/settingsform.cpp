@@ -21,11 +21,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     // app style
     ui->appStyle->addItems(QStyleFactory::keys());
     ui->appStyle->setCurrentIndex(ui->appStyle->findText(store.appStyle));
-#ifndef Q_OS_WIN
-    ui->darkThemeWindows->setVisible(false);
-#else
-    ui->darkThemeWindows->setChecked(store.darkThemeWindows);
-#endif
+    ui->darkTheme->setChecked(store.darkTheme);
     // general
     ui->condensedViews->setChecked(store.condensedViews);
     ui->fullSubs->setChecked(store.fullSubs);
@@ -62,13 +58,11 @@ void SettingsForm::saveSettings()
     // general
     store.appStyle = ui->appStyle->currentText();
     store.condensedViews = ui->condensedViews->isChecked();
+    store.darkTheme = ui->darkTheme->isChecked();
     store.fullSubs = ui->fullSubs->isChecked();
     store.homeShelves = ui->homeShelves->isChecked();
     store.returnDislikes = ui->returnDislikes->isChecked();
     store.themedChannels = ui->themedChannels->isChecked();
-#ifdef Q_OS_WIN
-    store.darkThemeWindows = ui->darkThemeWindows->isChecked();
-#endif
     // player
     store.disable60Fps = ui->disable60Fps->isChecked();
     store.disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
@@ -101,12 +95,7 @@ void SettingsForm::saveSettings()
     store.saveToSettingsFile();
     store.initializeFromSettingsFile();
 
-#ifdef Q_OS_WIN
-    UIUtilities::setAppStyle(store.appStyle, store.darkThemeWindows);
-#else
-    UIUtilities::setAppStyle(store.appStyle);
-#endif
-
+    UIUtilities::setAppStyle(store.appStyle, store.darkTheme);
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
 }
 

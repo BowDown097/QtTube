@@ -16,6 +16,7 @@ public:
 
     QString appStyle;
     bool condensedViews;
+    bool darkTheme;
     bool disable60Fps;
     bool disablePlayerInfoPanels;
     bool fullSubs;
@@ -30,10 +31,6 @@ public:
     QStringList sponsorBlockCategories;
     bool themedChannels;
     bool watchtimeTracking;
-
-#ifdef Q_OS_WIN
-    bool darkThemeWindows;
-#endif
 
     static SettingsStore& instance() { static SettingsStore ss; return ss; }
     explicit SettingsStore(QObject* parent = nullptr) : QObject(parent) {}

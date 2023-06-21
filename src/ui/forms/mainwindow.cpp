@@ -78,12 +78,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
 
     SettingsStore::instance().initializeFromSettingsFile();
     UIUtilities::defaultStyle = qApp->style()->objectName();
-
-#ifdef Q_OS_WIN
-    UIUtilities::setAppStyle(SettingsStore::instance().appStyle, SettingsStore::instance().darkThemeWindows);
-#else
-    UIUtilities::setAppStyle(SettingsStore::instance().appStyle);
-#endif
+    UIUtilities::setAppStyle(SettingsStore::instance().appStyle, SettingsStore::instance().darkTheme);
 
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP"));
     tryRestoreData();

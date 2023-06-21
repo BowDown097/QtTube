@@ -7,14 +7,11 @@ void SettingsStore::initializeFromSettingsFile()
 
     appStyle = settings.value("appStyle", "Default").toString();
     condensedViews = settings.value("condensedViews", false).toBool();
+    darkTheme = settings.value("darkTheme", false).toBool();
     fullSubs = settings.value("fullSubs", false).toBool();
     homeShelves = settings.value("homeShelves", false).toBool();
     returnDislikes = settings.value("returnDislikes", true).toBool();
     themedChannels = settings.value("themedChannels", false).toBool();
-
-#ifdef Q_OS_WIN
-    darkThemeWindows = settings.value("darkThemeWindows", false).toBool();
-#endif
 
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
     disablePlayerInfoPanels = settings.value("player/disableInfoPanels", false).toBool();
@@ -44,14 +41,11 @@ void SettingsStore::saveToSettingsFile()
 
     settings.setValue("appStyle", appStyle);
     settings.setValue("condensedViews", condensedViews);
+    settings.setValue("darkTheme", darkTheme);
     settings.setValue("fullSubs", fullSubs);
     settings.setValue("homeShelves", homeShelves);
     settings.setValue("returnDislikes", returnDislikes);
     settings.setValue("themedChannels", themedChannels);
-
-#ifdef Q_OS_WIN
-    settings.setValue("darkThemeWindows", darkThemeWindows);
-#endif
 
     settings.setValue("player/disable60Fps", disable60Fps);
     settings.setValue("player/disableInfoPanels", disablePlayerInfoPanels);

@@ -1,6 +1,7 @@
 #include "uiutilities.h"
 #include "http.h"
 #include "settingsstore.h"
+#include "ui/forms/mainwindow.h"
 #include "widgets/labels/tubelabel.h"
 #include "widgets/renderers/browsechannelrenderer.h"
 #include "widgets/renderers/browsevideorenderer.h"
@@ -14,8 +15,26 @@
 
 #ifdef Q_OS_WIN
 #include "osutilities.h"
-#include "ui/forms/mainwindow.h"
 #endif
+
+constexpr const char* darkStylesheet = R"(
+    QLineEdit {
+        background: rgb(42,42,42);
+        border: 1px solid rgb(30,30,30);
+    }
+    QListView::item {
+        background: rgb(49,49,49);
+    }
+    QComboBox, QMessageBox, QPushButton, QScrollBar::vertical, QSpinBox, QTabBar::tab {
+        background: rgb(42,42,42);
+    }
+    QPushButton::hover, QTabBar::tab::hover, QTabBar::tab::selected {
+        background: rgb(30,30,30);
+    }
+    QTabWidget::pane {
+        border-color: rgb(30,30,30);
+    }
+)";
 
 void UIUtilities::addBoldLabelToList(QListWidget* list, const QString& text)
 {
@@ -144,11 +163,7 @@ bool UIUtilities::preferDark(const QPalette& pal)
             : pal.alternateBase().color().lightness() < 60;
 }
 
-#ifdef Q_OS_WIN
 void UIUtilities::setAppStyle(const QString& styleName, bool dark)
-#else
-void UIUtilities::setAppStyle(const QString& styleName)
-#endif
 {
     if (styleName == "Default")
     {
@@ -162,6 +177,8 @@ void UIUtilities::setAppStyle(const QString& styleName)
 
 #ifdef Q_OS_WIN
     OSUtilities::setWinDarkModeEnabled(MainWindow::windowId(), dark);
+#endif
+
     if (dark)
     {
         QPalette darkPalette;
@@ -183,7 +200,6 @@ void UIUtilities::setAppStyle(const QString& styleName)
         qApp->setStyleSheet(darkStylesheet);
         MainWindow::topbar()->updatePalette(darkPalette);
     }
-#endif
 }
 
 // this will be used for the description and perhaps elsewhere

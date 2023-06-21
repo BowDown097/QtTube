@@ -42,16 +42,6 @@ public:
 public slots:
     void toggleShowMore();
 private:
-    const QString likeBarStyle = R"(
-    QProgressBar {
-        border-radius: 2px;
-        background-color: #606060;
-    }
-
-    QProgressBar::chunk {
-        background-color: #1879c6;
-    })";
-
     void setupDate(QWidget* watchView);
     void setupDescription(QWidget* watchView);
     void setupFrame(QWidget* watchView);

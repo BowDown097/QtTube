@@ -129,7 +129,7 @@
         </property>
        </item>
       </widget>
-      <widget class="QCheckBox" name="darkThemeWindows">
+      <widget class="QCheckBox" name="darkTheme">
        <property name="geometry">
         <rect>
          <x>330</x>

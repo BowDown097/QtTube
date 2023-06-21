@@ -4,6 +4,17 @@
 #include "ui/uiutilities.h"
 #include <QApplication>
 
+constexpr const char* likeBarStyle = R"(
+    QProgressBar {
+        border-radius: 2px;
+        background-color: #606060;
+    }
+
+    QProgressBar::chunk {
+        background-color: #1879c6;
+    }
+)";
+
 void WatchView_Ui::setupUi(QWidget* watchView)
 {
     setupFrame(watchView);

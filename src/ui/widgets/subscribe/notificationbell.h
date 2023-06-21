@@ -26,18 +26,6 @@ private:
     InnertubeObjects::NotificationPreferenceButton notificationPreferenceButton;
     QAction* personalizedAction;
     void updateIcons();
-
-    const QString styles = R"(
-    QToolButton {
-        border: 1px solid #333;
-        border-radius: 2px;
-        padding-left: 2px;
-        padding-bottom: 1px;
-    }
-
-    QToolButton::menu-indicator {
-        image: none;
-    })";
 private slots:
     void updateNotificationState(const QString& iconType);
 };

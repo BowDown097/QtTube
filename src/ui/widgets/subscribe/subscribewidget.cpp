@@ -2,6 +2,15 @@
 #include "http.h"
 #include "settingsstore.h"
 
+constexpr const char* subscribersCountStyle = R"(
+    border: 1px solid #555;
+    font-size: 11px;
+    line-height: 24px;
+    padding: 0 6px 0 4.5px;
+    border-radius: 2px;
+    text-align: center;
+)";
+
 SubscribeWidget::SubscribeWidget(QWidget* parent)
     : QWidget(parent),
       layout(new QHBoxLayout(this)),
