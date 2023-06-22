@@ -40,7 +40,7 @@ private:
 
     bool continuationOngoing = false;
     QString continuationToken;
-    QMap<int, QString> featureMap = {
+    const QMap<int, QString> featureMap = {
         { 0, "isLive" },
         { 1, "is4K" },
         { 2, "isHD" },
@@ -53,10 +53,8 @@ private:
         { 9, "hasLocation" },
         { 10, "isPurchased" },
     };
-    QVariantMap searchMsgFields = {
-        {
-            "sort", QVariantList{1, 0}
-        },
+    const QVariantMap searchMsgFields = {
+        { "sort", QVariantList{1, 0} },
         {
             "filter", QVariantList{2, 2, QVariantMap{
                 { "uploadDate", QVariantList{1, 0} },

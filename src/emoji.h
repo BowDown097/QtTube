@@ -2,8 +2,8 @@
 #include <QString>
 
 // original library modified to support Qt containers
-namespace emojicpp {
-
+namespace emojicpp
+{
     static const QMap<QString, QString> EMOJIS = {
         {":admission_tickets:" , u8"\U0001F39F"},
         {":aerial_tramway:" , u8"\U0001F6A1"},

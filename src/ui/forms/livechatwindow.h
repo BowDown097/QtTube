@@ -24,9 +24,9 @@ private:
 
     QJsonValue actionPanel;
     QString currentContinuation;
-    bool firstTimerRun = true;
     QTimer* messagesTimer;
     int numSentMessages;
+    bool timerRunning = false;
     Ui::LiveChatWindow* ui;
 private slots:
     void processChatData(const InnertubeEndpoints::GetLiveChat& liveChat);

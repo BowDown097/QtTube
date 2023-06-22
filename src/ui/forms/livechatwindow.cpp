@@ -30,6 +30,8 @@ void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData)
 
     messagesTimer = new QTimer(this);
     connect(messagesTimer, &QTimer::timeout, this, [this] {
+        if (timerRunning)
+            return;
         InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChat>(currentContinuation);
         connect(reply, qOverload<const InnertubeEndpoints::GetLiveChat&>(&InnertubeReply::finished), this, &LiveChatWindow::processChatData);
     });
@@ -70,6 +72,8 @@ void LiveChatWindow::addSpecialMessage(const QJsonValue& messageRenderer, const 
 
 void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& liveChat)
 {
+    timerRunning = true;
+
     if (liveChat.liveChatContinuation["actionPanel"].isObject())
     {
         actionPanel = liveChat.liveChatContinuation["actionPanel"];
@@ -269,8 +273,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
     if (!continuations.isEmpty())
         currentContinuation = continuations[0]["invalidationContinuationData"]["continuation"].toString();
 
-    if (firstTimerRun)
-        firstTimerRun = false;
+    timerRunning = false;
 }
 
 void LiveChatWindow::sendMessage()
