@@ -111,4 +111,22 @@
     <qresource>
         <file>share-light.svg</file>
     </qresource>
+    <qresource>
+        <file>sign-out.svg</file>
+    </qresource>
+    <qresource>
+        <file>sign-out-light.svg</file>
+    </qresource>
+    <qresource>
+        <file>switch-accounts.svg</file>
+    </qresource>
+    <qresource>
+        <file>switch-accounts-light.svg</file>
+    </qresource>
+    <qresource>
+        <file>your-channel.svg</file>
+    </qresource>
+    <qresource>
+        <file>your-channel-light.svg</file>
+    </qresource>
 </RCC>

@@ -1,4 +1,9 @@
+// TODO: make this whole mess better. i'm really bad at qt gui and
+// can't figure out how to make this work with an hbox layout, which
+// is what this should be using instead of whatever the hell's going on.
+
 #include "topbar.h"
+#include "http.h"
 #include "innertube.h"
 #include "settingsstore.h"
 #include "ui/forms/settingsform.h"
@@ -12,18 +17,24 @@
 TopBar::TopBar(QWidget* parent)
     : QWidget(parent),
       animation(new QPropertyAnimation(this, "geometry")),
+      avatarButton(new TubeLabel(this)),
       logo(new TubeLabel(this)),
       notificationBell(new TopBarBell(this)),
       searchBox(new QLineEdit(this)),
       settingsButton(new TubeLabel(this)),
       signInButton(new QPushButton(this))
 {
-    animation->setDuration(250);
-    animation->setEasingCurve(QEasingCurve::InOutQuint);
-
     resize(parent->width(), 35);
     setAutoFillBackground(true);
     setPalette(qApp->palette().alternateBase().color());
+
+    animation->setDuration(250);
+    animation->setEasingCurve(QEasingCurve::InOutQuint);
+
+    avatarButton->move(673, 3);
+    avatarButton->resize(30, 30);
+    avatarButton->setClickable(true, false);
+    avatarButton->setVisible(false);
 
     logo->move(10, 2);
     logo->resize(134, 30);
@@ -52,10 +63,10 @@ void TopBar::scaleAppropriately()
 {
     if (InnerTube::instance().hasAuthenticated())
     {
-        searchBox->resize(452 + width() - 800, 35);
+        searchBox->resize(502 + width() - 800, 35);
         notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
         settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 4);
-        signInButton->move(settingsButton->width() + settingsButton->x() + 8, 0);
+        avatarButton->move(settingsButton->width() + settingsButton->x() + 8, 3);
     }
     else
     {
@@ -63,6 +74,23 @@ void TopBar::scaleAppropriately()
         settingsButton->move(searchBox->width() + searchBox->x() + 8, 4);
         signInButton->move(settingsButton->width() + settingsButton->x() + 8, 0);
     }
+}
+
+void TopBar::setUpAvatarButton()
+{
+    scaleAppropriately();
+    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
+    connect(reply, qOverload<const InnertubeEndpoints::AccountMenu&>(&InnertubeReply::finished), this, [this](const auto& endpoint)
+    {
+        HttpReply* photoReply = Http::instance().get(QUrl(endpoint.response.header.accountPhotos[0].url));
+        connect(photoReply, &HttpReply::finished, this, [this](const HttpReply& reply)
+        {
+            QPixmap pixmap;
+            pixmap.loadFromData(reply.body());
+            pixmap = pixmap.scaled(avatarButton->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            avatarButton->setPixmap(UIUtilities::pixmapRounded(pixmap, 15, 15));
+        });
+    });
 }
 
 void TopBar::setUpNotifications()
@@ -84,9 +112,8 @@ void TopBar::signOut()
 {
     InnerTube::instance().unauthenticate();
     setUpNotifications();
-    signInButton->setText("Sign in");
-    disconnect(signInButton, &QPushButton::clicked, this, &TopBar::signOut);
-    connect(signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
+    avatarButton->setVisible(false);
+    signInButton->setVisible(true);
     emit signInStatusChanged();
     QSettings(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat).clear();
 }
@@ -128,10 +155,11 @@ If you provided credentials, please check them, refer back to the previous linke
     SettingsStore::instance().saveToSettingsFile();
 #endif
 
+    avatarButton->setVisible(true);
+    signInButton->setVisible(false);
+    setUpAvatarButton();
     setUpNotifications();
-    signInButton->setText("Sign out");
-    disconnect(signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
-    connect(signInButton, &QPushButton::clicked, this, &TopBar::signOut);
+
     emit signInStatusChanged();
 }
 

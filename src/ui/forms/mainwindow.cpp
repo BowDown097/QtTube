@@ -29,6 +29,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     connect(ui->centralwidget, &QStackedWidget::currentChanged, this, [this] { if (findbar->isVisible()) { findbar->setReveal(false); } });
 
     connect(m_topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
+    connect(m_topbar->avatarButton, &TubeLabel::clicked, this, &MainWindow::showAccountMenu);
     connect(m_topbar->notificationBell, &TopBarBell::clicked, this, &MainWindow::showNotifications);
     connect(m_topbar->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
 
@@ -153,6 +154,9 @@ void MainWindow::resizeEvent(QResizeEvent* event)
     m_topbar->resize(width(), 35);
     m_topbar->scaleAppropriately();
     notificationMenu->move(m_topbar->notificationBell->x() - notificationMenu->width() + 20, 34);
+
+    if (AccountMenuWidget* accountMenu = findChild<AccountMenuWidget*>("accountMenu"))
+        accountMenu->move(m_topbar->avatarButton->x() - accountMenu->width() + 20, 35);
 }
 
 void MainWindow::returnFromSearch()
@@ -262,6 +266,28 @@ void MainWindow::searchWatchHistory()
     BrowseHelper::instance()->browseHistory(ui->historySearchWidget, lastSearchQuery);
 }
 
+void MainWindow::showAccountMenu()
+{
+    if (AccountMenuWidget* accountMenu = findChild<AccountMenuWidget*>("accountMenu"))
+    {
+        if (ui->centralwidget->currentIndex() != 0)
+            m_topbar->alwaysShow = false;
+        accountMenu->deleteLater();
+        return;
+    }
+
+    m_topbar->alwaysShow = true;
+
+    AccountMenuWidget* accountMenu = new AccountMenuWidget(this);
+    accountMenu->setObjectName("accountMenu");
+    accountMenu->show();
+    accountMenu->raise();
+    accountMenu->move(m_topbar->avatarButton->x() - accountMenu->width() + 20, 35);
+
+    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
+    connect(reply, qOverload<const InnertubeEndpoints::AccountMenu&>(&InnertubeReply::finished), accountMenu, &AccountMenuWidget::initialize);
+}
+
 void MainWindow::showNotifications()
 {
     if (notificationMenu->isVisible())
@@ -284,10 +310,10 @@ void MainWindow::tryRestoreData()
     InnerTube::instance().authenticateFromSettings(store);
     if (InnerTube::instance().hasAuthenticated())
     {
+        m_topbar->avatarButton->setVisible(true);
+        m_topbar->signInButton->setVisible(false);
+        m_topbar->setUpAvatarButton();
         m_topbar->setUpNotifications();
-        m_topbar->signInButton->setText("Sign out");
-        disconnect(m_topbar->signInButton, &QPushButton::clicked, m_topbar, &TopBar::trySignIn);
-        connect(m_topbar->signInButton, &QPushButton::clicked, m_topbar, &TopBar::signOut);
     }
 }
 

@@ -19,6 +19,10 @@ void ViewController::loadChannel(const QString& channelId)
 
         return;
     }
+    else if (WatchView* watchView = qobject_cast<WatchView*>(MainWindow::centralWidget()->currentWidget()))
+    {
+        watchView->deleteLater();
+    }
 
     ChannelView* channelView = nullptr;
     try
@@ -56,6 +60,7 @@ void ViewController::loadVideo(const QString& videoId, int progress)
     MainWindow::centralWidget()->addWidget(watchView);
     MainWindow::centralWidget()->setCurrentWidget(watchView);
 
+    QObject::connect(watchView, &WatchView::navigateChannelRequested, std::bind(&ViewController::loadChannel, std::placeholders::_1));
     QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, watchView, [watchView]
     {
         watchView->deleteLater();
@@ -66,10 +71,5 @@ void ViewController::loadVideo(const QString& videoId, int progress)
         QMessageBox::critical(nullptr, "Failed to load video", ie.message());
         watchView->deleteLater();
         MainWindow::topbar()->alwaysShow = true;
-    });
-    QObject::connect(watchView, &WatchView::navigateChannelRequested, [watchView](const QString& channelId)
-    {
-        watchView->deleteLater();
-        ViewController::loadChannel(channelId);
     });
 }

@@ -1,5 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include "ui/widgets/accountmenuwidget.h"
 #include "ui/widgets/findbar.h"
 #include "ui/widgets/topbar/topbar.h"
 #include <QCommandLineParser>
@@ -28,6 +29,7 @@ public:
     static WId windowId() { return m_winId; }
 #endif
 public slots:
+    void showAccountMenu();
     void showNotifications();
 protected:
     void keyPressEvent(QKeyEvent* event) override;

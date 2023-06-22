@@ -294,7 +294,8 @@ void LiveChatWindow::setAuthorIcon(const HttpReply& reply, QLabel* iconLabel)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    iconLabel->setPixmap(pixmap.scaled(32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    pixmap = pixmap.scaled(32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    iconLabel->setPixmap(UIUtilities::pixmapRounded(pixmap, 9999, 9999));
 }
 
 void LiveChatWindow::showEmojiMenu()

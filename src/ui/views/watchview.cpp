@@ -146,10 +146,10 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
 
     if (senderLabel->textLabel->styleSheet().isEmpty()) // if untoggled
     {
-        senderLabel->icon->setPixmap(like ? QPixmap(":/like-toggled.svg") : QPixmap(":/dislike-toggled.svg"));
+        senderLabel->setIcon(like ? "like-toggled" : "dislike-toggled");
         senderLabel->textLabel->setStyleSheet("color: #167ac6");
         if (textIsNumber)
-            senderLabel->textLabel->setText(QLocale::system().toString(count + 1));
+            senderLabel->setText(QLocale::system().toString(count + 1));
 
         const QJsonArray defaultCommands = toggleButton.defaultServiceEndpoint["commandExecutorCommand"]["commands"].toArray();
         QJsonArray::const_iterator defaultCommandIt = std::ranges::find_if(defaultCommands, [](const QJsonValue& v)
@@ -162,11 +162,11 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
     }
     else
     {
-        senderLabel->icon->setPixmap(like ? UIUtilities::icon("like") : UIUtilities::icon("dislike"));
-
+        senderLabel->setIcon(like ? "like" : "dislike");
         senderLabel->textLabel->setStyleSheet(QString());
+
         if (textIsNumber)
-            senderLabel->textLabel->setText(QLocale::system().toString(count - 1));
+            senderLabel->setText(QLocale::system().toString(count - 1));
 
         InnerTube::instance().like(toggleButton.toggledServiceEndpoint["likeEndpoint"], like);
     }
@@ -175,7 +175,7 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
 void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 {
     InnertubeEndpoints::NextResponse nextResp = endpoint.response;
-    channelId = nextResp.secondaryInfo.subscribeButton.channelId;
+    channelId = nextResp.secondaryInfo.owner.navigationEndpoint["browseEndpoint"]["browseId"].toString();
 
     ui->channelLabel->setInfo(nextResp.secondaryInfo.owner.title.text, nextResp.secondaryInfo.owner.badges);
     connect(ui->channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannelRequested, this, channelId));
@@ -196,20 +196,18 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
         IconLabel* label = new IconLabel(
             fi.topLevelButton.iconType.toLower(),
+            labelText,
             ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0)
         );
-        label->setText(labelText);
         ui->topLevelButtons->addWidget(label);
     }
 
-    IconLabel* shareLabel = new IconLabel("share", ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0));
-    shareLabel->setText("Share");
+    IconLabel* shareLabel = new IconLabel("share", "Share", ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0));
     ui->topLevelButtons->addWidget(shareLabel);
 
     if (nextResp.liveChat.has_value())
     {
-        IconLabel* liveChatLabel = new IconLabel("live-chat", QMargins(15, 0, 0, 0));
-        liveChatLabel->setText("Chat");
+        IconLabel* liveChatLabel = new IconLabel("live-chat", "Chat", QMargins(15, 0, 0, 0));
         ui->topLevelButtons->addWidget(liveChatLabel);
 
         connect(liveChatLabel, &IconLabel::clicked, this, [nextResp]
@@ -227,7 +225,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     connect(ui->likeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, true, nextResp.primaryInfo.videoActions.likeButton));
     if (nextResp.primaryInfo.videoActions.likeButton.isToggled)
     {
-        ui->likeLabel->icon->setPixmap(QPixmap(":/like-toggled.svg"));
+        ui->likeLabel->setIcon("like-toggled");
         ui->likeLabel->textLabel->setStyleSheet("color: #167ac6");
     }
 
@@ -236,7 +234,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     connect(ui->dislikeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, false, nextResp.primaryInfo.videoActions.dislikeButton));
     if (nextResp.primaryInfo.videoActions.dislikeButton.isToggled)
     {
-        ui->dislikeLabel->icon->setPixmap(QPixmap(":/dislike-toggled.svg"));
+        ui->dislikeLabel->setIcon("dislike-toggled");
         ui->dislikeLabel->textLabel->setStyleSheet("color: #167ac6");
     }
 

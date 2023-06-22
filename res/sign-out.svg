@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg18832" viewBox="0 0 212.6 212.6" version="1.0">
+  <g id="layer1" transform="translate(-241.43 -409.02)">
+    <path id="path15809" d="m295.02 409.02l-0.44 35.44h124.01v141.73h-124.01v35.43h159.45v-212.6h-159.01z" fill-rule="evenodd"/>
+    <path id="path15815" d="m400.88 533.04h-88.59l35.44 35.43h-53.15l-53.15-53.15 53.15-53.15h53.15l-35.44 35.44h88.59v35.43z"/>
+  </g>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+        <dc:publisher>
+          <cc:Agent rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>logout mini icon</dc:title>
+        <dc:date>2008-02-13T10:43:06</dc:date>
+        <dc:description>black, black, clip art, clipart, exit, exit, icon, icon, image, logout, logout, media, mini, mini, png, public domain, sign, sign, svg, </dc:description>
+        <dc:source>http://openclipart.org/detail/13849/logout-mini-icon-by-artmaster</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>artmaster</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>black</rdf:li>
+            <rdf:li>clip art</rdf:li>
+            <rdf:li>clipart</rdf:li>
+            <rdf:li>exit</rdf:li>
+            <rdf:li>icon</rdf:li>
+            <rdf:li>image</rdf:li>
+            <rdf:li>logout</rdf:li>
+            <rdf:li>media</rdf:li>
+            <rdf:li>mini</rdf:li>
+            <rdf:li>png</rdf:li>
+            <rdf:li>public domain</rdf:li>
+            <rdf:li>sign</rdf:li>
+            <rdf:li>svg</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

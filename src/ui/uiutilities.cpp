@@ -7,6 +7,7 @@
 #include "widgets/renderers/browsevideorenderer.h"
 #include <QApplication>
 #include <QClipboard>
+#include <QPainter>
 #include <QStyleFactory>
 
 #ifdef Q_OS_LINUX
@@ -151,9 +152,28 @@ void UIUtilities::elide(QLabel* label, int targetWidth)
 
 QPixmap UIUtilities::icon(const QString& name, bool fromQIcon, const QSize& size, const QPalette& pal)
 {
-    return fromQIcon
-               ? QIcon(preferDark(pal) ? ":/" + name + "-light.svg" : ":/" + name + ".svg").pixmap(size)
-               : QPixmap(preferDark(pal) ? ":/" + name + "-light.svg" : ":/" + name + ".svg");
+    const QString baseFile = ":/" + name + ".svg";
+    const QString lightFile = ":/" + name + "-light.svg";
+
+    if (QFileInfo::exists(lightFile))
+        return fromQIcon ? QIcon(preferDark(pal) ? lightFile : baseFile).pixmap(size) : QPixmap(preferDark(pal) ? lightFile : baseFile);
+    else
+        return fromQIcon ? QIcon(baseFile).pixmap(size) : QPixmap(baseFile);
+}
+
+QPixmap UIUtilities::pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius)
+{
+    QPixmap rounded(pixmap.size());
+    rounded.fill(Qt::transparent);
+
+    QPainter painter(&rounded);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setBrush(QBrush(pixmap));
+    painter.setPen(Qt::NoPen);
+    painter.drawRoundedRect(pixmap.rect(), 15, 15);
+    painter.end();
+
+    return rounded;
 }
 
 bool UIUtilities::preferDark(const QPalette& pal)

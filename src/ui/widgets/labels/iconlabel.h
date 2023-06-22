@@ -9,7 +9,11 @@ class IconLabel : public QWidget
 public:
     QLabel* icon;
     QLabel* textLabel;
-    explicit IconLabel(const QString& iconId, const QMargins& contentsMargins = QMargins(0, 0, 0, 0), QWidget* parent = nullptr);
+    explicit IconLabel(const QString& iconId, const QMargins& contentsMargins = QMargins(), const QSize& size = QSize(16, 16),
+                       QWidget* parent = nullptr);
+    IconLabel(const QString& iconId, const QString& text, const QMargins& contentsMargins = QMargins(),
+              const QSize& size = QSize(16, 16), QWidget* parent = nullptr);
+    void setIcon(const QString& iconId);
     void setText(const QString& text);
 signals:
     void clicked();

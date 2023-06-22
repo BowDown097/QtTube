@@ -12,6 +12,7 @@ class TopBar : public QWidget
 public:
     bool alwaysShow = true;
     QPropertyAnimation* animation;
+    TubeLabel* avatarButton;
     TubeLabel* logo;
     TopBarBell* notificationBell;
     QLineEdit* searchBox;
@@ -21,6 +22,7 @@ public:
     void scaleAppropriately();
     void updatePalette(const QPalette& palette);
 public slots:
+    void setUpAvatarButton();
     void setUpNotifications();
     void showSettings();
     void signOut();

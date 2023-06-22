@@ -2,17 +2,24 @@
 #include "ui/uiutilities.h"
 #include <QMouseEvent>
 
-IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, QWidget* parent)
+IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, const QSize& size, QWidget* parent)
     : QWidget(parent), icon(new QLabel(this)), textLabel(new QLabel(this)), layout(new QHBoxLayout(this))
 {
-    icon->setFixedSize(16, 16);
+    icon->setFixedSize(size);
     icon->setPixmap(UIUtilities::icon(iconId));
     icon->setScaledContents(true);
-    layout->addWidget(icon);
 
     layout->setContentsMargins(contentsMargins);
     layout->addSpacing(2);
+
+    layout->addWidget(icon);
     layout->addWidget(textLabel);
+}
+
+IconLabel::IconLabel(const QString& iconId, const QString& text, const QMargins& contentsMargins, const QSize& size, QWidget* parent)
+    : IconLabel(iconId, contentsMargins, size, parent)
+{
+    textLabel->setText(text);
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -33,6 +40,11 @@ void IconLabel::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton)
         emit clicked();
+}
+
+void IconLabel::setIcon(const QString& iconId)
+{
+    icon->setPixmap(UIUtilities::icon(iconId));
 }
 
 void IconLabel::setText(const QString& text)
