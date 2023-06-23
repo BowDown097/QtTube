@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(const QCommandLineParser& parser, QWidget* parent = nullptr);
+    explicit MainWindow(const QCommandLineParser& parser, QWidget* parent = nullptr);
     ~MainWindow();
 
     static QStackedWidget* centralWidget() { return m_centralWidget; }

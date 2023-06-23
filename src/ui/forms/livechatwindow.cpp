@@ -1,11 +1,11 @@
 #include "livechatwindow.h"
 #include "ui_livechatwindow.h"
-#include "emoji.h"
 #include "http.h"
 #include "innertube.h"
 #include "ui/forms/emojimenu.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/uiutilities.h"
+#include "ytemoji.h"
 #include <QScrollBar>
 #include <QVBoxLayout>
 
@@ -134,11 +134,11 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 
             QString messageText;
             const QJsonArray runs = liveChatTextMessage["message"]["runs"].toArray();
-            for (const QJsonValue& v : runs)
+            for (const QJsonValue& v2 : runs)
             {
-                if (v["emoji"].isObject())
+                if (v2["emoji"].isObject())
                 {
-                    HttpReply* emojiReply = Http::instance().get(v["emoji"]["image"]["thumbnails"][0]["url"].toString());
+                    HttpReply* emojiReply = Http::instance().get(v2["emoji"]["image"]["thumbnails"][0]["url"].toString());
 
                     QEventLoop loop;
                     connect(emojiReply, &HttpReply::finished, &loop, &QEventLoop::quit);
@@ -148,9 +148,9 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                                        .arg(emojiReply->header("content-type"), emojiReply->body().toBase64());
                     emojiReply->deleteLater();
                 }
-                else if (v["text"].isString())
+                else if (v2["text"].isString())
                 {
-                    messageText += v["text"].toString();
+                    messageText += v2["text"].toString();
                 }
             }
 
@@ -286,7 +286,11 @@ void LiveChatWindow::sendMessage()
     QString clientMessageId = sendLiveChatMessageEndpoint["clientIdPrefix"].toString() + QString::number(numSentMessages++);
     QString params = sendLiveChatMessageEndpoint["params"].toString();
 
-    InnerTube::instance().get<InnertubeEndpoints::SendMessage>(emojicpp::emojize(ui->messageBox->text().trimmed()), clientMessageId, params);
+    InnerTube::instance().sendMessage(
+        ytemoji::produceRichText(ytemoji::emojize(ui->messageBox->text().trimmed())),
+        clientMessageId,
+        params
+    );
     ui->messageBox->clear();
 }
 

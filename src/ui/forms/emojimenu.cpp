@@ -1,12 +1,12 @@
 #include "emojimenu.h"
 #include "ui_emojimenu.h"
-#include "emoji.h"
 #include "http.h"
+#include "ytemoji.h"
 
 int codepoint(const std::string &u)
 {
     int l = u.length();
-    if (l<1) return -1; unsigned char u0 = u[0]; if (u0>=0   && u0<=127) return u0;
+    if (l<1) return -1; unsigned char u0 = u[0]; if (u0<=127) return u0;
     if (l<2) return -1; unsigned char u1 = u[1]; if (u0>=192 && u0<=223) return (u0-192)*64 + (u1-128);
     if ((u[0] & 0xed) == 0xed && (u[1] & 0xa0) == 0xa0) return -1; //code points, 0xd800 to 0xdfff
     if (l<3) return -1; unsigned char u2 = u[2]; if (u0>=224 && u0<=239) return (u0-224)*4096 + (u1-128)*64 + (u2-128);
@@ -24,7 +24,20 @@ EmojiMenu::EmojiMenu(QWidget *parent) : QWidget(parent), ui(new Ui::EmojiMenu)
     filteredLayout = new FlowLayout(ui->filteredScrollAreaContents);
     layout = new FlowLayout(ui->scrollAreaContents);
 
-    for (QMap<QString, QString>::const_iterator i = emojicpp::EMOJIS.cbegin(); i != emojicpp::EMOJIS.cend(); ++i)
+    for (const ytemoji::YouTubeEmoji& ytEmoji : ytemoji::YOUTUBE_EMOJIS)
+    {
+        TubeLabel* emoji = new TubeLabel(ui->scrollAreaContents);
+        emoji->setClickable(true, false);
+        emoji->setToolTip(ytEmoji.emojiName);
+        layout->addWidget(emoji);
+        connect(emoji, &TubeLabel::clicked, this, [this, ytEmoji] { emit emojiClicked(ytEmoji.emojiName); });
+
+        QUrl url("https://yt3.ggpht.com/" + ytEmoji.emojiPath);
+        HttpReply* reply = Http::instance().get(url);
+        connect(reply, &HttpReply::finished, this, [this, emoji](const HttpReply& reply) { setEmojiIcon(reply, emoji); });
+    }
+
+    for (QMap<QString, QString>::const_iterator i = ytemoji::BUILTIN_EMOJIS.cbegin(); i != ytemoji::BUILTIN_EMOJIS.cend(); ++i)
     {
         QString codepointHex = QString::number(codepoint(i.value().toStdString()), 16);
 

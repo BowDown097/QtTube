@@ -6,7 +6,7 @@ class FullScreenNotification : public QLabel
 {
     Q_OBJECT
 public:
-    FullScreenNotification(QWidget* parent = nullptr);
+    explicit FullScreenNotification(QWidget* parent = nullptr);
 protected:
     void showEvent(QShowEvent* event) override;
 signals:

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "emoji.h"
 #include "innertube.h"
 #include "settingsstore.h"
 #include "ui/browsehelper.h"

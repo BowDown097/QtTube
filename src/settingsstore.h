@@ -15,22 +15,22 @@ public:
     Q_ENUM(PlayerQuality)
 
     QString appStyle;
-    bool condensedViews;
-    bool darkTheme;
-    bool disable60Fps;
-    bool disablePlayerInfoPanels;
-    bool fullSubs;
-    bool h264Only;
-    bool homeShelves;
-    bool playbackTracking;
-    PlayerQuality preferredQuality;
-    int preferredVolume;
-    bool restoreAnnotations;
-    bool returnDislikes;
-    bool showSBToasts;
+    bool condensedViews = false;
+    bool darkTheme = false;
+    bool disable60Fps = false;
+    bool disablePlayerInfoPanels = false;
+    bool fullSubs = false;
+    bool h264Only = false;
+    bool homeShelves = false;
+    bool playbackTracking = true;
+    PlayerQuality preferredQuality = PlayerQuality::Auto;
+    int preferredVolume = 100;
+    bool restoreAnnotations = false;
+    bool returnDislikes = true;
+    bool showSBToasts = true;
     QStringList sponsorBlockCategories;
-    bool themedChannels;
-    bool watchtimeTracking;
+    bool themedChannels = false;
+    bool watchtimeTracking = true;
 
     static SettingsStore& instance() { static SettingsStore ss; return ss; }
     explicit SettingsStore(QObject* parent = nullptr) : QObject(parent) {}

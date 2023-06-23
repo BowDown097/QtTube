@@ -49,11 +49,11 @@ endif()
 
 # Source files
 set(SOURCE_FILES
-    src/emoji.cpp
     src/main.cpp
     src/osutilities.cpp
     src/qttubeapplication.cpp
     src/settingsstore.cpp
+    src/ytemoji.cpp
     src/ui/browsehelper.cpp
     src/ui/channelbrowser.cpp
     src/ui/uiutilities.cpp
@@ -84,10 +84,10 @@ set(SOURCE_FILES
 )
 
 set(HEADERS
-    src/emoji.h
     src/osutilities.h
     src/qttubeapplication.h
     src/settingsstore.h
+    src/ytemoji.h
     src/ui/browsehelper.h
     src/ui/browsehelper.tpp
     src/ui/channelbrowser.h
