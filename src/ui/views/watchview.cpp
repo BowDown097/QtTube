@@ -246,7 +246,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
 
-    if (SettingsStore::instance().returnDislikes)
+    if (SettingsStore::instance()->returnDislikes)
     {
         HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + nextResp.videoId);
         connect(reply, &HttpReply::finished, this, &WatchView::updateRatings);
@@ -334,7 +334,7 @@ void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse
         dateText = "Published on " + dateText;
     ui->date->setText(dateText);
 
-    if (SettingsStore::instance().returnDislikes)
+    if (SettingsStore::instance()->returnDislikes)
     {
         HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + resp.videoId);
         connect(reply, &HttpReply::finished, this, &WatchView::updateRatings);

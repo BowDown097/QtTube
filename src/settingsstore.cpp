@@ -1,6 +1,12 @@
 #include "settingsstore.h"
 #include <QSettings>
 
+SettingsStore* SettingsStore::instance()
+{
+    std::call_once(m_onceFlag, [] { m_instance = new SettingsStore; });
+    return m_instance;
+}
+
 void SettingsStore::initializeFromSettingsFile()
 {
     QSettings settings(configPath.filePath("settings.ini"), QSettings::IniFormat);
@@ -16,7 +22,7 @@ void SettingsStore::initializeFromSettingsFile()
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
     disablePlayerInfoPanels = settings.value("player/disableInfoPanels", false).toBool();
     h264Only = settings.value("player/h264Only", false).toBool();
-    preferredQuality = settings.value("player/preferredQuality", PlayerQuality::Auto).value<PlayerQuality>();
+    preferredQuality = settings.value("player/preferredQuality", static_cast<int>(PlayerQuality::Auto)).value<PlayerQuality>();
     preferredVolume = settings.value("player/preferredVolume", 100).toInt();
     restoreAnnotations = settings.value("player/restoreAnnotations", false).toBool();
 
@@ -50,7 +56,7 @@ void SettingsStore::saveToSettingsFile()
     settings.setValue("player/disable60Fps", disable60Fps);
     settings.setValue("player/disableInfoPanels", disablePlayerInfoPanels);
     settings.setValue("player/h264Only", h264Only);
-    settings.setValue("player/preferredQuality", preferredQuality);
+    settings.setValue("player/preferredQuality", static_cast<int>(preferredQuality));
     settings.setValue("player/preferredVolume", preferredVolume);
     settings.setValue("player/restoreAnnotations", restoreAnnotations);
 

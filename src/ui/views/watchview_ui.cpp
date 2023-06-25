@@ -88,7 +88,7 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
     viewCount->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 3));
     menuVbox->addWidget(viewCount);
 
-    if (SettingsStore::instance().returnDislikes)
+    if (SettingsStore::instance()->returnDislikes)
     {
         // i have to wrap the like bar for alignment to work... cringe!
         likeBarWrapper = new QHBoxLayout;

@@ -133,7 +133,7 @@ void ChannelView::setBanner(const HttpReply& reply)
     pixmap.loadFromData(reply.body());
     channelBanner->setPixmap(pixmap.scaled(channelBanner->width(), channelBanner->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
-    if (SettingsStore::instance().themedChannels)
+    if (SettingsStore::instance()->themedChannels)
     {
         Rgb domRgb = getDominantRgb(pixmap.toImage());
         QPalette domPal(QColor(domRgb.r, domRgb.g, domRgb.b));

@@ -9,9 +9,9 @@
 
 WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     : QWidget(parent),
-      m_interceptor(new PlayerInterceptor(this)),
-      m_interface(new WebChannelInterface(this)),
-      m_view(new QWebEngineView(this))
+    m_interceptor(new PlayerInterceptor(this)),
+    m_interface(new WebChannelInterface(this)),
+    m_view(new QWebEngineView(this))
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addWidget(m_view);
@@ -20,6 +20,7 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     QWebChannel* channel = new QWebChannel(m_view->page());
     m_view->page()->setWebChannel(channel);
     channel->registerObject("interface", m_interface);
+    channel->registerObject("settings", SettingsStore::instance());
 
     loadScriptFile(":/qtwebchannel/qwebchannel.js", QWebEngineScript::DocumentCreation);
     loadScriptFile(":/player/annotationlib/AnnotationParser.js", QWebEngineScript::DocumentReady);
@@ -79,16 +80,7 @@ void WebEnginePlayer::loadScriptString(const QString& data, QWebEngineScript::In
 
 void WebEnginePlayer::play(const QString& vId, int progress)
 {
-    QString sbc = QJsonDocument(QJsonArray::fromStringList(SettingsStore::instance().sponsorBlockCategories)).toJson(QJsonDocument::Compact);
-    QString q = QMetaEnum::fromType<SettingsStore::PlayerQuality>().valueToKey(SettingsStore::instance().preferredQuality);
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?sbc=%2&q=%3&t=%4&v=%5&annot=%6&h264Only=%7&no60Fps=%8&noInfoPanels=%9")
-                      .arg(vId, sbc, q.toLower())
-                      .arg(progress)
-                      .arg(SettingsStore::instance().preferredVolume)
-                      .arg(SettingsStore::instance().restoreAnnotations)
-                      .arg(SettingsStore::instance().h264Only)
-                      .arg(SettingsStore::instance().disable60Fps)
-                      .arg(SettingsStore::instance().disablePlayerInfoPanels)));
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2").arg(vId).arg(progress)));
 }
 
 void WebEnginePlayer::seek(int progress)

@@ -70,7 +70,7 @@ void BrowseChannelRenderer::setData(const QString& channelId, const QString& des
     subscribeWidget->setSubscribeButton(subButton);
     subscribeWidget->setSubscriberCount(subCount.contains("subscribers") ? subCount : videoCount, channelId);
 
-    if (SettingsStore::instance().fullSubs)
+    if (SettingsStore::instance()->fullSubs)
     {
         Http http;
         http.setReadTimeout(2000);

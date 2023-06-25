@@ -93,7 +93,7 @@ void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjec
     renderer->setChannelData(video.owner);
     renderer->setTargetElisionWidth(list->width() - 240);
     renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.startTimeSeconds, video.title.text,
-        video.videoId, SettingsStore::instance().condensedViews ? video.shortViewCountText.text : video.viewCountText.text);
+                           video.videoId, SettingsStore::instance()->condensedViews ? video.shortViewCountText.text : video.viewCountText.text);
     addWidgetToList(list, renderer);
 
     HttpReply* reply = Http::instance().get(video.thumbnail.mqdefault);

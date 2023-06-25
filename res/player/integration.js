@@ -1,25 +1,8 @@
-document.addEventListener("mousedown", function(e) {
-    const coveringOverlay = e.target.closest(".ytp-ce-covering-overlay");
-    const videowallStill = e.target.closest(".ytp-videowall-still");
-    if (coveringOverlay != null) {
-        new QWebChannel(qt.webChannelTransport, function(channel) {
-            const params = new URLSearchParams(coveringOverlay.search);
-            channel.objects.interface.switchWatchViewVideo(params.get("v"));
-        });
-    } else if (videowallStill != null) {
-        new QWebChannel(qt.webChannelTransport, function(channel) {
-            const params = new URLSearchParams(videowallStill.search);
-            channel.objects.interface.switchWatchViewVideo(params.get("v"));
-        });
-    }
+// autoplay and time
+waitForElement("#movie_player").then(function(p) {
+    p.playVideo();
+    p.seekTo(new URLSearchParams(document.location.search).get("t"));
 });
-
-const params = new URLSearchParams(document.location.search);
-
-if (params.get("noInfoPanels") == 1)
-    addStyle(".ytp-info-panel-preview { display: none; }");
-
-h264ify(params.get("h264Only"), params.get("no60Fps"));
 
 // unavailable video patcher
 waitForElement("#movie_player .ytp-error").then(function() {
@@ -45,39 +28,64 @@ waitForElement("#movie_player .ytp-error").then(function() {
     document.querySelector("#movie_player").loadVideoByPlayerVars(yt.config_.PLAYER_VARS);
 });
 
-waitForElement("#movie_player").then(function(p) {
-    p.seekTo(params.get("t")); // seek to saved time
-    p.setVolume(params.get("v")); // seek to saved volume
-    p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. there's no way out of doing this. wtf???
+new QWebChannel(qt.webChannelTransport, async function(channel) {
+    let settings = channel.objects.settings;
+    let qualityKeys = Object.keys(settings.PlayerQuality).reduce(function(acc, key) {
+        return acc[settings.PlayerQuality[key]] = key, acc;
+    }, {});
 
-    // annotations
-    const annotPref = params.get("annot");
-    if (annotPref == 1) {
-        waitForElement(".ytp-panel-menu").then(el => addAnnotationSwitch(el));
-        handleAnnotations(document.location.pathname.split("/").pop());
+    if (settings.sponsorBlockCategories?.length) {
+        await sponsorBlock(settings.sponsorBlockCategories);
     }
 
-    // quality preference
-    var qPref = params.get("q");
-    if (!qPref || qPref == "auto") {
-        p.playVideo();
-        return;
-    }
+    document.addEventListener("mousedown", function(e) {
+        const coveringOverlay = e.target.closest(".ytp-ce-covering-overlay");
+        const videowallStill = e.target.closest(".ytp-videowall-still");
+        if (coveringOverlay != null) {
+            const olParams = new URLSearchParams(coveringOverlay.search);
+            channel.objects.interface.switchWatchViewVideo(olParams.get("v"));
+        } else if (videowallStill != null) {
+            const stillParams = new URLSearchParams(videowallStill.search);
+            channel.objects.interface.switchWatchViewVideo(stillParams.get("v"));
+        }
+    });
 
-    const iv = setInterval(function() {
-        if (!p.getAvailableQualityLevels || !p.setPlaybackQualityRange)
+    if (settings.disablePlayerInfoPanels)
+        addStyle(".ytp-info-panel-preview { display: none; }");
+
+    h264ify(settings.h264Only, settings.disable60Fps);
+
+    waitForElement("#movie_player").then(function(p) {
+        p.setVolume(settings.preferredVolume); // set preferred volume
+        p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. there's no way out of doing this. wtf???
+
+        // annotations
+        if (settings.restoreAnnotations) {
+            waitForElement(".ytp-panel-menu").then(el => addAnnotationSwitch(el));
+            handleAnnotations(document.location.pathname.split("/").pop());
+        }
+
+        // quality preference
+        var qPref = qualityKeys[settings.preferredQuality].toLowerCase();
+        if (!qPref || qPref == "auto") {
+            p.playVideo();
             return;
+        }
 
-        const avail = p.getAvailableQualityLevels();
-        if (!avail?.length)
-            return;
+        const iv = setInterval(function() {
+            if (!p.getAvailableQualityLevels || !p.setPlaybackQualityRange)
+                return;
 
-        if (!avail.includes(qPref)) // if our pref is not available, pick (should be) next best one
-            qPref = avail[0];
+            const avail = p.getAvailableQualityLevels();
+            if (!avail?.length)
+                return;
 
-        p.setPlaybackQualityRange(qPref, qPref);
-        p.playVideo();
-        clearInterval(iv);
-    }, 100);
+            if (!avail.includes(qPref)) // if our pref is not available, pick (should be) next best one
+                qPref = avail[0];
+
+            p.setPlaybackQualityRange(qPref, qPref);
+            p.playVideo();
+            clearInterval(iv);
+        }, 100);
+    });
 });
-

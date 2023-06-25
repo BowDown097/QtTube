@@ -76,9 +76,9 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     });
     addAction(reloadShortcut);
 
-    SettingsStore::instance().initializeFromSettingsFile();
+    SettingsStore::instance()->initializeFromSettingsFile();
     UIUtilities::defaultStyle = qApp->style()->objectName();
-    UIUtilities::setAppStyle(SettingsStore::instance().appStyle, SettingsStore::instance().darkTheme);
+    UIUtilities::setAppStyle(SettingsStore::instance()->appStyle, SettingsStore::instance()->darkTheme);
 
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP"));
     tryRestoreData();

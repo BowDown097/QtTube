@@ -55,7 +55,7 @@ void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton
 
 void SubscribeWidget::setSubscriberCount(const QString& subscriberCountText, const QString& channelId)
 {
-    if (!SettingsStore::instance().fullSubs)
+    if (!SettingsStore::instance()->fullSubs)
     {
         subscribersCountLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
         subscribersCountLabel->adjustSize();

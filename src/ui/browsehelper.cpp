@@ -72,7 +72,7 @@ void BrowseHelper::browseHome(QListWidget* homeWidget)
     const QString clientNameTemp = InnerTube::instance().context()->client.clientName;
     const QString clientVerTemp = InnerTube::instance().context()->client.clientVersion;
 
-    if (SettingsStore::instance().homeShelves)
+    if (SettingsStore::instance()->homeShelves)
     {
         InnerTube::instance().context()->client.clientName = "ANDROID";
         InnerTube::instance().context()->client.clientVersion = "17.01";
@@ -160,7 +160,7 @@ void BrowseHelper::search(QListWidget* searchWidget, const QString& query, int d
 
 void BrowseHelper::browseFailed(const InnertubeException& ie, const QString& title)
 {
-    if (ie.severity() == InnertubeException::Normal)
+    if (ie.severity() == InnertubeException::Severity::Normal)
         QMessageBox::critical(nullptr, title, ie.message());
     else
         qDebug().nospace() << title << ": " << ie.message();

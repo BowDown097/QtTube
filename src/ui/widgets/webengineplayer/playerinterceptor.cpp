@@ -29,7 +29,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
     if (info.requestUrl().path() == "/api/stats/watchtime")
     {
         info.block(true);
-        if (!SettingsStore::instance().watchtimeTracking) return;
+        if (!SettingsStore::instance()->watchtimeTracking) return;
 
         QUrlQuery watchtimeQuery(info.requestUrl());
         QUrlQuery playerWatchtimeQuery(QUrl(m_playerResponse.playbackTracking.videostatsWatchtimeUrl));
@@ -87,7 +87,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
     else if (info.requestUrl().path() == "/api/stats/playback")
     {
         info.block(true);
-        if (!SettingsStore::instance().playbackTracking) return;
+        if (!SettingsStore::instance()->playbackTracking) return;
 
         QUrlQuery playbackQuery(info.requestUrl());
         QUrlQuery playerPlaybackQuery(QUrl(m_playerResponse.playbackTracking.videostatsPlaybackUrl));
