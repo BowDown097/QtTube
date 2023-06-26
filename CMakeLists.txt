@@ -29,10 +29,10 @@ option(QTTUBE_USEMPV "Use MPV for the video player." OFF)
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
 
 if(QT_VERSION_MAJOR EQUAL 5)
-    find_package(Qt5 REQUIRED COMPONENTS Gui Network Svg Widgets)
+    find_package(Qt5 REQUIRED COMPONENTS Gui Network Widgets)
     find_package(Qt5 OPTIONAL_COMPONENTS OpenGL WebEngineWidgets X11Extras)
 elseif(QT_VERSION_MAJOR EQUAL 6)
-    find_package(Qt6 REQUIRED COMPONENTS Gui Network SvgWidgets Widgets)
+    find_package(Qt6 REQUIRED COMPONENTS Gui Network Widgets)
     find_package(Qt6 OPTIONAL_COMPONENTS OpenGLWidgets WebEngineWidgets)
 else()
     message(FATAL_ERROR "Qt version ${QT_VERSION_MAJOR} is not supported")
@@ -69,7 +69,6 @@ set(SOURCE_FILES
     src/ui/widgets/accountmenuwidget.cpp
     src/ui/widgets/findbar.cpp
     src/ui/widgets/flowlayout.cpp
-    src/ui/widgets/qiconwidget.cpp
     src/ui/widgets/labels/channellabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
@@ -106,7 +105,6 @@ set(HEADERS
     src/ui/widgets/accountmenuwidget.h
     src/ui/widgets/findbar.h
     src/ui/widgets/flowlayout.h
-    src/ui/widgets/qiconwidget.h
     src/ui/widgets/labels/channellabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
@@ -158,12 +156,7 @@ target_compile_definitions(QtTube PRIVATE
 
 # Include directories, libraries
 target_include_directories(QtTube PRIVATE src lib/http/src lib/innertube-qt/src)
-
-if(QT_VERSION_MAJOR EQUAL 5)
-    target_link_libraries(QtTube PRIVATE cpr::cpr http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Svg Qt::Widgets)
-elseif(QT_VERSION_MAJOR EQUAL 6)
-    target_link_libraries(QtTube PRIVATE cpr::cpr http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::SvgWidgets Qt::Widgets)
-endif()
+target_link_libraries(QtTube PRIVATE cpr::cpr http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Widgets)
 
 ## Optional
 if(QTTUBE_USEMPV)

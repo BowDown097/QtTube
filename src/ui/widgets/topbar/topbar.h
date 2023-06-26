@@ -2,7 +2,6 @@
 #define TOPBAR_H
 #include "topbarbell.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "ui/widgets/qiconwidget.h"
 #include <QLineEdit>
 #include <QPropertyAnimation>
 #include <QPushButton>
@@ -14,10 +13,10 @@ public:
     bool alwaysShow = true;
     QPropertyAnimation* animation;
     TubeLabel* avatarButton;
-    QIconWidget* logo;
+    TubeLabel* logo;
     TopBarBell* notificationBell;
     QLineEdit* searchBox;
-    QIconWidget* settingsButton;
+    TubeLabel* settingsButton;
     QPushButton* signInButton;
     explicit TopBar(QWidget* parent);
     void scaleAppropriately();

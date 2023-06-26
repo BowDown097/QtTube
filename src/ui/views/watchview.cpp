@@ -13,7 +13,7 @@
 WatchView::~WatchView()
 {
     delete ui;
-    disconnect(MainWindow::topbar()->logo, &QIconWidget::clicked, this, nullptr);
+    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
     OSUtilities::toggleIdleSleep(false);
 }
 

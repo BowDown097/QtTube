@@ -3,7 +3,7 @@
 #include "http.h"
 #include "innertube.h"
 #include "ui/forms/emojimenu.h"
-#include "ui/widgets/qiconwidget.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include "ui/uiutilities.h"
 #include "ytemoji.h"
 #include <QScrollBar>
@@ -14,11 +14,12 @@ LiveChatWindow::LiveChatWindow(QWidget* parent) : QWidget(parent), ui(new Ui::Li
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
 
-    QIconWidget* emojiMenuButton = new QIconWidget("emoji", QSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8), this);
-    emojiMenuButton->setClickable(true);
-    ui->horizontalLayout->insertWidget(0, emojiMenuButton);
+    TubeLabel* emojiMenuLabel = new TubeLabel(this);
+    emojiMenuLabel->setClickable(true, false);
+    emojiMenuLabel->setPixmap(UIUtilities::pixmapThemed("emoji", true, QSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8)));
+    ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
 
-    connect(emojiMenuButton, &QIconWidget::clicked, this, &LiveChatWindow::showEmojiMenu);
+    connect(emojiMenuLabel, &TubeLabel::clicked, this, &LiveChatWindow::showEmojiMenu);
     connect(ui->messageBox, &QLineEdit::returnPressed, this, &LiveChatWindow::sendMessage);
     connect(ui->sendButton, &QPushButton::pressed, this, &LiveChatWindow::sendMessage);
 }
