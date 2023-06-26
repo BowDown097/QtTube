@@ -162,7 +162,7 @@ void MainWindow::returnFromSearch()
 {
     UIUtilities::clearLayout(ui->additionalWidgets);
     doNotBrowse = true;
-    disconnect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromSearch);
+    disconnect(m_topbar->logo, &QIconWidget::clicked, this, &MainWindow::returnFromSearch);
     ui->tabWidget->setTabEnabled(4, false);
     UIUtilities::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
     doNotBrowse = false;
@@ -173,7 +173,7 @@ void MainWindow::returnFromSearch()
 void MainWindow::returnFromWatchHistorySearch()
 {
     doNotBrowse = true;
-    disconnect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
+    disconnect(m_topbar->logo, &QIconWidget::clicked, this, &MainWindow::returnFromWatchHistorySearch);
     ui->tabWidget->setTabEnabled(5, false);
     UIUtilities::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
     doNotBrowse = false;
@@ -227,7 +227,7 @@ void MainWindow::search()
     else
     {
         doNotBrowse = true;
-        connect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromSearch);
+        connect(m_topbar->logo, &QIconWidget::clicked, this, &MainWindow::returnFromSearch);
         ui->tabWidget->setTabEnabled(4, true);
         UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3, 5});
         doNotBrowse = false;
@@ -255,7 +255,7 @@ void MainWindow::searchWatchHistory()
     }
 
     doNotBrowse = true;
-    connect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
+    connect(m_topbar->logo, &QIconWidget::clicked, this, &MainWindow::returnFromWatchHistorySearch);
     ui->tabWidget->setTabEnabled(5, true);
     UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3});
     doNotBrowse = false;

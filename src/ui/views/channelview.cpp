@@ -10,7 +10,7 @@
 ChannelView::~ChannelView()
 {
     MainWindow::topbar()->updatePalette(qApp->palette().alternateBase().color());
-    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
+    disconnect(MainWindow::topbar()->logo, &QIconWidget::clicked, this, nullptr);
 }
 
 ChannelView::ChannelView(const QString& channelId)

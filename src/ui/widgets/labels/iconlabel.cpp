@@ -1,14 +1,12 @@
 #include "iconlabel.h"
-#include "ui/uiutilities.h"
 #include <QMouseEvent>
 
 IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, const QSize& size, QWidget* parent)
-    : QWidget(parent), icon(new QLabel(this)), textLabel(new QLabel(this)), layout(new QHBoxLayout(this))
+    : QWidget(parent),
+      icon(new QIconWidget(iconId, size, this)),
+      textLabel(new QLabel(this)),
+      layout(new QHBoxLayout(this))
 {
-    icon->setFixedSize(size);
-    icon->setPixmap(UIUtilities::icon(iconId));
-    icon->setScaledContents(true);
-
     layout->setContentsMargins(contentsMargins);
     layout->addSpacing(2);
 
@@ -44,7 +42,7 @@ void IconLabel::mousePressEvent(QMouseEvent* event)
 
 void IconLabel::setIcon(const QString& iconId)
 {
-    icon->setPixmap(UIUtilities::icon(iconId));
+    icon->setIcon(iconId);
 }
 
 void IconLabel::setText(const QString& text)

@@ -150,15 +150,9 @@ void UIUtilities::elide(QLabel* label, int targetWidth)
     label->setText(elidedText);
 }
 
-QPixmap UIUtilities::icon(const QString& name, bool fromQIcon, const QSize& size, const QPalette& pal)
+QIcon UIUtilities::iconThemed(const QString& name, const QPalette& pal)
 {
-    const QString baseFile = ":/" + name + ".svg";
-    const QString lightFile = ":/" + name + "-light.svg";
-
-    if (QFileInfo::exists(lightFile))
-        return fromQIcon ? QIcon(preferDark(pal) ? lightFile : baseFile).pixmap(size) : QPixmap(preferDark(pal) ? lightFile : baseFile);
-    else
-        return fromQIcon ? QIcon(baseFile).pixmap(size) : QPixmap(baseFile);
+    return QIcon(resolveThemedIconName(name, pal));
 }
 
 QPixmap UIUtilities::pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius)
@@ -176,11 +170,23 @@ QPixmap UIUtilities::pixmapRounded(const QPixmap& pixmap, double xRadius, double
     return rounded;
 }
 
+QPixmap UIUtilities::pixmapThemed(const QString& name, bool fromQIcon, const QSize& size, const QPalette& pal)
+{
+    return fromQIcon ? QIcon(resolveThemedIconName(name, pal)).pixmap(size) : QPixmap(resolveThemedIconName(name, pal));
+}
+
 bool UIUtilities::preferDark(const QPalette& pal)
 {
     return pal == QPalette()
             ? qApp->palette().alternateBase().color().lightness() < 60
             : pal.alternateBase().color().lightness() < 60;
+}
+
+QString UIUtilities::resolveThemedIconName(const QString& name, const QPalette& pal)
+{
+    const QString baseFile = ":/" + name + ".svg";
+    const QString lightFile = ":/" + name + "-light.svg";
+    return QFileInfo::exists(lightFile) && UIUtilities::preferDark(pal) ? lightFile : baseFile;
 }
 
 void UIUtilities::setAppStyle(const QString& styleName, bool dark)

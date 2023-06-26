@@ -9,9 +9,9 @@
 
 WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     : QWidget(parent),
-    m_interceptor(new PlayerInterceptor(this)),
-    m_interface(new WebChannelInterface(this)),
-    m_view(new QWebEngineView(this))
+      m_interceptor(new PlayerInterceptor(this)),
+      m_interface(new WebChannelInterface(this)),
+      m_view(new QWebEngineView(this))
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addWidget(m_view);

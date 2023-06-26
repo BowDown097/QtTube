@@ -14,7 +14,7 @@ TopBarBell::TopBarBell(QWidget* parent) : QWidget(parent), bell(new QLabel(this)
 
 void TopBarBell::updatePixmap(bool hasNotif, const QPalette& pal)
 {
-    bell->setPixmap(UIUtilities::icon(hasNotif ? "notif-bell-hasnotif" : "notif-bell", false, QSize(), pal));
+    bell->setPixmap(UIUtilities::pixmapThemed(hasNotif ? "notif-bell-hasnotif" : "notif-bell", false, QSize(), pal));
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

@@ -2,12 +2,13 @@
 #define ICONLABEL_H
 #include <QHBoxLayout>
 #include <QLabel>
+#include "ui/widgets/qiconwidget.h"
 
 class IconLabel : public QWidget
 {
     Q_OBJECT
 public:
-    QLabel* icon;
+    QIconWidget* icon;
     QLabel* textLabel;
     explicit IconLabel(const QString& iconId, const QMargins& contentsMargins = QMargins(), const QSize& size = QSize(16, 16),
                        QWidget* parent = nullptr);

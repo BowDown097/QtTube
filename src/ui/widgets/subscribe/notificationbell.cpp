@@ -86,9 +86,9 @@ void NotificationBell::setVisualNotificationState(int stateId)
 
 void NotificationBell::updateIcons()
 {
-    allAction->setIcon(UIUtilities::icon("notif-bell-all", false, size(), palette()));
-    noneAction->setIcon(UIUtilities::icon("notif-bell-none", false, size(), palette()));
-    personalizedAction->setIcon(UIUtilities::icon("notif-bell", false, size(), palette()));
+    allAction->setIcon(UIUtilities::iconThemed("notif-bell-all", palette()));
+    noneAction->setIcon(UIUtilities::iconThemed("notif-bell-none", palette()));
+    personalizedAction->setIcon(UIUtilities::iconThemed("notif-bell", palette()));
 }
 
 void NotificationBell::updateNotificationState(const QString& iconType)

@@ -26,9 +26,11 @@ public:
     static void clearLayout(QLayout* layout);
     static void copyToClipboard(const QString& text);
     static void elide(QLabel* label, int targetWidth);
-    static QPixmap icon(const QString& name, bool fromQIcon = false, const QSize& size = QSize(), const QPalette& pal = QPalette());
+    static QIcon iconThemed(const QString& name, const QPalette& pal = QPalette());
     static QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius);
+    static QPixmap pixmapThemed(const QString& name, bool fromQIcon = false, const QSize& size = QSize(), const QPalette& pal = QPalette());
     static bool preferDark(const QPalette& pal = QPalette());
+    static QString resolveThemedIconName(const QString& name, const QPalette& pal = QPalette());
     static void setAppStyle(const QString& styleName, bool dark);
     static void setMaximumLines(QWidget* widget, int lines);
     static void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);

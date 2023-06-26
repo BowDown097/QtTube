@@ -18,10 +18,10 @@ TopBar::TopBar(QWidget* parent)
     : QWidget(parent),
       animation(new QPropertyAnimation(this, "geometry")),
       avatarButton(new TubeLabel(this)),
-      logo(new TubeLabel(this)),
+      logo(new QIconWidget("qttube-full", QSize(134, 30), this)),
       notificationBell(new TopBarBell(this)),
       searchBox(new QLineEdit(this)),
-      settingsButton(new TubeLabel(this)),
+      settingsButton(new QIconWidget("settings", QSize(30, 30), this)),
       signInButton(new QPushButton(this))
 {
     resize(parent->width(), 35);
@@ -37,21 +37,15 @@ TopBar::TopBar(QWidget* parent)
     avatarButton->setVisible(false);
 
     logo->move(10, 2);
-    logo->resize(134, 30);
-    logo->setClickable(true, false);
-    logo->setPixmap(UIUtilities::icon("qttube-full", true, logo->size()));
-    logo->setScaledContents(true);
+    logo->setClickable(true);
 
     searchBox->move(152, 0);
     searchBox->resize(513, 35);
     searchBox->setPlaceholderText("Search");
 
     settingsButton->move(673, 3);
-    settingsButton->resize(30, 30);
-    settingsButton->setClickable(true, false);
-    settingsButton->setPixmap(UIUtilities::icon("settings"));
-    settingsButton->setScaledContents(true);
-    connect(settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);
+    settingsButton->setClickable(true);
+    connect(settingsButton, &QIconWidget::clicked, this, &TopBar::showSettings);
 
     signInButton->move(711, 0);
     signInButton->resize(80, 35);
@@ -178,7 +172,7 @@ void TopBar::updateNotificationCount()
 void TopBar::updatePalette(const QPalette& palette)
 {
     setPalette(palette);
-    logo->setPixmap(UIUtilities::icon("qttube-full", true, logo->size(), palette));
-    settingsButton->setPixmap(UIUtilities::icon("settings", false, QSize(), palette));
+    logo->setIcon("qttube-full", palette);
+    settingsButton->setIcon("settings", palette);
     notificationBell->updatePixmap(notificationBell->count->isVisible(), palette);
 }

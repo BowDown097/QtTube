@@ -41,7 +41,7 @@ void ViewController::loadChannel(const QString& channelId)
 
     MainWindow::centralWidget()->addWidget(channelView);
     MainWindow::centralWidget()->setCurrentWidget(channelView);
-    QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, channelView, [channelView]
+    QObject::connect(MainWindow::topbar()->logo, &QIconWidget::clicked, channelView, [channelView]
     {
         channelView->deleteLater();
         MainWindow::topbar()->alwaysShow = true;
@@ -61,7 +61,7 @@ void ViewController::loadVideo(const QString& videoId, int progress)
     MainWindow::centralWidget()->setCurrentWidget(watchView);
 
     QObject::connect(watchView, &WatchView::navigateChannelRequested, std::bind(&ViewController::loadChannel, std::placeholders::_1));
-    QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, watchView, [watchView]
+    QObject::connect(MainWindow::topbar()->logo, &QIconWidget::clicked, watchView, [watchView]
     {
         watchView->deleteLater();
         MainWindow::topbar()->alwaysShow = true;
