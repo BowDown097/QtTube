@@ -42,19 +42,16 @@ jobs:
         with:
           submodules: 'true'
           
-      - name: Install MSVC
+      - name: Set up MSVC
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Install Scoop
-        if: runner.os == 'Windows'
-        uses: MinoruSekine/setup-scoop@v1
-        with:
-          add_extras_bucket: 'true'
-        
       - name: Install NSIS
         if: runner.os == 'Windows'
-        run: scoop install nsis
+        run: |
+          iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+          scoop bucket add extras
+          scoop install nsis
           
       - name: Set environment variables
         shell: bash
