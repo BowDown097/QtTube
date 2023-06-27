@@ -31,9 +31,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     
     env:
-      INSTALL_DIR: ${{ github.workspace }}/install
-      INSTALL_APPIMAGE_DIR: ${{ github.workspace }}/install-appimage
-      BUILD_DIR: ${{ github.workspace }}/build
+      INSTALL_DIR: "install"
+      INSTALL_APPIMAGE_DIR: "install-appimage"
+      BUILD_DIR: "build"
       BUILD_TYPE: Debug
     
     steps:
