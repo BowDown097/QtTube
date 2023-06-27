@@ -91,7 +91,7 @@ jobs:
         
       - name: Package (Windows)
         if: runner.os == 'Windows'
-        run: cmake --install ${{ env.BUILD_DIR }}
+        run: cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_DIR }}
       
       - name: Package (Windows installer)
         if: runner.os == 'Windows'
