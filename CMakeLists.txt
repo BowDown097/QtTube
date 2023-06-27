@@ -20,10 +20,17 @@ set(CMAKE_C_STANDARD 11)
 set(QTTUBE_APP_DESC "A Qt frontend for YouTube." CACHE STRING "The description to use for the application.")
 set(QTTUBE_APP_NAME "QtTube" CACHE STRING "The name to use for the application.")
 set(QTTUBE_REPO_URL "https://github.com/BowDown097/QtTube" CACHE STRING "Git repository URL to be displayed in the about dialog.")
+set(QTTUBE_VERSION_MAJOR 1)
+set(QTTUBE_VERSION_MINOR 0)
 set(QTTUBE_VERSION_NAME "ALPHA")
 
 # Compilation options
 option(QTTUBE_USEMPV "Use MPV for the video player." OFF)
+
+# Configure files
+if(WIN32)
+    configure_file(program_info/win_install.nsi.in program_info/win_install.nsi @ONLY)
+endif()
 
 # Qt packages
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
