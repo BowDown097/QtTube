@@ -3,9 +3,9 @@
 // is what this should be using instead of whatever the hell's going on.
 
 #include "topbar.h"
+#include "credentialsstore.h"
 #include "http.h"
 #include "innertube.h"
-#include "settingsstore.h"
 #include "ui/forms/settingsform.h"
 #include "ui/uiutilities.h"
 #include <QApplication>
@@ -59,6 +59,15 @@ TopBar::TopBar(QWidget* parent)
     connect(signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
 }
 
+void TopBar::postSignInSetup()
+{
+    avatarButton->setVisible(true);
+    signInButton->setVisible(false);
+    setUpAvatarButton();
+    setUpNotifications();
+    emit signInStatusChanged();
+}
+
 void TopBar::scaleAppropriately()
 {
     if (InnerTube::instance().hasAuthenticated())
@@ -80,8 +89,9 @@ void TopBar::setUpAvatarButton()
 {
     scaleAppropriately();
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
-    connect(reply, qOverload<const InnertubeEndpoints::AccountMenu&>(&InnertubeReply::finished), this, [this](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::AccountMenu&>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
     {
+        CredentialsStore::instance()->updateAccount(endpoint);
         HttpReply* photoReply = Http::instance().get(QUrl(endpoint.response.header.accountPhotos[0].url));
         connect(photoReply, &HttpReply::finished, this, [this](const HttpReply& reply)
         {
@@ -115,21 +125,15 @@ void TopBar::signOut()
     avatarButton->setVisible(false);
     signInButton->setVisible(true);
     emit signInStatusChanged();
-    QSettings(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat).clear();
+    QSettings(CredentialsStore::configPath, QSettings::IniFormat).clear();
 }
 
 void TopBar::trySignIn()
 {
-    if (InnerTube::instance().hasAuthenticated())
-        return;
-
 #ifndef INNERTUBE_NO_WEBENGINE
     InnerTube::instance().authenticate();
     if (!InnerTube::instance().hasAuthenticated())
         return;
-
-    QSettings store(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat);
-    InnerTube::instance().authStore()->writeToSettings(store);
 #else
     QMessageBox::StandardButton box = QMessageBox::information(nullptr, "YouTube Login",
 R"(
@@ -140,8 +144,11 @@ For info on how to do this, see https://github.com/BowDown097/innertube-qt/wiki/
     if (box != QMessageBox::StandardButton::Ok)
         return;
 
-    QSettings store(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat);
-    InnerTube::instance().authenticateFromSettings(store);
+    int index = CredentialsStore::instance()->getActiveLoginIndex();
+    if (index == -1)
+        index = 0;
+
+    CredentialsStore::instance()->populateAuthStore(index);
     if (!InnerTube::instance().hasAuthenticated())
     {
         QMessageBox::information(nullptr, "Not Logged In",
@@ -151,22 +158,15 @@ If you provided credentials, please check them, refer back to the previous linke
 )");
         return;
     }
-
-    SettingsStore::instance().saveToSettingsFile();
 #endif
 
-    avatarButton->setVisible(true);
-    signInButton->setVisible(false);
-    setUpAvatarButton();
-    setUpNotifications();
-
-    emit signInStatusChanged();
+    postSignInSetup();
 }
 
 void TopBar::updateNotificationCount()
 {
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>();
-    connect(reply, qOverload<const InnertubeEndpoints::UnseenCount&>(&InnertubeReply::finished), this, [this](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::UnseenCount&>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::UnseenCount& endpoint)
     {
         notificationBell->updatePixmap(endpoint.unseenCount > 0, palette());
         notificationBell->setVisible(true);

@@ -33,11 +33,8 @@ AccountMenuWidget::AccountMenuWidget(QWidget* parent)
     layout->addStretch();
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(signOutLabel, &IconLabel::clicked, this, [this] {
-        setVisible(false);
-        MainWindow::topbar()->signOut();
-        deleteLater();
-    });
+    connect(switchAccountsLabel, &IconLabel::clicked, this, &AccountMenuWidget::accountSwitcherRequested);
+    connect(signOutLabel, &IconLabel::clicked, this, &AccountMenuWidget::triggerSignOut);
 }
 
 void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoint)
@@ -48,20 +45,20 @@ void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoi
     HttpReply* avatarReply = Http::instance().get(QUrl(endpoint.response.header.accountPhotos[0].url));
     connect(avatarReply, &HttpReply::finished, this, &AccountMenuWidget::setAvatar);
 
-    QList<InnertubeObjects::CompactLink>::const_iterator iter = std::ranges::find_if(endpoint.response.sections[0], [](const auto& link) {
-        return link.iconType == "ACCOUNT_BOX";
-    });
+    const QList<InnertubeObjects::CompactLink>& section = endpoint.response.sections[0];
+    auto iter = std::ranges::find_if(section, [](const InnertubeObjects::CompactLink& link) { return link.iconType == "ACCOUNT_BOX"; });
 
     if (iter != endpoint.response.sections[0].end())
     {
-        const InnertubeObjects::CompactLink& link = *iter;
-        const QString channelId = link.navigationEndpoint["browseEndpoint"]["browseId"].toString();
+        const QString channelId = iter->navigationEndpoint["browseEndpoint"]["browseId"].toString();
         connect(yourChannelLabel, &IconLabel::clicked, this, [this, channelId] {
             setVisible(false);
             ViewController::loadChannel(channelId);
-            deleteLater();
+            emit closeRequested();
         });
     }
+
+    emit finishedInitializing();
 }
 
 void AccountMenuWidget::setAvatar(const HttpReply& reply)
@@ -69,4 +66,11 @@ void AccountMenuWidget::setAvatar(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     avatar->setPixmap(pixmap.scaled(avatar->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+}
+
+void AccountMenuWidget::triggerSignOut()
+{
+    setVisible(false);
+    MainWindow::topbar()->signOut();
+    emit closeRequested();
 }

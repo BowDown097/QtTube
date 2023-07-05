@@ -152,9 +152,8 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
             senderLabel->setText(QLocale::system().toString(count + 1));
 
         const QJsonArray defaultCommands = toggleButton.defaultServiceEndpoint["commandExecutorCommand"]["commands"].toArray();
-        QJsonArray::const_iterator defaultCommandIt = std::ranges::find_if(defaultCommands, [](const QJsonValue& v)
-                                                                           { return v.toObject().contains("commandMetadata"); });
-        if (defaultCommandIt == defaultCommands.cend())
+        auto defaultCommandIt = std::ranges::find_if(defaultCommands, [](const QJsonValue& v) { return v["commandMetadata"].isObject(); });
+        if (defaultCommandIt == defaultCommands.end())
             return;
 
         const QJsonValue& defaultCommand = *defaultCommandIt;

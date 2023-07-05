@@ -28,7 +28,8 @@ class SettingsStore : public QObject
     Q_PROPERTY(bool watchtimeTracking MEMBER watchtimeTracking NOTIFY watchtimeTrackingChanged)
 public:
     // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
-    static inline const QDir configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "QtTube";
+    static inline const QString configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "QtTube"
+                                            + QDir::separator() + "settings.ini";
 
     enum class PlayerQuality { Auto, HighRes, HD2160, HD1440, HD1080, HD720, Large, Medium, Small, Tiny };
     Q_ENUM(PlayerQuality)

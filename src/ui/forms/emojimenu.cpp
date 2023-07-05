@@ -37,7 +37,7 @@ EmojiMenu::EmojiMenu(QWidget *parent) : QWidget(parent), ui(new Ui::EmojiMenu)
         connect(reply, &HttpReply::finished, this, [this, emoji](const HttpReply& reply) { setEmojiIcon(reply, emoji); });
     }
 
-    for (QMap<QString, QString>::const_iterator i = ytemoji::BUILTIN_EMOJIS.cbegin(); i != ytemoji::BUILTIN_EMOJIS.cend(); ++i)
+    for (QMap<QString, QString>::const_iterator i = ytemoji::BUILTIN_EMOJIS.begin(); i != ytemoji::BUILTIN_EMOJIS.end(); ++i)
     {
         QString codepointHex = QString::number(codepoint(i.value().toStdString()), 16);
 

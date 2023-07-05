@@ -57,6 +57,7 @@ endif()
 # Source files
 set(SOURCE_FILES
     src/main.cpp
+    src/credentialsstore.cpp
     src/osutilities.cpp
     src/qttubeapplication.cpp
     src/settingsstore.cpp
@@ -73,9 +74,12 @@ set(SOURCE_FILES
     src/ui/views/watchview.cpp
     src/ui/views/watchview_ui.cpp
     src/ui/views/watchviewplayer.cpp
-    src/ui/widgets/accountmenuwidget.cpp
     src/ui/widgets/findbar.cpp
     src/ui/widgets/flowlayout.cpp
+    src/ui/widgets/accountmenu/accountcontrollerwidget.cpp
+    src/ui/widgets/accountmenu/accountentrywidget.cpp
+    src/ui/widgets/accountmenu/accountmenuwidget.cpp
+    src/ui/widgets/accountmenu/accountswitcherwidget.cpp
     src/ui/widgets/labels/channellabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
@@ -91,6 +95,7 @@ set(SOURCE_FILES
 )
 
 set(HEADERS
+    src/credentialsstore.h
     src/osutilities.h
     src/qttubeapplication.h
     src/settingsstore.h
@@ -109,9 +114,12 @@ set(HEADERS
     src/ui/views/watchview.h
     src/ui/views/watchview_ui.h
     src/ui/views/watchviewplayer.h
-    src/ui/widgets/accountmenuwidget.h
     src/ui/widgets/findbar.h
     src/ui/widgets/flowlayout.h
+    src/ui/widgets/accountmenu/accountcontrollerwidget.h
+    src/ui/widgets/accountmenu/accountentrywidget.h
+    src/ui/widgets/accountmenu/accountmenuwidget.h
+    src/ui/widgets/accountmenu/accountswitcherwidget.h
     src/ui/widgets/labels/channellabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h

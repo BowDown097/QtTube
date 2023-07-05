@@ -8,6 +8,7 @@
 
 class AccountMenuWidget : public QWidget
 {
+    Q_OBJECT
 public:
     explicit AccountMenuWidget(QWidget* parent = nullptr);
 public slots:
@@ -24,6 +25,11 @@ private:
     IconLabel* yourChannelLabel;
 private slots:
     void setAvatar(const HttpReply& reply);
+    void triggerSignOut();
+signals:
+    void accountSwitcherRequested();
+    void closeRequested();
+    void finishedInitializing();
 };
 
 #endif // ACCOUNTMENUWIDGET_H

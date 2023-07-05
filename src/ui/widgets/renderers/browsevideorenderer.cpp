@@ -51,7 +51,7 @@ void BrowseVideoRenderer::copyDirectUrl()
     {
         QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
     });
-    connect(reply, qOverload<const InnertubeEndpoints::Player&>(&InnertubeReply::finished), this, [this](const auto& endpoint)
+    connect(reply, qOverload<const InnertubeEndpoints::Player&>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::Player& endpoint)
     {
         if (endpoint.response.videoDetails.isLive || endpoint.response.videoDetails.isLiveContent)
         {
@@ -59,18 +59,18 @@ void BrowseVideoRenderer::copyDirectUrl()
         }
         else
         {
-            QList<InnertubeObjects::StreamingFormat>::const_iterator best = std::ranges::max_element(
+            auto best = std::ranges::max_element(
                 endpoint.response.streamingData.formats,
-                [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; }
+                [](const InnertubeObjects::StreamingFormat& a, const InnertubeObjects::StreamingFormat& b) { return a.bitrate < b.bitrate; }
             );
 
-            if (best == endpoint.response.streamingData.formats.cend())
+            if (best == endpoint.response.streamingData.formats.end())
             {
                 QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
                 return;
             }
 
-            UIUtilities::copyToClipboard((*best).url);
+            UIUtilities::copyToClipboard(best->url);
         }
     });
 }

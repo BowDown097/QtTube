@@ -243,7 +243,7 @@ void UIUtilities::setTabsEnabled(QTabWidget* widget, bool enabled, std::initiali
 
 void UIUtilities::setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest)
 {
-    QJsonArray::const_iterator thumbsBegin = getBest
+    auto thumbsBegin = getBest
         ? std::ranges::max_element(thumbsArr, [](const QJsonValue& a, const QJsonValue& b) { return a["height"].toInt() < b["height"].toInt(); })
         : thumbsArr.begin();
     if (thumbsBegin == thumbsArr.end())

@@ -9,7 +9,7 @@ SettingsStore* SettingsStore::instance()
 
 void SettingsStore::initializeFromSettingsFile()
 {
-    QSettings settings(configPath.filePath("settings.ini"), QSettings::IniFormat);
+    QSettings settings(configPath, QSettings::IniFormat);
 
     appStyle = settings.value("appStyle", "Default").toString();
     condensedViews = settings.value("condensedViews", false).toBool();
@@ -43,7 +43,7 @@ void SettingsStore::initializeFromSettingsFile()
 
 void SettingsStore::saveToSettingsFile()
 {
-    QSettings settings(configPath.filePath("settings.ini"), QSettings::IniFormat);
+    QSettings settings(configPath, QSettings::IniFormat);
 
     settings.setValue("appStyle", appStyle);
     settings.setValue("condensedViews", condensedViews);

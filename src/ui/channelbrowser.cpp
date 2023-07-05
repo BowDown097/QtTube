@@ -163,8 +163,7 @@ void ChannelBrowser::setupLive(QListWidget* channelTab, const QJsonValue& tabRen
 void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& tabRenderer)
 {
     const QJsonArray slr = tabRenderer["content"]["sectionListRenderer"]["contents"].toArray();
-    QJsonArray::const_iterator perksIter = std::ranges::find_if(slr, [](const QJsonValue& v)
-                                                                { return v["sponsorshipsExpandablePerksRenderer"].isObject(); });
+    auto perksIter = std::ranges::find_if(slr, [](const QJsonValue& v) { return v["sponsorshipsExpandablePerksRenderer"].isObject(); });
 
     if (perksIter != slr.end())
     {
@@ -282,7 +281,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         });
     }
 
-    QJsonArray::const_iterator itemSectionIter = std::ranges::find_if(slr, [](const QJsonValue& v) { return v["itemSectionRenderer"].isObject(); });
+    auto itemSectionIter = std::ranges::find_if(slr, [](const QJsonValue& v) { return v["itemSectionRenderer"].isObject(); });
     if (itemSectionIter == slr.end())
         return;
 

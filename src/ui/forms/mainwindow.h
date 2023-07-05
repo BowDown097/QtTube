@@ -1,6 +1,5 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include "ui/widgets/accountmenuwidget.h"
 #include "ui/widgets/findbar.h"
 #include "ui/widgets/topbar/topbar.h"
 #include <QCommandLineParser>

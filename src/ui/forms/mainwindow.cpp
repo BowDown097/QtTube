@@ -1,11 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "credentialsstore.h"
 #include "innertube.h"
 #include "settingsstore.h"
 #include "ui/browsehelper.h"
 #include "ui/views/channelview.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/views/watchview.h"
+#include "ui/widgets/accountmenu/accountcontrollerwidget.h"
 #include "ui/uiutilities.h"
 #include <QComboBox>
 #include <QScrollBar>
@@ -76,6 +78,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     });
     addAction(reloadShortcut);
 
+    CredentialsStore::instance()->initializeFromStoreFile();
     SettingsStore::instance()->initializeFromSettingsFile();
     UIUtilities::defaultStyle = qApp->style()->objectName();
     UIUtilities::setAppStyle(SettingsStore::instance()->appStyle, SettingsStore::instance()->darkTheme);
@@ -154,8 +157,8 @@ void MainWindow::resizeEvent(QResizeEvent* event)
     m_topbar->scaleAppropriately();
     notificationMenu->move(m_topbar->notificationBell->x() - notificationMenu->width() + 20, 34);
 
-    if (AccountMenuWidget* accountMenu = findChild<AccountMenuWidget*>("accountMenu"))
-        accountMenu->move(m_topbar->avatarButton->x() - accountMenu->width() + 20, 35);
+    if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>("accountController"))
+        accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
 }
 
 void MainWindow::returnFromSearch()
@@ -267,24 +270,28 @@ void MainWindow::searchWatchHistory()
 
 void MainWindow::showAccountMenu()
 {
-    if (AccountMenuWidget* accountMenu = findChild<AccountMenuWidget*>("accountMenu"))
+    if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>("accountController"))
     {
         if (ui->centralwidget->currentIndex() != 0)
             m_topbar->alwaysShow = false;
-        accountMenu->deleteLater();
+        accountController->deleteLater();
         return;
     }
 
     m_topbar->alwaysShow = true;
 
-    AccountMenuWidget* accountMenu = new AccountMenuWidget(this);
-    accountMenu->setObjectName("accountMenu");
-    accountMenu->show();
-    accountMenu->raise();
-    accountMenu->move(m_topbar->avatarButton->x() - accountMenu->width() + 20, 35);
+    AccountControllerWidget* accountController = new AccountControllerWidget(this);
+    accountController->setObjectName("accountController");
+    accountController->show();
+    accountController->raise();
+    accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
+    connect(accountController, &AccountControllerWidget::resized, this, [this, accountController] {
+        accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
+    });
 
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
-    connect(reply, qOverload<const InnertubeEndpoints::AccountMenu&>(&InnertubeReply::finished), accountMenu, &AccountMenuWidget::initialize);
+    connect(reply, qOverload<const InnertubeEndpoints::AccountMenu&>(&InnertubeReply::finished), accountController->accountMenu,
+            &AccountMenuWidget::initialize);
 }
 
 void MainWindow::showNotifications()
@@ -305,8 +312,7 @@ void MainWindow::showNotifications()
 
 void MainWindow::tryRestoreData()
 {
-    QSettings store(SettingsStore::configPath.filePath("store.ini"), QSettings::IniFormat);
-    InnerTube::instance().authenticateFromSettings(store);
+    CredentialsStore::instance()->populateAuthStore(CredentialsStore::instance()->getActiveLoginIndex());
     if (InnerTube::instance().hasAuthenticated())
     {
         m_topbar->avatarButton->setVisible(true);

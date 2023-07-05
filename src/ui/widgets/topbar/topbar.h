@@ -18,7 +18,9 @@ public:
     QLineEdit* searchBox;
     TubeLabel* settingsButton;
     QPushButton* signInButton;
+
     explicit TopBar(QWidget* parent);
+    void postSignInSetup();
     void scaleAppropriately();
     void updatePalette(const QPalette& palette);
 public slots:
