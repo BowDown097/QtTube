@@ -65,17 +65,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     QAction* reloadShortcut = new QAction(this);
     reloadShortcut->setAutoRepeat(false);
     reloadShortcut->setShortcuts(QList<QKeySequence>() << Qt::Key_F5 << (Qt::ControlModifier | Qt::Key_R));
-    connect(reloadShortcut, &QAction::triggered, this, [this] {
-        if (ui->centralwidget->currentIndex() != 0 || !ui->tabWidget->isTabEnabled(ui->tabWidget->currentIndex()))
-            return;
-
-        if (ui->tabWidget->currentIndex() <= 3)
-            browse();
-        else if (ui->tabWidget->currentIndex() == 4)
-            performFilteredSearch();
-        else if (ui->tabWidget->currentIndex() == 5)
-            searchWatchHistory();
-    });
+    connect(reloadShortcut, &QAction::triggered, this, &MainWindow::reloadCurrentTab);
     addAction(reloadShortcut);
 
     CredentialsStore::instance()->initializeFromStoreFile();
@@ -147,6 +137,19 @@ void MainWindow::performFilteredSearch()
     int featIndex = qobject_cast<QComboBox*>(ui->additionalWidgets->itemAt(4)->widget())->currentIndex();
     int sortIndex = qobject_cast<QComboBox*>(ui->additionalWidgets->itemAt(5)->widget())->currentIndex();
     BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateIndex, typeIndex, durIndex, featIndex, sortIndex);
+}
+
+void MainWindow::reloadCurrentTab()
+{
+    if (ui->centralwidget->currentIndex() != 0 || !ui->tabWidget->isTabEnabled(ui->tabWidget->currentIndex()))
+        return;
+
+    if (ui->tabWidget->currentIndex() <= 3)
+        browse();
+    else if (ui->tabWidget->currentIndex() == 4)
+        performFilteredSearch();
+    else if (ui->tabWidget->currentIndex() == 5)
+        searchWatchHistory();
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)

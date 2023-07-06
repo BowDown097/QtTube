@@ -35,6 +35,7 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 private slots:
     void performFilteredSearch();
+    void reloadCurrentTab();
     void returnFromSearch();
     void returnFromWatchHistorySearch();
     void search();

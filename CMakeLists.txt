@@ -171,7 +171,7 @@ target_compile_definitions(QtTube PRIVATE
 
 # Include directories, libraries
 target_include_directories(QtTube PRIVATE src lib/http/src lib/innertube-qt/src)
-target_link_libraries(QtTube PRIVATE cpr::cpr http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Widgets)
+target_link_libraries(QtTube PRIVATE http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Widgets)
 
 ## Optional
 if(QTTUBE_USEMPV)

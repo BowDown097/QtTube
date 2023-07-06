@@ -99,7 +99,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
             continue;
 
         QJsonValue item = v["addChatItemAction"]["item"];
-        if (item["liveChatTextMessageRenderer"].isObject())
+        if (item["liveChatTextMessageRenderer"].isObject()) [[likely]]
         {
             QJsonValue liveChatTextMessage = item["liveChatTextMessageRenderer"];
 
