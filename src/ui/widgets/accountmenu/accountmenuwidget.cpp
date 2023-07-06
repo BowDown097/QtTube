@@ -22,12 +22,12 @@ AccountMenuWidget::AccountMenuWidget(QWidget* parent)
 
     accountLayout->addWidget(accountNameLabel);
     accountLayout->addWidget(handleLabel);
-    accountLayout->addWidget(switchAccountsLabel);
 
     headerLayout->addWidget(avatar);
     headerLayout->addLayout(accountLayout, 1);
 
     layout->addLayout(headerLayout);
+    layout->addWidget(switchAccountsLabel);
     layout->addWidget(yourChannelLabel);
     layout->addWidget(signOutLabel);
     layout->addStretch();
@@ -58,6 +58,7 @@ void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoi
         });
     }
 
+    adjustSize();
     emit finishedInitializing();
 }
 
