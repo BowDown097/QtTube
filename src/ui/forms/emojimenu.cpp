@@ -37,9 +37,17 @@ EmojiMenu::EmojiMenu(QWidget *parent) : QWidget(parent), ui(new Ui::EmojiMenu)
         connect(reply, &HttpReply::finished, this, [this, emoji](const HttpReply& reply) { setEmojiIcon(reply, emoji); });
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0) && defined(__cpp_lib_char8_t)
+    for (QMap<QString, std::u8string>::const_iterator i = ytemoji::BUILTIN_EMOJIS.begin(); i != ytemoji::BUILTIN_EMOJIS.end(); ++i)
+#else
     for (QMap<QString, QString>::const_iterator i = ytemoji::BUILTIN_EMOJIS.begin(); i != ytemoji::BUILTIN_EMOJIS.end(); ++i)
+#endif
     {
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0) && defined(__cpp_lib_char8_t)
+        QString codepointHex = QString::number(codepoint(std::string(i.value().begin(), i.value().end())), 16);
+#else
         QString codepointHex = QString::number(codepoint(i.value().toStdString()), 16);
+#endif
 
         TubeLabel* emoji = new TubeLabel(ui->scrollAreaContents);
         emoji->setClickable(true, false);

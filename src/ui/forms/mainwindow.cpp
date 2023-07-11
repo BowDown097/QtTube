@@ -64,7 +64,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
 
     QAction* reloadShortcut = new QAction(this);
     reloadShortcut->setAutoRepeat(false);
-    reloadShortcut->setShortcuts(QList<QKeySequence>() << Qt::Key_F5 << (Qt::ControlModifier | Qt::Key_R));
+    reloadShortcut->setShortcuts(QList<QKeySequence>() << Qt::Key_F5 << QKeySequence(Qt::ControlModifier | Qt::Key_R));
     connect(reloadShortcut, &QAction::triggered, this, &MainWindow::reloadCurrentTab);
     addAction(reloadShortcut);
 

@@ -26,7 +26,7 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     loadScriptFile(":/player/annotationlib/AnnotationParser.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/annotationlib/AnnotationRenderer.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/annotations.js", QWebEngineScript::DocumentReady);
-    loadScriptFile(":/player/global.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/player/global.js", QWebEngineScript::DocumentCreation);
     loadScriptFile(":/player/h264ify.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/integration.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/sponsorblock.js", QWebEngineScript::DocumentReady);

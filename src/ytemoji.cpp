@@ -20,14 +20,22 @@ namespace ytemoji
                 continue;
             }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0) && defined(__cpp_lib_char8_t)
+            QMap<QString, std::u8string>::const_iterator it = BUILTIN_EMOJIS.constFind(s.mid(index, i - index + 1));
+#else
             QMap<QString, QString>::const_iterator it = BUILTIN_EMOJIS.constFind(s.mid(index, i - index + 1));
+#endif
             if (it == BUILTIN_EMOJIS.constEnd())
             {
                 index = i;
                 continue;
             }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0) && defined(__cpp_lib_char8_t)
+            QString emo = QString::fromStdString(std::string(it.value().begin(), it.value().end()));
+#else
             const QString& emo = it.value();
+#endif
             // replace from index to i
             s.replace(index, i - index + 1, emo);
             int goBack = i - index + 1 - emo.size();

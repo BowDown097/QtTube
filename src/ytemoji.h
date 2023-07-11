@@ -14,7 +14,11 @@ namespace ytemoji
             : emojiId(emojiId), emojiName(emojiName), emojiPath(emojiPath) {}
     };
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0) && defined(__cpp_lib_char8_t)
+    static const QMap<QString, std::u8string> BUILTIN_EMOJIS = {
+#else
     static const QMap<QString, QString> BUILTIN_EMOJIS = {
+#endif
         {":admission_tickets:" , u8"\U0001F39F"},
         {":aerial_tramway:" , u8"\U0001F6A1"},
         {":airplane:" , u8"\U00002708"},
@@ -155,7 +159,7 @@ namespace ytemoji
         {":card_index_dividers:" , u8"\U0001F5C2"},
         {":carousel_horse:" , u8"\U0001F3A0"},
         {":flags:" , u8"\U0001F38F"},
-        {":flag_for_sri_lanka:" , "\U0001F1F1\U0001F1F0"},
+        {":flag_for_sri_lanka:" , u8"\U0001F1F1\U0001F1F0"},
         {":flag_for_india:", u8"\U0001F1EE\U0001F1F3"},
         {":cat2:" , u8"\U0001F408"},
         {":cat:" , u8"\U0001F431"},

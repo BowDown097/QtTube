@@ -5,6 +5,12 @@ int main(int argc, char *argv[])
 {
     QApplication::setApplicationName(QTTUBE_APP_NAME);
     QApplication::setApplicationVersion(QTTUBE_VERSION_NAME);
+
+#if QT_VERSION <= QT_VERSION_CHECK(6, 0, 0)
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
+
     QtTubeApplication a(argc, argv);
 
     QCommandLineParser parser;

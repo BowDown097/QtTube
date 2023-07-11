@@ -25,6 +25,7 @@ set(QTTUBE_VERSION_MINOR 0)
 set(QTTUBE_VERSION_NAME "ALPHA")
 
 # Compilation options
+option(QTTUBE_EXTERNAL_OPENSSL "Grab OpenSSL externally when building if it's not installed on Windows." ON)
 option(QTTUBE_USEMPV "Use MPV for the video player." OFF)
 
 # Configure files
@@ -33,11 +34,15 @@ if(WIN32)
 endif()
 
 # Qt packages
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 
 if(QT_VERSION_MAJOR EQUAL 5)
     find_package(Qt5 REQUIRED COMPONENTS Gui Network Widgets)
-    find_package(Qt5 OPTIONAL_COMPONENTS OpenGL WebEngineWidgets X11Extras)
+    if (UNIX AND NOT APPLE)
+        find_package(Qt5 OPTIONAL_COMPONENTS OpenGL WebEngineWidgets X11Extras)
+    else()
+        find_package(Qt5 OPTIONAL_COMPONENTS OpenGL WebEngineWidgets)
+    endif()
 elseif(QT_VERSION_MAJOR EQUAL 6)
     find_package(Qt6 REQUIRED COMPONENTS Gui Network Widgets)
     find_package(Qt6 OPTIONAL_COMPONENTS OpenGLWidgets WebEngineWidgets)
@@ -205,6 +210,60 @@ endif()
 ## Platform-specific
 if(WIN32)
     target_link_libraries(QtTube PRIVATE user32)
+
+    find_package(OpenSSL QUIET)
+    if (OpenSSL_FOUND)
+        target_include_directories(QtTube PRIVATE ${OPENSSL_INCLUDE_DIR})
+        target_link_libraries(QtTube PRIVATE ${OPENSSL_LIBRARIES})
+    elseif(QTTUBE_EXTERNAL_OPENSSL)
+        # https://stackoverflow.com/a/72187679
+        set(OPENSSL_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/openssl-src) # default path by CMake
+        set(OPENSSL_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/openssl)
+        set(OPENSSL_INCLUDE_DIR ${OPENSSL_INSTALL_DIR}/include)
+        set(OPENSSL_CONFIGURE_COMMAND ${OPENSSL_SOURCE_DIR}/Configure)
+
+        file(GLOB SSLGLOB CONFIGURE_DEPENDS ${OPENSSL_INSTALL_DIR}/bin/*.dll)
+        list(LENGTH SSLGLOB OPENSSL_INSTALL_LEN)
+
+        if (OPENSSL_INSTALL_LEN EQUAL 0)
+            message(STATUS "OpenSSL is not installed on the system, will be grabbed externally.")
+            include(ExternalProject)
+
+            ExternalProject_Add(
+              OpenSSL
+              SOURCE_DIR ${OPENSSL_SOURCE_DIR}
+              GIT_REPOSITORY https://github.com/openssl/openssl.git
+              GIT_TAG OpenSSL_1_1_1n
+              USES_TERMINAL_DOWNLOAD TRUE
+              CONFIGURE_COMMAND
+                perl ${OPENSSL_CONFIGURE_COMMAND} VC-WIN64A
+                --prefix=${OPENSSL_INSTALL_DIR}
+                --openssldir=${OPENSSL_INSTALL_DIR}
+              BUILD_COMMAND nmake
+              TEST_COMMAND ""
+              INSTALL_COMMAND nmake install
+              INSTALL_DIR ${OPENSSL_INSTALL_DIR}
+              BUILD_BYPRODUCTS ${OPENSSL_INSTALL_DIR}/lib/libssl.lib ${OPENSSL_INSTALL_DIR}/lib/libcrypto.lib
+            )
+        endif()
+
+        # We cannot use find_library because ExternalProject_Add() is performed at build time.
+        # And to please the property INTERFACE_INCLUDE_DIRECTORIES,
+        # we make the include directory in advance.
+        file(MAKE_DIRECTORY ${OPENSSL_INCLUDE_DIR})
+
+        add_library(OpenSSL::SSL STATIC IMPORTED GLOBAL)
+        set_property(TARGET OpenSSL::SSL PROPERTY IMPORTED_LOCATION ${OPENSSL_INSTALL_DIR}/lib/libssl.lib)
+        set_property(TARGET OpenSSL::SSL PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${OPENSSL_INCLUDE_DIR})
+        add_dependencies(OpenSSL::SSL OpenSSL)
+
+        add_library(OpenSSL::Crypto STATIC IMPORTED GLOBAL)
+        set_property(TARGET OpenSSL::Crypto PROPERTY IMPORTED_LOCATION ${OPENSSL_INSTALL_DIR}/lib/libcrypto.lib)
+        set_property(TARGET OpenSSL::Crypto PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${OPENSSL_INCLUDE_DIR})
+        add_dependencies(OpenSSL::Crypto OpenSSL)
+
+        target_link_libraries(QtTube PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+    endif()
 elseif(UNIX AND NOT APPLE)
     find_package(X11)
     if(X11_FOUND AND X11_Xscreensaver_LIB)

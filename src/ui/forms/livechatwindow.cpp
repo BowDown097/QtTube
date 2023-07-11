@@ -183,8 +183,8 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
             QWidget* headerWidget = new QWidget(this);
             headerWidget->setAutoFillBackground(true);
             headerWidget->setStyleSheet(QStringLiteral("background: #%1; color: #%2; border-top: 1px solid transparent; border-top-left-radius: 4px; border-top-right-radius: 4px")
-                                            .arg(QString::number(paidMessage["headerBackgroundColor"].toInteger(), 16),
-                                                 QString::number(paidMessage["headerTextColor"].toInteger(), 16)));
+                                            .arg(QString::number(paidMessage["headerBackgroundColor"].toVariant().toLongLong(), 16),
+                                                 QString::number(paidMessage["headerTextColor"].toVariant().toLongLong(), 16)));
 
             QHBoxLayout* headerLayout = new QHBoxLayout(headerWidget);
             headerLayout->setContentsMargins(5, 0, 0, 0);
@@ -221,8 +221,8 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                 messageLabel->setAutoFillBackground(true);
                 messageLabel->setStyleSheet(
                     QStringLiteral("background: #%1; color: #%2; border-bottom: 1px solid transparent; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px")
-                        .arg(QString::number(paidMessage["bodyBackgroundColor"].toInteger(), 16),
-                             QString::number(paidMessage["bodyTextColor"].toInteger(), 16)));
+                        .arg(QString::number(paidMessage["bodyBackgroundColor"].toVariant().toLongLong(), 16),
+                             QString::number(paidMessage["bodyTextColor"].toVariant().toLongLong(), 16)));
                 messageLabel->setWordWrap(true);
                 messageLayout->addWidget(messageLabel);
             }
