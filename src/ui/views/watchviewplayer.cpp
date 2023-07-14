@@ -9,7 +9,7 @@
 #include <QRandomGenerator>
 #endif
 
-WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize)
+WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QObject(watchView)
 {
 #ifdef USEMPV
     media = new MediaMPV(watchView);
