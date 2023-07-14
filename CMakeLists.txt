@@ -29,6 +29,13 @@ option(QTTUBE_ENABLE_ASAN "Enable AddressSanitizer to detect memory errors in de
 option(QTTUBE_EXTERNAL_OPENSSL "Grab OpenSSL externally when building if it's not installed on Windows." ON)
 option(QTTUBE_USEMPV "Use MPV for the video player." OFF)
 
+# Address sanitizer
+if(CMAKE_BUILD_TYPE MATCHES "Debug" AND QTTUBE_ENABLE_ASAN)
+    message(STATUS "Enabling ASAN")
+    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=address,undefined)
+endif()
+
 # Configure files
 if(WIN32)
     configure_file(program_info/win_install.nsi.in program_info/win_install.nsi @ONLY)
@@ -177,12 +184,6 @@ target_compile_definitions(QtTube PRIVATE
 # Include directories, libraries
 target_include_directories(QtTube PRIVATE src lib/http/src lib/innertube-qt/src)
 target_link_libraries(QtTube PRIVATE http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Widgets)
-
-# Address sanitizer
-if(CMAKE_BUILD_TYPE MATCHES "Debug" AND QTTUBE_ENABLE_ASAN)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fsanitize=undefined -fsanitize=address")
-    target_link_options(QtTube BEFORE PUBLIC -fsanitize=undefined PUBLIC -fsanitize=address)
-endif()
 
 ## Optional
 if(QTTUBE_USEMPV)
