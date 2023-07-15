@@ -101,6 +101,9 @@ set(SOURCE_FILES
     src/ui/widgets/subscribe/notificationbell.cpp
     src/ui/widgets/subscribe/subscribelabel.cpp
     src/ui/widgets/subscribe/subscribewidget.cpp
+    src/ui/widgets/topbar/extmenu.cpp
+    src/ui/widgets/topbar/exttoolbutton.cpp
+    src/ui/widgets/topbar/searchbox.cpp
     src/ui/widgets/topbar/topbar.cpp
     src/ui/widgets/topbar/topbarbell.cpp
     res/resources.qrc
@@ -141,6 +144,9 @@ set(HEADERS
     src/ui/widgets/subscribe/notificationbell.h
     src/ui/widgets/subscribe/subscribelabel.h
     src/ui/widgets/subscribe/subscribewidget.h
+    src/ui/widgets/topbar/extmenu.h
+    src/ui/widgets/topbar/exttoolbutton.h
+    src/ui/widgets/topbar/searchbox.h
     src/ui/widgets/topbar/topbar.h
     src/ui/widgets/topbar/topbarbell.h
 )

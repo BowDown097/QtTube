@@ -38,10 +38,12 @@ private slots:
     void reloadCurrentTab();
     void returnFromSearch();
     void returnFromWatchHistorySearch();
-    void search();
+    void search(const QString& query, SearchBox::SearchType searchType);
     void searchWatchHistory();
 private:
     void browse();
+    void searchByLink(const QString& link);
+    void searchByQuery(const QString& query);
     void tryRestoreData();
 
     static inline QStackedWidget* m_centralWidget;

@@ -32,7 +32,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     connect(m_topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
     connect(m_topbar->avatarButton, &TubeLabel::clicked, this, &MainWindow::showAccountMenu);
     connect(m_topbar->notificationBell, &TopBarBell::clicked, this, &MainWindow::showNotifications);
-    connect(m_topbar->searchBox, &QLineEdit::returnPressed, this, &MainWindow::search);
+    connect(m_topbar->searchBox, &SearchBox::searchRequested, this, &MainWindow::search);
 
     ui->tabWidget->setTabEnabled(4, false);
     ui->tabWidget->setTabEnabled(5, false);
@@ -187,7 +187,61 @@ void MainWindow::returnFromWatchHistorySearch()
     ui->historySearchWidget->clear();
 }
 
-void MainWindow::search()
+void MainWindow::search(const QString& query, SearchBox::SearchType searchType)
+{
+    if (query.isEmpty())
+        return;
+
+    if (searchType == SearchBox::SearchType::ByLink)
+        searchByLink(query);
+    else
+        searchByQuery(query);
+}
+
+void MainWindow::searchByLink(const QString& link)
+{
+    QUrl url(link);
+    QString extractedId;
+
+    if (url.isValid())
+    {
+        QString host = url.host().replace("www.", "");
+        if (host != "youtube.com" && host != "youtu.be")
+        {
+            QMessageBox::critical(this, "Invalid URL", "URL needs to have https:// in front and the host must be youtube.com or youtu.be.");
+            return;
+        }
+
+        if (url.path().startsWith("/@"))
+        {
+            QMessageBox::critical(this, "Not supported", "Channel handles cannot be directly searched yet. You should get a result through normally searching, though.");
+            return;
+        }
+
+        if (url.path() == "/watch")
+            extractedId = QUrlQuery(url).queryItemValue("v");
+        else if (url.path().startsWith("/channel/UC"))
+            extractedId = url.path().replace("/channel/", "");
+        else
+            extractedId = url.path().mid(1);
+    }
+    else if (link.startsWith("@"))
+    {
+        QMessageBox::critical(this, "Not supported", "Channel handles cannot be directly searched yet. You should get a result through normally searching, though.");
+        return;
+    }
+    else
+    {
+        extractedId = link;
+    }
+
+    if (extractedId.startsWith("UC")) // channel IDs always start with "UC"
+        ViewController::loadChannel(extractedId);
+    else // well, hope it's a video
+        ViewController::loadVideo(extractedId);
+}
+
+void MainWindow::searchByQuery(const QString& query)
 {
     m_topbar->alwaysShow = true;
     UIUtilities::clearLayout(ui->additionalWidgets);
@@ -240,7 +294,7 @@ void MainWindow::search()
         ui->tabWidget->setCurrentIndex(4);
     }
 
-    lastSearchQuery = m_topbar->searchBox->text();
+    lastSearchQuery = query;
     BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery);
 
     connect(dateCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, &MainWindow::performFilteredSearch);

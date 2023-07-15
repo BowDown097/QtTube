@@ -20,7 +20,7 @@ TopBar::TopBar(QWidget* parent)
       avatarButton(new TubeLabel(this)),
       logo(new TubeLabel(this)),
       notificationBell(new TopBarBell(this)),
-      searchBox(new QLineEdit(this)),
+      searchBox(new SearchBox(this)),
       settingsButton(new TubeLabel(this)),
       signInButton(new QPushButton(this))
 {
@@ -44,7 +44,6 @@ TopBar::TopBar(QWidget* parent)
 
     searchBox->move(152, 0);
     searchBox->resize(513, 35);
-    searchBox->setPlaceholderText("Search");
 
     settingsButton->move(673, 3);
     settingsButton->resize(30, 30);

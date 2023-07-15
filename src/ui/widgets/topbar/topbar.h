@@ -1,5 +1,6 @@
 #ifndef TOPBAR_H
 #define TOPBAR_H
+#include "searchbox.h"
 #include "topbarbell.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include <QLineEdit>
@@ -15,7 +16,7 @@ public:
     TubeLabel* avatarButton;
     TubeLabel* logo;
     TopBarBell* notificationBell;
-    QLineEdit* searchBox;
+    SearchBox* searchBox;
     TubeLabel* settingsButton;
     QPushButton* signInButton;
 

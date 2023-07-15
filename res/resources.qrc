@@ -25,6 +25,12 @@
         <file>like-toggled.svg</file>
     </qresource>
     <qresource>
+        <file>link.svg</file>
+    </qresource>
+    <qresource>
+        <file>link-light.svg</file>
+    </qresource>
+    <qresource>
         <file>live-chat.svg</file>
     </qresource>
     <qresource>
@@ -98,6 +104,12 @@
     </qresource>
     <qresource>
         <file>qttube-full-light.svg</file>
+    </qresource>
+    <qresource>
+        <file>search.svg</file>
+    </qresource>
+    <qresource>
+        <file>search-light.svg</file>
     </qresource>
     <qresource>
         <file>settings.svg</file>
