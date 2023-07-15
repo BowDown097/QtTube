@@ -18,13 +18,12 @@ struct CredentialSet
     QString username;
     QString visitorInfo;
 
-    bool operator==(const CredentialSet& credSet) const { return credSet.channelId == this->channelId; }
+    friend bool operator==(const CredentialSet& lhs, const CredentialSet& rhs) { return lhs.channelId == rhs.channelId; }
 };
 
 class CredentialsStore : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(CredentialsStore)
 public:
     // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
     static inline const QString configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "QtTube"

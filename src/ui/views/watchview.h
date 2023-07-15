@@ -16,7 +16,6 @@ namespace Ui
 class WatchView : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(WatchView)
 public:
     explicit WatchView(const QString& videoId, int progress = 0, QWidget* parent = nullptr);
     ~WatchView();

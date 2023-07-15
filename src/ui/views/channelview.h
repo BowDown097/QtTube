@@ -9,7 +9,6 @@
 class ChannelView : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ChannelView)
 public:
     explicit ChannelView(const QString& channelId);
     ~ChannelView();

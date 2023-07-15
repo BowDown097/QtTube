@@ -7,7 +7,6 @@
 class SettingsStore : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SettingsStore)
 
     Q_PROPERTY(QString appStyle MEMBER appStyle NOTIFY appStyleChanged)
     Q_PROPERTY(bool condensedViews MEMBER condensedViews NOTIFY condensedViewsChanged)

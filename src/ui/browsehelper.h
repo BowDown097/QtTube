@@ -13,7 +13,6 @@
 class BrowseHelper : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(BrowseHelper)
 public:
     static BrowseHelper* instance();
     explicit BrowseHelper(QObject* parent = nullptr) : QObject(parent) {}
