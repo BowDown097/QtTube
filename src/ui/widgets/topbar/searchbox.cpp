@@ -22,11 +22,13 @@ SearchBox::SearchBox(QWidget* parent)
     connect(searchTypeMenu, &ExtMenu::switchActionRequested, searchButton, &QToolButton::setDefaultAction);
 
     searchButton->setDefaultAction(searchTypeActionQuery);
-    searchButton->setFixedSize(28, 28);
+    searchButton->setFixedSize(35, 35);
+    searchButton->setIconSize(QSize(20, 20));
     searchButton->setMenu(searchTypeMenu);
     searchButton->setPopupMode(QToolButton::DelayedPopup);
     searchButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
+    searchForm->setClearButtonEnabled(true);
     searchForm->setFixedHeight(35);
     searchForm->setPlaceholderText("Search");
     connect(searchForm, &QLineEdit::returnPressed, this, [this] {
