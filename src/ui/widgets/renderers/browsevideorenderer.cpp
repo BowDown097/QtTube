@@ -1,8 +1,6 @@
 #include "browsevideorenderer.h"
 #include "innertube.h"
-#include "ui/forms/mainwindow.h"
 #include "ui/uiutilities.h"
-#include "ui/views/channelview.h"
 #include "ui/views/viewcontroller.h"
 #include <QApplication>
 #include <QMenu>
@@ -87,8 +85,6 @@ void BrowseVideoRenderer::navigateChannel()
 
 void BrowseVideoRenderer::navigateVideo()
 {
-    if (ChannelView* channelView = qobject_cast<ChannelView*>(MainWindow::centralWidget()->currentWidget()))
-        channelView->deleteLater();
     ViewController::loadVideo(videoId, progress);
 }
 

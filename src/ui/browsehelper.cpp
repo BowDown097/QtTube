@@ -171,6 +171,7 @@ void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& chan
     for (const InnertubeObjects::Channel& channel : channels)
     {
         UIUtilities::addChannelRendererToList(widget, channel);
+        QCoreApplication::processEvents();
     }
 }
 
@@ -187,6 +188,8 @@ void BrowseHelper::setupNotificationList(const QList<InnertubeObjects::Notificat
 
         HttpReply* thumbReply = Http::instance().get("https://i.ytimg.com/vi/" + n.videoId + "/mqdefault.jpg");
         connect(thumbReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setThumbnail);
+
+        QCoreApplication::processEvents();
     }
 }
 
@@ -202,5 +205,6 @@ void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, 
         }
 
         UIUtilities::addVideoRendererToList(widget, video);
+        QCoreApplication::processEvents();
     }
 }

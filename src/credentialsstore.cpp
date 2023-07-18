@@ -118,7 +118,7 @@ void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& acco
         }
     }
 
-    InnertubeAuthStore* authStore = InnerTube::instance().authStore();
+    const InnertubeAuthStore* authStore = InnerTube::instance().authStore();
     credentials.append(CredentialSet {
         .active = true,
         .apisid = authStore->apisid,

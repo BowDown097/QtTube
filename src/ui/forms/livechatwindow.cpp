@@ -274,6 +274,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
         currentContinuation = continuations[0]["invalidationContinuationData"]["continuation"].toString();
 
     timerRunning = false;
+    emit getLiveChatFinished();
 }
 
 void LiveChatWindow::sendMessage()
@@ -313,6 +314,11 @@ void LiveChatWindow::showEmojiMenu()
 
 LiveChatWindow::~LiveChatWindow()
 {
+    // avoid UAF when closing (is there a not jank way to do this?)
+    QEventLoop loop;
+    connect(this, &LiveChatWindow::getLiveChatFinished, &loop, &QEventLoop::quit);
+    loop.exec();
+
     messagesTimer->deleteLater();
     delete ui;
 }

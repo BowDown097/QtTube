@@ -33,6 +33,8 @@ private slots:
     void sendMessage();
     void setAuthorIcon(const HttpReply& reply, QLabel* iconLabel);
     void showEmojiMenu();
+signals:
+    void getLiveChatFinished();
 };
 
 #endif // LIVECHATWINDOW_H

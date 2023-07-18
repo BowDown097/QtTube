@@ -55,6 +55,10 @@ void ViewController::loadVideo(const QString& videoId, int progress)
         casted->hotLoadVideo(videoId, progress);
         return;
     }
+    else if (ChannelView* channelView = qobject_cast<ChannelView*>(MainWindow::centralWidget()->currentWidget()))
+    {
+        channelView->deleteLater();
+    }
 
     WatchView* watchView = new WatchView(videoId, progress);
     MainWindow::centralWidget()->addWidget(watchView);
