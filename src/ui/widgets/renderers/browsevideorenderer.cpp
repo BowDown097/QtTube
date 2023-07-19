@@ -1,5 +1,6 @@
 #include "browsevideorenderer.h"
 #include "innertube.h"
+#include "settingsstore.h"
 #include "ui/uiutilities.h"
 #include "ui/views/viewcontroller.h"
 #include <QApplication>
@@ -88,10 +89,41 @@ void BrowseVideoRenderer::navigateVideo()
     ViewController::loadVideo(videoId, progress);
 }
 
-void BrowseVideoRenderer::setChannelData(const InnertubeObjects::VideoOwner& owner)
+void BrowseVideoRenderer::setData(const InnertubeObjects::Reel& reel)
 {
-    channelId = owner.id;
-    channelLabel->setInfo(owner.name, owner.badges);
+    channelId = reel.owner.id;
+    videoId = reel.videoId;
+
+    QString title = QString(reel.headline).replace("\r\n", " ");
+
+    channelLabel->setInfo(reel.owner.name, reel.owner.badges);
+    metadataLabel->setText("SHORTS • " + reel.viewCountText.text);
+    titleLabel->setText(title);
+    titleLabel->setToolTip(title);
+}
+
+void BrowseVideoRenderer::setData(const InnertubeObjects::Video& video)
+{
+    channelId = video.owner.id;
+    progress = video.navigationEndpoint["watchEndpoint"]["startTimeSeconds"].toInt();
+    videoId = video.videoId;
+
+    QString progStr = QStringLiteral("%1 watched")
+        .arg(QDateTime::fromSecsSinceEpoch(progress, Qt::UTC).toString(progress >= 3600 ? "h:mm:ss" : "m:ss"));
+    QString title = QString(video.title.text).replace("\r\n", " ");
+
+    QStringList metadataList {
+        video.lengthText.text,
+        video.publishedTimeText.text,
+        SettingsStore::instance()->condensedViews ? video.shortViewCountText.text : video.viewCountText.text
+    };
+    if (progress != 0) metadataList.append(progStr);
+    metadataList.removeAll({});
+
+    channelLabel->setInfo(video.owner.name, video.owner.badges);
+    metadataLabel->setText(metadataList.join(" • "));
+    titleLabel->setText(title);
+    titleLabel->setToolTip(title);
 }
 
 void BrowseVideoRenderer::setThumbnail(const HttpReply& reply)
@@ -100,26 +132,6 @@ void BrowseVideoRenderer::setThumbnail(const HttpReply& reply)
     pixmap.loadFromData(reply.body());
     thumbLabel->setPixmap(pixmap.scaled(240, thumbLabel->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     UIUtilities::elide(titleLabel, targetElisionWidth);
-}
-
-void BrowseVideoRenderer::setVideoData(const QString& length, const QString& publishedTime, int progress, QString title,
-                                       const QString& videoId, const QString& viewCount)
-{
-    this->progress = progress;
-    this->videoId = videoId;
-    title.replace("\r\n", " ");
-
-    QString progStr = QStringLiteral("%1 watched")
-            .arg(QDateTime::fromSecsSinceEpoch(progress, Qt::UTC)
-            .toString(progress >= 3600 ? "h:mm:ss" : "m:ss"));
-
-    QStringList list({length, publishedTime, viewCount});
-    if (progress != 0) list.append(progStr);
-    list.removeAll({});
-
-    metadataLabel->setText(list.join(" • "));
-    titleLabel->setText(title);
-    titleLabel->setToolTip(title);
 }
 
 void BrowseVideoRenderer::showChannelContextMenu(const QPoint& pos)

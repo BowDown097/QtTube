@@ -1,6 +1,5 @@
 #include "uiutilities.h"
 #include "http.h"
-#include "settingsstore.h"
 #include "ui/forms/mainwindow.h"
 #include "widgets/labels/tubelabel.h"
 #include "widgets/renderers/browsechannelrenderer.h"
@@ -78,9 +77,8 @@ void UIUtilities::addShelfTitleToList(QListWidget* list, const QString& title)
 void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
 {
     BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
-    renderer->setChannelData(reel.owner);
+    renderer->setData(reel);
     renderer->setTargetElisionWidth(list->width() - 240);
-    renderer->setVideoData("SHORTS", "", 0, reel.headline, reel.videoId, reel.viewCountText.text);
     addWidgetToList(list, renderer);
 
     HttpReply* reply = Http::instance().get(reel.thumbnails[0].url);
@@ -90,10 +88,8 @@ void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjec
 void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
 {
     BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
-    renderer->setChannelData(video.owner);
+    renderer->setData(video);
     renderer->setTargetElisionWidth(list->width() - 240);
-    renderer->setVideoData(video.lengthText.text, video.publishedTimeText.text, video.startTimeSeconds, video.title.text,
-                           video.videoId, SettingsStore::instance()->condensedViews ? video.shortViewCountText.text : video.viewCountText.text);
     addWidgetToList(list, renderer);
 
     HttpReply* reply = Http::instance().get(video.thumbnail.mqdefault);

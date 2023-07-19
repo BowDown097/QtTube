@@ -73,7 +73,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     UIUtilities::defaultStyle = qApp->style()->objectName();
     UIUtilities::setAppStyle(SettingsStore::instance()->appStyle, SettingsStore::instance()->darkTheme);
 
-    InnerTube::instance().createContext(InnertubeClient("WEB", "2.20220826.01.00", "DESKTOP"));
+    InnerTube::instance().createContext(InnertubeClient("WEB", "2.20230718.01.00", "DESKTOP"));
     tryRestoreData();
 
     if (parser.isSet("channel"))
