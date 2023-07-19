@@ -11,6 +11,7 @@ class SearchBox : public QWidget
 public:
     enum class SearchType { ByQuery, ByLink };
     explicit SearchBox(QWidget* parent = nullptr);
+    void updatePalette(const QPalette& pal);
 signals:
     void searchRequested(const QString& query, SearchBox::SearchType searchType);
 private:

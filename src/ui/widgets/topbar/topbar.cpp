@@ -178,6 +178,7 @@ void TopBar::updatePalette(const QPalette& palette)
 {
     setPalette(palette);
     logo->setPixmap(UIUtilities::pixmapThemed("qttube-full", true, logo->size(), palette));
-    settingsButton->setPixmap(UIUtilities::pixmapThemed("settings", false, QSize(), palette));
     notificationBell->updatePixmap(notificationBell->count->isVisible(), palette);
+    searchBox->updatePalette(palette);
+    settingsButton->setPixmap(UIUtilities::pixmapThemed("settings", false, QSize(), palette));
 }

@@ -41,3 +41,10 @@ SearchBox::SearchBox(QWidget* parent)
     layout->addWidget(searchForm);
     layout->addWidget(searchButton);
 }
+
+void SearchBox::updatePalette(const QPalette& pal)
+{
+    setPalette(pal);
+    searchTypeActionLink->setIcon(UIUtilities::iconThemed("link", pal));
+    searchTypeActionQuery->setIcon(UIUtilities::iconThemed("search", pal));
+}
