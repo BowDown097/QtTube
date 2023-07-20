@@ -200,12 +200,16 @@ void MainWindow::search(const QString& query, SearchBox::SearchType searchType)
 
 void MainWindow::searchByLink(const QString& link)
 {
-    QUrl url(link);
     QString extractedId;
 
-    if (url.isValid())
+    static QRegularExpression urlRegex("^https?://[^\\s/$.?#].[^\\s]*$");
+    QRegularExpressionMatch urlMatch = urlRegex.match(link);
+
+    if (urlMatch.hasMatch())
     {
+        QUrl url(link);
         QString host = url.host().replace("www.", "");
+
         if (host != "youtube.com" && host != "youtu.be")
         {
             QMessageBox::critical(this, "Invalid URL", "URL needs to have https:// in front and the host must be youtube.com or youtu.be.");

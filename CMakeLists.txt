@@ -25,9 +25,9 @@ set(QTTUBE_VERSION_MINOR 1)
 set(QTTUBE_VERSION_NAME "${QTTUBE_VERSION_MAJOR}.${QTTUBE_VERSION_MINOR}")
 
 # Compilation options
-option(QTTUBE_ENABLE_ASAN "Enable AddressSanitizer to detect memory errors in debug builds." ON)
+option(QTTUBE_ENABLE_ASAN "Enable AddressSanitizer to detect memory errors in debug builds." OFF)
 option(QTTUBE_EXTERNAL_OPENSSL "Grab OpenSSL externally when building if it's not installed on Windows." ON)
-option(QTTUBE_USEMPV "Use MPV for the video player." OFF)
+option(QTTUBE_USE_MPV "Use MPV for the video player." OFF)
 
 # Address sanitizer
 if(CMAKE_BUILD_TYPE MATCHES "Debug" AND QTTUBE_ENABLE_ASAN)
@@ -181,18 +181,22 @@ execute_process(COMMAND git rev-parse --short HEAD OUTPUT_STRIP_TRAILING_WHITESP
 target_compile_definitions(QtTube PRIVATE
     QTTUBE_APP_DESC="${QTTUBE_APP_DESC}"
     QTTUBE_APP_NAME="${QTTUBE_APP_NAME}"
-    QTTUBE_REPO_URL="${QTTUBE_REPO_URL}"
-    QTTUBE_VERSION_NAME="${QTTUBE_VERSION_NAME}"
     QTTUBE_BRANCH="${QTTUBE_BRANCH}"
     QTTUBE_COMMIT_ID="${QTTUBE_COMMIT_ID}"
+    QTTUBE_REPO_URL="${QTTUBE_REPO_URL}"
+    QTTUBE_VERSION_NAME="${QTTUBE_VERSION_NAME}"
 )
+
+if(QTTUBE_USE_MPV)
+    target_compile_definitions(QtTube PRIVATE QTTUBE_USE_MPV)
+endif()
 
 # Include directories, libraries
 target_include_directories(QtTube PRIVATE src lib/http/src lib/innertube-qt/src)
 target_link_libraries(QtTube PRIVATE http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Widgets)
 
 ## Optional
-if(QTTUBE_USEMPV)
+if(QTTUBE_USE_MPV)
     target_sources(QtTube PRIVATE
         lib/media/media.h
         lib/media/mpv/mediampv.cpp lib/media/mpv/mediampv.h
@@ -206,14 +210,9 @@ if(QTTUBE_USEMPV)
         target_link_libraries(QtTube PRIVATE Qt::OpenGL)
     endif()
 
-    find_package(Libmpv)
-    if(Libmpv_FOUND)
-        target_include_directories(QtTube PRIVATE ${Libmpv_INCLUDE_DIRS})
-        target_link_libraries(QtTube PRIVATE ${Libmpv_LIBRARIES})
-        message(STATUS "Found libmpv ${Libmpv_VERSION}")
-    else()
-        message(FATAL_ERROR "Libmpv not found... is it installed?")
-    endif()
+    include(${CMAKE_SOURCE_DIR}/cmake/FindLibMPV.cmake)
+    target_include_directories(QtTube PRIVATE ${LIBMPV_INCLUDE_DIR})
+    target_link_libraries(QtTube PRIVATE ${LIBMPV_LIBRARY})
 else()
     target_sources(QtTube PRIVATE
         src/ui/widgets/webengineplayer/fullscreennotification.cpp src/ui/widgets/webengineplayer/fullscreennotification.h

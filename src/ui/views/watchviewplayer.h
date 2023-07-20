@@ -2,7 +2,7 @@
 #define WATCHVIEWPLAYER_H
 #include "innertube/responses/video/playerresponse.h"
 
-#ifdef USEMPV
+#ifdef QTTUBE_USE_MPV
 #include "lib/media/media.h"
 #include <QTimer>
 #else
@@ -25,7 +25,7 @@ public:
     void stopTracking();
 private:
     QSize m_size;
-#ifndef USEMPV
+#ifndef QTTUBE_USE_MPV
     WebEnginePlayer* wePlayer;
 #else
     Media* media;

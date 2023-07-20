@@ -1,7 +1,7 @@
 #include "watchviewplayer.h"
 #include "innertube.h"
 
-#ifdef USEMPV
+#ifdef QTTUBE_USE_MPV
 #include "http.h"
 #include "lib/media/mpv/mediampv.h"
 #include "settingsstore.h"
@@ -11,10 +11,10 @@
 
 WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QObject(watchView)
 {
-#ifdef USEMPV
+#ifdef QTTUBE_USE_MPV
     media = new MediaMPV(watchView);
     media->init();
-    media->setVolume(SettingsStore::instance().preferredVolume);
+    media->setVolume(SettingsStore::instance()->preferredVolume);
 
     connect(media, &Media::error, this, [](const QString& message) { qWarning() << "Media error:" << message; });
     connect(media, &Media::stateChanged, this, &WatchViewPlayer::mediaStateChanged);
@@ -46,7 +46,7 @@ void WatchViewPlayer::calcAndSetSize(const QSize& maxSize)
 
 void WatchViewPlayer::play(const QString& videoId, int progress)
 {
-#ifdef USEMPV
+#ifdef QTTUBE_USE_MPV
     media->play("https://www.youtube.com/watch?v=" + videoId);
     media->seek(progress);
 #else
@@ -56,7 +56,7 @@ void WatchViewPlayer::play(const QString& videoId, int progress)
 
 void WatchViewPlayer::seek(int progress)
 {
-#ifdef USEMPV
+#ifdef QTTUBE_USE_MPV
     media->seek(progress);
 #else
     wePlayer->seek(progress);
@@ -65,11 +65,11 @@ void WatchViewPlayer::seek(int progress)
 
 void WatchViewPlayer::startTracking(const InnertubeEndpoints::PlayerResponse& playerResp)
 {
-#ifdef USEMPV
-    if (SettingsStore::instance().playbackTracking)
+#ifdef QTTUBE_USE_MPV
+    if (SettingsStore::instance()->playbackTracking)
         reportPlayback(playerResp);
 
-    if (SettingsStore::instance().watchtimeTracking)
+    if (SettingsStore::instance()->watchtimeTracking)
     {
         watchtimeTimer = new QTimer(this);
         watchtimeTimer->setInterval(5000);
@@ -83,7 +83,7 @@ void WatchViewPlayer::startTracking(const InnertubeEndpoints::PlayerResponse& pl
 
 void WatchViewPlayer::stopTracking()
 {
-#ifdef USEMPV
+#ifdef QTTUBE_USE_MPV
     if (watchtimeTimer)
         watchtimeTimer->deleteLater();
 #endif
@@ -91,14 +91,14 @@ void WatchViewPlayer::stopTracking()
 
 QWidget* WatchViewPlayer::widget()
 {
-#ifdef USEMPV
+#ifdef QTTUBE_USE_MPV
     return media->videoWidget();
 #else
     return wePlayer;
 #endif
 }
 
-#ifdef USEMPV
+#ifdef QTTUBE_USE_MPV
 QString WatchViewPlayer::getCpn()
 {
     QString out;
