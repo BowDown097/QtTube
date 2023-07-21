@@ -17,7 +17,6 @@ void SettingsStore::initializeFromSettingsFile()
     fullSubs = settings.value("fullSubs", false).toBool();
     homeShelves = settings.value("homeShelves", false).toBool();
     returnDislikes = settings.value("returnDislikes", true).toBool();
-    themedChannels = settings.value("themedChannels", false).toBool();
 
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
     disablePlayerInfoPanels = settings.value("player/disableInfoPanels", false).toBool();
@@ -51,7 +50,6 @@ void SettingsStore::saveToSettingsFile()
     settings.setValue("fullSubs", fullSubs);
     settings.setValue("homeShelves", homeShelves);
     settings.setValue("returnDislikes", returnDislikes);
-    settings.setValue("themedChannels", themedChannels);
 
     settings.setValue("player/disable60Fps", disable60Fps);
     settings.setValue("player/disableInfoPanels", disablePlayerInfoPanels);

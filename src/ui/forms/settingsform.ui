@@ -85,27 +85,11 @@
         <string>Use full subscriber counts</string>
        </property>
       </widget>
-      <widget class="QCheckBox" name="themedChannels">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>170</y>
-         <width>400</width>
-         <height>32</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Theme channels from banner</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
       <widget class="QLabel" name="appStyleLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>210</y>
+         <y>170</y>
          <width>170</width>
          <height>26</height>
         </rect>
@@ -118,7 +102,7 @@
        <property name="geometry">
         <rect>
          <x>180</x>
-         <y>208</y>
+         <y>168</y>
          <width>135</width>
          <height>34</height>
         </rect>
@@ -133,7 +117,7 @@
        <property name="geometry">
         <rect>
          <x>330</x>
-         <y>210</y>
+         <y>170</y>
          <width>93</width>
          <height>26</height>
         </rect>

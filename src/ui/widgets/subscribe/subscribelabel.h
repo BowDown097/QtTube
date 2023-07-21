@@ -8,7 +8,6 @@ class SubscribeLabel : public QLabel
     Q_OBJECT
 public:
     explicit SubscribeLabel(QWidget* parent = nullptr);
-    void setPreferredPalette(const QPalette& pal);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -21,7 +20,6 @@ protected:
 signals:
     void subscribeStatusChanged(bool subscribed);
 private:
-    QPalette preferredPalette;
     InnertubeObjects::SubscribeButton subscribeButton;
     void toggleSubscriptionStatus(const QString& styleSheet, const QString& newText);
 };

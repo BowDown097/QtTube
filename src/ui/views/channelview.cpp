@@ -1,7 +1,6 @@
 #include "channelview.h"
 #include "http.h"
 #include "innertube.h"
-#include "settingsstore.h"
 #include "ui/browsehelper.h"
 #include "ui/forms/mainwindow.h"
 #include <QApplication>
@@ -9,7 +8,6 @@
 
 ChannelView::~ChannelView()
 {
-    MainWindow::topbar()->updatePalette(qApp->palette().alternateBase().color());
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
 }
 
@@ -90,58 +88,11 @@ void ChannelView::hotLoadChannel(const QString& channelId)
     setTabsAndStyles(channelResp);
 }
 
-// below 2 methods courtesy of https://stackoverflow.com/a/61581999 (with some improvements)
-int ChannelView::getDominant(int arr[256])
-{
-    int max = arr[0];
-    int index = 0;
-    for (int i = 0; i < 256; i++)
-    {
-        if (arr[i] > max)
-        {
-            max = arr[i];
-            index = i;
-        }
-    }
-
-    return index;
-}
-
-ChannelView::Rgb ChannelView::getDominantRgb(const QImage& img)
-{
-    int red[256] = {};
-    int green[256] = {};
-    int blue[256] = {};
-
-    for (int i = 0; i < img.height(); i++)
-    {
-        const QRgb* ct = reinterpret_cast<const QRgb*>(img.scanLine(i));
-        for (int j = 0; j < img.width(); j++)
-        {
-            red[qRed(ct[j])]++;
-            green[qGreen(ct[j])]++;
-            blue[qBlue(ct[j])]++;
-        }
-    }
-
-    return Rgb{getDominant(red), getDominant(green), getDominant(blue)};
-}
-
 void ChannelView::setBanner(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     channelBanner->setPixmap(pixmap.scaled(channelBanner->width(), channelBanner->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-
-    if (SettingsStore::instance()->themedChannels)
-    {
-        Rgb domRgb = getDominantRgb(pixmap.toImage());
-        QPalette domPal(QColor(domRgb.r, domRgb.g, domRgb.b));
-        channelHeaderWidget->setPalette(domPal);
-        channelTabs->tabBar()->setPalette(domPal);
-        subscribeWidget->setPreferredPalette(domPal);
-        MainWindow::topbar()->updatePalette(domPal);
-    }
 }
 
 void ChannelView::setIcon(const HttpReply& reply)

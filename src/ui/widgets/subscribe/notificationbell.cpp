@@ -59,12 +59,6 @@ void NotificationBell::setNotificationPreferenceButton(const InnertubeObjects::N
     setVisualNotificationState(npb.getCurrentState().stateId);
 }
 
-void NotificationBell::setPreferredPalette(const QPalette& pal)
-{
-    setPalette(pal);
-    updateIcons();
-}
-
 void NotificationBell::setVisualNotificationState(int stateId)
 {
     switch (stateId)
@@ -80,20 +74,14 @@ void NotificationBell::setVisualNotificationState(int stateId)
         break;
     }
 
-    updateIcons();
-}
-
-
-void NotificationBell::updateIcons()
-{
-    allAction->setIcon(UIUtilities::iconThemed("notif-bell-all", palette()));
-    noneAction->setIcon(UIUtilities::iconThemed("notif-bell-none", palette()));
-    personalizedAction->setIcon(UIUtilities::iconThemed("notif-bell", palette()));
+    allAction->setIcon(UIUtilities::iconThemed("notif-bell-all"));
+    noneAction->setIcon(UIUtilities::iconThemed("notif-bell-none"));
+    personalizedAction->setIcon(UIUtilities::iconThemed("notif-bell"));
 }
 
 void NotificationBell::updateNotificationState(const QString& iconType)
 {
     const InnertubeObjects::MenuServiceItem& msi = notificationPreferenceButton.getService(iconType);
-    const QString params = msi.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString();
+    QString params = msi.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString();
     InnerTube::instance().get<InnertubeEndpoints::ModifyChannelPreference>(params);
 }

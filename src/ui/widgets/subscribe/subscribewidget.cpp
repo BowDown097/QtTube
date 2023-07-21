@@ -37,13 +37,6 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
     });
 }
 
-void SubscribeWidget::setPreferredPalette(const QPalette& pal)
-{
-    notificationBell->setPreferredPalette(pal);
-    subscribeLabel->setPreferredPalette(pal);
-    subscribersCountLabel->setPalette(pal);
-}
-
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
     bool showBell = subscribeButton.subscribed && !subscribeButton.notificationPreferenceButton.states.isEmpty();

@@ -13,7 +13,6 @@ public:
     NotificationBell* notificationBell;
     SubscribeLabel* subscribeLabel;
     TubeLabel* subscribersCountLabel;
-    void setPreferredPalette(const QPalette& pal);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
     void setSubscriberCount(const QString& subscriberCountText, const QString& channelId);
 private:

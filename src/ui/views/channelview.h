@@ -14,13 +14,6 @@ public:
     ~ChannelView();
     void hotLoadChannel(const QString& channelId);
 private:
-    struct Rgb
-    {
-        int r;
-        int g;
-        int b;
-    };
-
     QLabel* channelBanner;
     QHBoxLayout* channelHeader;
     QWidget* channelHeaderWidget;
@@ -34,8 +27,6 @@ private:
     QVBoxLayout* pageLayout;
     SubscribeWidget* subscribeWidget;
 
-    int getDominant(int arr[256]);
-    Rgb getDominantRgb(const QImage& img);
     void setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& channelResp);
 private slots:
     void setBanner(const HttpReply& reply);
