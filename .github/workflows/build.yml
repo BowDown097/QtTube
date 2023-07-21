@@ -22,11 +22,11 @@ jobs:
             qt_host: linux
             qt_version: '6.5.1'
             qt_modules: 'qt5compat qtserialport qtpositioning qtwebchannel qtwebengine'
-          - os: windows-2022
-            qt_ver: 6
-            qt_host: windows
-            qt_version: '6.5.1'
-            qt_modules: 'qt5compat qtserialport qtpositioning qtwebchannel qtwebengine'
+          #- os: windows-2022
+            #qt_ver: 6
+            #qt_host: windows
+            #qt_version: '6.5.1'
+            #qt_modules: 'qt5compat qtserialport qtpositioning qtwebchannel qtwebengine'
     
     runs-on: ${{ matrix.os }}
     
