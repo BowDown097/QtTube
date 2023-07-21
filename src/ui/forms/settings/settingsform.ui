@@ -23,6 +23,9 @@
    </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
      <widget class="QWidget" name="general">
       <attribute name="title">
        <string>General</string>
@@ -326,6 +329,37 @@
        </property>
        <property name="checked">
         <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="filtering">
+      <attribute name="title">
+       <string>Filtering</string>
+      </attribute>
+      <widget class="QCheckBox" name="hideShorts">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>400</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Filter shorts content</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="showFilteredChannels">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>170</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Filtered Channels</string>
        </property>
       </widget>
      </widget>

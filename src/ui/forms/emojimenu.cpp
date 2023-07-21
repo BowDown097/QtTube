@@ -38,22 +38,22 @@ EmojiMenu::EmojiMenu(QWidget *parent) : QWidget(parent), ui(new Ui::EmojiMenu)
     }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 1, 0) && defined(__cpp_lib_char8_t)
-    for (QMap<QString, std::u8string>::const_iterator i = ytemoji::BUILTIN_EMOJIS.begin(); i != ytemoji::BUILTIN_EMOJIS.end(); ++i)
+    for (QMap<QString, std::u8string>::const_iterator it = ytemoji::BUILTIN_EMOJIS.begin(); it != ytemoji::BUILTIN_EMOJIS.end(); ++it)
 #else
-    for (QMap<QString, QString>::const_iterator i = ytemoji::BUILTIN_EMOJIS.begin(); i != ytemoji::BUILTIN_EMOJIS.end(); ++i)
+    for (QMap<QString, QString>::const_iterator it = ytemoji::BUILTIN_EMOJIS.begin(); it != ytemoji::BUILTIN_EMOJIS.end(); ++it)
 #endif
     {
 #if QT_VERSION < QT_VERSION_CHECK(6, 1, 0) && defined(__cpp_lib_char8_t)
-        QString codepointHex = QString::number(codepoint(std::string(i.value().begin(), i.value().end())), 16);
+        QString codepointHex = QString::number(codepoint(std::string(it.value().begin(), it.value().end())), 16);
 #else
-        QString codepointHex = QString::number(codepoint(i.value().toStdString()), 16);
+        QString codepointHex = QString::number(codepoint(it.value().toStdString()), 16);
 #endif
 
         TubeLabel* emoji = new TubeLabel(ui->scrollAreaContents);
         emoji->setClickable(true, false);
-        emoji->setToolTip(i.key());
+        emoji->setToolTip(it.key());
         layout->addWidget(emoji);
-        connect(emoji, &TubeLabel::clicked, this, [this, i] { emit emojiClicked(i.key()); });
+        connect(emoji, &TubeLabel::clicked, this, [this, it] { emit emojiClicked(it.key()); });
 
         QUrl url(QStringLiteral("https://www.youtube.com/s/gaming/emoji/0f0cae22/emoji_u%1.svg").arg(codepointHex));
         HttpReply* reply = Http::instance().get(url);

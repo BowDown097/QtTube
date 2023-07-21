@@ -1,5 +1,6 @@
 #include "settingsform.h"
 #include "ui_settingsform.h"
+#include "channelfiltertable.h"
 #include "settingsstore.h"
 #include "ui/uiutilities.h"
 #include <QMessageBox>
@@ -37,6 +38,8 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     // privacy
     ui->playbackTracking->setChecked(store->playbackTracking);
     ui->watchtimeTracking->setChecked(store->watchtimeTracking);
+    // filtering
+    ui->hideShorts->setChecked(store->hideShorts);
     // sponsorblock
     ui->blockFiller->setChecked(store->sponsorBlockCategories.contains("filler"));
     ui->blockInteraction->setChecked(store->sponsorBlockCategories.contains("interaction"));
@@ -49,6 +52,11 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->showSBToasts->setChecked(store->showSBToasts);
 
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
+    connect(ui->showFilteredChannels, &QPushButton::clicked, this, [] {
+        ChannelFilterTable* ft = new ChannelFilterTable;
+        ft->show();
+        ft->populateFromSettings();
+    });
 }
 
 void SettingsForm::saveSettings()
@@ -71,6 +79,8 @@ void SettingsForm::saveSettings()
     // privacy
     store->playbackTracking = ui->playbackTracking->isChecked();
     store->watchtimeTracking = ui->watchtimeTracking->isChecked();
+    // filtering
+    store->hideShorts = ui->hideShorts->isChecked();
     // sponsorblock
     if (ui->blockFiller->isChecked() && !store->sponsorBlockCategories.contains("filler"))
         store->sponsorBlockCategories.append("filler");

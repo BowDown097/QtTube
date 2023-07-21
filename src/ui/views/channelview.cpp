@@ -1,6 +1,7 @@
 #include "channelview.h"
 #include "http.h"
 #include "innertube.h"
+#include "settingsstore.h"
 #include "ui/browsehelper.h"
 #include "ui/forms/mainwindow.h"
 #include <QApplication>
@@ -117,6 +118,10 @@ void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& ch
         if (!v.toObject().contains("tabRenderer"))
             continue;
 
+        QString title = v["tabRenderer"]["title"].toString();
+        if (SettingsStore::instance()->hideShorts && title == "Shorts")
+            continue;
+
         QWidget* tab = new QWidget;
         QGridLayout* grid = new QGridLayout(tab);
         grid->setContentsMargins(0, 0, 0, 0);
@@ -125,7 +130,7 @@ void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& ch
         list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         list->verticalScrollBar()->setSingleStep(25);
         grid->addWidget(list, 0, 0, 1, 1);
-        channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
+        channelTabs->addTab(tab, title);
     }
 
     if (!channelResp.header.banners.isEmpty())

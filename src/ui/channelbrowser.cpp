@@ -221,7 +221,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
             for (const QJsonValue& v : expandableItems)
             {
                 QJsonValue perkRenderer = v["sponsorshipsPerkRenderer"];
-                if (perkRenderer.isObject())
+                if (!perkRenderer.isObject())
                     continue;
 
                 TubeLabel* titleLabel = new TubeLabel(InnertubeObjects::InnertubeString(perkRenderer["title"]));

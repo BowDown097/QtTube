@@ -13,8 +13,10 @@ class SettingsStore : public QObject
     Q_PROPERTY(bool darkTheme MEMBER darkTheme NOTIFY darkThemeChanged)
     Q_PROPERTY(bool disable60Fps MEMBER disable60Fps NOTIFY disable60FpsChanged)
     Q_PROPERTY(bool disablePlayerInfoPanels MEMBER disablePlayerInfoPanels NOTIFY disablePlayerInfoPanelsChanged)
+    Q_PROPERTY(QStringList filteredChannels MEMBER filteredChannels NOTIFY filteredChannelsChanged)
     Q_PROPERTY(bool fullSubs MEMBER fullSubs NOTIFY fullSubsChanged)
     Q_PROPERTY(bool h264Only MEMBER h264Only NOTIFY h264OnlyChanged)
+    Q_PROPERTY(bool hideShorts MEMBER hideShorts NOTIFY hideShortsChanged)
     Q_PROPERTY(bool homeShelves MEMBER homeShelves NOTIFY homeShelvesChanged)
     Q_PROPERTY(bool playbackTracking MEMBER playbackTracking NOTIFY playbackTrackingChanged)
     Q_PROPERTY(PlayerQuality preferredQuality MEMBER preferredQuality NOTIFY preferredQualityChanged)
@@ -33,21 +35,23 @@ public:
     Q_ENUM(PlayerQuality)
 
     QString appStyle;
-    bool condensedViews = false;
-    bool darkTheme = false;
-    bool disable60Fps = false;
-    bool disablePlayerInfoPanels = false;
-    bool fullSubs = false;
-    bool h264Only = false;
-    bool homeShelves = false;
-    bool playbackTracking = true;
-    PlayerQuality preferredQuality = PlayerQuality::Auto;
-    int preferredVolume = 100;
-    bool restoreAnnotations = false;
-    bool returnDislikes = true;
-    bool showSBToasts = true;
+    bool condensedViews;
+    bool darkTheme;
+    bool disable60Fps;
+    bool disablePlayerInfoPanels;
+    QStringList filteredChannels;
+    bool fullSubs;
+    bool h264Only;
+    bool hideShorts;
+    bool homeShelves;
+    bool playbackTracking;
+    PlayerQuality preferredQuality;
+    int preferredVolume;
+    bool restoreAnnotations;
+    bool returnDislikes;
+    bool showSBToasts;
     QStringList sponsorBlockCategories;
-    bool watchtimeTracking = true;
+    bool watchtimeTracking;
 
     static SettingsStore* instance();
     explicit SettingsStore(QObject* parent = nullptr) : QObject(parent) {}
@@ -63,8 +67,10 @@ signals:
     void darkThemeChanged(bool);
     void disable60FpsChanged(bool);
     void disablePlayerInfoPanelsChanged(bool);
+    void filteredChannelsChanged(const QStringList&);
     void fullSubsChanged(bool);
     void h264OnlyChanged(bool);
+    void hideShortsChanged(bool);
     void homeShelvesChanged(bool);
     void playbackTrackingChanged(bool);
     void preferredQualityChanged(SettingsStore::PlayerQuality);

@@ -11,28 +11,41 @@ void SettingsStore::initializeFromSettingsFile()
 {
     QSettings settings(configPath, QSettings::IniFormat);
 
+    // general
     appStyle = settings.value("appStyle", "Default").toString();
     condensedViews = settings.value("condensedViews", false).toBool();
     darkTheme = settings.value("darkTheme", false).toBool();
     fullSubs = settings.value("fullSubs", false).toBool();
     homeShelves = settings.value("homeShelves", false).toBool();
     returnDislikes = settings.value("returnDislikes", true).toBool();
-
+    // player
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
     disablePlayerInfoPanels = settings.value("player/disableInfoPanels", false).toBool();
     h264Only = settings.value("player/h264Only", false).toBool();
     preferredQuality = settings.value("player/preferredQuality", static_cast<int>(PlayerQuality::Auto)).value<PlayerQuality>();
     preferredVolume = settings.value("player/preferredVolume", 100).toInt();
     restoreAnnotations = settings.value("player/restoreAnnotations", false).toBool();
-
+    // privacy
     playbackTracking = settings.value("privacy/playbackTracking", true).toBool();
     watchtimeTracking = settings.value("privacy/watchtimeTracking", true).toBool();
+    // filtering
+    hideShorts = settings.value("filtering/hideShorts", false).toBool();
+    filteredChannels.clear();
 
+    int fcSize = settings.beginReadArray("filtering/filteredChannels");
+    for (int i = 0; i < fcSize; i++)
+    {
+        settings.setArrayIndex(i);
+        filteredChannels.append(settings.value("id").toString());
+    }
+    settings.endArray();
+
+    // sponsorblock
     showSBToasts = settings.value("sponsorBlock/toasts", true).toBool();
     sponsorBlockCategories.clear();
 
-    int size = settings.beginReadArray("sponsorBlock/categories");
-    for (int i = 0; i < size; ++i)
+    int sbcSize = settings.beginReadArray("sponsorBlock/categories");
+    for (int i = 0; i < sbcSize; i++)
     {
         settings.setArrayIndex(i);
         sponsorBlockCategories.append(settings.value("name").toString());
@@ -44,23 +57,34 @@ void SettingsStore::saveToSettingsFile()
 {
     QSettings settings(configPath, QSettings::IniFormat);
 
+    // general
     settings.setValue("appStyle", appStyle);
     settings.setValue("condensedViews", condensedViews);
     settings.setValue("darkTheme", darkTheme);
     settings.setValue("fullSubs", fullSubs);
     settings.setValue("homeShelves", homeShelves);
     settings.setValue("returnDislikes", returnDislikes);
-
+    // player
     settings.setValue("player/disable60Fps", disable60Fps);
     settings.setValue("player/disableInfoPanels", disablePlayerInfoPanels);
     settings.setValue("player/h264Only", h264Only);
     settings.setValue("player/preferredQuality", static_cast<int>(preferredQuality));
     settings.setValue("player/preferredVolume", preferredVolume);
     settings.setValue("player/restoreAnnotations", restoreAnnotations);
-
+    // privacy
     settings.setValue("privacy/playbackTracking", playbackTracking);
     settings.setValue("privacy/watchtimeTracking", watchtimeTracking);
+    // filtering
+    settings.setValue("filtering/hideShorts", hideShorts);
 
+    settings.beginWriteArray("filtering/filteredChannels");
+    for (int i = 0; i < filteredChannels.size(); i++)
+    {
+        settings.setArrayIndex(i);
+        settings.setValue("id", filteredChannels.at(i));
+    }
+    settings.endArray();
+    // sponsorblock
     settings.setValue("sponsorBlock/toasts", showSBToasts);
 
     settings.beginWriteArray("sponsorBlock/categories");

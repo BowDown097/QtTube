@@ -6,7 +6,7 @@
 #include "credentialsstore.h"
 #include "http.h"
 #include "innertube.h"
-#include "ui/forms/settingsform.h"
+#include "ui/forms/settings/settingsform.h"
 #include "ui/uiutilities.h"
 #include <QApplication>
 

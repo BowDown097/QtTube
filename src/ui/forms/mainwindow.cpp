@@ -223,11 +223,22 @@ void MainWindow::searchByLink(const QString& link)
         }
 
         if (url.path() == "/watch")
+        {
             extractedId = QUrlQuery(url).queryItemValue("v");
-        else if (url.path().startsWith("/channel/UC"))
+        }
+        else if (url.path().startsWith("/channel/"))
+        {
             extractedId = url.path().replace("/channel/", "");
+            if (!extractedId.startsWith("UC"))
+            {
+                QMessageBox::critical(this, "Invalid channel ID", "An invalid channel ID was entered. Channel IDs should start with \"UC\".");
+                return;
+            }
+        }
         else
+        {
             extractedId = url.path().mid(1);
+        }
     }
     else if (link.startsWith("@"))
     {
