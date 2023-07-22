@@ -122,7 +122,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 
             QLabel* authorLabel = new QLabel(liveChatTextMessage["authorName"]["simpleText"].toString(), this);
             authorLabel->setFixedWidth(ui->listWidget->width() - 50);
-            authorLabel->setStyleSheet(liveChatTextMessage.toObject().contains("authorBadges")
+            authorLabel->setStyleSheet(liveChatTextMessage["authorBadges"].isObject()
                                        ? "font-weight: bold; color: #2ba640"
                                        : "font-weight: bold");
             contentLayout->addWidget(authorLabel);

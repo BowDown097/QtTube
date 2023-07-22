@@ -170,8 +170,7 @@ void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& chan
 {
     for (const InnertubeObjects::Channel& channel : channels)
     {
-        if (!SettingsStore::instance()->filteredChannels.contains(channel.channelId))
-            UIUtilities::addChannelRendererToList(widget, channel);
+        UIUtilities::addChannelRendererToList(widget, channel);
         QCoreApplication::processEvents();
     }
 }
@@ -205,12 +204,7 @@ void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, 
             lastShelf = video.shelf.text;
         }
 
-        if (!SettingsStore::instance()->filteredChannels.contains(video.owner.id) &&
-            !(SettingsStore::instance()->hideShorts && video.navigationEndpoint["reelWatchEndpoint"].isObject()))
-        {
-            UIUtilities::addVideoRendererToList(widget, video);
-        }
-
+        UIUtilities::addVideoRendererToList(widget, video);
         QCoreApplication::processEvents();
     }
 }

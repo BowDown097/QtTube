@@ -1,7 +1,6 @@
 #include "channelview.h"
 #include "http.h"
 #include "innertube.h"
-#include "settingsstore.h"
 #include "ui/browsehelper.h"
 #include "ui/forms/mainwindow.h"
 #include <QApplication>
@@ -115,11 +114,7 @@ void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& ch
     const QJsonArray tabs = channelResp.contents["twoColumnBrowseResultsRenderer"]["tabs"].toArray();
     for (const QJsonValue& v : tabs)
     {
-        if (!v.toObject().contains("tabRenderer"))
-            continue;
-
-        QString title = v["tabRenderer"]["title"].toString();
-        if (SettingsStore::instance()->hideShorts && title == "Shorts")
+        if (!v["tabRenderer"].isObject())
             continue;
 
         QWidget* tab = new QWidget;
@@ -130,7 +125,7 @@ void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& ch
         list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         list->verticalScrollBar()->setSingleStep(25);
         grid->addWidget(list, 0, 0, 1, 1);
-        channelTabs->addTab(tab, title);
+        channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
     }
 
     if (!channelResp.header.banners.isEmpty())

@@ -1,5 +1,6 @@
 #include "uiutilities.h"
 #include "http.h"
+#include "settingsstore.h"
 #include "ui/forms/mainwindow.h"
 #include "widgets/labels/tubelabel.h"
 #include "widgets/renderers/browsechannelrenderer.h"
@@ -45,6 +46,9 @@ void UIUtilities::addBoldLabelToList(QListWidget* list, const QString& text)
 
 void UIUtilities::addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel)
 {
+    if (SettingsStore::instance()->filteredChannels.contains(channel.channelId))
+        return;
+
     BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
     renderer->setData(channel.channelId, channel.descriptionSnippet.text, channel.title.text, channel.subscribeButton,
                       channel.subscriberCountText.text, channel.videoCountText.text);
@@ -87,6 +91,12 @@ void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjec
 
 void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
 {
+    if (SettingsStore::instance()->filteredChannels.contains(video.owner.id) ||
+        (SettingsStore::instance()->hideShorts && video.navigationEndpoint["reelWatchEndpoint"].isObject()))
+    {
+        return;
+    }
+
     BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
     renderer->setData(video);
     renderer->setTargetElisionWidth(list->width() - 240);

@@ -1,6 +1,7 @@
 #include "channelbrowser.h"
 #include "innertube/innertubeexception.h"
 #include "innertube/objects/channel/aboutfullmetadata.h"
+#include "settingsstore.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "uiutilities.h"
 #include <QApplication>
@@ -69,7 +70,7 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
                 const QJsonArray gridItems = v2["gridRenderer"]["items"].toArray();
                 for (const QJsonValue& v3 : gridItems)
                 {
-                    if (!v3.toObject().contains("gridChannelRenderer"))
+                    if (!v3["gridChannelRenderer"].isObject())
                         continue;
 
                     InnertubeObjects::Channel channel(v3["gridChannelRenderer"]);
@@ -299,6 +300,13 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
 
 void ChannelBrowser::setupShorts(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp)
 {
+    if (SettingsStore::instance()->hideShorts)
+    {
+        QListWidgetItem* item = new QListWidgetItem("This tab is disabled because the shorts filter is turned on.", channelTab);
+        channelTab->addItem(item);
+        return;
+    }
+
     const QJsonArray contents = tabRenderer["content"]["richGridRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {
