@@ -40,6 +40,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->watchtimeTracking->setChecked(store->watchtimeTracking);
     // filtering
     ui->hideShorts->setChecked(store->hideShorts);
+    ui->hideStreams->setChecked(store->hideStreams);
     // sponsorblock
     ui->blockFiller->setChecked(store->sponsorBlockCategories.contains("filler"));
     ui->blockInteraction->setChecked(store->sponsorBlockCategories.contains("interaction"));
@@ -81,6 +82,7 @@ void SettingsForm::saveSettings()
     store->watchtimeTracking = ui->watchtimeTracking->isChecked();
     // filtering
     store->hideShorts = ui->hideShorts->isChecked();
+    store->hideStreams = ui->hideStreams->isChecked();
     // sponsorblock
     if (ui->blockFiller->isChecked() && !store->sponsorBlockCategories.contains("filler"))
         store->sponsorBlockCategories.append("filler");

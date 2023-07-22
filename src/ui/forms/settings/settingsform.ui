@@ -353,13 +353,26 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>50</y>
+         <y>90</y>
          <width>170</width>
          <height>35</height>
         </rect>
        </property>
        <property name="text">
         <string>Filtered Channels</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="hideStreams">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>400</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Filter live streams</string>
        </property>
       </widget>
      </widget>

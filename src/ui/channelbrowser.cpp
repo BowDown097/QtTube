@@ -142,6 +142,13 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
 
 void ChannelBrowser::setupLive(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp)
 {
+    if (SettingsStore::instance()->hideStreams)
+    {
+        QListWidgetItem* item = new QListWidgetItem("This tab is disabled because the live streams filter is turned on.", channelTab);
+        channelTab->addItem(item);
+        return;
+    }
+
     const QJsonArray contents = tabRenderer["content"]["richGridRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {

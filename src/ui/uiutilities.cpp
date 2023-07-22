@@ -92,7 +92,8 @@ void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjec
 void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
 {
     if (SettingsStore::instance()->filteredChannels.contains(video.owner.id) ||
-        (SettingsStore::instance()->hideShorts && video.navigationEndpoint["reelWatchEndpoint"].isObject()))
+        (SettingsStore::instance()->hideShorts && video.navigationEndpoint["reelWatchEndpoint"].isObject()) ||
+        (SettingsStore::instance()->hideStreams && video.isLive))
     {
         return;
     }

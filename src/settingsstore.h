@@ -17,6 +17,7 @@ class SettingsStore : public QObject
     Q_PROPERTY(bool fullSubs MEMBER fullSubs NOTIFY fullSubsChanged)
     Q_PROPERTY(bool h264Only MEMBER h264Only NOTIFY h264OnlyChanged)
     Q_PROPERTY(bool hideShorts MEMBER hideShorts NOTIFY hideShortsChanged)
+    Q_PROPERTY(bool hideStreams MEMBER hideStreams NOTIFY hideStreamsChanged)
     Q_PROPERTY(bool homeShelves MEMBER homeShelves NOTIFY homeShelvesChanged)
     Q_PROPERTY(bool playbackTracking MEMBER playbackTracking NOTIFY playbackTrackingChanged)
     Q_PROPERTY(PlayerQuality preferredQuality MEMBER preferredQuality NOTIFY preferredQualityChanged)
@@ -43,6 +44,7 @@ public:
     bool fullSubs;
     bool h264Only;
     bool hideShorts;
+    bool hideStreams;
     bool homeShelves;
     bool playbackTracking;
     PlayerQuality preferredQuality;
@@ -71,6 +73,7 @@ signals:
     void fullSubsChanged(bool);
     void h264OnlyChanged(bool);
     void hideShortsChanged(bool);
+    void hideStreamsChanged(bool);
     void homeShelvesChanged(bool);
     void playbackTrackingChanged(bool);
     void preferredQualityChanged(SettingsStore::PlayerQuality);
