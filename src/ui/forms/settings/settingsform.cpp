@@ -2,6 +2,7 @@
 #include "ui_settingsform.h"
 #include "channelfiltertable.h"
 #include "settingsstore.h"
+#include "termfilterview.h"
 #include "ui/uiutilities.h"
 #include <QMessageBox>
 #include <QStyleFactory>
@@ -57,6 +58,11 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
         ChannelFilterTable* ft = new ChannelFilterTable;
         ft->show();
         ft->populateFromSettings();
+    });
+    connect(ui->showFilteredTerms, &QPushButton::clicked, this, [] {
+        TermFilterView* fv = new TermFilterView;
+        fv->show();
+        fv->populateFromSettings();
     });
 }
 

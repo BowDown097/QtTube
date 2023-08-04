@@ -82,6 +82,7 @@ set(SOURCE_FILES
     src/ui/forms/mainwindow.cpp
     src/ui/forms/settings/channelfiltertable.cpp
     src/ui/forms/settings/settingsform.cpp
+    src/ui/forms/settings/termfilterview.cpp
     src/ui/views/channelview.cpp
     src/ui/views/viewcontroller.cpp
     src/ui/views/watchview.cpp
@@ -126,6 +127,7 @@ set(HEADERS
     src/ui/forms/mainwindow.h
     src/ui/forms/settings/channelfiltertable.h
     src/ui/forms/settings/settingsform.h
+    src/ui/forms/settings/termfilterview.h
     src/ui/views/channelview.h
     src/ui/views/viewcontroller.h
     src/ui/views/watchview.h
@@ -159,6 +161,7 @@ set(FORMS
     src/ui/forms/mainwindow.ui
     src/ui/forms/settings/channelfiltertable.ui
     src/ui/forms/settings/settingsform.ui
+    src/ui/forms/settings/termfilterview.ui
 )
 
 # Application icon

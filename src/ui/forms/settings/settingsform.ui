@@ -346,7 +346,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Filter shorts content</string>
+        <string>Filter shorts</string>
        </property>
       </widget>
       <widget class="QPushButton" name="showFilteredChannels">
@@ -373,6 +373,19 @@
        </property>
        <property name="text">
         <string>Filter live streams</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="showFilteredTerms">
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>90</y>
+         <width>170</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Filtered Terms</string>
        </property>
       </widget>
      </widget>

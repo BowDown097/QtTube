@@ -2,6 +2,7 @@
 #define SETTINGSSTORE_H
 #include <mutex>
 #include <QDir>
+#include <QSettings>
 #include <QStandardPaths>
 
 class SettingsStore : public QObject
@@ -14,6 +15,7 @@ class SettingsStore : public QObject
     Q_PROPERTY(bool disable60Fps MEMBER disable60Fps NOTIFY disable60FpsChanged)
     Q_PROPERTY(bool disablePlayerInfoPanels MEMBER disablePlayerInfoPanels NOTIFY disablePlayerInfoPanelsChanged)
     Q_PROPERTY(QStringList filteredChannels MEMBER filteredChannels NOTIFY filteredChannelsChanged)
+    Q_PROPERTY(QStringList filteredTerms MEMBER filteredTerms NOTIFY filteredTermsChanged)
     Q_PROPERTY(bool fullSubs MEMBER fullSubs NOTIFY fullSubsChanged)
     Q_PROPERTY(bool h264Only MEMBER h264Only NOTIFY h264OnlyChanged)
     Q_PROPERTY(bool hideShorts MEMBER hideShorts NOTIFY hideShortsChanged)
@@ -41,6 +43,7 @@ public:
     bool disable60Fps;
     bool disablePlayerInfoPanels;
     QStringList filteredChannels;
+    QStringList filteredTerms;
     bool fullSubs;
     bool h264Only;
     bool hideShorts;
@@ -60,9 +63,13 @@ public:
 
     void initializeFromSettingsFile();
     void saveToSettingsFile();
+    bool stringContainsFilteredTerm(const QString& str);
 private:
     static inline SettingsStore* m_instance;
     static inline std::once_flag m_onceFlag;
+
+    void readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key);
+    void writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key);
 signals:
     void appStyleChanged(const QString&);
     void condensedViewsChanged(bool);
@@ -70,6 +77,7 @@ signals:
     void disable60FpsChanged(bool);
     void disablePlayerInfoPanelsChanged(bool);
     void filteredChannelsChanged(const QStringList&);
+    void filteredTermsChanged(const QStringList&);
     void fullSubsChanged(bool);
     void h264OnlyChanged(bool);
     void hideShortsChanged(bool);

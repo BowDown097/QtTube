@@ -80,6 +80,10 @@ void UIUtilities::addShelfTitleToList(QListWidget* list, const QString& title)
 
 void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
 {
+    if (SettingsStore::instance()->filteredChannels.contains(reel.owner.id) ||
+        SettingsStore::instance()->stringContainsFilteredTerm(reel.headline))
+        return;
+
     BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
     renderer->setData(reel);
     renderer->setTargetElisionWidth(list->width() - 240);
@@ -92,6 +96,7 @@ void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjec
 void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
 {
     if (SettingsStore::instance()->filteredChannels.contains(video.owner.id) ||
+        SettingsStore::instance()->stringContainsFilteredTerm(video.title.text) ||
         (SettingsStore::instance()->hideShorts && video.navigationEndpoint["reelWatchEndpoint"].isObject()) ||
         (SettingsStore::instance()->hideStreams && video.isLive))
     {

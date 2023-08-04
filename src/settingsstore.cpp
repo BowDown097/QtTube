@@ -1,5 +1,4 @@
 #include "settingsstore.h"
-#include <QSettings>
 
 SettingsStore* SettingsStore::instance()
 {
@@ -31,25 +30,22 @@ void SettingsStore::initializeFromSettingsFile()
     // filtering
     hideShorts = settings.value("filtering/hideShorts", false).toBool();
     hideStreams = settings.value("filtering/hideStreams", false).toBool();
-    filteredChannels.clear();
-
-    int fcSize = settings.beginReadArray("filtering/filteredChannels");
-    for (int i = 0; i < fcSize; i++)
-    {
-        settings.setArrayIndex(i);
-        filteredChannels.append(settings.value("id").toString());
-    }
-    settings.endArray();
-
+    readIntoStringList(settings, filteredChannels, "filtering/filteredChannels", "id");
+    readIntoStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
     // sponsorblock
     showSBToasts = settings.value("sponsorBlock/toasts", true).toBool();
-    sponsorBlockCategories.clear();
+    readIntoStringList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
+}
 
-    int sbcSize = settings.beginReadArray("sponsorBlock/categories");
-    for (int i = 0; i < sbcSize; i++)
+void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key)
+{
+    list.clear();
+
+    int sz = settings.beginReadArray(prefix);
+    for (int i = 0; i < sz; i++)
     {
         settings.setArrayIndex(i);
-        sponsorBlockCategories.append(settings.value("name").toString());
+        list.append(settings.value(key).toString());
     }
     settings.endArray();
 }
@@ -78,22 +74,25 @@ void SettingsStore::saveToSettingsFile()
     // filtering
     settings.setValue("filtering/hideShorts", hideShorts);
     settings.setValue("filtering/hideStreams", hideStreams);
-
-    settings.beginWriteArray("filtering/filteredChannels");
-    for (int i = 0; i < filteredChannels.size(); i++)
-    {
-        settings.setArrayIndex(i);
-        settings.setValue("id", filteredChannels.at(i));
-    }
-    settings.endArray();
+    writeStringList(settings, filteredChannels, "filtering/filteredChannels", "id");
+    writeStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
     // sponsorblock
     settings.setValue("sponsorBlock/toasts", showSBToasts);
+    writeStringList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
+}
 
-    settings.beginWriteArray("sponsorBlock/categories");
-    for (int i = 0; i < sponsorBlockCategories.size(); i++)
+bool SettingsStore::stringContainsFilteredTerm(const QString& str)
+{
+    return std::ranges::any_of(filteredTerms, [&str](const QString& term) { return str.contains(term, Qt::CaseInsensitive); });
+}
+
+void SettingsStore::writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key)
+{
+    settings.beginWriteArray(prefix);
+    for (int i = 0; i < list.size(); i++)
     {
         settings.setArrayIndex(i);
-        settings.setValue("name", sponsorBlockCategories.at(i));
+        settings.setValue(key, list.at(i));
     }
     settings.endArray();
 }
