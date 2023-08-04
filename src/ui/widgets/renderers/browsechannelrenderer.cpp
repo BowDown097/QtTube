@@ -1,11 +1,11 @@
 #include "browsechannelrenderer.h"
-#include "http.h"
 #include "stores/settingsstore.h"
 #include "utils/uiutils.h"
 #include "ui/views/viewcontroller.h"
 #include <QApplication>
 #include <QMenu>
 #include <QMessageBox>
+#include <QtNetwork/QtNetwork>
 
 BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
     : QWidget(parent),
@@ -72,14 +72,21 @@ void BrowseChannelRenderer::setData(const QString& channelId, const QString& des
 
     if (SettingsStore::instance()->fullSubs)
     {
-        Http http;
-        http.setReadTimeout(2000);
-        http.setMaxRetries(5);
+        // QNetworkAccessManager needs to be used here due to a bug with the http library
+        QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+        manager->setTransferTimeout(2000);
 
-        HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId));
-        connect(reply, &HttpReply::finished, this, [this, subCount, videoCount](const HttpReply& reply) {
-            int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
+        QNetworkReply* reply = manager->get(QNetworkRequest(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId)));
+        connect(reply, &QNetworkReply::finished, this, [this, reply, subCount, videoCount] {
+            reply->deleteLater();
+            reply->manager()->deleteLater();
+
+            if (reply->error() != QNetworkReply::NoError)
+                return;
+
+            int subs = QJsonDocument::fromJson(reply->readAll())["est_sub"].toInt();
             QString fullSubs = QLocale::system().toString(subs) + " subscribers";
+
             // in some cases, subCount is the channel handle, and other times it's actually the sub count.
             // thanks innertube! so ya, we have to check for that, otherwise subs show up twice.
             metadataLabel->setText(subCount.contains(" subscribers")

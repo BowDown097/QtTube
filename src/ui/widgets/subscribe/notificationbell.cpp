@@ -56,20 +56,20 @@ void NotificationBell::leaveEvent(QEvent*)
 void NotificationBell::setNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb)
 {
     notificationPreferenceButton = npb;
-    setVisualNotificationState(npb.getCurrentState().stateId);
+    setVisualNotificationState(static_cast<NotificationState>(npb.getCurrentState().stateId));
 }
 
-void NotificationBell::setVisualNotificationState(int stateId)
+void NotificationBell::setVisualNotificationState(NotificationState state)
 {
-    switch (stateId)
+    switch (state)
     {
-    case 0:
+    case NotificationState::None:
         setDefaultAction(noneAction);
         break;
-    case 2:
+    case NotificationState::All:
         setDefaultAction(allAction);
         break;
-    default:
+    case NotificationState::Personalized:
         setDefaultAction(personalizedAction);
         break;
     }

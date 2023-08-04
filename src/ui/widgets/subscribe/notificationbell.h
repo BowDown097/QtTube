@@ -8,9 +8,11 @@ class NotificationBell : public QToolButton
 {
     Q_OBJECT
 public:
+    enum class NotificationState { None = 0, All = 2, Personalized = 3 };
+
     explicit NotificationBell(QWidget* parent = nullptr);
     void setNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb);
-    void setVisualNotificationState(int stateId);
+    void setVisualNotificationState(NotificationState state);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent*) override;

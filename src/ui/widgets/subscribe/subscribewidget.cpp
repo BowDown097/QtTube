@@ -1,6 +1,6 @@
 #include "subscribewidget.h"
-#include "http.h"
 #include "stores/settingsstore.h"
+#include <QtNetwork/QtNetwork>
 
 constexpr const char* subscribersCountStyle = R"(
     border: 1px solid #555;
@@ -32,7 +32,7 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
 
     connect(subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
     {
-        notificationBell->setVisualNotificationState(3);
+        notificationBell->setVisualNotificationState(NotificationBell::NotificationState::Personalized);
         notificationBell->setVisible(subscribed);
     });
 }
@@ -55,18 +55,25 @@ void SubscribeWidget::setSubscriberCount(const QString& subscriberCountText, con
         return;
     }
 
-    Http http;
-    http.setReadTimeout(2000);
-    http.setMaxRetries(5);
+    // QNetworkAccessManager needs to be used here due to a bug with the http library
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    manager->setTransferTimeout(2000);
 
-    HttpReply* reply = http.get(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId));
-    connect(reply, &HttpReply::error, this, [this, subscriberCountText] {
-        subscribersCountLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
-        subscribersCountLabel->adjustSize();
-    });
-    connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
-        int subs = QJsonDocument::fromJson(reply.body())["est_sub"].toInt();
-        subscribersCountLabel->setText(QLocale::system().toString(subs));
-        subscribersCountLabel->adjustSize();
+    QNetworkReply* reply = manager->get(QNetworkRequest(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId)));
+    connect(reply, &QNetworkReply::finished, this, [this, reply, subscriberCountText] {
+        reply->deleteLater();
+        reply->manager()->deleteLater();
+
+        if (reply->error() != QNetworkReply::NoError)
+        {
+            subscribersCountLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
+            subscribersCountLabel->adjustSize();
+        }
+        else
+        {
+            int subs = QJsonDocument::fromJson(reply->readAll())["est_sub"].toInt();
+            subscribersCountLabel->setText(QLocale::system().toString(subs));
+            subscribersCountLabel->adjustSize();
+        }
     });
 }
