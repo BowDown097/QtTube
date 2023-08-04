@@ -1,5 +1,5 @@
 #include "webengineplayer.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include "webchannelinterface.h"
 #include <QVBoxLayout>
 #include <QWebChannel>

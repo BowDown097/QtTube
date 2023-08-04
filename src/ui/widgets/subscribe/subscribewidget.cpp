@@ -1,6 +1,6 @@
 #include "subscribewidget.h"
 #include "http.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 
 constexpr const char* subscribersCountStyle = R"(
     border: 1px solid #555;

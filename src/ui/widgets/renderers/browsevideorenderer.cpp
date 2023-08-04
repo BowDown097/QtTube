@@ -1,7 +1,7 @@
 #include "browsevideorenderer.h"
 #include "innertube.h"
-#include "settingsstore.h"
-#include "ui/uiutilities.h"
+#include "stores/settingsstore.h"
+#include "utils/uiutils.h"
 #include "ui/views/viewcontroller.h"
 #include <QApplication>
 #include <QMenu>
@@ -40,7 +40,7 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent)
 
 void BrowseVideoRenderer::copyChannelUrl()
 {
-    UIUtilities::copyToClipboard("https://www.youtube.com/channel/" + channelId);
+    UIUtils::copyToClipboard("https://www.youtube.com/channel/" + channelId);
 }
 
 void BrowseVideoRenderer::copyDirectUrl()
@@ -54,7 +54,7 @@ void BrowseVideoRenderer::copyDirectUrl()
     {
         if (endpoint.response.videoDetails.isLive || endpoint.response.videoDetails.isLiveContent)
         {
-            UIUtilities::copyToClipboard(endpoint.response.streamingData.hlsManifestUrl);
+            UIUtils::copyToClipboard(endpoint.response.streamingData.hlsManifestUrl);
         }
         else
         {
@@ -69,14 +69,14 @@ void BrowseVideoRenderer::copyDirectUrl()
                 return;
             }
 
-            UIUtilities::copyToClipboard(best->url);
+            UIUtils::copyToClipboard(best->url);
         }
     });
 }
 
 void BrowseVideoRenderer::copyVideoUrl()
 {
-    UIUtilities::copyToClipboard("https://www.youtube.com/watch?v=" + videoId);
+    UIUtils::copyToClipboard("https://www.youtube.com/watch?v=" + videoId);
 }
 
 void BrowseVideoRenderer::navigateChannel()
@@ -131,7 +131,7 @@ void BrowseVideoRenderer::setThumbnail(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     thumbLabel->setPixmap(pixmap.scaled(240, thumbLabel->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    UIUtilities::elide(titleLabel, targetElisionWidth);
+    UIUtils::elide(titleLabel, targetElisionWidth);
 }
 
 void BrowseVideoRenderer::showChannelContextMenu(const QPoint& pos)

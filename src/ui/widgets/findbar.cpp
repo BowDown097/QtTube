@@ -1,5 +1,5 @@
 #include "findbar.h"
-#include "ui/uiutilities.h"
+#include "utils/uiutils.h"
 #include <QApplication>
 #include <QListWidget>
 
@@ -86,7 +86,7 @@ void FindBar::jumpToLabel()
                                   ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())
                                   : QStringLiteral("%1 of 1 match").arg(currentIndex + 1));
 
-        if (QListWidget* list = UIUtilities::findParent<QListWidget*>(matches[currentIndex]))
+        if (QListWidget* list = UIUtils::findParent<QListWidget*>(matches[currentIndex]))
         {
             for (int i = 0; i < list->count(); i++)
             {

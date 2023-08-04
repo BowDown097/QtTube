@@ -1,6 +1,6 @@
 #ifndef ACCOUNTSWITCHERWIDGET_H
 #define ACCOUNTSWITCHERWIDGET_H
-#include "credentialsstore.h"
+#include "stores/credentialsstore.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 

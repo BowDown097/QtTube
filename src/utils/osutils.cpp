@@ -1,4 +1,4 @@
-#include "osutilities.h"
+#include "osutils.h"
 #include <QDebug>
 #include <QString>
 
@@ -16,7 +16,7 @@
 #include <IOKit/pwr_mgt/IOPMLib.h>
 #endif
 
-namespace OSUtilities
+namespace OSUtils
 {
     void toggleIdleSleep(bool toggle)
     {

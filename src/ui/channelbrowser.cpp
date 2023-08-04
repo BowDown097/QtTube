@@ -1,9 +1,9 @@
 #include "channelbrowser.h"
 #include "innertube/innertubeexception.h"
 #include "innertube/objects/channel/aboutfullmetadata.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "uiutilities.h"
+#include "utils/uiutils.h"
 #include <QApplication>
 #include <QDesktopServices>
 #include <QJsonObject>
@@ -18,34 +18,34 @@ void ChannelBrowser::setupAbout(QListWidget* channelTab, const QJsonValue& tabRe
 
     InnertubeObjects::AboutFullMetadata metadata(metadataRenderer);
 
-    UIUtilities::addBoldLabelToList(channelTab, metadata.viewCountText);
-    UIUtilities::addWrappedLabelToList(channelTab, metadata.joinedDateText.text);
+    UIUtils::addBoldLabelToList(channelTab, metadata.viewCountText);
+    UIUtils::addWrappedLabelToList(channelTab, metadata.joinedDateText.text);
 
     if (metadata.showDescription && !metadata.description.isEmpty())
     {
-        UIUtilities::addSeparatorToList(channelTab);
-        UIUtilities::addBoldLabelToList(channelTab, metadata.descriptionLabel.text);
-        UIUtilities::addWrappedLabelToList(channelTab, metadata.description);
+        UIUtils::addSeparatorToList(channelTab);
+        UIUtils::addBoldLabelToList(channelTab, metadata.descriptionLabel.text);
+        UIUtils::addWrappedLabelToList(channelTab, metadata.description);
     }
 
     if (!metadata.country.isEmpty())
     {
-        UIUtilities::addSeparatorToList(channelTab);
-        UIUtilities::addBoldLabelToList(channelTab, metadata.detailsLabel.text);
-        UIUtilities::addWrappedLabelToList(channelTab, metadata.countryLabel.text.trimmed() + " " + metadata.country);
+        UIUtils::addSeparatorToList(channelTab);
+        UIUtils::addBoldLabelToList(channelTab, metadata.detailsLabel.text);
+        UIUtils::addWrappedLabelToList(channelTab, metadata.countryLabel.text.trimmed() + " " + metadata.country);
     }
 
     if (!metadata.primaryLinks.isEmpty())
     {
-        UIUtilities::addSeparatorToList(channelTab);
-        UIUtilities::addBoldLabelToList(channelTab, metadata.primaryLinksLabel.text);
+        UIUtils::addSeparatorToList(channelTab);
+        UIUtils::addBoldLabelToList(channelTab, metadata.primaryLinksLabel.text);
 
         for (const InnertubeObjects::ChannelHeaderLink& link : metadata.primaryLinks)
         {
             TubeLabel* label = new TubeLabel(link.title);
             label->setClickable(true, false);
             label->setStyleSheet("color: #167ac6");
-            UIUtilities::addWidgetToList(channelTab, label);
+            UIUtils::addWidgetToList(channelTab, label);
 
             QObject::connect(label, &TubeLabel::clicked, [link]
             {
@@ -74,12 +74,12 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
                         continue;
 
                     InnertubeObjects::Channel channel(v3["gridChannelRenderer"]);
-                    UIUtilities::addChannelRendererToList(channelTab, channel);
+                    UIUtils::addChannelRendererToList(channelTab, channel);
                 }
             }
             else if (v2["shelfRenderer"].isObject())
             {
-                UIUtilities::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
+                UIUtils::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
                 QJsonArray shelfItems = v2["shelfRenderer"]["content"]["horizontalListRenderer"]["items"].toArray();
                 if (shelfItems.isEmpty()) // if no horizontal list, try expanded contents
                     shelfItems = v2["shelfRenderer"]["content"]["expandedShelfContentsRenderer"]["items"].toArray();
@@ -89,7 +89,7 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
                     const QJsonObject& obj = v3.toObject();
                     QJsonObject::const_iterator it = obj.begin();
                     InnertubeObjects::Channel channel(it.value());
-                    UIUtilities::addChannelRendererToList(channelTab, channel);
+                    UIUtils::addChannelRendererToList(channelTab, channel);
                 }
             }
         }
@@ -113,7 +113,7 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
             if (!v2["shelfRenderer"].isObject())
                 continue;
 
-            UIUtilities::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
+            UIUtils::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
             QJsonArray list = v2["shelfRenderer"]["content"]["horizontalListRenderer"]["items"].toArray();
             if (list.isEmpty()) // if no horizontal list, try expanded contents
                 list = v2["shelfRenderer"]["content"]["expandedShelfContentsRenderer"]["items"].toArray();
@@ -125,7 +125,7 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
                 if (it.key() == "channelRenderer" || it.key() == "gridChannelRenderer")
                 {
                     InnertubeObjects::Channel channel(it.value());
-                    UIUtilities::addChannelRendererToList(channelTab, channel);
+                    UIUtils::addChannelRendererToList(channelTab, channel);
                 }
                 else if (it.key() == "gridVideoRenderer" || it.key() == "videoRenderer")
                 {
@@ -133,7 +133,7 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
                     InnertubeObjects::Video video(it.value(), it.key() == "gridVideoRenderer");
                     video.owner.id = channelResp.metadata.externalId;
                     video.owner.name = channelResp.metadata.title;
-                    UIUtilities::addVideoRendererToList(channelTab, video);
+                    UIUtils::addVideoRendererToList(channelTab, video);
                 }
             }
         }
@@ -158,7 +158,7 @@ void ChannelBrowser::setupLive(QListWidget* channelTab, const QJsonValue& tabRen
         InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);
         video.owner.id = channelResp.metadata.externalId;
         video.owner.name = channelResp.metadata.title;
-        UIUtilities::addVideoRendererToList(channelTab, video);
+        UIUtils::addVideoRendererToList(channelTab, video);
     }
 
     if (channelTab->count() == 0)
@@ -184,13 +184,13 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
 
         QLabel* badgeLabel = new QLabel;
         badgeLabel->setFixedSize(18, 18);
-        UIUtilities::setThumbnail(badgeLabel, perks["badge"]["thumbnails"].toArray());
+        UIUtils::setThumbnail(badgeLabel, perks["badge"]["thumbnails"].toArray());
         perksHeader->addWidget(badgeLabel);
 
         TubeLabel* membershipTitle = new TubeLabel(InnertubeObjects::InnertubeString(perks["title"]));
         perksHeader->addWidget(membershipTitle);
 
-        UIUtilities::addWidgetToList(channelTab, perksHeaderWrapper);
+        UIUtils::addWidgetToList(channelTab, perksHeaderWrapper);
 
         QWidget* perkInfoHeaderWrapper = new QWidget;
         QHBoxLayout* perkInfoHeader = new QHBoxLayout(perkInfoHeaderWrapper);
@@ -206,18 +206,18 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         perkInfoHeader->addWidget(showPerkInfo);
 
         perkInfoHeader->addStretch();
-        UIUtilities::addWidgetToList(channelTab, perkInfoHeaderWrapper);
+        UIUtils::addWidgetToList(channelTab, perkInfoHeaderWrapper);
 
         QWidget* perkInfoWrapper = new QWidget;
         QVBoxLayout* perkInfo = new QVBoxLayout(perkInfoWrapper);
         perkInfo->setContentsMargins(0, 0, 0, 0);
 
-        QListWidgetItem* perkInfoItem = UIUtilities::addWidgetToList(channelTab, perkInfoWrapper);
+        QListWidgetItem* perkInfoItem = UIUtils::addWidgetToList(channelTab, perkInfoWrapper);
         QObject::connect(showPerkInfo, &TubeLabel::clicked, showPerkInfo, [perkInfo, perkInfoItem, perkInfoWrapper, perks, showPerkInfo]
         {
             if (!perkInfo->isEmpty())
             {
-                UIUtilities::clearLayout(perkInfo);
+                UIUtils::clearLayout(perkInfo);
                 showPerkInfo->setText("Show perks info");
                 perkInfoItem->setSizeHint(perkInfoWrapper->sizeHint());
                 return;
@@ -254,7 +254,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
 
                         QLabel* loyaltyBadgeIcon = new QLabel;
                         loyaltyBadgeIcon->setFixedSize(18, 18);
-                        UIUtilities::setThumbnail(loyaltyBadgeIcon, loyaltyBadge["icon"]["thumbnails"].toArray());
+                        UIUtils::setThumbnail(loyaltyBadgeIcon, loyaltyBadge["icon"]["thumbnails"].toArray());
                         loyaltyBadgeLayout->addWidget(loyaltyBadgeIcon);
 
                         perkInfo->addWidget(loyaltyBadgeWrapper);
@@ -271,7 +271,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
                     {
                         QLabel* thumbnailLabel = new QLabel;
                         thumbnailLabel->setFixedSize(32, 32);
-                        UIUtilities::setThumbnail(thumbnailLabel, v2["thumbnails"].toArray(), true);
+                        UIUtils::setThumbnail(thumbnailLabel, v2["thumbnails"].toArray(), true);
                         imagesLayout->addWidget(thumbnailLabel);
                     }
 
@@ -301,7 +301,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         if (!v["videoRenderer"].isObject())
             continue;
         InnertubeObjects::Video video(v["videoRenderer"], false);
-        UIUtilities::addVideoRendererToList(channelTab, video);
+        UIUtils::addVideoRendererToList(channelTab, video);
     }
 }
 
@@ -323,7 +323,7 @@ void ChannelBrowser::setupShorts(QListWidget* channelTab, const QJsonValue& tabR
         InnertubeObjects::Reel reel(v["richItemRenderer"]["content"]["reelItemRenderer"]);
         reel.owner.id = channelResp.metadata.externalId;
         reel.owner.name = channelResp.metadata.title;
-        UIUtilities::addVideoRendererToList(channelTab, reel);
+        UIUtils::addVideoRendererToList(channelTab, reel);
     }
 
     if (channelTab->count() == 0)
@@ -351,7 +351,7 @@ void ChannelBrowser::setupVideos(QListWidget* channelTab, const QJsonValue& tabR
         InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);
         video.owner.id = channelResp.metadata.externalId;
         video.owner.name = channelResp.metadata.title;
-        UIUtilities::addVideoRendererToList(channelTab, video);
+        UIUtils::addVideoRendererToList(channelTab, video);
     }
 
     if (channelTab->count() == 0)

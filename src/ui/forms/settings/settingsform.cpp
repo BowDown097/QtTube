@@ -1,9 +1,9 @@
 #include "settingsform.h"
 #include "ui_settingsform.h"
 #include "channelfiltertable.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include "termfilterview.h"
-#include "ui/uiutilities.h"
+#include "utils/uiutils.h"
 #include <QMessageBox>
 #include <QStyleFactory>
 
@@ -17,7 +17,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
                                             "Commit: %4 (%5)<br>"
                                             "Build date: %6")
                                  .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
-    ui->qttubeLogo->setPixmap(UIUtilities::pixmapThemed("qttube-full", true, ui->qttubeLogo->size()));
+    ui->qttubeLogo->setPixmap(UIUtils::pixmapThemed("qttube-full", true, ui->qttubeLogo->size()));
 
     SettingsStore* store = SettingsStore::instance();
     // app style
@@ -111,7 +111,7 @@ void SettingsForm::saveSettings()
     store->saveToSettingsFile();
     store->initializeFromSettingsFile();
 
-    UIUtilities::setAppStyle(store->appStyle, store->darkTheme);
+    UIUtils::setAppStyle(store->appStyle, store->darkTheme);
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
 }
 

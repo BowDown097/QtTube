@@ -1,5 +1,5 @@
 #include "playerinterceptor.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include <QUrlQuery>
 
 void PlayerInterceptor::setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore)

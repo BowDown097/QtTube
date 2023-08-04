@@ -1,6 +1,6 @@
 #include "notificationbell.h"
 #include "innertube.h"
-#include "ui/uiutilities.h"
+#include "utils/uiutils.h"
 
 constexpr const char* stylesheet = R"(
     QToolButton {
@@ -74,9 +74,9 @@ void NotificationBell::setVisualNotificationState(int stateId)
         break;
     }
 
-    allAction->setIcon(UIUtilities::iconThemed("notif-bell-all"));
-    noneAction->setIcon(UIUtilities::iconThemed("notif-bell-none"));
-    personalizedAction->setIcon(UIUtilities::iconThemed("notif-bell"));
+    allAction->setIcon(UIUtils::iconThemed("notif-bell-all"));
+    noneAction->setIcon(UIUtils::iconThemed("notif-bell-none"));
+    personalizedAction->setIcon(UIUtils::iconThemed("notif-bell"));
 }
 
 void NotificationBell::updateNotificationState(const QString& iconType)

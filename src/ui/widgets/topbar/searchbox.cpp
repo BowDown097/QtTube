@@ -1,13 +1,13 @@
 #include "searchbox.h"
-#include "ui/uiutilities.h"
+#include "utils/uiutils.h"
 
 SearchBox::SearchBox(QWidget* parent)
     : QWidget(parent),
       layout(new QHBoxLayout(this)),
       searchButton(new ExtToolButton(this)),
       searchForm(new QLineEdit(this)),
-      searchTypeActionLink(new QAction(UIUtilities::iconThemed("link"), "Link/ID", this)),
-      searchTypeActionQuery(new QAction(UIUtilities::iconThemed("search"), "Query", this)),
+      searchTypeActionLink(new QAction(UIUtils::iconThemed("link"), "Link/ID", this)),
+      searchTypeActionQuery(new QAction(UIUtils::iconThemed("search"), "Query", this)),
       searchTypeMenu(new ExtMenu(this))
 {
     setFixedHeight(35);
@@ -45,6 +45,6 @@ SearchBox::SearchBox(QWidget* parent)
 void SearchBox::updatePalette(const QPalette& pal)
 {
     setPalette(pal);
-    searchTypeActionLink->setIcon(UIUtilities::iconThemed("link", pal));
-    searchTypeActionQuery->setIcon(UIUtilities::iconThemed("search", pal));
+    searchTypeActionLink->setIcon(UIUtils::iconThemed("link", pal));
+    searchTypeActionQuery->setIcon(UIUtils::iconThemed("search", pal));
 }

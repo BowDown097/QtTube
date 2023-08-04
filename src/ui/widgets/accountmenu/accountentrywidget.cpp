@@ -1,6 +1,6 @@
 #include "accountentrywidget.h"
 #include "http.h"
-#include "ui/uiutilities.h"
+#include "utils/uiutils.h"
 #include <QMouseEvent>
 
 AccountEntryWidget::AccountEntryWidget(const CredentialSet& credSet, QWidget* parent)
@@ -42,5 +42,5 @@ void AccountEntryWidget::setAvatar(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     pixmap = pixmap.scaled(avatarLabel->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    avatarLabel->setPixmap(UIUtilities::pixmapRounded(pixmap, 15, 15));
+    avatarLabel->setPixmap(UIUtils::pixmapRounded(pixmap, 15, 15));
 }

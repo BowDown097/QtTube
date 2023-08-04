@@ -4,7 +4,7 @@
 #ifdef QTTUBE_USE_MPV
 #include "http.h"
 #include "lib/media/mpv/mediampv.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include <QMessageBox>
 #include <QRandomGenerator>
 #endif

@@ -1,10 +1,10 @@
-#include "uiutilities.h"
+#include "uiutils.h"
 #include "http.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include "ui/forms/mainwindow.h"
-#include "widgets/labels/tubelabel.h"
-#include "widgets/renderers/browsechannelrenderer.h"
-#include "widgets/renderers/browsevideorenderer.h"
+#include "ui/widgets/labels/tubelabel.h"
+#include "ui/widgets/renderers/browsechannelrenderer.h"
+#include "ui/widgets/renderers/browsevideorenderer.h"
 #include <QApplication>
 #include <QClipboard>
 #include <QPainter>
@@ -15,7 +15,7 @@
 #endif
 
 #ifdef Q_OS_WIN
-#include "osutilities.h"
+#include "osutils.h"
 #endif
 
 constexpr const char* darkStylesheet = R"(
@@ -37,14 +37,14 @@ constexpr const char* darkStylesheet = R"(
     }
 )";
 
-void UIUtilities::addBoldLabelToList(QListWidget* list, const QString& text)
+void UIUtils::addBoldLabelToList(QListWidget* list, const QString& text)
 {
     QLabel* label = new QLabel(text);
     label->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
     addWidgetToList(list, label);
 }
 
-void UIUtilities::addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel)
+void UIUtils::addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel)
 {
     if (SettingsStore::instance()->filteredChannels.contains(channel.channelId))
         return;
@@ -58,7 +58,7 @@ void UIUtilities::addChannelRendererToList(QListWidget* list, const InnertubeObj
     QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
 }
 
-void UIUtilities::addSeparatorToList(QListWidget* list)
+void UIUtils::addSeparatorToList(QListWidget* list)
 {
     QFrame* line = new QFrame;
     line->setFrameShape(QFrame::HLine);
@@ -66,19 +66,19 @@ void UIUtilities::addSeparatorToList(QListWidget* list)
     addWidgetToList(list, line);
 }
 
-void UIUtilities::addShelfTitleToList(QListWidget* list, const QJsonValue& shelf)
+void UIUtils::addShelfTitleToList(QListWidget* list, const QJsonValue& shelf)
 {
     addShelfTitleToList(list, InnertubeObjects::InnertubeString(shelf["title"]).text);
 }
 
-void UIUtilities::addShelfTitleToList(QListWidget* list, const QString& title)
+void UIUtils::addShelfTitleToList(QListWidget* list, const QString& title)
 {
     TubeLabel* shelfLabel = new TubeLabel(title);
     shelfLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
     addWidgetToList(list, shelfLabel);
 }
 
-void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
+void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
 {
     if (SettingsStore::instance()->filteredChannels.contains(reel.owner.id) ||
         SettingsStore::instance()->stringContainsFilteredTerm(reel.headline))
@@ -93,7 +93,7 @@ void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjec
     QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
 }
 
-void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
+void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
 {
     if (SettingsStore::instance()->filteredChannels.contains(video.owner.id) ||
         SettingsStore::instance()->stringContainsFilteredTerm(video.title.text) ||
@@ -112,7 +112,7 @@ void UIUtilities::addVideoRendererToList(QListWidget* list, const InnertubeObjec
     QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
 }
 
-QListWidgetItem* UIUtilities::addWidgetToList(QListWidget* list, QWidget* widget)
+QListWidgetItem* UIUtils::addWidgetToList(QListWidget* list, QWidget* widget)
 {
     QListWidgetItem* item = new QListWidgetItem(list);
     item->setSizeHint(widget->sizeHint());
@@ -121,14 +121,14 @@ QListWidgetItem* UIUtilities::addWidgetToList(QListWidget* list, QWidget* widget
     return item;
 }
 
-void UIUtilities::addWrappedLabelToList(QListWidget* list, const QString& text)
+void UIUtils::addWrappedLabelToList(QListWidget* list, const QString& text)
 {
     QLabel* label = new QLabel(text);
     label->setWordWrap(true);
     addWidgetToList(list, label);
 }
 
-void UIUtilities::clearLayout(QLayout* layout)
+void UIUtils::clearLayout(QLayout* layout)
 {
     while (QLayoutItem* item = layout->takeAt(0))
     {
@@ -140,7 +140,7 @@ void UIUtilities::clearLayout(QLayout* layout)
     }
 }
 
-void UIUtilities::copyToClipboard(const QString& text)
+void UIUtils::copyToClipboard(const QString& text)
 {
     QClipboard* clipboard = qApp->clipboard();
     clipboard->setText(text, QClipboard::Clipboard);
@@ -154,7 +154,7 @@ void UIUtilities::copyToClipboard(const QString& text)
 #endif
 }
 
-void UIUtilities::elide(QLabel* label, int targetWidth)
+void UIUtils::elide(QLabel* label, int targetWidth)
 {
     QFontMetrics fm(label->font());
     QString elidedText = fm.elidedText(label->text(), Qt::ElideRight, targetWidth);
@@ -162,12 +162,12 @@ void UIUtilities::elide(QLabel* label, int targetWidth)
     label->setText(elidedText);
 }
 
-QIcon UIUtilities::iconThemed(const QString& name, const QPalette& pal)
+QIcon UIUtils::iconThemed(const QString& name, const QPalette& pal)
 {
     return QIcon(resolveThemedIconName(name, pal));
 }
 
-QPixmap UIUtilities::pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius)
+QPixmap UIUtils::pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius)
 {
     QPixmap rounded(pixmap.size());
     rounded.fill(Qt::transparent);
@@ -182,26 +182,26 @@ QPixmap UIUtilities::pixmapRounded(const QPixmap& pixmap, double xRadius, double
     return rounded;
 }
 
-QPixmap UIUtilities::pixmapThemed(const QString& name, bool fromQIcon, const QSize& size, const QPalette& pal)
+QPixmap UIUtils::pixmapThemed(const QString& name, bool fromQIcon, const QSize& size, const QPalette& pal)
 {
     return fromQIcon ? QIcon(resolveThemedIconName(name, pal)).pixmap(size) : QPixmap(resolveThemedIconName(name, pal));
 }
 
-bool UIUtilities::preferDark(const QPalette& pal)
+bool UIUtils::preferDark(const QPalette& pal)
 {
     return pal == QPalette()
             ? qApp->palette().alternateBase().color().lightness() < 60
             : pal.alternateBase().color().lightness() < 60;
 }
 
-QString UIUtilities::resolveThemedIconName(const QString& name, const QPalette& pal)
+QString UIUtils::resolveThemedIconName(const QString& name, const QPalette& pal)
 {
     const QString baseFile = ":/" + name + ".svg";
     const QString lightFile = ":/" + name + "-light.svg";
-    return QFileInfo::exists(lightFile) && UIUtilities::preferDark(pal) ? lightFile : baseFile;
+    return QFileInfo::exists(lightFile) && UIUtils::preferDark(pal) ? lightFile : baseFile;
 }
 
-void UIUtilities::setAppStyle(const QString& styleName, bool dark)
+void UIUtils::setAppStyle(const QString& styleName, bool dark)
 {
     if (styleName == "Default")
     {
@@ -214,7 +214,7 @@ void UIUtilities::setAppStyle(const QString& styleName, bool dark)
     }
 
 #ifdef Q_OS_WIN
-    OSUtilities::setWinDarkModeEnabled(MainWindow::windowId(), dark);
+    OSUtils::setWinDarkModeEnabled(MainWindow::windowId(), dark);
 #endif
 
     if (dark)
@@ -241,19 +241,19 @@ void UIUtilities::setAppStyle(const QString& styleName, bool dark)
 }
 
 // this will be used for the description and perhaps elsewhere
-void UIUtilities::setMaximumLines(QWidget* widget, int lines)
+void UIUtils::setMaximumLines(QWidget* widget, int lines)
 {
     QFontMetrics fm(qApp->font());
     widget->setMaximumHeight(fm.lineSpacing() * lines);
 }
 
-void UIUtilities::setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes)
+void UIUtils::setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes)
 {
     for (int i : indexes)
         widget->setTabEnabled(i, enabled);
 }
 
-void UIUtilities::setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest)
+void UIUtils::setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest)
 {
     auto thumbsBegin = getBest
         ? std::ranges::max_element(thumbsArr, [](const QJsonValue& a, const QJsonValue& b) { return a["height"].toInt() < b["height"].toInt(); })

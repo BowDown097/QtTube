@@ -1,5 +1,5 @@
-#ifndef UIUTILITIES_H
-#define UIUTILITIES_H
+#ifndef UIUTILS_H
+#define UIUTILS_H
 #include "innertube/objects/channel/channel.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
@@ -9,7 +9,7 @@
 #include <QListWidget>
 #include <QTabWidget>
 
-class UIUtilities
+class UIUtils
 {
 public:
     static inline QString defaultStyle;
@@ -40,6 +40,6 @@ public:
     static T findParent(QWidget* widget);
 };
 
-#include "uiutilities.tpp"
+#include "uiutils.tpp"
 
-#endif // UIUTILITIES_H
+#endif // UIUTILS_H

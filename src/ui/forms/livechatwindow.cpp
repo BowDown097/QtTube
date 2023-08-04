@@ -4,7 +4,7 @@
 #include "innertube.h"
 #include "ui/forms/emojimenu.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "ui/uiutilities.h"
+#include "utils/uiutils.h"
 #include "ytemoji.h"
 #include <QScrollBar>
 #include <QVBoxLayout>
@@ -16,7 +16,7 @@ LiveChatWindow::LiveChatWindow(QWidget* parent) : QWidget(parent), ui(new Ui::Li
 
     TubeLabel* emojiMenuLabel = new TubeLabel(this);
     emojiMenuLabel->setClickable(true, false);
-    emojiMenuLabel->setPixmap(UIUtilities::pixmapThemed("emoji", true, QSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8)));
+    emojiMenuLabel->setPixmap(UIUtils::pixmapThemed("emoji", true, QSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8)));
     ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
 
     connect(emojiMenuLabel, &TubeLabel::clicked, this, &LiveChatWindow::showEmojiMenu);
@@ -67,7 +67,7 @@ void LiveChatWindow::addSpecialMessage(const QJsonValue& messageRenderer, const 
     subtextLabel->setWordWrap(true);
     messageLayout->addWidget(subtextLabel);
 
-    UIUtilities::addWidgetToList(ui->listWidget, messageWidget);
+    UIUtils::addWidgetToList(ui->listWidget, messageWidget);
 }
 
 void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& liveChat)
@@ -160,7 +160,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
             contentLayout->addStretch();
             messageLayout->addLayout(contentLayout);
 
-            UIUtilities::addWidgetToList(ui->listWidget, messageWidget);
+            UIUtils::addWidgetToList(ui->listWidget, messageWidget);
         }
         else if (item["liveChatMembershipItemRenderer"].isObject())
         {
@@ -227,7 +227,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
                 messageLayout->addWidget(messageLabel);
             }
 
-            UIUtilities::addWidgetToList(ui->listWidget, messageWidget);
+            UIUtils::addWidgetToList(ui->listWidget, messageWidget);
         }
         else if (item["liveChatSponsorshipsGiftRedemptionAnnouncementRenderer"].isObject())
         {
@@ -250,7 +250,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
             messageLabel->setWordWrap(true);
             announcementLayout->addWidget(messageLabel);
 
-            UIUtilities::addWidgetToList(ui->listWidget, announcementWidget);
+            UIUtils::addWidgetToList(ui->listWidget, announcementWidget);
         }
         else if (item["liveChatViewerEngagementMessageRenderer"].isObject())
         {
@@ -300,7 +300,7 @@ void LiveChatWindow::setAuthorIcon(const HttpReply& reply, QLabel* iconLabel)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     pixmap = pixmap.scaled(32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    iconLabel->setPixmap(UIUtilities::pixmapRounded(pixmap, 9999, 9999));
+    iconLabel->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
 }
 
 void LiveChatWindow::showEmojiMenu()

@@ -1,6 +1,6 @@
 #include "termfilterview.h"
 #include "ui_termfilterview.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include <QMessageBox>
 
 TermFilterView::TermFilterView(QWidget *parent) :

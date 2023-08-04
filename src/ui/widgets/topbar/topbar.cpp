@@ -3,11 +3,11 @@
 // is what this should be using instead of whatever the hell's going on.
 
 #include "topbar.h"
-#include "credentialsstore.h"
 #include "http.h"
 #include "innertube.h"
+#include "stores/credentialsstore.h"
 #include "ui/forms/settings/settingsform.h"
-#include "ui/uiutilities.h"
+#include "utils/uiutils.h"
 #include <QApplication>
 
 #ifdef INNERTUBE_NO_WEBENGINE
@@ -39,7 +39,7 @@ TopBar::TopBar(QWidget* parent)
     logo->move(10, 2);
     logo->resize(134, 30);
     logo->setClickable(true, false);
-    logo->setPixmap(UIUtilities::pixmapThemed("qttube-full", true, logo->size()));
+    logo->setPixmap(UIUtils::pixmapThemed("qttube-full", true, logo->size()));
     logo->setScaledContents(true);
 
     searchBox->move(152, 0);
@@ -48,7 +48,7 @@ TopBar::TopBar(QWidget* parent)
     settingsButton->move(673, 3);
     settingsButton->resize(30, 30);
     settingsButton->setClickable(true, false);
-    settingsButton->setPixmap(UIUtilities::pixmapThemed("settings"));
+    settingsButton->setPixmap(UIUtils::pixmapThemed("settings"));
     settingsButton->setScaledContents(true);
     connect(settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);
 
@@ -97,7 +97,7 @@ void TopBar::setUpAvatarButton()
             QPixmap pixmap;
             pixmap.loadFromData(reply.body());
             pixmap = pixmap.scaled(avatarButton->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-            avatarButton->setPixmap(UIUtilities::pixmapRounded(pixmap, 15, 15));
+            avatarButton->setPixmap(UIUtils::pixmapRounded(pixmap, 15, 15));
         });
     });
 }
@@ -177,8 +177,8 @@ void TopBar::updateNotificationCount()
 void TopBar::updatePalette(const QPalette& palette)
 {
     setPalette(palette);
-    logo->setPixmap(UIUtilities::pixmapThemed("qttube-full", true, logo->size(), palette));
+    logo->setPixmap(UIUtils::pixmapThemed("qttube-full", true, logo->size(), palette));
     notificationBell->updatePixmap(notificationBell->count->isVisible(), palette);
     searchBox->updatePalette(palette);
-    settingsButton->setPixmap(UIUtilities::pixmapThemed("settings", false, QSize(), palette));
+    settingsButton->setPixmap(UIUtils::pixmapThemed("settings", false, QSize(), palette));
 }

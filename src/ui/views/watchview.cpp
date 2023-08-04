@@ -2,11 +2,11 @@
 #include "watchview_ui.h"
 #include "http.h"
 #include "innertube.h"
-#include "osutilities.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include "ui/forms/livechatwindow.h"
 #include "ui/forms/mainwindow.h"
-#include "ui/uiutilities.h"
+#include "utils/osutils.h"
+#include "utils/uiutils.h"
 #include <QDesktopServices>
 #include <QScrollBar>
 
@@ -14,12 +14,12 @@ WatchView::~WatchView()
 {
     delete ui;
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
-    OSUtilities::toggleIdleSleep(false);
+    OSUtils::toggleIdleSleep(false);
 }
 
 WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QWidget(parent), ui(new Ui::WatchView)
 {
-    OSUtilities::toggleIdleSleep(true);
+    OSUtils::toggleIdleSleep(true);
     MainWindow::topbar()->setVisible(false);
     MainWindow::topbar()->alwaysShow = false;
 
@@ -123,7 +123,7 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
     if (metadataUpdateTimer)
         metadataUpdateTimer->deleteLater();
 
-    UIUtilities::clearLayout(ui->topLevelButtons);
+    UIUtils::clearLayout(ui->topLevelButtons);
     disconnect(ui->channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
 
     InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
@@ -316,7 +316,7 @@ void WatchView::showContextMenu(const QPoint& pos)
     QMenu* menu = new QMenu(this);
 
     QAction* copyUrlAction = new QAction("Copy channel page URL", this);
-    connect(copyUrlAction, &QAction::triggered, this, std::bind(&UIUtilities::copyToClipboard, "https://www.youtube.com/channel/" + channelId));
+    connect(copyUrlAction, &QAction::triggered, this, std::bind(&UIUtils::copyToClipboard, "https://www.youtube.com/channel/" + channelId));
 
     menu->addAction(copyUrlAction);
     menu->popup(ui->channelLabel->text->mapToGlobal(pos));

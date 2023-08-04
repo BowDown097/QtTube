@@ -1,7 +1,7 @@
 #include "watchview_ui.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include "ui/forms/mainwindow.h"
-#include "ui/uiutilities.h"
+#include "utils/uiutils.h"
 #include <QApplication>
 
 constexpr const char* likeBarStyle = R"(
@@ -43,7 +43,7 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
     description->setFixedWidth(player->size().width());
     description->setTextFormat(Qt::RichText);
     description->setWordWrap(true);
-    UIUtilities::setMaximumLines(description, 3);
+    UIUtils::setMaximumLines(description, 3);
     frame->layout()->addWidget(description);
 
     showMoreLabel = new TubeLabel(watchView);
@@ -164,7 +164,7 @@ void WatchView_Ui::toggleShowMore()
     }
     else
     {
-        UIUtilities::setMaximumLines(description, 3);
+        UIUtils::setMaximumLines(description, 3);
         showMoreLabel->setText("SHOW MORE");
     }
 }

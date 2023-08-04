@@ -1,7 +1,7 @@
 #include "browsechannelrenderer.h"
 #include "http.h"
-#include "settingsstore.h"
-#include "ui/uiutilities.h"
+#include "stores/settingsstore.h"
+#include "utils/uiutils.h"
 #include "ui/views/viewcontroller.h"
 #include <QApplication>
 #include <QMenu>
@@ -25,7 +25,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
     textVbox->addWidget(metadataLabel);
 
     descriptionLabel->setWordWrap(true);
-    UIUtilities::setMaximumLines(descriptionLabel, 2);
+    UIUtils::setMaximumLines(descriptionLabel, 2);
     textVbox->addWidget(descriptionLabel);
 
     thumbLabel->setClickable(true, false);
@@ -42,7 +42,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
 
 void BrowseChannelRenderer::copyChannelUrl()
 {
-    UIUtilities::copyToClipboard("https://www.youtube.com/channel/" + channelId);
+    UIUtils::copyToClipboard("https://www.youtube.com/channel/" + channelId);
 }
 
 void BrowseChannelRenderer::navigateChannel()

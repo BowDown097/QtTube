@@ -69,14 +69,12 @@ endif()
 # Source files
 set(SOURCE_FILES
     src/main.cpp
-    src/credentialsstore.cpp
-    src/osutilities.cpp
     src/qttubeapplication.cpp
-    src/settingsstore.cpp
     src/ytemoji.cpp
+    src/stores/credentialsstore.cpp
+    src/stores/settingsstore.cpp
     src/ui/browsehelper.cpp
     src/ui/channelbrowser.cpp
-    src/ui/uiutilities.cpp
     src/ui/forms/emojimenu.cpp
     src/ui/forms/livechatwindow.cpp
     src/ui/forms/mainwindow.cpp
@@ -108,20 +106,19 @@ set(SOURCE_FILES
     src/ui/widgets/topbar/searchbox.cpp
     src/ui/widgets/topbar/topbar.cpp
     src/ui/widgets/topbar/topbarbell.cpp
+    src/utils/osutils.cpp
+    src/utils/uiutils.cpp
     res/resources.qrc
 )
 
 set(HEADERS
-    src/credentialsstore.h
-    src/osutilities.h
     src/qttubeapplication.h
-    src/settingsstore.h
     src/ytemoji.h
+    src/stores/credentialsstore.h
+    src/stores/settingsstore.h
     src/ui/browsehelper.h
     src/ui/browsehelper.tpp
     src/ui/channelbrowser.h
-    src/ui/uiutilities.h
-    src/ui/uiutilities.tpp
     src/ui/forms/emojimenu.h
     src/ui/forms/livechatwindow.h
     src/ui/forms/mainwindow.h
@@ -153,6 +150,9 @@ set(HEADERS
     src/ui/widgets/topbar/searchbox.h
     src/ui/widgets/topbar/topbar.h
     src/ui/widgets/topbar/topbarbell.h
+    src/utils/osutils.h
+    src/utils/uiutils.h
+    src/utils/uiutils.tpp
 )
 
 set(FORMS

@@ -1,5 +1,5 @@
-#ifndef OSUTILITIES_H
-#define OSUTILITIES_H
+#ifndef OSUTILS_H
+#define OSUTILS_H
 #include <qglobal.h>
 
 #ifdef Q_OS_WIN
@@ -9,7 +9,7 @@
 #endif
 
 // Windows-related code skidded from https://github.com/PolyMC/PolyMC/blob/develop/launcher/ui/WinDarkmode.cpp
-namespace OSUtilities
+namespace OSUtils
 {
     void toggleIdleSleep(bool toggle);
 #ifdef Q_OS_WIN
@@ -74,4 +74,4 @@ namespace OSUtilities
 #endif
 }
 
-#endif // OSUTILITIES_H
+#endif // OSUTILS_H

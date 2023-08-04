@@ -1,14 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "credentialsstore.h"
 #include "innertube.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
+#include "stores/credentialsstore.h"
 #include "ui/browsehelper.h"
 #include "ui/views/channelview.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/views/watchview.h"
 #include "ui/widgets/accountmenu/accountcontrollerwidget.h"
-#include "ui/uiutilities.h"
+#include "utils/uiutils.h"
 #include <QComboBox>
 #include <QScrollBar>
 
@@ -70,8 +70,8 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
 
     CredentialsStore::instance()->initializeFromStoreFile();
     SettingsStore::instance()->initializeFromSettingsFile();
-    UIUtilities::defaultStyle = qApp->style()->objectName();
-    UIUtilities::setAppStyle(SettingsStore::instance()->appStyle, SettingsStore::instance()->darkTheme);
+    UIUtils::defaultStyle = qApp->style()->objectName();
+    UIUtils::setAppStyle(SettingsStore::instance()->appStyle, SettingsStore::instance()->darkTheme);
 
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20230718.01.00", "DESKTOP"));
     tryRestoreData();
@@ -87,7 +87,7 @@ void MainWindow::browse()
     if (doNotBrowse)
         return;
 
-    UIUtilities::clearLayout(ui->additionalWidgets);
+    UIUtils::clearLayout(ui->additionalWidgets);
     ui->historySearchWidget->clear();
     ui->historyWidget->clear();
     ui->homeWidget->clear();
@@ -166,11 +166,11 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 
 void MainWindow::returnFromSearch()
 {
-    UIUtilities::clearLayout(ui->additionalWidgets);
+    UIUtils::clearLayout(ui->additionalWidgets);
     doNotBrowse = true;
     disconnect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromSearch);
     ui->tabWidget->setTabEnabled(4, false);
-    UIUtilities::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
+    UIUtils::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(0);
     ui->searchWidget->clear();
@@ -181,7 +181,7 @@ void MainWindow::returnFromWatchHistorySearch()
     doNotBrowse = true;
     disconnect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
     ui->tabWidget->setTabEnabled(5, false);
-    UIUtilities::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
+    UIUtils::setTabsEnabled(ui->tabWidget, true, {0, 1, 2, 3});
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(3);
     ui->historySearchWidget->clear();
@@ -259,7 +259,7 @@ void MainWindow::searchByLink(const QString& link)
 void MainWindow::searchByQuery(const QString& query)
 {
     m_topbar->alwaysShow = true;
-    UIUtilities::clearLayout(ui->additionalWidgets);
+    UIUtils::clearLayout(ui->additionalWidgets);
     ui->historySearchWidget->clear();
 
     if (ChannelView* channelView = qobject_cast<ChannelView*>(ui->centralwidget->currentWidget()))
@@ -304,7 +304,7 @@ void MainWindow::searchByQuery(const QString& query)
         doNotBrowse = true;
         connect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromSearch);
         ui->tabWidget->setTabEnabled(4, true);
-        UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3, 5});
+        UIUtils::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3, 5});
         doNotBrowse = false;
         ui->tabWidget->setCurrentIndex(4);
     }
@@ -332,7 +332,7 @@ void MainWindow::searchWatchHistory()
     doNotBrowse = true;
     connect(m_topbar->logo, &TubeLabel::clicked, this, &MainWindow::returnFromWatchHistorySearch);
     ui->tabWidget->setTabEnabled(5, true);
-    UIUtilities::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3});
+    UIUtils::setTabsEnabled(ui->tabWidget, false, {0, 1, 2, 3});
     doNotBrowse = false;
     ui->tabWidget->setCurrentIndex(5);
 

@@ -2,10 +2,10 @@
 #include "channelbrowser.h"
 #include "http.h"
 #include "protobuf/simpleprotobuf.h"
-#include "settingsstore.h"
-#include "uiutilities.h"
+#include "stores/settingsstore.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
+#include "utils/uiutils.h"
 #include <QApplication>
 
 BrowseHelper* BrowseHelper::instance()
@@ -170,7 +170,7 @@ void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& chan
 {
     for (const InnertubeObjects::Channel& channel : channels)
     {
-        UIUtilities::addChannelRendererToList(widget, channel);
+        UIUtils::addChannelRendererToList(widget, channel);
         QCoreApplication::processEvents();
     }
 }
@@ -181,7 +181,7 @@ void BrowseHelper::setupNotificationList(const QList<InnertubeObjects::Notificat
     {
         BrowseNotificationRenderer* renderer = new BrowseNotificationRenderer(widget);
         renderer->setData(n);
-        UIUtilities::addWidgetToList(widget, renderer);
+        UIUtils::addWidgetToList(widget, renderer);
 
         HttpReply* iconReply = Http::instance().get(n.channelIcon.url);
         connect(iconReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setChannelIcon);
@@ -200,11 +200,11 @@ void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, 
     {
         if (!video.shelf.text.isEmpty() && video.shelf.text != lastShelf)
         {
-            UIUtilities::addShelfTitleToList(widget, video.shelf.text);
+            UIUtils::addShelfTitleToList(widget, video.shelf.text);
             lastShelf = video.shelf.text;
         }
 
-        UIUtilities::addVideoRendererToList(widget, video);
+        UIUtils::addVideoRendererToList(widget, video);
         QCoreApplication::processEvents();
     }
 }

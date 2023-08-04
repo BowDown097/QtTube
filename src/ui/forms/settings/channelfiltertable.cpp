@@ -1,7 +1,7 @@
 #include "channelfiltertable.h"
 #include "ui_channelfiltertable.h"
 #include "innertube.h"
-#include "settingsstore.h"
+#include "stores/settingsstore.h"
 #include <QMessageBox>
 
 ChannelFilterTable::ChannelFilterTable(QWidget* parent) : QWidget(parent), ui(new Ui::ChannelFilterTable)

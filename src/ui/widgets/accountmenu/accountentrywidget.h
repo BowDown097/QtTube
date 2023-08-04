@@ -1,7 +1,7 @@
 #ifndef ACCOUNTENTRYWIDGET_H
 #define ACCOUNTENTRYWIDGET_H
-#include "credentialsstore.h"
 #include "httpreply.h"
+#include "stores/credentialsstore.h"
 #include <QHBoxLayout>
 #include <QLabel>
 

@@ -1,8 +1,8 @@
-#ifndef UIUTILITIES_TPP
-#define UIUTILITIES_TPP
+#ifndef UIUTILS_TPP
+#define UIUTILS_TPP
 
 template<typename T>
-T UIUtilities::findParent(QWidget* widget)
+T UIUtils::findParent(QWidget* widget)
 {
     QWidget* parentWidget = widget->parentWidget();
     while (parentWidget)
@@ -15,4 +15,4 @@ T UIUtilities::findParent(QWidget* widget)
     return nullptr;
 }
 
-#endif // UIUTILITIES_TPP
+#endif // UIUTILS_TPP
