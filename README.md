@@ -3,8 +3,9 @@
 QtTube is a Qt frontend for YouTube made in C++ that aims to emulate the normal YouTube experience as close as possible. It's more private and it supports logging in, and with that, total integration with the YouTube website and app. It also comes with considerable improvements to performance and resource usage over the YouTube website.
 
 # Installation
-The latest development versions can be installed on Arch Linux and its derivatives through the AUR:<br>
+Linux development builds can be installed [through the AUR on Arch-based distros](https://aur.archlinux.org/packages/qttube-git/) or [as an AppImage or tarball](https://github.com/BowDown097/QtTube/actions):<br>
 [![qttube-git](https://img.shields.io/badge/aur-qttube--git-blue)](https://aur.archlinux.org/packages/qttube-git/)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/BowDown097/QtTube/build.yml)](https://github.com/BowDown097/QtTube/actions)
 
 Outside of that, you will need to build the program yourself - [instructions are provided if needed](https://github.com/BowDown097/QtTube/blob/master/BUILD_INSTRUCTIONS.md). There are no releases yet and there is no ETA for when there will be one.
 
