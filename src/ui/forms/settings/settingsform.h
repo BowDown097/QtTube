@@ -15,6 +15,7 @@ public:
     ~SettingsForm();
 private slots:
     void saveSettings();
+    void toggleDeArrowSettings(Qt::CheckState state);
 private:
     Ui::SettingsForm *ui;
 };

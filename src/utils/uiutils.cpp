@@ -81,22 +81,20 @@ void UIUtils::addShelfTitleToList(QListWidget* list, const QString& title)
 void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
 {
     if (SettingsStore::instance()->filteredChannels.contains(reel.owner.id) ||
-        SettingsStore::instance()->stringContainsFilteredTerm(reel.headline))
+        SettingsStore::instance()->strHasFilteredTerm(reel.headline))
         return;
 
     BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
     renderer->setData(reel);
     renderer->setTargetElisionWidth(list->width() - 240);
+    renderer->setThumbnail(reel.thumbnails[0].url);
     addWidgetToList(list, renderer);
-
-    HttpReply* reply = Http::instance().get(reel.thumbnails[0].url);
-    QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
 }
 
 void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
 {
     if (SettingsStore::instance()->filteredChannels.contains(video.owner.id) ||
-        SettingsStore::instance()->stringContainsFilteredTerm(video.title.text) ||
+        SettingsStore::instance()->strHasFilteredTerm(video.title.text) ||
         (SettingsStore::instance()->hideShorts && video.navigationEndpoint["reelWatchEndpoint"].isObject()) ||
         (SettingsStore::instance()->hideStreams && video.isLive))
     {
@@ -106,10 +104,8 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
     BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
     renderer->setData(video);
     renderer->setTargetElisionWidth(list->width() - 240);
+    renderer->setThumbnail(video.thumbnail.mqdefault);
     addWidgetToList(list, renderer);
-
-    HttpReply* reply = Http::instance().get(video.thumbnail.mqdefault);
-    QObject::connect(reply, &HttpReply::finished, renderer, &BrowseVideoRenderer::setThumbnail);
 }
 
 QListWidgetItem* UIUtils::addWidgetToList(QListWidget* list, QWidget* widget)

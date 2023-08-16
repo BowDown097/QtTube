@@ -14,14 +14,15 @@ public:
     void setData(const InnertubeObjects::Reel& reel);
     void setData(const InnertubeObjects::Video& video);
     void setTargetElisionWidth(int width) { targetElisionWidth = width; }
-public slots:
-    void setThumbnail(const HttpReply& reply);
+    void setThumbnail(const QString& url);
 private slots:
     void copyChannelUrl();
     void copyDirectUrl();
     void copyVideoUrl();
     void navigateChannel();
     void navigateVideo();
+    void setDeArrowData(const HttpReply& reply, const QString& fallbackThumbUrl);
+    void setThumbnailData(const HttpReply& reply);
     void showChannelContextMenu(const QPoint& pos);
     void showTitleContextMenu(const QPoint& pos);
 private:

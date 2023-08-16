@@ -1,4 +1,5 @@
 #include "browsevideorenderer.h"
+#include "http.h"
 #include "innertube.h"
 #include "stores/settingsstore.h"
 #include "utils/uiutils.h"
@@ -126,8 +127,57 @@ void BrowseVideoRenderer::setData(const InnertubeObjects::Video& video)
     titleLabel->setToolTip(title);
 }
 
-void BrowseVideoRenderer::setThumbnail(const HttpReply& reply)
+void BrowseVideoRenderer::setDeArrowData(const HttpReply& reply, const QString& thumbFallbackUrl)
 {
+    if (!reply.isSuccessful())
+    {
+        HttpReply* reply = Http::instance().get(thumbFallbackUrl);
+        connect(reply, &HttpReply::finished, this, &BrowseVideoRenderer::setThumbnailData);
+        return;
+    }
+
+    QJsonValue obj = QJsonDocument::fromJson(reply.body()).object();
+    const QJsonArray titles = obj["titles"].toArray();
+    const QJsonArray thumbs = obj["thumbnails"].toArray();
+
+    if (SettingsStore::instance()->deArrowTitles && !titles.isEmpty() && (titles[0]["locked"].toBool() || titles[0]["votes"].toInt() >= 0))
+    {
+        titleLabel->setText(titles[0]["title"].toString());
+        titleLabel->setToolTip(titles[0]["title"].toString());
+    }
+
+    if (SettingsStore::instance()->deArrowThumbs && !thumbs.isEmpty() && (thumbs[0]["locked"].toBool() || thumbs[0]["votes"].toInt() >= 0))
+    {
+        HttpReply* reply = Http::instance().get(QStringLiteral("https://dearrow-thumb.ajay.app/api/v1/getThumbnail?videoID=%1&timestamp=%2")
+                                                    .arg(videoId).arg(thumbs[0]["timestamp"].toDouble()));
+        connect(reply, &HttpReply::finished, this, &BrowseVideoRenderer::setThumbnailData);
+    }
+    else
+    {
+        HttpReply* reply = Http::instance().get(thumbFallbackUrl);
+        connect(reply, &HttpReply::finished, this, &BrowseVideoRenderer::setThumbnailData);
+    }
+}
+
+void BrowseVideoRenderer::setThumbnail(const QString& url)
+{
+    if (SettingsStore::instance()->deArrow)
+    {
+        HttpReply* arrowReply = Http::instance().get("https://sponsor.ajay.app/api/branding?videoID=" + videoId);
+        connect(arrowReply, &HttpReply::finished, this, std::bind(&BrowseVideoRenderer::setDeArrowData, this, std::placeholders::_1, url));
+    }
+    else
+    {
+        HttpReply* reply = Http::instance().get(url);
+        connect(reply, &HttpReply::finished, this, &BrowseVideoRenderer::setThumbnailData);
+    }
+}
+
+void BrowseVideoRenderer::setThumbnailData(const HttpReply& reply)
+{
+    if (reply.statusCode() != 200)
+        return;
+
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     thumbLabel->setPixmap(pixmap.scaled(240, thumbLabel->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));

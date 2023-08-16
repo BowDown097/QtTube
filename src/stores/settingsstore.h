@@ -12,6 +12,9 @@ class SettingsStore : public QObject
     Q_PROPERTY(QString appStyle MEMBER appStyle NOTIFY appStyleChanged)
     Q_PROPERTY(bool condensedViews MEMBER condensedViews NOTIFY condensedViewsChanged)
     Q_PROPERTY(bool darkTheme MEMBER darkTheme NOTIFY darkThemeChanged)
+    Q_PROPERTY(bool deArrow MEMBER deArrow NOTIFY deArrowChanged)
+    Q_PROPERTY(bool deArrowThumbs MEMBER deArrowThumbs NOTIFY deArrowThumbsChanged)
+    Q_PROPERTY(bool deArrowTitles MEMBER deArrowTitles NOTIFY deArrowTitlesChanged)
     Q_PROPERTY(bool disable60Fps MEMBER disable60Fps NOTIFY disable60FpsChanged)
     Q_PROPERTY(bool disablePlayerInfoPanels MEMBER disablePlayerInfoPanels NOTIFY disablePlayerInfoPanelsChanged)
     Q_PROPERTY(QStringList filteredChannels MEMBER filteredChannels NOTIFY filteredChannelsChanged)
@@ -40,6 +43,9 @@ public:
     QString appStyle;
     bool condensedViews;
     bool darkTheme;
+    bool deArrow;
+    bool deArrowThumbs;
+    bool deArrowTitles;
     bool disable60Fps;
     bool disablePlayerInfoPanels;
     QStringList filteredChannels;
@@ -63,7 +69,7 @@ public:
 
     void initializeFromSettingsFile();
     void saveToSettingsFile();
-    bool stringContainsFilteredTerm(const QString& str);
+    bool strHasFilteredTerm(const QString& str);
 private:
     static inline SettingsStore* m_instance;
     static inline std::once_flag m_onceFlag;
@@ -74,6 +80,9 @@ signals:
     void appStyleChanged(const QString&);
     void condensedViewsChanged(bool);
     void darkThemeChanged(bool);
+    void deArrowChanged(bool);
+    void deArrowThumbsChanged(bool);
+    void deArrowTitlesChanged(bool);
     void disable60FpsChanged(bool);
     void disablePlayerInfoPanelsChanged(bool);
     void filteredChannelsChanged(const QStringList&);

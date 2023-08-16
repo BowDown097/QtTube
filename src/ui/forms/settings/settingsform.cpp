@@ -52,7 +52,13 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->blockSelfPromo->setChecked(store->sponsorBlockCategories.contains("selfpromo"));
     ui->blockSponsor->setChecked(store->sponsorBlockCategories.contains("sponsor"));
     ui->showSBToasts->setChecked(store->showSBToasts);
+    // dearrow
+    ui->deArrow->setChecked(store->deArrow);
+    ui->deArrowThumbs->setChecked(store->deArrowThumbs);
+    ui->deArrowTitles->setChecked(store->deArrowTitles);
+    toggleDeArrowSettings(ui->deArrow->checkState());
 
+    connect(ui->deArrow, &QCheckBox::stateChanged, this, [this](int state) { toggleDeArrowSettings(static_cast<Qt::CheckState>(state)); });
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
     connect(ui->showFilteredChannels, &QPushButton::clicked, this, [] {
         ChannelFilterTable* ft = new ChannelFilterTable;
@@ -107,12 +113,22 @@ void SettingsForm::saveSettings()
     if (ui->blockSponsor->isChecked() && !store->sponsorBlockCategories.contains("sponsor"))
         store->sponsorBlockCategories.append("sponsor");
     store->showSBToasts = ui->showSBToasts->isChecked();
+    // dearrow
+    store->deArrow = ui->deArrow->isChecked();
+    store->deArrowThumbs = ui->deArrowThumbs->isChecked();
+    store->deArrowTitles = ui->deArrowTitles->isChecked();
 
     store->saveToSettingsFile();
     store->initializeFromSettingsFile();
 
     UIUtils::setAppStyle(store->appStyle, store->darkTheme);
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
+}
+
+void SettingsForm::toggleDeArrowSettings(Qt::CheckState state)
+{
+    ui->deArrowThumbs->setEnabled(state == Qt::Checked);
+    ui->deArrowTitles->setEnabled(state == Qt::Checked);
 }
 
 SettingsForm::~SettingsForm()

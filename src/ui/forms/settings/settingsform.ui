@@ -554,6 +554,65 @@
        </property>
       </widget>
      </widget>
+     <widget class="QWidget" name="deArrowTab">
+      <attribute name="title">
+       <string>DeArrow</string>
+      </attribute>
+      <widget class="QCheckBox" name="deArrow">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>400</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>DeArrow is an open source browser extension for crowdsourcing better titles and thumbnails on YouTube.</string>
+       </property>
+       <property name="text">
+        <string>Enable 'DeArrow' integration</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="deArrowTitles">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>400</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Replace titles</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="deArrowThumbs">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>400</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Replace thumbnails</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
      <widget class="QWidget" name="about">
       <attribute name="title">
        <string>About</string>

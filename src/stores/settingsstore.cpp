@@ -35,6 +35,10 @@ void SettingsStore::initializeFromSettingsFile()
     // sponsorblock
     showSBToasts = settings.value("sponsorBlock/toasts", true).toBool();
     readIntoStringList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
+    // dearrow
+    deArrow = settings.value("deArrow/enabled", false).toBool();
+    deArrowThumbs = settings.value("deArrow/thumbs", true).toBool();
+    deArrowTitles = settings.value("deArrow/titles", true).toBool();
 }
 
 void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key)
@@ -79,9 +83,13 @@ void SettingsStore::saveToSettingsFile()
     // sponsorblock
     settings.setValue("sponsorBlock/toasts", showSBToasts);
     writeStringList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
+    // dearrow
+    settings.setValue("deArrow/enabled", deArrow);
+    settings.setValue("deArrow/thumbs", deArrowThumbs);
+    settings.setValue("deArrow/titles", deArrowTitles);
 }
 
-bool SettingsStore::stringContainsFilteredTerm(const QString& str)
+bool SettingsStore::strHasFilteredTerm(const QString& str)
 {
     return std::ranges::any_of(filteredTerms, [&str](const QString& term) { return str.contains(term, Qt::CaseInsensitive); });
 }
