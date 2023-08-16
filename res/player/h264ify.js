@@ -1,5 +1,5 @@
 function h264ify(h264Only, no60Fps) {
-    if (h264Only != 1 && no60Fps != 1)
+    if (!h264Only && !no60Fps)
         return;
 
     // Override video element canPlayType() function
@@ -23,13 +23,13 @@ function makeModifiedTypeChecker(origChecker, h264Only, no60Fps) {
         if (type === undefined)
             return '';
 
-        if (h264Only == 1) {
+        if (h264Only) {
             const disallowedTypes = ['webm', 'vp8', 'vp08', 'vp9', 'vp09', 'av01'];
             if (disallowedTypes.some(disallowedType => type.includes(disallowedType)))
                 return '';
         }
 
-        if (no60Fps == 1) {
+        if (no60Fps) {
             const match = /framerate=(\d+)/.exec(type);
             if (match && match[1] > 30)
                 return '';

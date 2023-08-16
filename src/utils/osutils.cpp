@@ -1,6 +1,5 @@
 #include "osutils.h"
 #include <QDebug>
-#include <QString>
 
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
 # include <QApplication>
@@ -20,7 +19,7 @@ namespace OSUtils
 {
     void toggleIdleSleep(bool toggle)
     {
-        const QString status = toggle ? "enable" : "disable";
+        const char* status = toggle ? "enable" : "disable";
         #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
         # ifdef QTTUBE_HAS_XSS
         if (qApp->platformName() != "xcb")

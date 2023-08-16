@@ -76,7 +76,7 @@ void BrowseChannelRenderer::setData(const QString& channelId, const QString& des
         QNetworkAccessManager* manager = new QNetworkAccessManager(this);
         manager->setTransferTimeout(2000);
 
-        QNetworkReply* reply = manager->get(QNetworkRequest(QUrl("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId)));
+        QNetworkReply* reply = manager->get(QNetworkRequest("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId));
         connect(reply, &QNetworkReply::finished, this, [this, reply, subCount, videoCount] {
             reply->deleteLater();
             reply->manager()->deleteLater();
