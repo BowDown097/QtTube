@@ -27,7 +27,7 @@ private:
     QString cachePath(const QByteArray &key) const;
     bool isCached(const QString &path);
     void expire();
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     void debugStats();
 #endif
 
@@ -39,7 +39,7 @@ private:
     QMutex mutex;
     uint insertCount;
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     uint hits;
     uint misses;
 #endif

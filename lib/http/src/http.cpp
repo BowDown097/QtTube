@@ -156,24 +156,24 @@ HttpReply *Http::post(const QUrl &url, const QByteArray &body, const QByteArray 
 
 
 HttpReply *Http::put(const QUrl &url, const QByteArray &body, const QByteArray &contentType) {
-	HttpRequest req;
-	req.url = url;
-	req.operation = QNetworkAccessManager::PutOperation;
-	req.body = body;
-	req.headers = requestHeaders;
-	QByteArray cType = contentType;
-	if (cType.isEmpty()) cType = "application/x-www-form-urlencoded";
-	req.headers.insert("Content-Type", cType);
-	return request(req);
+    HttpRequest req;
+    req.url = url;
+    req.operation = QNetworkAccessManager::PutOperation;
+    req.body = body;
+    req.headers = requestHeaders;
+    QByteArray cType = contentType;
+    if (cType.isEmpty()) cType = "application/x-www-form-urlencoded";
+    req.headers.insert("Content-Type", cType);
+    return request(req);
 }
 
 
 HttpReply *Http::deleteResource(const QUrl &url) {
-	HttpRequest req;
-	req.url = url;
-	req.operation = QNetworkAccessManager::DeleteOperation;
-	req.headers = requestHeaders;
-	return request(req);
+    HttpRequest req;
+    req.url = url;
+    req.operation = QNetworkAccessManager::DeleteOperation;
+    req.headers = requestHeaders;
+    return request(req);
 }
 
 int Http::getMaxRetries() const {

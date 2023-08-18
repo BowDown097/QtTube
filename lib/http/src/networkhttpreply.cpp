@@ -13,31 +13,27 @@ NetworkHttpReply::NetworkHttpReply(const HttpRequest &req, Http &http)
     readTimeoutTimer = new QTimer(this);
     readTimeoutTimer->setInterval(http.getReadTimeout());
     readTimeoutTimer->setSingleShot(true);
-    connect(readTimeoutTimer, SIGNAL(timeout()), SLOT(readTimeout()), Qt::UniqueConnection);
+    connect(readTimeoutTimer, &QTimer::timeout, this, &NetworkHttpReply::readTimeout, Qt::UniqueConnection);
     readTimeoutTimer->start();
 }
 
 void NetworkHttpReply::setupReply() {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    connect(networkReply, &QNetworkReply::errorOccurred, this, &NetworkHttpReply::replyError,
-            Qt::UniqueConnection);
+    connect(networkReply, &QNetworkReply::errorOccurred, this, &NetworkHttpReply::replyError, Qt::UniqueConnection);
 #else
-    connect(networkReply, SIGNAL(error(QNetworkReply::NetworkError)),
-            SLOT(replyError(QNetworkReply::NetworkError)), Qt::UniqueConnection);
+    connect(networkReply, &QNetworkReply::error, this, &NetworkHttpReply::replyError, Qt::UniqueConnection);
 #endif
-    connect(networkReply, SIGNAL(finished()), SLOT(replyFinished()), Qt::UniqueConnection);
-    connect(networkReply, SIGNAL(downloadProgress(qint64, qint64)),
-            SLOT(downloadProgress(qint64, qint64)), Qt::UniqueConnection);
+    connect(networkReply, &QNetworkReply::finished, this, &NetworkHttpReply::replyFinished, Qt::UniqueConnection);
+    connect(networkReply, &QNetworkReply::downloadProgress, this, &NetworkHttpReply::downloadProgress, Qt::UniqueConnection);
 }
 
 QString NetworkHttpReply::errorMessage() {
-    return url().toString() + QLatin1Char(' ') + QString::number(statusCode()) + QLatin1Char(' ') +
-           reasonPhrase();
+    return url().toString() + QLatin1Char(' ') + QString::number(statusCode()) + QLatin1Char(' ') + reasonPhrase();
 }
 
 void NetworkHttpReply::emitError() {
     const QString msg = errorMessage();
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     qDebug() << "Http:" << msg;
     if (!req.body.isEmpty()) qDebug() << "Http:" << req.body;
 #endif
@@ -65,7 +61,9 @@ void NetworkHttpReply::replyFinished() {
         HttpRequest redirectReq;
         if (redirection.isRelative()) redirection = networkReply->url().resolved(redirection);
         redirectReq.url = redirection;
+# ifdef HTTP_DEBUG
         qDebug() << "Redirected to" << redirectReq.url;
+# endif
         redirectReq.operation = req.operation;
         redirectReq.body = req.body;
         redirectReq.offset = req.offset;
@@ -93,7 +91,9 @@ void NetworkHttpReply::replyError(QNetworkReply::NetworkError code) {
     if (retryCount <= http.getMaxRetries() && status >= 500 && status < 600 &&
         (networkReply->operation() == QNetworkAccessManager::GetOperation ||
          networkReply->operation() == QNetworkAccessManager::HeadOperation)) {
+#ifdef HTTP_DEBUG
         qDebug() << "Retrying" << status << QVariant(req.operation).toString() << req.url;
+#endif
         networkReply->disconnect();
         networkReply->deleteLater();
         QNetworkReply *retryReply = http.networkReply(req);
@@ -109,16 +109,16 @@ void NetworkHttpReply::replyError(QNetworkReply::NetworkError code) {
 }
 
 void NetworkHttpReply::downloadProgress(qint64 bytesReceived, qint64 /* bytesTotal */) {
-    // qDebug() << "Downloading" << bytesReceived << bytesTotal << networkReply->url();
     if (bytesReceived > 0 && readTimeoutTimer->isActive()) {
         readTimeoutTimer->stop();
-        disconnect(networkReply, SIGNAL(downloadProgress(qint64, qint64)), this,
-                   SLOT(downloadProgress(qint64, qint64)));
+        disconnect(networkReply, &QNetworkReply::downloadProgress, this, &NetworkHttpReply::downloadProgress);
     }
 }
 
 void NetworkHttpReply::readTimeout() {
+#ifdef HTTP_DEBUG
     qDebug() << "Timeout" << req.url;
+#endif
 
     if (!networkReply) return;
 

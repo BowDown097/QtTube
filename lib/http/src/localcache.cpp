@@ -13,14 +13,14 @@ LocalCache::LocalCache(const QByteArray &name)
     : name(name), maxSeconds(86400 * 30), maxSize(1024 * 1024 * 100), size(0), insertCount(0) {
     directory = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QLatin1Char('/') +
                 QLatin1String(name) + QLatin1Char('/');
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     hits = 0;
     misses = 0;
 #endif
 }
 
 LocalCache::~LocalCache() {
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     debugStats();
 #endif
 }
@@ -44,7 +44,7 @@ bool LocalCache::isCached(const QString &path) {
     bool cached = QFile::exists(path) &&
                   (maxSeconds == 0 || QFileInfo(path).birthTime().secsTo(
                                               QDateTime::currentDateTimeUtc()) < maxSeconds);
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     if (!cached) misses++;
 #endif
     return cached;
@@ -57,12 +57,12 @@ QByteArray LocalCache::value(const QByteArray &key) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning() << file.fileName() << file.errorString();
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
         misses++;
 #endif
         return QByteArray();
     }
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     hits++;
 #endif
     return file.readAll();
@@ -72,19 +72,21 @@ QByteArray LocalCache::possiblyStaleValue(const QByteArray &key) {
     const QString path = cachePath(key);
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
         misses++;
 #endif
         return QByteArray();
     }
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     hits++;
 #endif
     return file.readAll();
 }
 
 void LocalCache::insert(const QByteArray &key, const QByteArray &value) {
+#ifdef HTTP_DEBUG
     qDebug() << "Inserting" << key;
+#endif
     const QString path = cachePath(key);
     const QString parentDir = path.left(path.lastIndexOf(QLatin1Char('/')));
     if (!QFile::exists(parentDir)) {
@@ -106,7 +108,7 @@ void LocalCache::insert(const QByteArray &key, const QByteArray &value) {
 }
 
 void LocalCache::clear() {
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     hits = 0;
     misses = 0;
 #endif
@@ -151,7 +153,7 @@ void LocalCache::expire() {
         ++i;
         qApp->processEvents();
     }
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
     debugStats();
     if (removedFiles > 0) {
         qDebug() << "Removed:" << removedFiles << "Kept:" << cacheItems.count() - removedFiles
@@ -163,7 +165,7 @@ void LocalCache::expire() {
     mutex.unlock();
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifdef HTTP_DEBUG
 void LocalCache::debugStats() {
     int total = hits + misses;
     if (total > 0) {

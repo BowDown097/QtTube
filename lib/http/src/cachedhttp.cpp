@@ -22,17 +22,21 @@ WrappedHttpReply::WrappedHttpReply(CachedHttp &cachedHttp,
                                    const QByteArray &key,
                                    HttpReply *httpReply)
     : HttpReply(httpReply), cachedHttp(cachedHttp), cache(cache), key(key), httpReply(httpReply) {
-    connect(httpReply, SIGNAL(finished(HttpReply)), SLOT(originFinished(HttpReply)));
+    connect(httpReply, &HttpReply::finished, this, &WrappedHttpReply::originFinished);
 }
 
 void WrappedHttpReply::originFinished(const HttpReply &reply) {
+#ifdef HTTP_DEBUG
     qDebug() << reply.statusCode() << reply.url();
+#endif
     bool success = reply.isSuccessful();
     if (!success) {
         // Fallback to stale cached data on HTTP error
         const QByteArray value = cache->possiblyStaleValue(key);
         if (!value.isNull()) {
+#ifdef HTTP_DEBUG
             qDebug() << "Using stale cache value" << reply.url();
+#endif
             emit data(value);
             auto replyFromCache = new CachedHttpReply(value, reply.url(), false);
             emit finished(*replyFromCache);
@@ -62,8 +66,10 @@ void WrappedHttpReply::originFinished(const HttpReply &reply) {
 
     if (doCache)
         cache->insert(key, reply.body());
+#ifdef HTTP_DEBUG
     else
         qDebug() << "Not caching" << reply.statusCode() << reply.url();
+#endif
 
     if (success) {
         emit data(reply.body());
@@ -88,16 +94,16 @@ HttpReply *CachedHttp::request(const HttpRequest &req) {
     bool cacheable = req.operation == QNetworkAccessManager::GetOperation ||
                      (cachePostRequests && req.operation == QNetworkAccessManager::PostOperation);
     if (!cacheable) {
+#ifdef HTTP_DEBUG
         qDebug() << "Not cacheable" << req.url;
+#endif
         return http.request(req);
     }
     const QByteArray key = requestHash(req);
     const QByteArray value = cache->value(key);
     if (!value.isNull()) {
-        qDebug() << "HIT" << key << req.url;
         return new CachedHttpReply(value, req.url);
     }
-    // qDebug() << "MISS" << key << req.url;
     return new WrappedHttpReply(*this, cache, key, http.request(req));
 }
 

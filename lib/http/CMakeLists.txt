@@ -30,6 +30,7 @@ add_library(http
 
 target_include_directories(http PUBLIC src)
 target_compile_definitions(http PUBLIC HTTP)
+# target_compile_definitions(http PUBLIC HTTP_DEBUG) # helpful logs for debugging library and requests
 target_link_libraries(http PUBLIC Qt::Core Qt::Gui Qt::Network)
 
 install(TARGETS http
