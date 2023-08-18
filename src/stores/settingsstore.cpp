@@ -28,6 +28,8 @@ void SettingsStore::initializeFromSettingsFile()
     playbackTracking = settings.value("privacy/playbackTracking", true).toBool();
     watchtimeTracking = settings.value("privacy/watchtimeTracking", true).toBool();
     // filtering
+    filterLength = settings.value("filtering/filterLength", 0).toInt();
+    filterLengthEnabled = settings.value("filtering/filterLengthEnabled", false).toBool();
     hideShorts = settings.value("filtering/hideShorts", false).toBool();
     hideStreams = settings.value("filtering/hideStreams", false).toBool();
     readIntoStringList(settings, filteredChannels, "filtering/filteredChannels", "id");
@@ -76,6 +78,8 @@ void SettingsStore::saveToSettingsFile()
     settings.setValue("privacy/playbackTracking", playbackTracking);
     settings.setValue("privacy/watchtimeTracking", watchtimeTracking);
     // filtering
+    settings.setValue("filtering/filterLength", filterLength);
+    settings.setValue("filtering/filterLengthEnabled", filterLengthEnabled);
     settings.setValue("filtering/hideShorts", hideShorts);
     settings.setValue("filtering/hideStreams", hideStreams);
     writeStringList(settings, filteredChannels, "filtering/filteredChannels", "id");

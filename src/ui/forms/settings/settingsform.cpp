@@ -40,6 +40,9 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->playbackTracking->setChecked(store->playbackTracking);
     ui->watchtimeTracking->setChecked(store->watchtimeTracking);
     // filtering
+    ui->filterLength->setEnabled(store->filterLengthEnabled);
+    ui->filterLength->setValue(store->filterLength);
+    ui->filterLengthCheck->setChecked(store->filterLengthEnabled);
     ui->hideShorts->setChecked(store->hideShorts);
     ui->hideStreams->setChecked(store->hideStreams);
     // sponsorblock
@@ -56,9 +59,10 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->deArrow->setChecked(store->deArrow);
     ui->deArrowThumbs->setChecked(store->deArrowThumbs);
     ui->deArrowTitles->setChecked(store->deArrowTitles);
-    toggleDeArrowSettings(ui->deArrow->checkState());
+    toggleDeArrowSettings(ui->deArrow->isChecked());
 
-    connect(ui->deArrow, &QCheckBox::stateChanged, this, [this](int state) { toggleDeArrowSettings(static_cast<Qt::CheckState>(state)); });
+    connect(ui->deArrow, &QCheckBox::toggled, this, [this](bool checked) { toggleDeArrowSettings(checked); });
+    connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool checked) { ui->filterLength->setEnabled(checked); });
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
     connect(ui->showFilteredChannels, &QPushButton::clicked, this, [] {
         ChannelFilterTable* ft = new ChannelFilterTable;
@@ -93,6 +97,8 @@ void SettingsForm::saveSettings()
     store->playbackTracking = ui->playbackTracking->isChecked();
     store->watchtimeTracking = ui->watchtimeTracking->isChecked();
     // filtering
+    store->filterLength = ui->filterLength->value();
+    store->filterLengthEnabled = ui->filterLengthCheck->isChecked();
     store->hideShorts = ui->hideShorts->isChecked();
     store->hideStreams = ui->hideStreams->isChecked();
     // sponsorblock
@@ -125,10 +131,10 @@ void SettingsForm::saveSettings()
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
 }
 
-void SettingsForm::toggleDeArrowSettings(Qt::CheckState state)
+void SettingsForm::toggleDeArrowSettings(bool checked)
 {
-    ui->deArrowThumbs->setEnabled(state == Qt::Checked);
-    ui->deArrowTitles->setEnabled(state == Qt::Checked);
+    ui->deArrowThumbs->setEnabled(checked);
+    ui->deArrowTitles->setEnabled(checked);
 }
 
 SettingsForm::~SettingsForm()

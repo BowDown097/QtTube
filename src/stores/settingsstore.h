@@ -17,6 +17,8 @@ class SettingsStore : public QObject
     Q_PROPERTY(bool deArrowTitles MEMBER deArrowTitles NOTIFY deArrowTitlesChanged)
     Q_PROPERTY(bool disable60Fps MEMBER disable60Fps NOTIFY disable60FpsChanged)
     Q_PROPERTY(bool disablePlayerInfoPanels MEMBER disablePlayerInfoPanels NOTIFY disablePlayerInfoPanelsChanged)
+    Q_PROPERTY(int filterLength MEMBER filterLength NOTIFY filterLengthChanged)
+    Q_PROPERTY(bool filterLengthEnabled MEMBER filterLengthEnabled NOTIFY filterLengthEnabledChanged)
     Q_PROPERTY(QStringList filteredChannels MEMBER filteredChannels NOTIFY filteredChannelsChanged)
     Q_PROPERTY(QStringList filteredTerms MEMBER filteredTerms NOTIFY filteredTermsChanged)
     Q_PROPERTY(bool fullSubs MEMBER fullSubs NOTIFY fullSubsChanged)
@@ -48,6 +50,8 @@ public:
     bool deArrowTitles;
     bool disable60Fps;
     bool disablePlayerInfoPanels;
+    int filterLength;
+    bool filterLengthEnabled;
     QStringList filteredChannels;
     QStringList filteredTerms;
     bool fullSubs;
@@ -85,6 +89,8 @@ signals:
     void deArrowTitlesChanged(bool);
     void disable60FpsChanged(bool);
     void disablePlayerInfoPanelsChanged(bool);
+    void filterLengthChanged(int);
+    void filterLengthEnabledChanged(int);
     void filteredChannelsChanged(const QStringList&);
     void filteredTermsChanged(const QStringList&);
     void fullSubsChanged(bool);
