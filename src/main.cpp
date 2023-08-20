@@ -28,19 +28,10 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
 
     parser.parse(QCoreApplication::arguments());
-    QStringList unknownNames = parser.unknownOptionNames();
-    if (unknownNames.size() > 0) parser.showHelp(1);
+
+    if (!parser.unknownOptionNames().isEmpty()) parser.showHelp(EXIT_FAILURE);
     if (parser.isSet("help")) parser.showHelp();
-    if (parser.isSet("version"))
-    {
-#if QT_VERSION >= 0x050400
-        parser.showVersion();
-#else
-        QTextStream out(stdout);
-        out << qPrintable(QTTUBE_APP_NAME) << " " << qPrintable(QTTUBE_VERSION) << std::endl;
-        return 0;
-#endif
-    }
+    if (parser.isSet("version")) parser.showVersion();
 
     MainWindow w(parser);
     w.show();
