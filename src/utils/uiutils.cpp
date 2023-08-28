@@ -35,6 +35,10 @@ constexpr const char* darkStylesheet = R"(
     QTabWidget::pane {
         border-color: rgb(30,30,30);
     }
+    QToolButton {
+        background: transparent;
+        border: 1px solid rgb(30,30,30);
+    }
 )";
 
 void UIUtils::addBoldLabelToList(QListWidget* list, const QString& text)

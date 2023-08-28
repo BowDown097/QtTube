@@ -181,4 +181,7 @@ void TopBar::updatePalette(const QPalette& palette)
     notificationBell->updatePixmap(notificationBell->count->isVisible(), palette);
     searchBox->updatePalette(palette);
     settingsButton->setPixmap(UIUtils::pixmapThemed("settings", false, QSize(), palette));
+
+    if (!InnerTube::instance().hasAuthenticated())
+        notificationBell->setVisible(false);
 }
