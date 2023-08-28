@@ -7,9 +7,14 @@ VERY important that recursive flag is there, otherwise you won't be able to buil
 Then, get Qt 5 or 6 (6 recommended) and make sure you have the WebEngine module. Then you should be good to go!
 
 ## Using the experimental MPV-based player
-So, the normal player this program uses is just an embed of YouTube's player using Qt's web engine with some cool modifications. Don't want to use that? You can try the experimental MPV-based player. You'll just need youtube-dl/yt-dlp and MPV.
+The player this program normally uses is just an embed of YouTube's player using Qt's web engine with some cool modifications. Don't want to use that? You can try the experimental MPV-based player. You'll just need youtube-dl (or some fork such as yt-dlp) and MPV.
 ### The Pros
 - It's more lightweight
 ### The Cons
 - I've completely neglected the thing. It's buggy, there's no player UI at all, and chances are it might not even build depending on when you try to use it. I'll neglect it less at some point.
 - No SponsorBlock integration
+
+To use it, turn the `QTTUBE_USE_MPV` option in the `CMakeLists.txt` file ON.
+
+## The build fails on MinGW!
+See [this issue comment](https://github.com/BowDown097/QtTube/issues/8#issuecomment-1694680733).
