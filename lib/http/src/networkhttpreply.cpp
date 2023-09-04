@@ -18,7 +18,7 @@ NetworkHttpReply::NetworkHttpReply(const HttpRequest &req, Http &http)
 }
 
 void NetworkHttpReply::setupReply() {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     connect(networkReply, &QNetworkReply::errorOccurred, this, &NetworkHttpReply::replyError, Qt::UniqueConnection);
 #else
     connect(networkReply, &QNetworkReply::error, this, &NetworkHttpReply::replyError, Qt::UniqueConnection);
