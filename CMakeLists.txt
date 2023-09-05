@@ -43,18 +43,21 @@ endif()
 
 # Qt packages
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui Network Widgets)
 
-if(QT_VERSION_MAJOR EQUAL 5)
+set(QTTUBE_QT_VERSION_MAJOR ${QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QT_VERSION_MAJOR}")
+
+find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui Network Widgets)
+
+if(QTTUBE_QT_VERSION_MAJOR EQUAL 5)
     if(UNIX AND NOT APPLE)
         find_package(Qt5 OPTIONAL_COMPONENTS OpenGL WebEngineWidgets X11Extras)
     else()
         find_package(Qt5 OPTIONAL_COMPONENTS OpenGL WebEngineWidgets)
     endif()
-elseif(QT_VERSION_MAJOR EQUAL 6)
+elseif(QTTUBE_QT_VERSION_MAJOR EQUAL 6)
     find_package(Qt6 OPTIONAL_COMPONENTS OpenGLWidgets WebEngineWidgets)
 else()
-    message(FATAL_ERROR "Qt version ${QT_VERSION_MAJOR} is not supported")
+    message(FATAL_ERROR "Qt version ${QTTUBE_QT_VERSION_MAJOR} is not supported")
 endif()
 
 # macOS bundle settings
@@ -171,6 +174,7 @@ if(WIN32 OR APPLE)
 endif()
 
 # Add executable
+set(INNERTUBE_QT_VERSION_MAJOR ${QTTUBE_QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QTTUBE_QT_VERSION_MAJOR}" FORCE)
 add_subdirectory(lib/http) # TODO: ditch http library
 add_subdirectory(lib/innertube-qt)
 if(WIN32)
@@ -210,7 +214,7 @@ if(QTTUBE_USE_MPV)
         lib/media/mpv/qthelper.hpp
     )
 
-    if(QT_VERSION_MAJOR EQUAL 6)
+    if(QTTUBE_QT_VERSION_MAJOR EQUAL 6)
         target_link_libraries(QtTube PRIVATE Qt::OpenGLWidgets)
     else()
         target_link_libraries(QtTube PRIVATE Qt::OpenGL)
