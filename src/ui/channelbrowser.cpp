@@ -11,8 +11,8 @@
 
 void ChannelBrowser::setupAbout(QListWidget* channelTab, const QJsonValue& tabRenderer)
 {
-    QJsonValue metadataRenderer = tabRenderer["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]
-                                             ["channelAboutFullMetadataRenderer"];
+    const QJsonValue metadataRenderer = tabRenderer["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]
+                                                   ["contents"][0]["channelAboutFullMetadataRenderer"];
     if (!metadataRenderer.isObject())
         throw InnertubeException("[SetupAbout] channelAboutFullMetadataRenderer not found");
 
@@ -67,8 +67,8 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
         {
             if (v2["gridRenderer"].isObject())
             {
-                const QJsonArray gridItems = v2["gridRenderer"]["items"].toArray();
-                for (const QJsonValue& v3 : gridItems)
+                const QJsonArray items = v2["gridRenderer"]["items"].toArray();
+                for (const QJsonValue& v3 : items)
                 {
                     if (!v3["gridChannelRenderer"].isObject())
                         continue;
@@ -80,11 +80,12 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
             else if (v2["shelfRenderer"].isObject())
             {
                 UIUtils::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
-                QJsonArray shelfItems = v2["shelfRenderer"]["content"]["horizontalListRenderer"]["items"].toArray();
-                if (shelfItems.isEmpty()) // if no horizontal list, try expanded contents
-                    shelfItems = v2["shelfRenderer"]["content"]["expandedShelfContentsRenderer"]["items"].toArray();
+                const QJsonValue content = v2["shelfRenderer"]["content"];
+                const QJsonArray items = content["horizontalListRenderer"].isObject()
+                    ? content["horizontalListRenderer"]["items"].toArray()
+                    : content["expandedShelfContentsRenderer"]["items"].toArray();
 
-                for (const QJsonValue& v3 : qAsConst(shelfItems))
+                for (const QJsonValue& v3 : items)
                 {
                     const QJsonObject& obj = v3.toObject();
                     QJsonObject::const_iterator it = obj.begin();
@@ -96,10 +97,7 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
     }
 
     if (channelTab->count() == 0)
-    {
-        QListWidgetItem* item = new QListWidgetItem("This channel doesn't feature any other channels.", channelTab);
-        channelTab->addItem(item);
-    }
+        channelTab->addItem("This channel doesn't feature any other channels.");
 }
 
 void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp)
@@ -114,11 +112,12 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
                 continue;
 
             UIUtils::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
-            QJsonArray list = v2["shelfRenderer"]["content"]["horizontalListRenderer"]["items"].toArray();
-            if (list.isEmpty()) // if no horizontal list, try expanded contents
-                list = v2["shelfRenderer"]["content"]["expandedShelfContentsRenderer"]["items"].toArray();
+            const QJsonValue content = v2["shelfRenderer"]["content"];
+            const QJsonArray items = content["horizontalListRenderer"].isObject()
+                ? content["horizontalListRenderer"]["items"].toArray()
+                : content["expandedShelfContentsRenderer"]["items"].toArray();
 
-            for (const QJsonValue& v3 : qAsConst(list))
+            for (const QJsonValue& v3 : items)
             {
                 const QJsonObject& obj = v3.toObject();
                 QJsonObject::const_iterator it = obj.begin();
@@ -144,8 +143,7 @@ void ChannelBrowser::setupLive(QListWidget* channelTab, const QJsonValue& tabRen
 {
     if (SettingsStore::instance()->hideStreams)
     {
-        QListWidgetItem* item = new QListWidgetItem("This tab is disabled because the live streams filter is turned on.", channelTab);
-        channelTab->addItem(item);
+        channelTab->addItem("This tab is disabled because the live streams filter is turned on.");
         return;
     }
 
@@ -162,21 +160,20 @@ void ChannelBrowser::setupLive(QListWidget* channelTab, const QJsonValue& tabRen
     }
 
     if (channelTab->count() == 0)
-    {
-        QListWidgetItem* item = new QListWidgetItem("This channel has no live streams.", channelTab);
-        channelTab->addItem(item);
-    }
+        channelTab->addItem("This channel has no live streams.");
 }
 
 void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& tabRenderer)
 {
     const QJsonArray slr = tabRenderer["content"]["sectionListRenderer"]["contents"].toArray();
-    auto perksIter = std::ranges::find_if(slr, [](const QJsonValue& v) { return v["sponsorshipsExpandablePerksRenderer"].isObject(); });
+    auto perksIter = std::ranges::find_if(slr, [](const QJsonValue& v) {
+        return v["sponsorshipsExpandablePerksRenderer"].isObject();
+    });
 
     if (perksIter != slr.end())
     {
         const QJsonValue& perksParent = *perksIter;
-        QJsonValue perks = perksParent["sponsorshipsExpandablePerksRenderer"];
+        const QJsonValue perks = perksParent["sponsorshipsExpandablePerksRenderer"];
 
         QWidget* perksHeaderWrapper = new QWidget;
         QHBoxLayout* perksHeader = new QHBoxLayout(perksHeaderWrapper);
@@ -228,7 +225,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
             const QJsonArray expandableItems = perks["expandableItems"].toArray();
             for (const QJsonValue& v : expandableItems)
             {
-                QJsonValue perkRenderer = v["sponsorshipsPerkRenderer"];
+                const QJsonValue perkRenderer = v["sponsorshipsPerkRenderer"];
                 if (!perkRenderer.isObject())
                     continue;
 
@@ -238,10 +235,11 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
 
                 if (perkRenderer["loyaltyBadges"].isObject())
                 {
-                    const QJsonArray loyaltyBadges = perkRenderer["loyaltyBadges"]["sponsorshipsLoyaltyBadgesRenderer"]["loyaltyBadges"].toArray();
+                    const QJsonArray loyaltyBadges = perkRenderer["loyaltyBadges"]["sponsorshipsLoyaltyBadgesRenderer"]
+                                                                 ["loyaltyBadges"].toArray();
                     for (const QJsonValue& v2 : loyaltyBadges)
                     {
-                        QJsonValue loyaltyBadge = v2["sponsorshipsLoyaltyBadgeRenderer"];
+                        const QJsonValue loyaltyBadge = v2["sponsorshipsLoyaltyBadgeRenderer"];
 
                         QWidget* loyaltyBadgeWrapper = new QWidget;
                         loyaltyBadgeWrapper->setFixedWidth(180);
@@ -289,7 +287,9 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         });
     }
 
-    auto itemSectionIter = std::ranges::find_if(slr, [](const QJsonValue& v) { return v["itemSectionRenderer"].isObject(); });
+    auto itemSectionIter = std::ranges::find_if(slr, [](const QJsonValue& v) {
+        return v["itemSectionRenderer"].isObject();
+    });
     if (itemSectionIter == slr.end())
         return;
 
@@ -309,8 +309,7 @@ void ChannelBrowser::setupShorts(QListWidget* channelTab, const QJsonValue& tabR
 {
     if (SettingsStore::instance()->hideShorts)
     {
-        QListWidgetItem* item = new QListWidgetItem("This tab is disabled because the shorts filter is turned on.", channelTab);
-        channelTab->addItem(item);
+        channelTab->addItem("This tab is disabled because the shorts filter is turned on.");
         return;
     }
 
@@ -327,16 +326,12 @@ void ChannelBrowser::setupShorts(QListWidget* channelTab, const QJsonValue& tabR
     }
 
     if (channelTab->count() == 0)
-    {
-        QListWidgetItem* item = new QListWidgetItem("This channel has no shorts.", channelTab);
-        channelTab->addItem(item);
-    }
+        channelTab->addItem("This channel has no shorts.");
 }
 
 void ChannelBrowser::setupUnimplemented(QListWidget* channelTab)
 {
-    QListWidgetItem* item = new QListWidgetItem("This tab is unimplemented.", channelTab);
-    channelTab->addItem(item);
+    channelTab->addItem("This tab is unimplemented.");
 }
 
 void ChannelBrowser::setupVideos(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp)
@@ -355,8 +350,5 @@ void ChannelBrowser::setupVideos(QListWidget* channelTab, const QJsonValue& tabR
     }
 
     if (channelTab->count() == 0)
-    {
-        QListWidgetItem* item = new QListWidgetItem("This channel has no videos.", channelTab);
-        channelTab->addItem(item);
-    }
+        channelTab->addItem("This channel has no videos.");
 }
