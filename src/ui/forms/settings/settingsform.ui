@@ -46,7 +46,7 @@
         <string>Use condensed view counts</string>
        </property>
       </widget>
-      <widget class="QCheckBox" name="homeShelves">
+      <widget class="QCheckBox" name="preferLists">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -56,7 +56,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Use shelves homepage layout</string>
+        <string>Prefer list layouts over grid layouts</string>
        </property>
       </widget>
       <widget class="QCheckBox" name="returnDislikes">

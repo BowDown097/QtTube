@@ -45,6 +45,7 @@ private:
     void searchByLink(const QString& link);
     void searchByQuery(const QString& query);
     void tryRestoreData();
+    void trySwitchGridStatus(QListWidget* listWidget);
 
     static inline QStackedWidget* m_centralWidget;
     static inline QSize m_size;

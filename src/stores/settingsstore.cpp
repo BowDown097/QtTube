@@ -15,7 +15,7 @@ void SettingsStore::initializeFromSettingsFile()
     condensedViews = settings.value("condensedViews", false).toBool();
     darkTheme = settings.value("darkTheme", false).toBool();
     fullSubs = settings.value("fullSubs", false).toBool();
-    homeShelves = settings.value("homeShelves", false).toBool();
+    preferLists = settings.value("preferLists", false).toBool();
     returnDislikes = settings.value("returnDislikes", true).toBool();
     // player
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
@@ -65,7 +65,7 @@ void SettingsStore::saveToSettingsFile()
     settings.setValue("condensedViews", condensedViews);
     settings.setValue("darkTheme", darkTheme);
     settings.setValue("fullSubs", fullSubs);
-    settings.setValue("homeShelves", homeShelves);
+    settings.setValue("preferLists", preferLists);
     settings.setValue("returnDislikes", returnDislikes);
     // player
     settings.setValue("player/disable60Fps", disable60Fps);

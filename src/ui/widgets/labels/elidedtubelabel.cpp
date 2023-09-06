@@ -19,7 +19,7 @@ void ElidedTubeLabel::leaveEvent(QEvent*)
     if (m_clickable)
         setCursor(QCursor());
     if (m_underline)
-        setStyleSheet("");
+        setStyleSheet(QString());
 }
 
 void ElidedTubeLabel::mousePressEvent(QMouseEvent* event)

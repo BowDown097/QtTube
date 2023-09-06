@@ -33,7 +33,7 @@ void TubeLabel::leaveEvent(QEvent*)
     if (clickable)
         setCursor(QCursor());
     if (underline)
-        setStyleSheet("");
+        setStyleSheet(QString());
 }
 
 void TubeLabel::mousePressEvent(QMouseEvent* event)

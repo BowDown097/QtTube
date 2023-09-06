@@ -27,7 +27,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     // general
     ui->condensedViews->setChecked(store->condensedViews);
     ui->fullSubs->setChecked(store->fullSubs);
-    ui->homeShelves->setChecked(store->homeShelves);
+    ui->preferLists->setChecked(store->preferLists);
     ui->returnDislikes->setChecked(store->returnDislikes);
     // player
     ui->disable60Fps->setChecked(store->disable60Fps);
@@ -84,7 +84,7 @@ void SettingsForm::saveSettings()
     store->condensedViews = ui->condensedViews->isChecked();
     store->darkTheme = ui->darkTheme->isChecked();
     store->fullSubs = ui->fullSubs->isChecked();
-    store->homeShelves = ui->homeShelves->isChecked();
+    store->preferLists = ui->preferLists->isChecked();
     store->returnDislikes = ui->returnDislikes->isChecked();
     // player
     store->disable60Fps = ui->disable60Fps->isChecked();

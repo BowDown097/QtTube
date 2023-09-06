@@ -2,7 +2,6 @@
 #include "channelbrowser.h"
 #include "http.h"
 #include "protobuf/simpleprotobuf.h"
-#include "stores/settingsstore.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "utils/uiutils.h"
@@ -69,28 +68,12 @@ void BrowseHelper::browseHistory(QListWidget* historyWidget, const QString& quer
 
 void BrowseHelper::browseHome(QListWidget* homeWidget)
 {
-    const QString clientNameTemp = InnerTube::instance().context()->client.clientName;
-    const QString clientVerTemp = InnerTube::instance().context()->client.clientVersion;
-
-    if (SettingsStore::instance()->homeShelves)
-    {
-        InnerTube::instance().context()->client.clientName = "ANDROID";
-        InnerTube::instance().context()->client.clientVersion = "17.01";
-    }
-
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHome>();
-    connect(reply, &InnertubeReply::exception, this, [this, clientNameTemp, clientVerTemp](const InnertubeException& ie)
-    {
-        browseFailed(ie, "Failed to get home data");
-        InnerTube::instance().context()->client.clientName = clientNameTemp;
-        InnerTube::instance().context()->client.clientVersion = clientVerTemp;
-    });
-    connect(reply, qOverload<const InnertubeEndpoints::BrowseHome&>(&InnertubeReply::finished), this, [this, clientNameTemp, clientVerTemp, homeWidget](const InnertubeEndpoints::BrowseHome& endpoint)
+    connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get home data"));
+    connect(reply, qOverload<const InnertubeEndpoints::BrowseHome&>(&InnertubeReply::finished), this, [this, homeWidget](const InnertubeEndpoints::BrowseHome& endpoint)
     {
         setupVideoList(endpoint.response.videos, homeWidget);
         continuationToken = endpoint.continuationToken;
-        InnerTube::instance().context()->client.clientName = clientNameTemp;
-        InnerTube::instance().context()->client.clientVersion = clientVerTemp;
     });
 }
 

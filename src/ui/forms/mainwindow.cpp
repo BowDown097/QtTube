@@ -98,12 +98,14 @@ void MainWindow::browse()
     switch (ui->tabWidget->currentIndex())
     {
     case 0:
+        trySwitchGridStatus(ui->homeWidget);
         BrowseHelper::instance()->browseHome(ui->homeWidget);
         break;
     case 1:
         BrowseHelper::instance()->browseTrending(ui->trendingWidget);
         break;
     case 2:
+        trySwitchGridStatus(ui->subscriptionsWidget);
         BrowseHelper::instance()->browseSubscriptions(ui->subscriptionsWidget);
         break;
     case 3:
@@ -391,6 +393,27 @@ void MainWindow::tryRestoreData()
         m_topbar->signInButton->setVisible(false);
         m_topbar->setUpAvatarButton();
         m_topbar->setUpNotifications();
+    }
+}
+
+void MainWindow::trySwitchGridStatus(QListWidget* listWidget)
+{
+    bool preferLists = SettingsStore::instance()->preferLists;
+    if (preferLists && listWidget->flow() == QListWidget::LeftToRight)
+    {
+        listWidget->setFlow(QListWidget::TopToBottom);
+        listWidget->setResizeMode(QListWidget::Fixed);
+        listWidget->setSpacing(0);
+        listWidget->setStyleSheet(QString());
+        listWidget->setWrapping(false);
+    }
+    else if (!preferLists && listWidget->flow() == QListWidget::TopToBottom)
+    {
+        listWidget->setFlow(QListWidget::LeftToRight);
+        listWidget->setResizeMode(QListWidget::Adjust);
+        listWidget->setSpacing(3);
+        listWidget->setStyleSheet("QListWidget::item { background: transparent; }");
+        listWidget->setWrapping(true);
     }
 }
 
