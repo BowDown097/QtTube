@@ -71,6 +71,7 @@ endif()
 
 # Source files
 set(SOURCE_FILES
+    src/eastereggs.cpp
     src/main.cpp
     src/qttubeapplication.cpp
     src/ytemoji.cpp
@@ -118,6 +119,7 @@ set(SOURCE_FILES
 )
 
 set(HEADERS
+    src/eastereggs.h
     src/qttubeapplication.h
     src/ytemoji.h
     src/stores/credentialsstore.h

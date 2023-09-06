@@ -1,10 +1,7 @@
 #include "qttubeapplication.h"
+#include "eastereggs.h"
 #include "ui/forms/mainwindow.h"
-#include "ui/views/viewcontroller.h"
-#include <array>
 #include <QMouseEvent>
-
-constexpr std::array<Qt::Key, 5> sneed = { Qt::Key_S, Qt::Key_N, Qt::Key_E, Qt::Key_E, Qt::Key_D };
 
 bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
 {
@@ -39,22 +36,7 @@ bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
     }
     else if (event->type() == QEvent::KeyPress)
     {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-        QWidget* focused = qApp->focusWidget();
-        if (focused && qobject_cast<QLineEdit*>(focused)) // make sure the user isn't typing in a text input
-            return QApplication::notify(receiver, event);
-
-        Qt::Key key = Qt::Key(keyEvent->key());
-        if (key == sneed[m_sneedProgress])
-            m_sneedProgress++;
-        else
-            m_sneedProgress = 0;
-
-        if (m_sneedProgress == (int)sneed.size())
-        {
-            m_sneedProgress = 0;
-            ViewController::loadVideo("T3ElIvNBYj0");
-        }
+        EasterEggs::checkEasterEggs(static_cast<QKeyEvent*>(event));
     }
 
     return QApplication::notify(receiver, event);
