@@ -96,11 +96,14 @@ set(SOURCE_FILES
     src/ui/widgets/accountmenu/accountmenuwidget.cpp
     src/ui/widgets/accountmenu/accountswitcherwidget.cpp
     src/ui/widgets/labels/channellabel.cpp
+    src/ui/widgets/labels/elidedtubelabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
     src/ui/widgets/renderers/browsechannelrenderer.cpp
     src/ui/widgets/renderers/browsenotificationrenderer.cpp
-    src/ui/widgets/renderers/browsevideorenderer.cpp
+    src/ui/widgets/renderers/video/browsevideorenderer.cpp
+    src/ui/widgets/renderers/video/gridvideorenderer.cpp
+    src/ui/widgets/renderers/video/videorenderer.cpp
     src/ui/widgets/subscribe/notificationbell.cpp
     src/ui/widgets/subscribe/subscribelabel.cpp
     src/ui/widgets/subscribe/subscribewidget.cpp
@@ -140,11 +143,14 @@ set(HEADERS
     src/ui/widgets/accountmenu/accountmenuwidget.h
     src/ui/widgets/accountmenu/accountswitcherwidget.h
     src/ui/widgets/labels/channellabel.h
+    src/ui/widgets/labels/elidedtubelabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
     src/ui/widgets/renderers/browsechannelrenderer.h
     src/ui/widgets/renderers/browsenotificationrenderer.h
-    src/ui/widgets/renderers/browsevideorenderer.h
+    src/ui/widgets/renderers/video/browsevideorenderer.h
+    src/ui/widgets/renderers/video/gridvideorenderer.h
+    src/ui/widgets/renderers/video/videorenderer.h
     src/ui/widgets/subscribe/notificationbell.h
     src/ui/widgets/subscribe/subscribelabel.h
     src/ui/widgets/subscribe/subscribewidget.h

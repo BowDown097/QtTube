@@ -23,9 +23,7 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">QListWidget::item {
-	background: transparent;
-}</string>
+      <string notr="true">QListWidget::item { background: transparent; }</string>
      </property>
      <property name="verticalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>

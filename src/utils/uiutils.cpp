@@ -4,7 +4,8 @@
 #include "ui/forms/mainwindow.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/browsechannelrenderer.h"
-#include "ui/widgets/renderers/browsevideorenderer.h"
+#include "ui/widgets/renderers/video/browsevideorenderer.h"
+#include "ui/widgets/renderers/video/gridvideorenderer.h"
 #include <QApplication>
 #include <QClipboard>
 #include <QPainter>
@@ -88,9 +89,8 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
         SettingsStore::instance()->strHasFilteredTerm(reel.headline))
         return;
 
-    BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
+    VideoRenderer* renderer = constructVideoRenderer(list);
     renderer->setData(reel);
-    renderer->setTargetElisionWidth(list->width() - 240);
     renderer->setThumbnail(reel.thumbnails[0].url);
     addWidgetToList(list, renderer);
 }
@@ -106,9 +106,8 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
         return;
     }
 
-    BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
+    VideoRenderer* renderer = constructVideoRenderer(list);
     renderer->setData(video);
-    renderer->setTargetElisionWidth(list->width() - 240);
     renderer->setThumbnail(video.thumbnail.mqdefault);
     addWidgetToList(list, renderer);
 }
@@ -139,6 +138,22 @@ void UIUtils::clearLayout(QLayout* layout)
             clearLayout(childLayout);
         delete item;
     }
+}
+
+VideoRenderer* UIUtils::constructVideoRenderer(QListWidget* list)
+{
+    VideoRenderer* renderer;
+    if (list->flow() == QListWidget::LeftToRight)
+    {
+        renderer = new GridVideoRenderer;
+    }
+    else
+    {
+        renderer = new BrowseVideoRenderer;
+        renderer->setTargetElisionWidth(list->width() - 240);
+    }
+
+    return renderer;
 }
 
 void UIUtils::copyToClipboard(const QString& text)
@@ -244,7 +259,7 @@ void UIUtils::setAppStyle(const QString& styleName, bool dark)
 // this will be used for the description and perhaps elsewhere
 void UIUtils::setMaximumLines(QWidget* widget, int lines)
 {
-    QFontMetrics fm(qApp->font());
+    QFontMetrics fm(widget->font());
     widget->setMaximumHeight(fm.lineSpacing() * lines);
 }
 

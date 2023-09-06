@@ -3,6 +3,7 @@
 #include "innertube/objects/channel/channel.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
+#include "ui/widgets/renderers/video/videorenderer.h"
 #include <initializer_list>
 #include <QLabel>
 #include <QLayout>
@@ -38,6 +39,8 @@ public:
 
     template<typename T>
     static T findParent(QWidget* widget);
+private:
+    static VideoRenderer* constructVideoRenderer(QListWidget* list);
 };
 
 #include "uiutils.tpp"
