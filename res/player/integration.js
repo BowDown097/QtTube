@@ -28,11 +28,22 @@ waitForElement("#movie_player .ytp-error").then(function() {
     document.querySelector("#movie_player").loadVideoByPlayerVars(yt.config_.PLAYER_VARS);
 });
 
+// patches based on settings
 new QWebChannel(qt.webChannelTransport, async function(channel) {
-    let settings = channel.objects.settings;
-    let qualityKeys = Object.keys(settings.PlayerQuality).reduce(function(acc, key) {
-        return acc[settings.PlayerQuality[key]] = key, acc;
-    }, {});
+    const settings = channel.objects.settings;
+
+    if (settings.blockAds) {
+        JSON.parseOG = JSON.parse;
+        JSON.parse = function(obj) {
+            obj = JSON.parseOG(obj);
+            if (obj?.adPlacements) {
+                obj.adPlacements = [];
+            } else if (obj?.playerAds) {
+                obj.playerAds = [];
+            }
+            return obj;
+        };
+    }
 
     if (settings.sponsorBlockCategories?.length) {
         await sponsorBlock(settings.sponsorBlockCategories);
@@ -66,6 +77,10 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         }
 
         // quality preference
+        const qualityKeys = Object.keys(settings.PlayerQuality).reduce(function(acc, key) {
+            return acc[settings.PlayerQuality[key]] = key, acc;
+        }, {});
+
         var qPref = qualityKeys[settings.preferredQuality].toLowerCase();
         if (!qPref || qPref == "auto") {
             p.playVideo();

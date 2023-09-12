@@ -30,6 +30,7 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     ui->preferLists->setChecked(store->preferLists);
     ui->returnDislikes->setChecked(store->returnDislikes);
     // player
+    ui->blockAds->setChecked(store->blockAds);
     ui->disable60Fps->setChecked(store->disable60Fps);
     ui->disablePlayerInfoPanels->setChecked(store->disablePlayerInfoPanels);
     ui->h264Only->setChecked(store->h264Only);
@@ -87,6 +88,7 @@ void SettingsForm::saveSettings()
     store->preferLists = ui->preferLists->isChecked();
     store->returnDislikes = ui->returnDislikes->isChecked();
     // player
+    store->blockAds = ui->blockAds->isChecked();
     store->disable60Fps = ui->disable60Fps->isChecked();
     store->disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
     store->h264Only = ui->h264Only->isChecked();

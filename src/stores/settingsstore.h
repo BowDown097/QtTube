@@ -10,6 +10,7 @@ class SettingsStore : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString appStyle MEMBER appStyle NOTIFY appStyleChanged)
+    Q_PROPERTY(bool blockAds MEMBER blockAds NOTIFY blockAdsChanged)
     Q_PROPERTY(bool condensedViews MEMBER condensedViews NOTIFY condensedViewsChanged)
     Q_PROPERTY(bool darkTheme MEMBER darkTheme NOTIFY darkThemeChanged)
     Q_PROPERTY(bool deArrow MEMBER deArrow NOTIFY deArrowChanged)
@@ -43,6 +44,7 @@ public:
     Q_ENUM(PlayerQuality)
 
     QString appStyle;
+    bool blockAds;
     bool condensedViews;
     bool darkTheme;
     bool deArrow;
@@ -82,6 +84,7 @@ private:
     void writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key);
 signals:
     void appStyleChanged(const QString&);
+    void blockAdsChanged(bool);
     void condensedViewsChanged(bool);
     void darkThemeChanged(bool);
     void deArrowChanged(bool);
