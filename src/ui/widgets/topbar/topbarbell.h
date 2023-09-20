@@ -10,6 +10,7 @@ public:
     QLabel* count;
 
     explicit TopBarBell(QWidget* parent = nullptr);
+    void updateCount(int unseenCount);
     void updatePixmap(bool hasNotif, const QPalette& pal);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

@@ -169,8 +169,7 @@ void TopBar::updateNotificationCount()
     {
         notificationBell->updatePixmap(endpoint.unseenCount > 0, palette());
         notificationBell->setVisible(true);
-        notificationBell->count->setText(QString::number(endpoint.unseenCount));
-        notificationBell->count->setVisible(endpoint.unseenCount > 0);
+        notificationBell->updateCount(endpoint.unseenCount);
     });
 }
 
