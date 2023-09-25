@@ -11,6 +11,8 @@ GridVideoRenderer::GridVideoRenderer(QWidget* parent) : VideoRenderer(parent), v
     UIUtils::setMaximumLines(titleLabel, 2);
 
     channelLabel->text->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 1));
+    channelLabel->text->setWordWrap(true);
+    UIUtils::setMaximumLines(channelLabel->text, 2);
 
     metadataLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 1));
     metadataLabel->setWordWrap(true);
