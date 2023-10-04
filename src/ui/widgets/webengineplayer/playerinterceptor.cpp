@@ -26,12 +26,22 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
         return;
     }
 
-    if (info.requestUrl().path() == "/api/stats/watchtime")
+    // block for privacy, should not have any impact on the operation of the player or program
+    const QUrl url = info.requestUrl();
+    if (url.host().contains("doubleclick.net") || url.host() == "jnn-pa.googleapis.com" ||
+        url.path() == "/youtubei/v1/log_event" || url.path() == "/api/stats/qoe" ||
+        url.path() == "/ptracking" || url.toString().contains("play.google.com/log"))
+    {
+        info.block(true);
+    }
+
+    // modify based on settings
+    if (url.path() == "/api/stats/watchtime")
     {
         info.block(true);
         if (!SettingsStore::instance()->watchtimeTracking) return;
 
-        QUrlQuery watchtimeQuery(info.requestUrl());
+        QUrlQuery watchtimeQuery(url);
         QUrlQuery playerWatchtimeQuery(QUrl(m_playerResponse.playbackTracking.videostatsWatchtimeUrl));
 
         QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
@@ -84,12 +94,12 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
         setNeededHeaders(http, m_context, m_authStore);
         http.get(outWatchtimeUrl);
     }
-    else if (info.requestUrl().path() == "/api/stats/playback")
+    else if (url.path() == "/api/stats/playback")
     {
         info.block(true);
         if (!SettingsStore::instance()->playbackTracking) return;
 
-        QUrlQuery playbackQuery(info.requestUrl());
+        QUrlQuery playbackQuery(url);
         QUrlQuery playerPlaybackQuery(QUrl(m_playerResponse.playbackTracking.videostatsPlaybackUrl));
 
         QUrl outPlaybackUrl("https://www.youtube.com/api/stats/playback");
