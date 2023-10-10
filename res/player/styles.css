@@ -53,10 +53,6 @@
     text-align: right !important;
 }
 
-.ytp-panel-header {
-    height: 33px !important;
-}
-
 .ytp-big-mode .ytp-panel-header {
     height: 49px !important;
 }
@@ -122,14 +118,11 @@
 .ytp-gradient-bottom {
     height: 50px !important;
     padding: 0 !important;
+    background: linear-gradient(to top, #0009, #0000) !important;
 }
 
 .ytp-big-mode .ytp-gradient-bottom {
     height: 75px !important;
-}
-
-.ytp-gradient-bottom {
-    background: linear-gradient(to top, #0009, #0000) !important;
 }
 
 .ytp-gradient-top {

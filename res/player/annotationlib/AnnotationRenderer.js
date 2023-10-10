@@ -129,7 +129,7 @@ class SpeechAnnotation extends NoteAnnotation {
         } = this.data;
         this.speechTriangle.setAttribute("fill", getFinalAnnotationColor(e, s, !1)), this.element.prepend(this.speechSvg)
     }
-    updateSpeechBubble(t, e, s, i, n, o, a = "white", l = 20) {
+    updateSpeechBubble(t, e, s, i, n, o) {
         const h = this.constructor.horizontalBaseStartMultiplier,
             r = this.constructor.horizontalBaseEndMultiplier,
             c = this.constructor.verticalBaseStartMultiplier,
@@ -172,7 +172,7 @@ class SpeechAnnotation extends NoteAnnotation {
                 i = this.textY + this.closeButtonSize / this.closeButtonOffset,
                 n = this.element.getBoundingClientRect();
             this.closeElement.style.left = n.left + s + "px", this.closeElement.style.top = n.top + i + "px", this.closeElement.style.display = "block", this.speechTriangle.setAttribute("fill", getFinalAnnotationColor(t, e, !0))
-        })), this.speechTriangle.addEventListener("mouseout", (s => {
+        })), this.speechTriangle.addEventListener("mouseout", (() => {
             this.closeElement.currentAnnotation = null, setTimeout((() => {
                 this.closeElement.hovered || null !== this.closeElement.currentAnnotation || (this.closeElement.style.display = "none", this.speechTriangle.setAttribute("fill", getFinalAnnotationColor(t, e, !1)))
             }), 100)
@@ -210,9 +210,9 @@ class HighlightAnnotation extends NoteAnnotation {
 }
 class HighlightTextAnnotation extends NoteAnnotation {
     constructor(t, e, s) {
-        t.x += s.data.x, t.y += s.data.y, super(t, e), this.element.style.backgroundColor = "", this.element.style.border = "", this.element.style.pointerEvents = "none", s.element.addEventListener("mouseenter", (t => {
+        t.x += s.data.x, t.y += s.data.y, super(t, e), this.element.style.backgroundColor = "", this.element.style.border = "", this.element.style.pointerEvents = "none", s.element.addEventListener("mouseenter", (() => {
             this.show()
-        })), s.element.addEventListener("mouseleave", (t => {
+        })), s.element.addEventListener("mouseleave", (() => {
             this.hide()
         })), this.closeElement.style.display = "none", this.closeElement.style.cursor = "default"
     }
@@ -239,7 +239,7 @@ class AnnotationRenderer {
                 t.speechTriangle.style.cursor = "default", t.speechTriangle.setAttribute("fill", getFinalAnnotationColor(e, s, !1))
             }
             this.closeElement.hovered = !1
-        })), document.body.append(this.closeElement), this.container.prepend(this.annotationsContainer), this.createAnnotationElements(t), this.updateAllAnnotationSizes(), window.addEventListener("DOMContentLoaded", (t => {
+        })), document.body.append(this.closeElement), this.container.prepend(this.annotationsContainer), this.createAnnotationElements(t), this.updateAllAnnotationSizes(), window.addEventListener("DOMContentLoaded", (() => {
             this.updateAllAnnotationSizes()
         })), this.updateInterval = i, this.updateIntervalId = null
     }
@@ -321,7 +321,7 @@ class AnnotationRenderer {
                     m = this.percentToPixels(n, a);
                 let g = r + e.data.sx * d,
                     b = c + e.data.sy * p;
-                g = this.percentToPixels(i, g), b = this.percentToPixels(n, b), e.updateSpeechBubble(l, h, u, m, g, b, null)
+                g = this.percentToPixels(i, g), b = this.percentToPixels(n, b), e.updateSpeechBubble(l, h, u, m, g, b)
             }
             e.updateTextSize(h), e.updateCloseSize(h)
         }

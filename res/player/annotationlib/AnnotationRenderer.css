@@ -13,9 +13,7 @@
     box-sizing:border-box;
     font-family:Arial,sans-serif;
     color:#fff;
-    z-index:20
-}
-.__cxt-ar-annotation__{
+    z-index:20;
     pointer-events:auto!important
 }
 .__cxt-ar-annotation__ span{
