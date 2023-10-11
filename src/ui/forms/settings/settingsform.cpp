@@ -7,7 +7,7 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 
-SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::SettingsForm)
+SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::SettingsForm)
 {
     ui->setupUi(this);
 
@@ -77,6 +77,13 @@ SettingsForm::SettingsForm(QWidget *parent) : QWidget(parent), ui(new Ui::Settin
     });
 }
 
+void SettingsForm::tryAddSponsorBlockCategory(QStringList& sponsorBlockCategories, const QString& category,
+                                              QCheckBox* checkBox)
+{
+    if (checkBox->isChecked() && !sponsorBlockCategories.contains(category))
+        sponsorBlockCategories.append(category);
+}
+
 void SettingsForm::saveSettings()
 {
     SettingsStore* store = SettingsStore::instance();
@@ -104,22 +111,14 @@ void SettingsForm::saveSettings()
     store->hideShorts = ui->hideShorts->isChecked();
     store->hideStreams = ui->hideStreams->isChecked();
     // sponsorblock
-    if (ui->blockFiller->isChecked() && !store->sponsorBlockCategories.contains("filler"))
-        store->sponsorBlockCategories.append("filler");
-    if (ui->blockInteraction->isChecked() && !store->sponsorBlockCategories.contains("interaction"))
-        store->sponsorBlockCategories.append("interaction");
-    if (ui->blockIntro->isChecked() && !store->sponsorBlockCategories.contains("intro"))
-        store->sponsorBlockCategories.append("intro");
-    if (ui->blockNonMusic->isChecked() && !store->sponsorBlockCategories.contains("music_offtopic"))
-        store->sponsorBlockCategories.append("music_offtopic");
-    if (ui->blockOutro->isChecked() && !store->sponsorBlockCategories.contains("outro"))
-        store->sponsorBlockCategories.append("outro");
-    if (ui->blockPreview->isChecked() && !store->sponsorBlockCategories.contains("preview"))
-        store->sponsorBlockCategories.append("preview");
-    if (ui->blockSelfPromo->isChecked() && !store->sponsorBlockCategories.contains("selfpromo"))
-        store->sponsorBlockCategories.append("selfpromo");
-    if (ui->blockSponsor->isChecked() && !store->sponsorBlockCategories.contains("sponsor"))
-        store->sponsorBlockCategories.append("sponsor");
+    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "filler", ui->blockFiller);
+    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "interaction", ui->blockInteraction);
+    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "intro", ui->blockIntro);
+    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "music_offtopic", ui->blockNonMusic);
+    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "outro", ui->blockOutro);
+    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "preview", ui->blockPreview);
+    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
+    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "sponsor", ui->blockSponsor);
     store->showSBToasts = ui->showSBToasts->isChecked();
     // dearrow
     store->deArrow = ui->deArrow->isChecked();

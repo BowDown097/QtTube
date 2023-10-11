@@ -19,8 +19,12 @@ public:
 public slots:
     void initialize(const InnertubeObjects::LiveChat& liveChatData);
 private:
-    void addSpecialMessage(const QJsonValue& messageRenderer, const QString& headerKey = "text", const QString& subtextKey = "subtext",
-                           bool subtextItalic = true, const QString& background = "black");
+    void addGiftRedemptionMessage(const QJsonValue& renderer);
+    void addPaidMessage(const QJsonValue& renderer);
+    void addSpecialMessage(const QJsonValue& renderer, const QString& headerKey = "text",
+                           const QString& subtextKey = "subtext", bool subtextItalic = true,
+                           const QString& background = "black");
+    void addTextMessage(const QJsonValue& renderer);
 
     QJsonValue actionPanel;
     QString currentContinuation;

@@ -38,11 +38,91 @@ void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData)
     messagesTimer->start(1000);
 }
 
-void LiveChatWindow::addSpecialMessage(const QJsonValue& messageRenderer, const QString& headerKey, const QString& subtextKey,
-                                       bool subtextItalic, const QString& background)
+void LiveChatWindow::addGiftRedemptionMessage(const QJsonValue& renderer)
 {
-    InnertubeObjects::InnertubeString header(messageRenderer[headerKey]);
-    InnertubeObjects::InnertubeString subtext(messageRenderer[subtextKey]);
+    QWidget* announcementWidget = new QWidget(this);
+
+    QHBoxLayout* announcementLayout = new QHBoxLayout(announcementWidget);
+    announcementLayout->setContentsMargins(0, 0, 0, 0);
+    announcementLayout->setSpacing(0);
+
+    QLabel* authorLabel = new QLabel(renderer["authorName"]["simpleText"].toString(), this);
+    authorLabel->setStyleSheet("font-weight: bold; color: #2ba640");
+    announcementLayout->addWidget(authorLabel);
+
+    InnertubeObjects::InnertubeString message(renderer["message"]);
+    QLabel* messageLabel = new QLabel(" " + message.text, this);
+    messageLabel->setFixedWidth(ui->listWidget->width() - 20);
+    messageLabel->setFont(QFont(qApp->font().toString(), -1, -1, true));
+    messageLabel->setWordWrap(true);
+    announcementLayout->addWidget(messageLabel);
+
+    UIUtils::addWidgetToList(ui->listWidget, announcementWidget);
+}
+
+void LiveChatWindow::addPaidMessage(const QJsonValue& renderer)
+{
+    QWidget* messageWidget = new QWidget(this);
+
+    QVBoxLayout* messageLayout = new QVBoxLayout(messageWidget);
+    messageLayout->setContentsMargins(0, 0, 0, 0);
+    messageLayout->setSpacing(0);
+
+    QWidget* headerWidget = new QWidget(this);
+    headerWidget->setAutoFillBackground(true);
+    headerWidget->setStyleSheet(QStringLiteral("background: #%1; color: #%2; border-top: 1px solid transparent; border-top-left-radius: 4px; border-top-right-radius: 4px")
+                                    .arg(QString::number(renderer["headerBackgroundColor"].toVariant().toLongLong(), 16),
+                                         QString::number(renderer["headerTextColor"].toVariant().toLongLong(), 16)));
+
+    QHBoxLayout* headerLayout = new QHBoxLayout(headerWidget);
+    headerLayout->setContentsMargins(5, 0, 0, 0);
+    headerLayout->setSpacing(0);
+
+    QLabel* authorIcon = new QLabel(this);
+    authorIcon->setFixedSize(38, 32);
+    headerLayout->addWidget(authorIcon);
+
+    HttpReply* iconReply = Http::instance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
+    connect(iconReply, &HttpReply::finished, this, std::bind(&LiveChatWindow::setAuthorIcon, this, std::placeholders::_1, authorIcon));
+
+    QVBoxLayout* innerHeaderLayout = new QVBoxLayout;
+    innerHeaderLayout->setContentsMargins(0, 0, 0, 0);
+    innerHeaderLayout->setSpacing(0);
+
+    QLabel* authorLabel = new QLabel(renderer["authorName"]["simpleText"].toString(), this);
+    authorLabel->setWordWrap(true);
+    innerHeaderLayout->addWidget(authorLabel);
+
+    QLabel* amountLabel = new QLabel(renderer["purchaseAmountText"]["simpleText"].toString(), this);
+    amountLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+    amountLabel->setWordWrap(true);
+    innerHeaderLayout->addWidget(amountLabel);
+
+    headerLayout->addLayout(innerHeaderLayout);
+    messageLayout->addWidget(headerWidget);
+
+    InnertubeObjects::InnertubeString message(renderer["message"]);
+    if (!message.text.isEmpty())
+    {
+        QLabel* messageLabel = new QLabel(message.text, this);
+        messageLabel->setAlignment(Qt::AlignCenter);
+        messageLabel->setAutoFillBackground(true);
+        messageLabel->setStyleSheet(
+            QStringLiteral("background: #%1; color: #%2; border-bottom: 1px solid transparent; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px")
+                .arg(QString::number(renderer["bodyBackgroundColor"].toVariant().toLongLong(), 16),
+                     QString::number(renderer["bodyTextColor"].toVariant().toLongLong(), 16)));
+        messageLabel->setWordWrap(true);
+        messageLayout->addWidget(messageLabel);
+    }
+
+    UIUtils::addWidgetToList(ui->listWidget, messageWidget);
+}
+
+void LiveChatWindow::addSpecialMessage(const QJsonValue& renderer, const QString& headerKey,
+                                       const QString& subtextKey, bool subtextItalic, const QString& background)
+{
+    InnertubeObjects::InnertubeString header(renderer[headerKey]);
+    InnertubeObjects::InnertubeString subtext(renderer[subtextKey]);
 
     QWidget* messageWidget = new QWidget(this);
     messageWidget->setAutoFillBackground(true);
@@ -70,10 +150,72 @@ void LiveChatWindow::addSpecialMessage(const QJsonValue& messageRenderer, const 
     UIUtils::addWidgetToList(ui->listWidget, messageWidget);
 }
 
+void LiveChatWindow::addTextMessage(const QJsonValue& renderer)
+{
+    QWidget* messageWidget = new QWidget(this);
+
+    QHBoxLayout* messageLayout = new QHBoxLayout(messageWidget);
+    messageLayout->setContentsMargins(0, 0, 0, 0);
+    messageLayout->setSpacing(0);
+
+    QLabel* authorIcon = new QLabel(this);
+    authorIcon->setFixedSize(38, 32);
+    messageLayout->addWidget(authorIcon);
+
+    HttpReply* iconReply = Http::instance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
+    connect(iconReply, &HttpReply::finished, this, std::bind(&LiveChatWindow::setAuthorIcon, this, std::placeholders::_1, authorIcon));
+
+    QVBoxLayout* contentLayout = new QVBoxLayout;
+    contentLayout->setContentsMargins(0, 0, 0, 0);
+    contentLayout->setSpacing(0);
+
+    QLabel* authorLabel = new QLabel(renderer["authorName"]["simpleText"].toString(), this);
+    authorLabel->setFixedWidth(ui->listWidget->width() - 50);
+    authorLabel->setStyleSheet(renderer["authorBadges"].isObject()
+                                   ? "font-weight: bold; color: #2ba640" : "font-weight: bold");
+    contentLayout->addWidget(authorLabel);
+
+    QLabel* messageLabel = new QLabel(InnertubeObjects::InnertubeString(renderer["message"]).text, this);
+    messageLabel->setFixedWidth(ui->listWidget->width() - 50);
+    messageLabel->setTextFormat(Qt::RichText);
+    messageLabel->setWordWrap(true);
+
+    QString messageText;
+    const QJsonArray runs = renderer["message"]["runs"].toArray();
+    for (const QJsonValue& v2 : runs)
+    {
+        if (v2["emoji"].isObject())
+        {
+            HttpReply* emojiReply = Http::instance().get(v2["emoji"]["image"]["thumbnails"][0]["url"].toString());
+
+            QEventLoop loop;
+            connect(emojiReply, &HttpReply::finished, &loop, &QEventLoop::quit);
+            loop.exec();
+
+            messageText += QStringLiteral("<img src='data:%1;base64,%2' width='20' height='20'>")
+                               .arg(emojiReply->header("content-type"), emojiReply->body().toBase64());
+            emojiReply->deleteLater();
+        }
+        else if (v2["text"].isString())
+        {
+            messageText += v2["text"].toString();
+        }
+    }
+
+    messageLabel->setText(messageText);
+    contentLayout->addWidget(messageLabel);
+
+    contentLayout->addStretch();
+    messageLayout->addLayout(contentLayout);
+
+    UIUtils::addWidgetToList(ui->listWidget, messageWidget);
+}
+
 void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& liveChat)
 {
     timerRunning = true;
 
+    // check if user can chat
     if (liveChat.liveChatContinuation["actionPanel"].isObject())
     {
         actionPanel = liveChat.liveChatContinuation["actionPanel"];
@@ -100,162 +242,17 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 
         QJsonValue item = v["addChatItemAction"]["item"];
         if (item["liveChatTextMessageRenderer"].isObject()) [[likely]]
-        {
-            QJsonValue liveChatTextMessage = item["liveChatTextMessageRenderer"];
-
-            QWidget* messageWidget = new QWidget(this);
-
-            QHBoxLayout* messageLayout = new QHBoxLayout(messageWidget);
-            messageLayout->setContentsMargins(0, 0, 0, 0);
-            messageLayout->setSpacing(0);
-
-            QLabel* authorIcon = new QLabel(this);
-            authorIcon->setFixedSize(38, 32);
-            messageLayout->addWidget(authorIcon);
-
-            HttpReply* iconReply = Http::instance().get(liveChatTextMessage["authorPhoto"]["thumbnails"][0]["url"].toString());
-            connect(iconReply, &HttpReply::finished, this, std::bind(&LiveChatWindow::setAuthorIcon, this, std::placeholders::_1, authorIcon));
-
-            QVBoxLayout* contentLayout = new QVBoxLayout;
-            contentLayout->setContentsMargins(0, 0, 0, 0);
-            contentLayout->setSpacing(0);
-
-            QLabel* authorLabel = new QLabel(liveChatTextMessage["authorName"]["simpleText"].toString(), this);
-            authorLabel->setFixedWidth(ui->listWidget->width() - 50);
-            authorLabel->setStyleSheet(liveChatTextMessage["authorBadges"].isObject()
-                                       ? "font-weight: bold; color: #2ba640"
-                                       : "font-weight: bold");
-            contentLayout->addWidget(authorLabel);
-
-            QLabel* messageLabel = new QLabel(InnertubeObjects::InnertubeString(liveChatTextMessage["message"]).text, this);
-            messageLabel->setFixedWidth(ui->listWidget->width() - 50);
-            messageLabel->setTextFormat(Qt::RichText);
-            messageLabel->setWordWrap(true);
-
-            QString messageText;
-            const QJsonArray runs = liveChatTextMessage["message"]["runs"].toArray();
-            for (const QJsonValue& v2 : runs)
-            {
-                if (v2["emoji"].isObject())
-                {
-                    HttpReply* emojiReply = Http::instance().get(v2["emoji"]["image"]["thumbnails"][0]["url"].toString());
-
-                    QEventLoop loop;
-                    connect(emojiReply, &HttpReply::finished, &loop, &QEventLoop::quit);
-                    loop.exec();
-
-                    messageText += QStringLiteral("<img src='data:%1;base64,%2' width='20' height='20'>")
-                                       .arg(emojiReply->header("content-type"), emojiReply->body().toBase64());
-                    emojiReply->deleteLater();
-                }
-                else if (v2["text"].isString())
-                {
-                    messageText += v2["text"].toString();
-                }
-            }
-
-            messageLabel->setText(messageText);
-            contentLayout->addWidget(messageLabel);
-
-            contentLayout->addStretch();
-            messageLayout->addLayout(contentLayout);
-
-            UIUtils::addWidgetToList(ui->listWidget, messageWidget);
-        }
+            addTextMessage(item["liveChatTextMessageRenderer"]);
         else if (item["liveChatMembershipItemRenderer"].isObject())
-        {
             addSpecialMessage(item["liveChatMembershipItemRenderer"], "authorName", "headerSubtext", false, "#0f9d58");
-        }
         else if (item["liveChatModeChangeMessageRenderer"].isObject())
-        {
             addSpecialMessage(item["liveChatModeChangeMessageRenderer"]);
-        }
         else if (item["liveChatPaidMessageRenderer"].isObject())
-        {
-            QJsonValue paidMessage = item["liveChatPaidMessageRenderer"];
-
-            QWidget* messageWidget = new QWidget(this);
-
-            QVBoxLayout* messageLayout = new QVBoxLayout(messageWidget);
-            messageLayout->setContentsMargins(0, 0, 0, 0);
-            messageLayout->setSpacing(0);
-
-            QWidget* headerWidget = new QWidget(this);
-            headerWidget->setAutoFillBackground(true);
-            headerWidget->setStyleSheet(QStringLiteral("background: #%1; color: #%2; border-top: 1px solid transparent; border-top-left-radius: 4px; border-top-right-radius: 4px")
-                                            .arg(QString::number(paidMessage["headerBackgroundColor"].toVariant().toLongLong(), 16),
-                                                 QString::number(paidMessage["headerTextColor"].toVariant().toLongLong(), 16)));
-
-            QHBoxLayout* headerLayout = new QHBoxLayout(headerWidget);
-            headerLayout->setContentsMargins(5, 0, 0, 0);
-            headerLayout->setSpacing(0);
-
-            QLabel* authorIcon = new QLabel(this);
-            authorIcon->setFixedSize(38, 32);
-            headerLayout->addWidget(authorIcon);
-
-            HttpReply* iconReply = Http::instance().get(paidMessage["authorPhoto"]["thumbnails"][0]["url"].toString());
-            connect(iconReply, &HttpReply::finished, this, std::bind(&LiveChatWindow::setAuthorIcon, this, std::placeholders::_1, authorIcon));
-
-            QVBoxLayout* innerHeaderLayout = new QVBoxLayout;
-            innerHeaderLayout->setContentsMargins(0, 0, 0, 0);
-            innerHeaderLayout->setSpacing(0);
-
-            QLabel* authorLabel = new QLabel(paidMessage["authorName"]["simpleText"].toString(), this);
-            authorLabel->setWordWrap(true);
-            innerHeaderLayout->addWidget(authorLabel);
-
-            QLabel* amountLabel = new QLabel(paidMessage["purchaseAmountText"]["simpleText"].toString(), this);
-            amountLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
-            amountLabel->setWordWrap(true);
-            innerHeaderLayout->addWidget(amountLabel);
-
-            headerLayout->addLayout(innerHeaderLayout);
-            messageLayout->addWidget(headerWidget);
-
-            InnertubeObjects::InnertubeString message(paidMessage["message"]);
-            if (!message.text.isEmpty())
-            {
-                QLabel* messageLabel = new QLabel(message.text, this);
-                messageLabel->setAlignment(Qt::AlignCenter);
-                messageLabel->setAutoFillBackground(true);
-                messageLabel->setStyleSheet(
-                    QStringLiteral("background: #%1; color: #%2; border-bottom: 1px solid transparent; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px")
-                        .arg(QString::number(paidMessage["bodyBackgroundColor"].toVariant().toLongLong(), 16),
-                             QString::number(paidMessage["bodyTextColor"].toVariant().toLongLong(), 16)));
-                messageLabel->setWordWrap(true);
-                messageLayout->addWidget(messageLabel);
-            }
-
-            UIUtils::addWidgetToList(ui->listWidget, messageWidget);
-        }
+            addPaidMessage(item["liveChatPaidMessageRenderer"]);
         else if (item["liveChatSponsorshipsGiftRedemptionAnnouncementRenderer"].isObject())
-        {
-            QJsonValue announcement = item["liveChatSponsorshipsGiftRedemptionAnnouncementRenderer"];
-
-            QWidget* announcementWidget = new QWidget(this);
-
-            QHBoxLayout* announcementLayout = new QHBoxLayout(announcementWidget);
-            announcementLayout->setContentsMargins(0, 0, 0, 0);
-            announcementLayout->setSpacing(0);
-
-            QLabel* authorLabel = new QLabel(announcement["authorName"]["simpleText"].toString(), this);
-            authorLabel->setStyleSheet("font-weight: bold; color: #2ba640");
-            announcementLayout->addWidget(authorLabel);
-
-            InnertubeObjects::InnertubeString message(announcement["message"]);
-            QLabel* messageLabel = new QLabel(" " + message.text, this);
-            messageLabel->setFixedWidth(ui->listWidget->width() - 20);
-            messageLabel->setFont(QFont(qApp->font().toString(), -1, -1, true));
-            messageLabel->setWordWrap(true);
-            announcementLayout->addWidget(messageLabel);
-
-            UIUtils::addWidgetToList(ui->listWidget, announcementWidget);
-        }
+            addGiftRedemptionMessage(item["liveChatSponsorshipsGiftRedemptionAnnouncementRenderer"]);
         else if (item["liveChatViewerEngagementMessageRenderer"].isObject())
-        {
             addSpecialMessage(item["liveChatViewerEngagementMessageRenderer"], "text", "message", false);
-        }
     }
 
     if (ui->listWidget->count() > 200)
@@ -268,11 +265,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
     }
 
     ui->listWidget->scrollToBottom();
-
-    const QJsonArray continuations = liveChat.liveChatContinuation["continuations"].toArray();
-    if (!continuations.isEmpty())
-        currentContinuation = continuations[0]["invalidationContinuationData"]["continuation"].toString();
-
+    currentContinuation = liveChat.liveChatContinuation["continuations"][0]["invalidationContinuationData"]["continuation"].toString();
     timerRunning = false;
     emit getLiveChatFinished();
 }
@@ -314,7 +307,7 @@ void LiveChatWindow::showEmojiMenu()
 
 LiveChatWindow::~LiveChatWindow()
 {
-    // avoid UAF when closing (is there a not jank way to do this?)
+    // avoid use-after-free when closing
     QEventLoop loop;
     connect(this, &LiveChatWindow::getLiveChatFinished, &loop, &QEventLoop::quit);
     loop.exec();
