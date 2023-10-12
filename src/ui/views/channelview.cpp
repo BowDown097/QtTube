@@ -1,6 +1,5 @@
 #include "channelview.h"
 #include "http.h"
-#include "innertube.h"
 #include "ui/browsehelper.h"
 #include "ui/forms/mainwindow.h"
 #include <QApplication>

@@ -125,7 +125,6 @@ set(HEADERS
     src/stores/credentialsstore.h
     src/stores/settingsstore.h
     src/ui/browsehelper.h
-    src/ui/browsehelper.tpp
     src/ui/channelbrowser.h
     src/ui/forms/emojimenu.h
     src/ui/forms/livechatwindow.h
@@ -163,7 +162,6 @@ set(HEADERS
     src/ui/widgets/topbar/topbarbell.h
     src/utils/osutils.h
     src/utils/uiutils.h
-    src/utils/uiutils.tpp
 )
 
 set(FORMS

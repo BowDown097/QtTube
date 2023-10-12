@@ -84,25 +84,16 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
         }
 
         QString href;
-        QString runText = run.text;
-
         if (run.navigationEndpoint["urlEndpoint"].isObject())
         {
             QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
             QUrlQuery query(url);
             if (query.hasQueryItem("q"))
-            {
                 href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
-            }
             else if (url.host() == "www.youtube.com" && url.path().startsWith("/channel"))
-            {
                 href = url.path();
-                runText = url.toString().left(37) + "...";
-            }
             else
-            {
                 href = url.toString();
-            }
         }
         else
         {
@@ -111,7 +102,7 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
                 href += "&continuePlayback=" + QString::number(run.navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
         }
 
-        descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, runText);
+        descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, run.text);
     }
 
     return descriptionText.replace("\n", "<br>");
@@ -239,9 +230,11 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     if (!nextResp.secondaryInfo.owner.thumbnails.isEmpty())
     {
-        const InnertubeObjects::GenericThumbnail& bestThumb = *std::ranges::find_if(nextResp.secondaryInfo.owner.thumbnails,
-                                                                                    [](const auto& t) { return t.width >= 48; });
-        HttpReply* reply = Http::instance().get(bestThumb.url);
+        QList<InnertubeObjects::GenericThumbnail>::iterator bestThumb = std::ranges::max_element(
+            nextResp.secondaryInfo.owner.thumbnails,
+            [](const auto& a, const auto& b) { return a.width < b.width; }
+        );
+        HttpReply* reply = Http::instance().get(bestThumb->url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
 
@@ -258,8 +251,8 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     QString dateText = nextResp.primaryInfo.dateText.text;
     if (!dateText.startsWith("Premier") && !dateText.startsWith("Stream") && !dateText.startsWith("Start") && !dateText.startsWith("Sched"))
         dateText = "Published on " + dateText;
-    ui->date->setText(dateText);
 
+    ui->date->setText(dateText);
     ui->description->setText(generateFormattedDescription(nextResp.secondaryInfo.description));
 }
 
@@ -349,13 +342,13 @@ void WatchView::updateRatings(const HttpReply& reply)
     QJsonDocument doc = QJsonDocument::fromJson(reply.body());
     int dislikes = doc["dislikes"].toInt();
     int likes = doc["likes"].toInt();
-    if (likes != 0 || dislikes != 0)
+    if (likes != 0)
     {
         ui->likeBar->setMaximum(likes + dislikes);
         ui->likeBar->setValue(likes);
     }
-    ui->likeBar->setVisible(true);
 
+    ui->likeBar->setVisible(true);
     ui->dislikeLabel->setText(QLocale::system().toString(dislikes));
     ui->likeLabel->setText(QLocale::system().toString(likes));
 }

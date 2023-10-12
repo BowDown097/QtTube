@@ -38,11 +38,20 @@ public:
     static void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);
 
     template<typename T>
-    static T findParent(QWidget* widget);
+    static T findParent(QWidget* widget)
+    {
+        QWidget* parentWidget = widget->parentWidget();
+        while (parentWidget)
+        {
+            if (T castedWidget = qobject_cast<T>(parentWidget))
+                return castedWidget;
+            parentWidget = parentWidget->parentWidget();
+        }
+
+        return nullptr;
+    }
 private:
     static VideoRenderer* constructVideoRenderer(QListWidget* list);
 };
-
-#include "uiutils.tpp"
 
 #endif // UIUTILS_H

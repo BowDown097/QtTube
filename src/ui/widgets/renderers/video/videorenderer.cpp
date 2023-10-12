@@ -48,8 +48,9 @@ void VideoRenderer::copyDirectUrl()
         }
         else
         {
-            auto best = std::ranges::max_element(endpoint.response.streamingData.formats,
-                [](const InnertubeObjects::StreamingFormat& a, const InnertubeObjects::StreamingFormat& b) { return a.bitrate < b.bitrate; }
+            QList<InnertubeObjects::StreamingFormat>::const_iterator best = std::ranges::max_element(
+                endpoint.response.streamingData.formats,
+                [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; }
             );
 
             if (best == endpoint.response.streamingData.formats.end())

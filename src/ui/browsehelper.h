@@ -1,13 +1,10 @@
 #ifndef BROWSEHELPER_H
 #define BROWSEHELPER_H
-#include "innertube/endpoints/base/baseendpoint.h"
-#include "innertube/innertubeexception.h"
-#include "innertube/objects/channel/channel.h"
-#include "innertube/objects/notification/notification.h"
-#include "innertube/objects/video/video.h"
-#include "innertube/responses/browse/channelresponse.h"
+#include "innertube.h"
 #include <mutex>
 #include <QListWidget>
+#include <QMessageBox>
+#include <QScrollBar>
 #include <type_traits>
 
 class BrowseHelper : public QObject
@@ -26,7 +23,42 @@ public:
     void search(QListWidget* searchWidget, const QString& query, int dateF = -1, int typeF = -1, int durF = -1, int featF = -1, int sort = -1);
 
     template<typename T> requires std::derived_from<T, InnertubeEndpoints::BaseEndpoint>
-    void tryContinuation(int value, QListWidget* widget, const QString& data = "", int threshold = 10);
+    void tryContinuation(int value, QListWidget* widget, const QString& data = "", int threshold = 10)
+    {
+        if (value < widget->verticalScrollBar()->maximum() - threshold || continuationToken.isEmpty() || continuationOngoing
+            || InnerTube::instance().context()->client.visitorData.isEmpty() || widget->count() == 0)
+        {
+            return;
+        }
+
+        continuationOngoing = true;
+
+        try
+        {
+            T newData = InnerTube::instance().getBlocking<T>(data, continuationToken);
+            if constexpr (std::is_same_v<T, InnertubeEndpoints::Search>)
+            {
+                setupChannelList(newData.response.channels, widget);
+                setupVideoList(newData.response.videos, widget);
+            }
+            else if constexpr (std::is_same_v<T, InnertubeEndpoints::GetNotificationMenu>)
+            {
+                setupNotificationList(newData.response.notifications, widget);
+            }
+            else
+            {
+                setupVideoList(newData.response.videos, widget);
+            }
+
+            continuationToken = newData.continuationToken;
+        }
+        catch (const InnertubeException& ie)
+        {
+            QMessageBox::critical(nullptr, "Failed to get continuation browsing info", ie.message());
+        }
+
+        continuationOngoing = false;
+    }
 private slots:
     void browseFailed(const InnertubeException& ie, const QString& title);
 private:
@@ -74,7 +106,5 @@ private:
         }
     };
 };
-
-#include "browsehelper.tpp"
 
 #endif // BROWSEHELPER_H
