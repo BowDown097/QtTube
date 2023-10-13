@@ -1,6 +1,5 @@
 #ifndef LIVECHATWINDOW_H
 #define LIVECHATWINDOW_H
-#include "httpreply.h"
 #include "innertube/endpoints/live_chat/getlivechat.h"
 #include "innertube/objects/live_chat/livechat.h"
 #include <QLabel>
@@ -19,13 +18,6 @@ public:
 public slots:
     void initialize(const InnertubeObjects::LiveChat& liveChatData);
 private:
-    void addGiftRedemptionMessage(const QJsonValue& renderer);
-    void addPaidMessage(const QJsonValue& renderer);
-    void addSpecialMessage(const QJsonValue& renderer, const QString& headerKey = "text",
-                           const QString& subtextKey = "subtext", bool subtextItalic = true,
-                           const QString& background = "black");
-    void addTextMessage(const QJsonValue& renderer);
-
     QJsonValue actionPanel;
     QString currentContinuation;
     QTimer* messagesTimer;
@@ -35,7 +27,6 @@ private:
 private slots:
     void processChatData(const InnertubeEndpoints::GetLiveChat& liveChat);
     void sendMessage();
-    void setAuthorIcon(const HttpReply& reply, QLabel* iconLabel);
     void showEmojiMenu();
 signals:
     void getLiveChatFinished();

@@ -80,8 +80,12 @@ set(SOURCE_FILES
     src/ui/browsehelper.cpp
     src/ui/channelbrowser.cpp
     src/ui/forms/emojimenu.cpp
-    src/ui/forms/livechatwindow.cpp
     src/ui/forms/mainwindow.cpp
+    src/ui/forms/livechat/giftredemptionmessage.cpp
+    src/ui/forms/livechat/livechatwindow.cpp
+    src/ui/forms/livechat/paidmessage.cpp
+    src/ui/forms/livechat/specialmessage.cpp
+    src/ui/forms/livechat/textmessage.cpp
     src/ui/forms/settings/channelfiltertable.cpp
     src/ui/forms/settings/settingsform.cpp
     src/ui/forms/settings/termfilterview.cpp
@@ -127,8 +131,12 @@ set(HEADERS
     src/ui/browsehelper.h
     src/ui/channelbrowser.h
     src/ui/forms/emojimenu.h
-    src/ui/forms/livechatwindow.h
     src/ui/forms/mainwindow.h
+    src/ui/forms/livechat/giftredemptionmessage.h
+    src/ui/forms/livechat/livechatwindow.h
+    src/ui/forms/livechat/paidmessage.h
+    src/ui/forms/livechat/specialmessage.h
+    src/ui/forms/livechat/textmessage.h
     src/ui/forms/settings/channelfiltertable.h
     src/ui/forms/settings/settingsform.h
     src/ui/forms/settings/termfilterview.h
@@ -166,8 +174,8 @@ set(HEADERS
 
 set(FORMS
     src/ui/forms/emojimenu.ui
-    src/ui/forms/livechatwindow.ui
     src/ui/forms/mainwindow.ui
+    src/ui/forms/livechat/livechatwindow.ui
     src/ui/forms/settings/channelfiltertable.ui
     src/ui/forms/settings/settingsform.ui
     src/ui/forms/settings/termfilterview.ui

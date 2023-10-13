@@ -54,8 +54,6 @@ void CredentialsStore::populateAuthStore(int index)
     authStore->sid = credSet.sid;
     authStore->ssid = credSet.ssid;
     authStore->visitorInfo = credSet.visitorInfo;
-    authStore->populated = !credSet.apisid.isEmpty() && !credSet.hsid.isEmpty() && !credSet.sapisid.isEmpty()
-                           && !credSet.sid.isEmpty() && !credSet.ssid.isEmpty() && !credSet.visitorInfo.isEmpty();
     InnerTube::instance().context()->client.visitorData = SimpleProtobuf::padded(credSet.visitorInfo);
 }
 

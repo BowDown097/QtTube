@@ -74,6 +74,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
 
     InnerTube::instance().createContext(InnertubeClient("WEB", "2.20230718.01.00", "DESKTOP"));
     tryRestoreData();
+    connect(InnerTube::instance().authStore(), &InnertubeAuthStore::authenticateSuccess, m_topbar, &TopBar::postSignInSetup);
 
     if (parser.isSet("channel"))
         ViewController::loadChannel(parser.value("channel"));

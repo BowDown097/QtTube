@@ -3,7 +3,7 @@
 #include "http.h"
 #include "innertube.h"
 #include "stores/settingsstore.h"
-#include "ui/forms/livechatwindow.h"
+#include "ui/forms/livechat/livechatwindow.h"
 #include "ui/forms/mainwindow.h"
 #include "utils/osutils.h"
 #include "utils/uiutils.h"

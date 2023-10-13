@@ -131,14 +131,12 @@ void TopBar::trySignIn()
 {
 #ifndef INNERTUBE_NO_WEBENGINE
     InnerTube::instance().authenticate();
-    if (!InnerTube::instance().hasAuthenticated())
-        return;
 #else
     QMessageBox::StandardButton box = QMessageBox::information(nullptr, "YouTube Login",
 R"(
 Could not bring up the YouTube login page because the Qt web engine is not available.
 You will need to provide authentication credentials manually to log in.
-For info on how to do this, see https://github.com/BowDown097/innertube-qt/wiki/Manually-getting-login-credentials.
+For info on how to do this, see https://github.com/BowDown097/QtTube/wiki/Manually-getting-login-credentials.
 )");
     if (box != QMessageBox::StandardButton::Ok)
         return;
@@ -157,9 +155,9 @@ If you provided credentials, please check them, refer back to the previous linke
 )");
         return;
     }
-#endif
 
     postSignInSetup();
+#endif
 }
 
 void TopBar::updateNotificationCount()

@@ -4,10 +4,10 @@
 
 void PlayerInterceptor::setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore)
 {
-    if (authStore->populated)
+    if (authStore->populated())
     {
         http.addRequestHeader("Authorization", authStore->generateSAPISIDHash().toUtf8());
-        http.addRequestHeader("Cookie", authStore->getNecessaryLoginCookies().toUtf8());
+        http.addRequestHeader("Cookie", authStore->toCookieString().toUtf8());
         http.addRequestHeader("X-Goog-AuthUser", "0");
     }
 
