@@ -87,7 +87,7 @@ void SubscribeLabel::mousePressEvent(QMouseEvent*)
         return;
     }
 
-    if (subscribeButton.subscribed && QMessageBox::question(nullptr, "Unsubscribe?", "Unsubscribe from this channel?") != QMessageBox::StandardButton::Yes)
+    if (subscribeButton.subscribed && QMessageBox::question(nullptr, "Unsubscribe?", "Unsubscribe from this channel?") == QMessageBox::StandardButton::Yes)
     {
         toggleSubscriptionStatus(subscribeStyle, subscribeButton.unsubscribedButtonText.text);
         InnerTube::instance().subscribe(
