@@ -66,7 +66,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     UIUtils::defaultStyle = qApp->style()->objectName();
     UIUtils::setAppStyle(SettingsStore::instance()->appStyle, SettingsStore::instance()->darkTheme);
 
-    InnerTube::instance().createContext(InnertubeClient("WEB", "2.20230718.01.00", "DESKTOP"));
+    InnerTube::instance().createContext(InnertubeClient(InnertubeClient::ClientType::WEB, "2.20230718.01.00", "DESKTOP"));
     tryRestoreData();
     connect(InnerTube::instance().authStore(), &InnertubeAuthStore::authenticateSuccess, m_topbar, &TopBar::postSignInSetup);
 

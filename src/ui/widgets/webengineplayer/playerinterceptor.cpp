@@ -13,7 +13,7 @@ void PlayerInterceptor::setNeededHeaders(Http& http, InnertubeContext* context, 
 
     http.addRequestHeader("Content-Type", "application/json");
     http.addRequestHeader("X-Goog-Visitor-Id", context->client.visitorData.toLatin1());
-    http.addRequestHeader("X-YOUTUBE-CLIENT-NAME", context->client.clientName.toLatin1());
+    http.addRequestHeader("X-YOUTUBE-CLIENT-NAME", QByteArray::number(static_cast<int>(context->client.clientType)));
     http.addRequestHeader("X-YOUTUBE-CLIENT-VERSION", context->client.clientVersion.toLatin1());
     http.addRequestHeader("X-ORIGIN", "https://www.youtube.com");
 }
@@ -63,7 +63,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
             { "subscribed", playerWatchtimeQuery.queryItemValue("subscribed") },
             { "cbr", m_context->client.browserName },
             { "cbrver", m_context->client.browserVersion },
-            { "c", m_context->client.clientName },
+            { "c", QString::number(static_cast<int>(m_context->client.clientType)) },
             { "cver", m_context->client.clientVersion },
             { "cplayer", "UNIPLAYER" },
             { "cos", m_context->client.osName },
@@ -120,7 +120,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
             { "volume", playbackQuery.queryItemValue("volume") },
             { "cbr", m_context->client.browserName },
             { "cbrver", m_context->client.browserVersion },
-            { "c", m_context->client.clientName },
+            { "c", QString::number(static_cast<int>(m_context->client.clientType)) },
             { "cver", m_context->client.clientVersion },
             { "cplayer", "UNIPLAYER" },
             { "cos", m_context->client.osName },

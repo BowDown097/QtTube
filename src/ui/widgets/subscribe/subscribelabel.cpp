@@ -87,21 +87,18 @@ void SubscribeLabel::mousePressEvent(QMouseEvent*)
         return;
     }
 
-    if (subscribeButton.subscribed)
+    if (subscribeButton.subscribed && QMessageBox::question(nullptr, "Unsubscribe?", "Unsubscribe from this channel?") != QMessageBox::StandardButton::Yes)
     {
-        if (QMessageBox::question(nullptr, "Unsubscribe?", "Unsubscribe from this channel?") != QMessageBox::StandardButton::Yes)
-            return;
         toggleSubscriptionStatus(subscribeStyle, subscribeButton.unsubscribedButtonText.text);
         InnerTube::instance().subscribe(
-            qAsConst(subscribeButton.onUnsubscribeEndpoints)[0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]
-                ["confirmDialogRenderer"]["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"],
+            std::as_const(subscribeButton.onUnsubscribeEndpoints)[0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"]["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"],
             false
         );
     }
-    else
+    else if (!subscribeButton.subscribed)
     {
         toggleSubscriptionStatus(subscribedStyle, subscribeButton.subscribedButtonText.text);
-        InnerTube::instance().subscribe(qAsConst(subscribeButton.onSubscribeEndpoints)[0]["subscribeEndpoint"], true);
+        InnerTube::instance().subscribe(std::as_const(subscribeButton.onSubscribeEndpoints)[0]["subscribeEndpoint"], true);
     }
 }
 
