@@ -9,43 +9,43 @@
 #include <QJsonObject>
 #include <QUrlQuery>
 
-void ChannelBrowser::setupAbout(QListWidget* channelTab, const QJsonValue& tabRenderer)
+void ChannelBrowser::setupAbout(QListWidget* widget, const QJsonValue& renderer)
 {
-    const QJsonValue metadataRenderer = tabRenderer["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]
-                                                   ["contents"][0]["channelAboutFullMetadataRenderer"];
+    const QJsonValue metadataRenderer = renderer["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]
+                                                ["contents"][0]["channelAboutFullMetadataRenderer"];
     if (!metadataRenderer.isObject())
         throw InnertubeException("[SetupAbout] channelAboutFullMetadataRenderer not found");
 
     InnertubeObjects::AboutFullMetadata metadata(metadataRenderer);
 
-    UIUtils::addBoldLabelToList(channelTab, metadata.viewCountText);
-    UIUtils::addWrappedLabelToList(channelTab, metadata.joinedDateText.text);
+    UIUtils::addBoldLabelToList(widget, metadata.viewCountText);
+    UIUtils::addWrappedLabelToList(widget, metadata.joinedDateText.text);
 
     if (metadata.showDescription && !metadata.description.isEmpty())
     {
-        UIUtils::addSeparatorToList(channelTab);
-        UIUtils::addBoldLabelToList(channelTab, metadata.descriptionLabel.text);
-        UIUtils::addWrappedLabelToList(channelTab, metadata.description);
+        UIUtils::addSeparatorToList(widget);
+        UIUtils::addBoldLabelToList(widget, metadata.descriptionLabel.text);
+        UIUtils::addWrappedLabelToList(widget, metadata.description);
     }
 
     if (!metadata.country.isEmpty())
     {
-        UIUtils::addSeparatorToList(channelTab);
-        UIUtils::addBoldLabelToList(channelTab, metadata.detailsLabel.text);
-        UIUtils::addWrappedLabelToList(channelTab, metadata.countryLabel.text.trimmed() + " " + metadata.country);
+        UIUtils::addSeparatorToList(widget);
+        UIUtils::addBoldLabelToList(widget, metadata.detailsLabel.text);
+        UIUtils::addWrappedLabelToList(widget, metadata.countryLabel.text.trimmed() + " " + metadata.country);
     }
 
     if (!metadata.primaryLinks.isEmpty())
     {
-        UIUtils::addSeparatorToList(channelTab);
-        UIUtils::addBoldLabelToList(channelTab, metadata.primaryLinksLabel.text);
+        UIUtils::addSeparatorToList(widget);
+        UIUtils::addBoldLabelToList(widget, metadata.primaryLinksLabel.text);
 
         for (const InnertubeObjects::ChannelHeaderLink& link : metadata.primaryLinks)
         {
             TubeLabel* label = new TubeLabel(link.title);
             label->setClickable(true, false);
             label->setStyleSheet("color: #167ac6");
-            UIUtils::addWidgetToList(channelTab, label);
+            UIUtils::addWidgetToList(widget, label);
 
             QObject::connect(label, &TubeLabel::clicked, [link]
             {
@@ -57,9 +57,9 @@ void ChannelBrowser::setupAbout(QListWidget* channelTab, const QJsonValue& tabRe
     }
 }
 
-void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& tabRenderer)
+void ChannelBrowser::setupChannels(QListWidget* widget, const QJsonValue& renderer)
 {
-    const QJsonArray contents = tabRenderer["content"]["sectionListRenderer"]["contents"].toArray();
+    const QJsonArray contents = renderer["content"]["sectionListRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {
         const QJsonArray itemSectionContents = v["itemSectionRenderer"]["contents"].toArray();
@@ -74,12 +74,12 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
                         continue;
 
                     InnertubeObjects::Channel channel(v3["gridChannelRenderer"]);
-                    UIUtils::addChannelRendererToList(channelTab, channel);
+                    UIUtils::addChannelRendererToList(widget, channel);
                 }
             }
             else if (v2["shelfRenderer"].isObject())
             {
-                UIUtils::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
+                UIUtils::addShelfTitleToList(widget, v2["shelfRenderer"]);
                 const QJsonValue content = v2["shelfRenderer"]["content"];
                 const QJsonArray items = content["horizontalListRenderer"].isObject()
                     ? content["horizontalListRenderer"]["items"].toArray()
@@ -90,19 +90,20 @@ void ChannelBrowser::setupChannels(QListWidget* channelTab, const QJsonValue& ta
                     const QJsonObject& obj = v3.toObject();
                     QJsonObject::const_iterator it = obj.begin();
                     InnertubeObjects::Channel channel(it.value());
-                    UIUtils::addChannelRendererToList(channelTab, channel);
+                    UIUtils::addChannelRendererToList(widget, channel);
                 }
             }
         }
     }
 
-    if (channelTab->count() == 0)
-        channelTab->addItem("This channel doesn't feature any other channels.");
+    if (widget->count() == 0)
+        widget->addItem("This channel doesn't feature any other channels.");
 }
 
-void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp)
+void ChannelBrowser::setupHome(QListWidget* widget, const QJsonValue& renderer,
+                               const InnertubeEndpoints::ChannelResponse& resp)
 {
-    const QJsonArray contents = tabRenderer["content"]["sectionListRenderer"]["contents"].toArray();
+    const QJsonArray contents = renderer["content"]["sectionListRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {
         const QJsonArray itemSectionContents = v["itemSectionRenderer"]["contents"].toArray();
@@ -111,7 +112,7 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
             if (!v2["shelfRenderer"].isObject())
                 continue;
 
-            UIUtils::addShelfTitleToList(channelTab, v2["shelfRenderer"]);
+            UIUtils::addShelfTitleToList(widget, v2["shelfRenderer"]);
             const QJsonValue content = v2["shelfRenderer"]["content"];
             const QJsonArray items = content["horizontalListRenderer"].isObject()
                 ? content["horizontalListRenderer"]["items"].toArray()
@@ -124,48 +125,49 @@ void ChannelBrowser::setupHome(QListWidget* channelTab, const QJsonValue& tabRen
                 if (it.key() == "channelRenderer" || it.key() == "gridChannelRenderer")
                 {
                     InnertubeObjects::Channel channel(it.value());
-                    UIUtils::addChannelRendererToList(channelTab, channel);
+                    UIUtils::addChannelRendererToList(widget, channel);
                 }
                 else if (it.key() == "gridVideoRenderer" || it.key() == "videoRenderer")
                 {
                     // id and name are missing a lot of the time, so we need to populate them manually
                     InnertubeObjects::Video video(it.value(), it.key() == "gridVideoRenderer");
-                    video.owner.id = channelResp.metadata.externalId;
-                    video.owner.name = channelResp.metadata.title;
-                    UIUtils::addVideoRendererToList(channelTab, video);
+                    video.owner.id = resp.metadata.externalId;
+                    video.owner.name = resp.metadata.title;
+                    UIUtils::addVideoRendererToList(widget, video);
                 }
             }
         }
     }
 }
 
-void ChannelBrowser::setupLive(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp)
+void ChannelBrowser::setupLive(QListWidget* widget, const QJsonValue& renderer,
+                               const InnertubeEndpoints::ChannelResponse& resp)
 {
     if (SettingsStore::instance()->hideStreams)
     {
-        channelTab->addItem("This tab is disabled because the live streams filter is turned on.");
+        widget->addItem("This tab is disabled because the live streams filter is turned on.");
         return;
     }
 
-    const QJsonArray contents = tabRenderer["content"]["richGridRenderer"]["contents"].toArray();
+    const QJsonArray contents = renderer["content"]["richGridRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {
         if (!v["richItemRenderer"].isObject())
             continue;
 
         InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);
-        video.owner.id = channelResp.metadata.externalId;
-        video.owner.name = channelResp.metadata.title;
-        UIUtils::addVideoRendererToList(channelTab, video);
+        video.owner.id = resp.metadata.externalId;
+        video.owner.name = resp.metadata.title;
+        UIUtils::addVideoRendererToList(widget, video);
     }
 
-    if (channelTab->count() == 0)
-        channelTab->addItem("This channel has no live streams.");
+    if (widget->count() == 0)
+        widget->addItem("This channel has no live streams.");
 }
 
-void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& tabRenderer)
+void ChannelBrowser::setupMembership(QListWidget* widget, const QJsonValue& renderer)
 {
-    const QJsonArray slr = tabRenderer["content"]["sectionListRenderer"]["contents"].toArray();
+    const QJsonArray slr = renderer["content"]["sectionListRenderer"]["contents"].toArray();
     auto perksIter = std::ranges::find_if(slr, [](const QJsonValue& v) {
         return v["sponsorshipsExpandablePerksRenderer"].isObject();
     });
@@ -187,7 +189,7 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         TubeLabel* membershipTitle = new TubeLabel(InnertubeObjects::InnertubeString(perks["title"]));
         perksHeader->addWidget(membershipTitle);
 
-        UIUtils::addWidgetToList(channelTab, perksHeaderWrapper);
+        UIUtils::addWidgetToList(widget, perksHeaderWrapper);
 
         QWidget* perkInfoHeaderWrapper = new QWidget;
         QHBoxLayout* perkInfoHeader = new QHBoxLayout(perkInfoHeaderWrapper);
@@ -203,13 +205,13 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         perkInfoHeader->addWidget(showPerkInfo);
 
         perkInfoHeader->addStretch();
-        UIUtils::addWidgetToList(channelTab, perkInfoHeaderWrapper);
+        UIUtils::addWidgetToList(widget, perkInfoHeaderWrapper);
 
         QWidget* perkInfoWrapper = new QWidget;
         QVBoxLayout* perkInfo = new QVBoxLayout(perkInfoWrapper);
         perkInfo->setContentsMargins(0, 0, 0, 0);
 
-        QListWidgetItem* perkInfoItem = UIUtils::addWidgetToList(channelTab, perkInfoWrapper);
+        QListWidgetItem* perkInfoItem = UIUtils::addWidgetToList(widget, perkInfoWrapper);
         QObject::connect(showPerkInfo, &TubeLabel::clicked, showPerkInfo, [perkInfo, perkInfoItem, perkInfoWrapper, perks, showPerkInfo]
         {
             if (!perkInfo->isEmpty())
@@ -301,54 +303,56 @@ void ChannelBrowser::setupMembership(QListWidget* channelTab, const QJsonValue& 
         if (!v["videoRenderer"].isObject())
             continue;
         InnertubeObjects::Video video(v["videoRenderer"], false);
-        UIUtils::addVideoRendererToList(channelTab, video);
+        UIUtils::addVideoRendererToList(widget, video);
     }
 }
 
-void ChannelBrowser::setupShorts(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp)
+void ChannelBrowser::setupShorts(QListWidget* widget, const QJsonValue& renderer,
+                                 const InnertubeEndpoints::ChannelResponse& resp)
 {
     if (SettingsStore::instance()->hideShorts)
     {
-        channelTab->addItem("This tab is disabled because the shorts filter is turned on.");
+        widget->addItem("This tab is disabled because the shorts filter is turned on.");
         return;
     }
 
-    const QJsonArray contents = tabRenderer["content"]["richGridRenderer"]["contents"].toArray();
+    const QJsonArray contents = renderer["content"]["richGridRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {
         if (!v["richItemRenderer"].isObject())
             continue;
 
         InnertubeObjects::Reel reel(v["richItemRenderer"]["content"]["reelItemRenderer"]);
-        reel.owner.id = channelResp.metadata.externalId;
-        reel.owner.name = channelResp.metadata.title;
-        UIUtils::addVideoRendererToList(channelTab, reel);
+        reel.owner.id = resp.metadata.externalId;
+        reel.owner.name = resp.metadata.title;
+        UIUtils::addVideoRendererToList(widget, reel);
     }
 
-    if (channelTab->count() == 0)
-        channelTab->addItem("This channel has no shorts.");
+    if (widget->count() == 0)
+        widget->addItem("This channel has no shorts.");
 }
 
-void ChannelBrowser::setupUnimplemented(QListWidget* channelTab)
+void ChannelBrowser::setupUnimplemented(QListWidget* widget)
 {
-    channelTab->addItem("This tab is unimplemented.");
+    widget->addItem("This tab is unimplemented.");
 }
 
-void ChannelBrowser::setupVideos(QListWidget* channelTab, const QJsonValue& tabRenderer, const InnertubeEndpoints::ChannelResponse& channelResp)
+void ChannelBrowser::setupVideos(QListWidget* widget, const QJsonValue& renderer,
+                                 const InnertubeEndpoints::ChannelResponse& resp)
 {
     // TODO: add filtering
-    const QJsonArray contents = tabRenderer["content"]["richGridRenderer"]["contents"].toArray();
+    const QJsonArray contents = renderer["content"]["richGridRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
     {
         if (!v["richItemRenderer"].isObject())
             continue;
 
         InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);
-        video.owner.id = channelResp.metadata.externalId;
-        video.owner.name = channelResp.metadata.title;
-        UIUtils::addVideoRendererToList(channelTab, video);
+        video.owner.id = resp.metadata.externalId;
+        video.owner.name = resp.metadata.title;
+        UIUtils::addVideoRendererToList(widget, video);
     }
 
-    if (channelTab->count() == 0)
-        channelTab->addItem("This channel has no videos.");
+    if (widget->count() == 0)
+        widget->addItem("This channel has no videos.");
 }

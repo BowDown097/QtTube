@@ -1,10 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include "ui/widgets/continuablelistwidget.h"
 #include "ui/widgets/findbar.h"
 #include "ui/widgets/topbar/topbar.h"
 #include <QCommandLineParser>
 #include <QKeyEvent>
-#include <QListWidget>
 #include <QMainWindow>
 #include <QResizeEvent>
 #include <QStackedWidget>
@@ -57,7 +57,7 @@ private:
     bool doNotBrowse = false;
     FindBar* findbar;
     QString lastSearchQuery;
-    QListWidget* notificationMenu;
+    ContinuableListWidget* notificationMenu;
     Ui::MainWindow* ui;
 };
 #endif // MAINWINDOW_H

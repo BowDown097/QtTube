@@ -1,0 +1,19 @@
+#include "continuablelistwidget.h"
+#include "innertube.h"
+#include <QScrollBar>
+
+ContinuableListWidget::ContinuableListWidget(QWidget* parent) : QListWidget(parent)
+{
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &ContinuableListWidget::scrollValueChanged);
+    verticalScrollBar()->setSingleStep(25);
+}
+
+void ContinuableListWidget::scrollValueChanged(int value)
+{
+    if (count() > 0 && value >= verticalScrollBar()->maximum() - continuationThreshold &&
+        !continuationToken.isEmpty() && !continuationRunning &&
+        !InnerTube::instance().context()->client.visitorData.isEmpty())
+    {
+        emit continuationReady();
+    }
+}

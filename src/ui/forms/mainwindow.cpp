@@ -22,7 +22,8 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     m_winId = winId();
 #endif
 
-    notificationMenu = new QListWidget(this);
+    notificationMenu = new ContinuableListWidget(this);
+    notificationMenu->setContinuationThreshold(5);
     notificationMenu->setVisible(false);
 
     findbar = new FindBar(this);
@@ -38,28 +39,21 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     ui->tabWidget->setCurrentIndex(5); // just some blank tab so you can pick one
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
 
-    connect(notificationMenu->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::GetNotificationMenu>(value, notificationMenu, "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", 5);
+    connect(notificationMenu, &ContinuableListWidget::continuationReady, this, [this] {
+        BrowseHelper::instance()->continuation<InnertubeEndpoints::GetNotificationMenu>(notificationMenu, "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", 5);
     });
-    connect(ui->historyWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::BrowseHistory>(value, ui->historyWidget, lastSearchQuery);
+    connect(ui->historyWidget, &ContinuableListWidget::continuationReady, this, [this] {
+        BrowseHelper::instance()->continuation<InnertubeEndpoints::BrowseHistory>(ui->historyWidget, lastSearchQuery);
     });
-    connect(ui->homeWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::BrowseHome>(value, ui->homeWidget);
+    connect(ui->homeWidget, &ContinuableListWidget::continuationReady, this, [this] {
+        BrowseHelper::instance()->continuation<InnertubeEndpoints::BrowseHome>(ui->homeWidget);
     });
-    connect(ui->searchWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::Search>(value, ui->searchWidget, lastSearchQuery);
+    connect(ui->searchWidget, &ContinuableListWidget::continuationReady, this, [this] {
+        BrowseHelper::instance()->continuation<InnertubeEndpoints::Search>(ui->searchWidget, lastSearchQuery);
     });
-    connect(ui->subscriptionsWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {
-        BrowseHelper::instance()->tryContinuation<InnertubeEndpoints::BrowseSubscriptions>(value, ui->subscriptionsWidget);
+    connect(ui->subscriptionsWidget, &ContinuableListWidget::continuationReady, this, [this] {
+        BrowseHelper::instance()->continuation<InnertubeEndpoints::BrowseSubscriptions>(ui->subscriptionsWidget);
     });
-
-    ui->historySearchWidget->verticalScrollBar()->setSingleStep(25);
-    ui->historyWidget->verticalScrollBar()->setSingleStep(25);
-    ui->homeWidget->verticalScrollBar()->setSingleStep(25);
-    ui->searchWidget->verticalScrollBar()->setSingleStep(25);
-    ui->subscriptionsWidget->verticalScrollBar()->setSingleStep(25);
-    ui->trendingWidget->verticalScrollBar()->setSingleStep(25);
 
     QAction* reloadShortcut = new QAction(this);
     reloadShortcut->setAutoRepeat(false);
@@ -127,6 +121,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         if ((ctrlPressed && event->key() == Qt::Key_F) || event->key() == Qt::Key_Escape)
             findbar->setReveal(!findbar->isVisible());
     }
+
     QWidget::keyPressEvent(event);
 }
 

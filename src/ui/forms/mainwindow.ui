@@ -34,13 +34,16 @@
 	border: none;
 }</string>
        </property>
+       <property name="currentIndex">
+        <number>5</number>
+       </property>
        <widget class="QWidget" name="homeTab">
         <attribute name="title">
          <string>Home</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_16">
          <item row="0" column="0">
-          <widget class="QListWidget" name="homeWidget">
+          <widget class="ContinuableListWidget" name="homeWidget">
            <property name="styleSheet">
             <string notr="true">QListWidget::item { background: transparent;}</string>
            </property>
@@ -89,7 +92,7 @@
         </attribute>
         <layout class="QGridLayout" name="gridLayout_18">
          <item row="0" column="0">
-          <widget class="QListWidget" name="subscriptionsWidget">
+          <widget class="ContinuableListWidget" name="subscriptionsWidget">
            <property name="styleSheet">
             <string notr="true">QListWidget::item { background: transparent; }</string>
            </property>
@@ -121,7 +124,7 @@
         </attribute>
         <layout class="QGridLayout" name="gridLayout_19">
          <item row="0" column="0">
-          <widget class="QListWidget" name="historyWidget">
+          <widget class="ContinuableListWidget" name="historyWidget">
            <property name="horizontalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOff</enum>
            </property>
@@ -141,7 +144,7 @@
         </attribute>
         <layout class="QGridLayout" name="gridLayout_20">
          <item row="0" column="0">
-          <widget class="QListWidget" name="searchWidget">
+          <widget class="ContinuableListWidget" name="searchWidget">
            <property name="horizontalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOff</enum>
            </property>
@@ -155,7 +158,7 @@
         </attribute>
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="0">
-          <widget class="QListWidget" name="historySearchWidget">
+          <widget class="ContinuableListWidget" name="historySearchWidget">
            <property name="horizontalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOff</enum>
            </property>
@@ -188,6 +191,13 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ContinuableListWidget</class>
+   <extends>QListWidget</extends>
+   <header>src/ui/widgets/continuablelistwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../res/resources.qrc"/>
  </resources>
