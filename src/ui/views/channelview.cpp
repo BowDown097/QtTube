@@ -27,8 +27,6 @@ ChannelView::ChannelView(const QString& channelId)
 
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->setSpacing(0);
-
-    channelBanner->setFixedHeight(129);
     pageLayout->addWidget(channelBanner);
 
     channelHeaderWidget->setFixedHeight(63);
@@ -64,9 +62,6 @@ ChannelView::ChannelView(const QString& channelId)
     channelTabs->tabBar()->setExpanding(false);
     pageLayout->addWidget(channelTabs);
     setTabsAndStyles(channelResp);
-
-    MainWindow::topbar()->alwaysShow = false;
-    MainWindow::topbar()->setVisible(false);
 }
 
 void ChannelView::hotLoadChannel(const QString& channelId)
@@ -127,7 +122,12 @@ void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& ch
         channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
     }
 
-    if (!channelResp.header.banners.isEmpty())
+    bool hasBanner = !channelResp.header.banners.isEmpty();
+    channelBanner->setFixedHeight(hasBanner ? 129 : 40);
+    MainWindow::topbar()->alwaysShow = !hasBanner;
+    MainWindow::topbar()->setVisible(!hasBanner);
+
+    if (hasBanner)
     {
         HttpReply* bannerReply = Http::instance().get(channelResp.header.banners[0].url);
         connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
