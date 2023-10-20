@@ -13,6 +13,8 @@ public:
     explicit SettingsForm(QWidget* parent = nullptr);
     ~SettingsForm();
 private slots:
+    //void openExportWizard();
+    void openImportWizard();
     void saveSettings();
     void toggleDeArrowSettings(bool checked);
 private:

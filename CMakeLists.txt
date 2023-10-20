@@ -89,6 +89,15 @@ set(SOURCE_FILES
     src/ui/forms/settings/channelfiltertable.cpp
     src/ui/forms/settings/settingsform.cpp
     src/ui/forms/settings/termfilterview.cpp
+    src/ui/forms/settings/data-wizards/basicinfopage.cpp
+    src/ui/forms/settings/data-wizards/entityselecttablemodel.cpp
+    src/ui/forms/settings/data-wizards/import/takeoutimportwizard.cpp
+    src/ui/forms/settings/data-wizards/import/shared/chooseentitiespage.cpp
+    src/ui/forms/settings/data-wizards/import/shared/choosesubspage.cpp
+    src/ui/forms/settings/data-wizards/import/shared/choosewatchhistorypage.cpp
+    src/ui/forms/settings/data-wizards/import/shared/importfileselectpage.cpp
+    src/ui/forms/settings/data-wizards/richtableview/richitemdelegate.cpp
+    src/ui/forms/settings/data-wizards/richtableview/richtableview.cpp
     src/ui/views/channelview.cpp
     src/ui/views/viewcontroller.cpp
     src/ui/views/watchview.cpp
@@ -141,6 +150,16 @@ set(HEADERS
     src/ui/forms/settings/channelfiltertable.h
     src/ui/forms/settings/settingsform.h
     src/ui/forms/settings/termfilterview.h
+    src/ui/forms/settings/data-wizards/basicinfopage.h
+    src/ui/forms/settings/data-wizards/conclusionpage.h
+    src/ui/forms/settings/data-wizards/entityselecttablemodel.h
+    src/ui/forms/settings/data-wizards/import/takeoutimportwizard.h
+    src/ui/forms/settings/data-wizards/import/shared/chooseentitiespage.h
+    src/ui/forms/settings/data-wizards/import/shared/choosesubspage.h
+    src/ui/forms/settings/data-wizards/import/shared/choosewatchhistorypage.h
+    src/ui/forms/settings/data-wizards/import/shared/importfileselectpage.h
+    src/ui/forms/settings/data-wizards/richtableview/richitemdelegate.h
+    src/ui/forms/settings/data-wizards/richtableview/richtableview.h
     src/ui/views/channelview.h
     src/ui/views/viewcontroller.h
     src/ui/views/watchview.h

@@ -40,7 +40,7 @@ void TopBarBell::enterEvent(QEnterEvent*)
 void TopBarBell::enterEvent(QEvent*)
 #endif
 {
-    setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+    setCursor(QCursor(Qt::PointingHandCursor));
 }
 
 void TopBarBell::leaveEvent(QEvent*)

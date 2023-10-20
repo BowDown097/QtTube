@@ -23,7 +23,7 @@ void TubeLabel::enterEvent(QEvent*)
 #endif
 {
     if (clickable)
-        setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+        setCursor(QCursor(Qt::PointingHandCursor));
     if (underline)
         setStyleSheet("QLabel { text-decoration: underline; }");
 }

@@ -9,7 +9,7 @@ void ElidedTubeLabel::enterEvent(QEvent*)
 #endif
 {
     if (m_clickable)
-        setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+        setCursor(QCursor(Qt::PointingHandCursor));
     if (m_underline)
         setStyleSheet("QLabel { text-decoration: underline; }");
 }

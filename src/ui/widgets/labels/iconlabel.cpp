@@ -28,7 +28,7 @@ void IconLabel::enterEvent(QEnterEvent*)
 void IconLabel::enterEvent(QEvent*)
 #endif
 {
-    setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+    setCursor(QCursor(Qt::PointingHandCursor));
 }
 
 void IconLabel::leaveEvent(QEvent*)

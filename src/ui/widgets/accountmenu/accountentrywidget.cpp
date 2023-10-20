@@ -22,7 +22,7 @@ void AccountEntryWidget::enterEvent(QEvent*)
 #endif
 {
     if (clickable)
-        setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+        setCursor(QCursor(Qt::PointingHandCursor));
 }
 
 void AccountEntryWidget::leaveEvent(QEvent*)

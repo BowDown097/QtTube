@@ -53,7 +53,7 @@ void SubscribeLabel::enterEvent(QEnterEvent*)
 void SubscribeLabel::enterEvent(QEvent*)
 #endif
 {
-    setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+    setCursor(QCursor(Qt::PointingHandCursor));
     if (subscribeButton.subscribed)
     {
         setStyleSheet(unsubscribeStyle);

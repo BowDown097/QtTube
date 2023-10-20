@@ -45,7 +45,7 @@ void NotificationBell::enterEvent(QEnterEvent*)
 void NotificationBell::enterEvent(QEvent*)
 #endif
 {
-    setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+    setCursor(QCursor(Qt::PointingHandCursor));
 }
 
 void NotificationBell::leaveEvent(QEvent*)

@@ -1,6 +1,7 @@
 #include "settingsform.h"
 #include "ui_settingsform.h"
 #include "channelfiltertable.h"
+#include "data-wizards/import/takeoutimportwizard.h"
 #include "stores/settingsstore.h"
 #include "termfilterview.h"
 #include "utils/uiutils.h"
@@ -18,6 +19,11 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
                                             "Build date: %6")
                                  .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
     ui->qttubeLogo->setPixmap(UIUtils::pixmapThemed("qttube-full", true, ui->qttubeLogo->size()));
+
+    ui->takeoutRadio->setProperty("id", 1);
+    ui->pipedRadio->setProperty("id", 2);
+    ui->grayjayRadio->setProperty("id", 3);
+    ui->newpipeRadio->setProperty("id", 4);
 
     SettingsStore* store = SettingsStore::instance();
     // app style
@@ -63,7 +69,9 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     toggleDeArrowSettings(ui->deArrow->isChecked());
 
     connect(ui->deArrow, &QCheckBox::toggled, this, [this](bool checked) { toggleDeArrowSettings(checked); });
+    //connect(ui->exportButton, &QPushButton::clicked, this, &SettingsForm::openExportWizard);
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool checked) { ui->filterLength->setEnabled(checked); });
+    connect(ui->importButton, &QPushButton::clicked, this, &SettingsForm::openImportWizard);
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
     connect(ui->showFilteredChannels, &QPushButton::clicked, this, [] {
         ChannelFilterTable* ft = new ChannelFilterTable;
@@ -77,11 +85,56 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     });
 }
 
-void SettingsForm::tryAddSponsorBlockCategory(QStringList& sponsorBlockCategories, const QString& category,
-                                              QCheckBox* checkBox)
+/*
+void SettingsForm::openExportWizard()
 {
-    if (checkBox->isChecked() && !sponsorBlockCategories.contains(category))
-        sponsorBlockCategories.append(category);
+    const QList<QRadioButton*> radios = ui->groupBox->findChildren<QRadioButton*>();
+    QRadioButton* selectedRadio = *std::ranges::find_if(radios, [](QRadioButton* radio) {
+        return radio->isChecked();
+    });
+
+    switch (selectedRadio->property("id").toInt())
+    {
+    case 1:
+        TakeoutExportWizard().exec();
+        break;
+    case 2:
+        PipedExportWizard().exec();
+        break;
+    case 3:
+        GrayjayExportWizard().exec();
+        break;
+    case 4:
+        NewpipeExportWizard().exec();
+        break;
+    }
+}
+*/
+
+void SettingsForm::openImportWizard()
+{
+    const QList<QRadioButton*> radios = ui->groupBox->findChildren<QRadioButton*>();
+    QRadioButton* selectedRadio = *std::ranges::find_if(radios, [](QRadioButton* radio) {
+        return radio->isChecked();
+    });
+
+    switch (selectedRadio->property("id").toInt())
+    {
+    case 1:
+        TakeoutImportWizard().exec();
+        break;
+    /*
+    case 2:
+        PipedImportWizard().exec();
+        break;
+    case 3:
+        GrayjayImportWizard().exec();
+        break;
+    case 4:
+        NewpipeImportWizard().exec();
+        break;
+    */
+    }
 }
 
 void SettingsForm::saveSettings()
@@ -136,6 +189,13 @@ void SettingsForm::toggleDeArrowSettings(bool checked)
 {
     ui->deArrowThumbs->setEnabled(checked);
     ui->deArrowTitles->setEnabled(checked);
+}
+
+void SettingsForm::tryAddSponsorBlockCategory(QStringList& sponsorBlockCategories, const QString& category,
+                                              QCheckBox* checkBox)
+{
+    if (checkBox->isChecked() && !sponsorBlockCategories.contains(category))
+        sponsorBlockCategories.append(category);
 }
 
 SettingsForm::~SettingsForm()
