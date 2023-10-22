@@ -1,0 +1,148 @@
+#include "statsutils.h"
+#include "http.h"
+#include "innertube.h"
+#include <QRandomGenerator>
+
+namespace StatsUtils
+{
+    QString getCpn()
+    {
+        QString out;
+        out.reserve(16);
+        constexpr std::string_view chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+        for (int i = 0; i < 16; i++)
+            out += chars[QRandomGenerator::global()->bounded((int)chars.size())];
+        return out;
+    }
+
+    void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp)
+    {
+        InnertubeClient itc = InnerTube::instance().context()->client;
+
+        QUrlQuery playbackQuery(QUrl(playerResp.playbackTracking.videostatsPlaybackUrl));
+        QUrl outPlaybackUrl("https://www.youtube.com/api/stats/playback");
+        QUrlQuery outPlaybackQuery;
+
+        QList<QPair<QString, QString>> map =
+        {
+            { "ns", "yt" },
+            { "el", "detailpage" },
+            { "cpn", getCpn() },
+            { "ver", "2" },
+            { "fmt", "243" },
+            { "fs", "0" },
+            { "rt", QString::number(QRandomGenerator::global()->bounded(191) + 10) },
+            { "euri", "" },
+            { "lact", QString::number(QRandomGenerator::global()->bounded(7001) + 1000) },
+            { "cl", playbackQuery.queryItemValue("cl") },
+            { "mos", "0" },
+            { "volume", "100" },
+            { "cbr", itc.browserName },
+            { "cbrver", itc.browserVersion },
+            { "c", QString::number(static_cast<int>(itc.clientType)) },
+            { "cver", itc.clientVersion },
+            { "cplayer", "UNIPLAYER" },
+            { "cos", itc.osName },
+            { "cosver", itc.osVersion },
+            { "cplatform", itc.platform },
+            { "hl", itc.hl + "_" + itc.gl },
+            { "cr", itc.gl },
+            { "uga", playbackQuery.queryItemValue("uga") },
+            { "len", playbackQuery.queryItemValue("len") },
+            { "fexp", playbackQuery.queryItemValue("fexp") },
+            { "rtn", "4" },
+            { "afmt", "251" },
+            { "muted", "0" },
+            { "docid", playbackQuery.queryItemValue("docid") },
+            { "ei", playbackQuery.queryItemValue("ei") },
+            { "plid", playbackQuery.queryItemValue("plid") },
+            { "sdetail", playbackQuery.queryItemValue("sdetail") },
+            { "of", playbackQuery.queryItemValue("of") },
+            { "vm", playbackQuery.queryItemValue("vm") }
+        };
+
+        outPlaybackQuery.setQueryItems(map);
+        outPlaybackUrl.setQuery(outPlaybackQuery);
+
+        Http http;
+        setNeededHeaders(http, InnerTube::instance().context(), InnerTube::instance().authStore());
+        http.get(outPlaybackUrl);
+    }
+
+    void reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position)
+    {
+        InnertubeClient itc = InnerTube::instance().context()->client;
+
+        QUrlQuery watchtimeQuery(QUrl(playerResp.playbackTracking.videostatsWatchtimeUrl));
+        QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
+        QUrlQuery outWatchtimeQuery;
+
+        QString rt = QString::number(QRandomGenerator::global()->bounded(191) + 10);
+        QString posStr = QString::number(position);
+
+        QList<QPair<QString, QString>> map =
+        {
+            { "ns", "yt" },
+            { "el", "detailpage" },
+            { "cpn", getCpn() },
+            { "ver", "2" },
+            { "fmt", "243" },
+            { "fs", "0" },
+            { "rt", rt },
+            { "euri", "" },
+            { "lact", QString::number(QRandomGenerator::global()->bounded(7001) + 1000) },
+            { "cl", watchtimeQuery.queryItemValue("cl") },
+            { "state", "playing" },
+            { "volume", "100" },
+            { "subscribed", watchtimeQuery.queryItemValue("subscribed") },
+            { "cbr", itc.browserName },
+            { "cbrver", itc.browserVersion },
+            { "c", QString::number(static_cast<int>(itc.clientType)) },
+            { "cver", itc.clientVersion },
+            { "cplayer", "UNIPLAYER" },
+            { "cos", itc.osName },
+            { "cosver", itc.osVersion },
+            { "cplatform", itc.platform },
+            { "hl", itc.hl + "_" + itc.gl },
+            { "cr", itc.gl },
+            { "uga", watchtimeQuery.queryItemValue("uga") },
+            { "len", watchtimeQuery.queryItemValue("len") },
+            { "afmt", "251" },
+            { "idpj", "-1" },
+            { "ldpj", "-10" },
+            { "rti", rt },
+            { "st", posStr },
+            { "et", posStr },
+            { "muted", "0" },
+            { "docid", watchtimeQuery.queryItemValue("docid") },
+            { "ei", watchtimeQuery.queryItemValue("ei") },
+            { "plid", watchtimeQuery.queryItemValue("plid") },
+            { "sdetail", watchtimeQuery.queryItemValue("sdetail") },
+            { "of", watchtimeQuery.queryItemValue("of") },
+            { "vm", watchtimeQuery.queryItemValue("vm") }
+        };
+
+        outWatchtimeQuery.setQueryItems(map);
+        outWatchtimeUrl.setQuery(outWatchtimeQuery);
+
+        Http http;
+        setNeededHeaders(http, InnerTube::instance().context(), InnerTube::instance().authStore());
+        http.get(outWatchtimeUrl);
+    }
+
+    void setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore)
+    {
+        if (authStore->populated())
+        {
+            http.addRequestHeader("Authorization", authStore->generateSAPISIDHash().toUtf8());
+            http.addRequestHeader("Cookie", authStore->toCookieString().toUtf8());
+            http.addRequestHeader("X-Goog-AuthUser", "0");
+        }
+
+        http.addRequestHeader("Content-Type", "application/json");
+        http.addRequestHeader("X-Goog-Visitor-Id", context->client.visitorData.toLatin1());
+        http.addRequestHeader("X-YOUTUBE-CLIENT-NAME", QByteArray::number(static_cast<int>(context->client.clientType)));
+        http.addRequestHeader("X-YOUTUBE-CLIENT-VERSION", context->client.clientVersion.toLatin1());
+        http.addRequestHeader("X-ORIGIN", "https://www.youtube.com");
+    }
+}

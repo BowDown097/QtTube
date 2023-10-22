@@ -128,6 +128,7 @@ set(SOURCE_FILES
     src/ui/widgets/topbar/topbar.cpp
     src/ui/widgets/topbar/topbarbell.cpp
     src/utils/osutils.cpp
+    src/utils/statsutils.cpp
     src/utils/uiutils.cpp
     res/resources.qrc
 )
@@ -190,6 +191,7 @@ set(HEADERS
     src/ui/widgets/topbar/topbar.h
     src/ui/widgets/topbar/topbarbell.h
     src/utils/osutils.h
+    src/utils/statsutils.h
     src/utils/uiutils.h
 )
 

@@ -30,10 +30,6 @@ private:
 #else
     Media* media;
     QPointer<QTimer> watchtimeTimer;
-
-    QString getCpn();
-    void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp);
-    void reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position);
 private slots:
     void mediaStateChanged(Media::State state);
     void volumeChanged(double volume);

@@ -29,7 +29,6 @@ int main(int argc, char *argv[])
 
     parser.parse(QCoreApplication::arguments());
 
-    if (!parser.unknownOptionNames().isEmpty()) parser.showHelp(EXIT_FAILURE);
     if (parser.isSet("help")) parser.showHelp();
     if (parser.isSet("version")) parser.showVersion();
 

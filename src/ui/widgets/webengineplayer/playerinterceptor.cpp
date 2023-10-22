@@ -1,22 +1,7 @@
 #include "playerinterceptor.h"
 #include "stores/settingsstore.h"
+#include "utils/statsutils.h"
 #include <QUrlQuery>
-
-void PlayerInterceptor::setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore)
-{
-    if (authStore->populated())
-    {
-        http.addRequestHeader("Authorization", authStore->generateSAPISIDHash().toUtf8());
-        http.addRequestHeader("Cookie", authStore->toCookieString().toUtf8());
-        http.addRequestHeader("X-Goog-AuthUser", "0");
-    }
-
-    http.addRequestHeader("Content-Type", "application/json");
-    http.addRequestHeader("X-Goog-Visitor-Id", context->client.visitorData.toLatin1());
-    http.addRequestHeader("X-YOUTUBE-CLIENT-NAME", QByteArray::number(static_cast<int>(context->client.clientType)));
-    http.addRequestHeader("X-YOUTUBE-CLIENT-VERSION", context->client.clientVersion.toLatin1());
-    http.addRequestHeader("X-ORIGIN", "https://www.youtube.com");
-}
 
 void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
 {
@@ -91,7 +76,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
         outWatchtimeUrl.setQuery(outWatchtimeQuery);
 
         Http http;
-        setNeededHeaders(http, m_context, m_authStore);
+        StatsUtils::setNeededHeaders(http, m_context, m_authStore);
         http.get(outWatchtimeUrl);
     }
     else if (url.path() == "/api/stats/playback")
@@ -145,7 +130,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
         outPlaybackUrl.setQuery(outPlaybackQuery);
 
         Http http;
-        setNeededHeaders(http, m_context, m_authStore);
+        StatsUtils::setNeededHeaders(http, m_context, m_authStore);
         http.get(outPlaybackUrl);
     }
 }

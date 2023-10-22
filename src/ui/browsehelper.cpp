@@ -147,7 +147,7 @@ void BrowseHelper::browseFailed(const InnertubeException& ie, const QString& tit
     if (ie.severity() == InnertubeException::Severity::Normal)
         QMessageBox::critical(nullptr, title, ie.message());
     else
-        qDebug().nospace() << title << ": " << ie.message();
+        qWarning().nospace() << title << ": " << ie.message();
 }
 
 void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget)

@@ -19,11 +19,10 @@ void ChooseSubsPage::subToChannelInThread(const Entity& channel)
         if (!stopped)
         {
             InnerTube::instance().subscribeBlocking(QStringList { channel.id }, true);
-            // preventing rate limit.
-            // apparently one exists but i didn't hit it when subbing to 100 channels lol.
-            // but better safe than sorry!
+            // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
             QThread::sleep(1);
         }
+
         emit progress();
     });
 }
