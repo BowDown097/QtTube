@@ -46,7 +46,7 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 
 set(QTTUBE_QT_VERSION_MAJOR ${QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QT_VERSION_MAJOR}")
 
-find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui Network Widgets)
+find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui Network Sql Widgets)
 
 if(QTTUBE_QT_VERSION_MAJOR EQUAL 5)
     if(UNIX AND NOT APPLE)
@@ -90,7 +90,12 @@ set(SOURCE_FILES
     src/ui/forms/settings/settingsform.cpp
     src/ui/forms/settings/termfilterview.cpp
     src/ui/forms/settings/data-wizards/basicinfopage.cpp
+    src/ui/forms/settings/data-wizards/datawizard.cpp
     src/ui/forms/settings/data-wizards/entityselecttablemodel.cpp
+    src/ui/forms/settings/data-wizards/intropage.cpp
+    src/ui/forms/settings/data-wizards/import/grayjayimportwizard.cpp
+    src/ui/forms/settings/data-wizards/import/newpipeimportwizard.cpp
+    src/ui/forms/settings/data-wizards/import/pipedimportwizard.cpp
     src/ui/forms/settings/data-wizards/import/takeoutimportwizard.cpp
     src/ui/forms/settings/data-wizards/import/shared/chooseentitiespage.cpp
     src/ui/forms/settings/data-wizards/import/shared/choosesubspage.cpp
@@ -153,7 +158,12 @@ set(HEADERS
     src/ui/forms/settings/termfilterview.h
     src/ui/forms/settings/data-wizards/basicinfopage.h
     src/ui/forms/settings/data-wizards/conclusionpage.h
+    src/ui/forms/settings/data-wizards/datawizard.h
     src/ui/forms/settings/data-wizards/entityselecttablemodel.h
+    src/ui/forms/settings/data-wizards/intropage.h
+    src/ui/forms/settings/data-wizards/import/grayjayimportwizard.h
+    src/ui/forms/settings/data-wizards/import/newpipeimportwizard.h
+    src/ui/forms/settings/data-wizards/import/pipedimportwizard.h
     src/ui/forms/settings/data-wizards/import/takeoutimportwizard.h
     src/ui/forms/settings/data-wizards/import/shared/chooseentitiespage.h
     src/ui/forms/settings/data-wizards/import/shared/choosesubspage.h
@@ -240,7 +250,7 @@ endif()
 
 # Include directories, libraries
 target_include_directories(QtTube PRIVATE src lib/http/src lib/innertube-qt/src)
-target_link_libraries(QtTube PRIVATE http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Widgets)
+target_link_libraries(QtTube PRIVATE http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Sql Qt::Widgets)
 
 ## Optional
 if(QTTUBE_USE_MPV)

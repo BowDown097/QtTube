@@ -1,6 +1,9 @@
 #include "settingsform.h"
 #include "ui_settingsform.h"
 #include "channelfiltertable.h"
+#include "data-wizards/import/grayjayimportwizard.h"
+#include "data-wizards/import/newpipeimportwizard.h"
+#include "data-wizards/import/pipedimportwizard.h"
 #include "data-wizards/import/takeoutimportwizard.h"
 #include "stores/settingsstore.h"
 #include "termfilterview.h"
@@ -105,7 +108,7 @@ void SettingsForm::openExportWizard()
         GrayjayExportWizard().exec();
         break;
     case 4:
-        NewpipeExportWizard().exec();
+        NewPipeExportWizard().exec();
         break;
     }
 }
@@ -123,7 +126,6 @@ void SettingsForm::openImportWizard()
     case 1:
         TakeoutImportWizard().exec();
         break;
-    /*
     case 2:
         PipedImportWizard().exec();
         break;
@@ -131,9 +133,8 @@ void SettingsForm::openImportWizard()
         GrayjayImportWizard().exec();
         break;
     case 4:
-        NewpipeImportWizard().exec();
+        NewPipeImportWizard().exec();
         break;
-    */
     }
 }
 

@@ -1,17 +1,9 @@
 #include "takeoutimportwizard.h"
 #include "shared/choosesubspage.h"
 #include "shared/choosewatchhistorypage.h"
-#include "ui/forms/settings/data-wizards/conclusionpage.h"
-#include <QFileDialog>
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QPushButton>
-
-constexpr const char* introInfo = "This wizard will help you import YouTube data from Google Takeout into QtTube.\n"
-                                  "Check the box for the data you wish to import, then continue.\n"
-                                  "To get this data if you don't have it already, go to "
-                                  "<a href=\"https://takeout.google.com/takeout/custom/youtube\">this page</a>.\n"
-                                  "<b>Make sure to change the format for History from HTML to JSON!</b>";
 
 constexpr const char* subsSubtitle = "Select the subscriptions.csv file inside of the takeout folder.\n"
                                      "It should be inside \"Takeout/YouTube and YouTube Music/subscriptions\".";
@@ -71,52 +63,13 @@ bool readCSVRow(QTextStream& in, QStringList& row)
     return state != -2;
 }
 
-TakeoutImportWizard::TakeoutImportWizard(QWidget* parent) : QWizard(parent)
+TakeoutImportWizard::TakeoutImportWizard(QWidget* parent)
+    : DataWizard(Page_Conclusion, "Google Takeout Import Wizard", parent)
 {
     setPage(Page_Intro, new TakeoutImportIntroPage(this));
     setPage(Page_Subs, new TakeoutImportSubsPage(this));
     setPage(Page_WatchHistory, new TakeoutImportWatchHistoryPage(this));
-    setPage(Page_Conclusion, new ConclusionPage(this));
     setStartId(Page_Intro);
-
-#ifndef Q_OS_MAC
-    setWizardStyle(ModernStyle);
-#endif
-
-    setOption(QWizard::NoCancelButton);
-    setWindowTitle("Google Takeout Import Wizard");
-}
-
-TakeoutImportIntroPage::TakeoutImportIntroPage(QWidget* parent)
-    : QWizardPage(parent),
-      info(new QLabel(introInfo, this)),
-      layout(new QVBoxLayout(this)),
-      subsCheckBox(new QCheckBox("Subscriptions", this)),
-      watchHistoryCheckBox(new QCheckBox("Watch History", this))
-{
-    setTitle("Introduction");
-
-    info->setTextFormat(Qt::RichText);
-    info->setWordWrap(true);
-
-    registerField("takeout.intro.watch_history", watchHistoryCheckBox);
-
-    layout->addWidget(info);
-    layout->addWidget(subsCheckBox);
-    layout->addWidget(watchHistoryCheckBox);
-
-    connect(subsCheckBox, &QCheckBox::clicked, this, &TakeoutImportIntroPage::completeChanged);
-    connect(watchHistoryCheckBox, &QCheckBox::clicked, this, &TakeoutImportIntroPage::completeChanged);
-}
-
-int TakeoutImportIntroPage::nextId() const
-{
-    if (subsCheckBox->isChecked())
-        return TakeoutImportWizard::Page_Subs;
-    if (watchHistoryCheckBox->isChecked())
-        return TakeoutImportWizard::Page_WatchHistory;
-
-    return TakeoutImportWizard::Page_Conclusion;
 }
 
 TakeoutImportSubsPage::TakeoutImportSubsPage(QWidget* parent)
@@ -142,7 +95,7 @@ void TakeoutImportSubsPage::verifyFile(const QString& fileName)
     QStringList row;
     while (readCSVRow(in, row))
         if (row[0].startsWith("UC"))
-            outSubs.append(Entity(row[0], row[2]));
+            outSubs.emplaceBack(row[0], row[2]);
 
     pathEdit->setText(fileName);
     emit completeChanged();
@@ -150,7 +103,7 @@ void TakeoutImportSubsPage::verifyFile(const QString& fileName)
     wizard()->setPage(TakeoutImportWizard::Page_ChooseSubs, new ChooseSubsPage(
         outSubs,
         TakeoutImportWizard::Page_Conclusion,
-        "takeout.intro.watch_history", TakeoutImportWizard::Page_WatchHistory,
+        "takeout.import.watch_history", TakeoutImportWizard::Page_WatchHistory,
         wizard()
     ));
 }
@@ -190,7 +143,8 @@ void TakeoutImportWatchHistoryPage::verifyFile(const QString& fileName)
             entry["subtitles"][0]["url"].toString(),
             entry["subtitles"][0]["name"].toString()
         );
-        outVideos.append(Entity(id, name));
+
+        outVideos.emplaceBack(id, name);
     }
 
     pathEdit->setText(fileName);
