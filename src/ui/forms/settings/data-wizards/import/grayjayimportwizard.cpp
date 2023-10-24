@@ -81,7 +81,7 @@ void GrayjayImportSubsPage::verifyFile(const QString& fileName)
                 try
                 {
                     auto endpoint = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(id);
-                    subs.emplaceBack(id, endpoint.response.header.title);
+                    subs.append(Entity(id, endpoint.response.header.title));
                     // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
                     QThread::sleep(1);
                 }
@@ -127,7 +127,7 @@ void GrayjayImportWatchHistoryPage::verifyFile(const QString& fileName)
 
         QString id = split[0].remove("https://www.youtube.com/watch?v=");
         QString name = QStringLiteral("<a href=\"%1\">%2</a>").arg(split[0], split[3]);
-        outVideos.emplaceBack(id, name);
+        outVideos.append(Entity(id, name));
     }
 
     pathEdit->setText(fileName);

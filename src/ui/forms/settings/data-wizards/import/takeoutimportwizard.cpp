@@ -95,7 +95,7 @@ void TakeoutImportSubsPage::verifyFile(const QString& fileName)
     QStringList row;
     while (readCSVRow(in, row))
         if (row[0].startsWith("UC"))
-            outSubs.emplaceBack(row[0], row[2]);
+            outSubs.append(Entity(row[0], row[2]));
 
     pathEdit->setText(fileName);
     emit completeChanged();
@@ -144,7 +144,7 @@ void TakeoutImportWatchHistoryPage::verifyFile(const QString& fileName)
             entry["subtitles"][0]["name"].toString()
         );
 
-        outVideos.emplaceBack(id, name);
+        outVideos.append(Entity(id, name));
     }
 
     pathEdit->setText(fileName);

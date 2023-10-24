@@ -43,10 +43,10 @@ void PipedImportSubsPage::verifyFile(const QString& fileName)
     const QJsonArray subs = jsonDoc["subscriptions"].toArray();
     for (const QJsonValue& entry : subs)
     {
-        outSubs.emplaceBack(
+        outSubs.append(Entity(
             entry["url"].toString().remove("https://www.youtube.com/channel/"),
             entry["name"].toString()
-        );
+        ));
     }
 
     pathEdit->setText(fileName);
@@ -124,7 +124,7 @@ void PipedImportWatchHistoryPage::verifyFile(const QString& fileName)
                         endpoint.response.videoDetails.author
                     );
 
-                    videos.emplaceBack(id, name);
+                    videos.append(Entity(id, name));
 
                     // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
                     QThread::sleep(1);

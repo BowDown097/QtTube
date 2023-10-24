@@ -71,7 +71,7 @@ void NewPipeImportDbPage::verifyFile(const QString& fileName)
         {
             QString id = subsQuery.value(0).toString().remove("https://www.youtube.com/channel/");
             QString name = subsQuery.value(1).toString();
-            outSubs.emplaceBack(id, name);
+            outSubs.append(Entity(id, name));
         }
 
         wizard()->setPage(NewPipeImportWizard::Page_ChooseSubs, new ChooseSubsPage(
@@ -99,7 +99,7 @@ void NewPipeImportDbPage::verifyFile(const QString& fileName)
                 videosQuery.value(0).toString(),
                 videosQuery.value(1).toString()
             );
-            outVideos.emplaceBack(id, name);
+            outVideos.append(Entity(id, name));
         }
 
         wizard()->setPage(NewPipeImportWizard::Page_ChooseWatchHistory, new ChooseWatchHistoryPage(
