@@ -1,7 +1,11 @@
+// h264ify
+const params = new URLSearchParams(document.location.search);
+h264ify(params.get("h264Only") === "1", params.get("no60Fps") === "1");
+
 // autoplay and time
 waitForElement("#movie_player").then(function(p) {
     p.playVideo();
-    p.seekTo(new URLSearchParams(document.location.search).get("t"));
+    p.seekTo(params.get("t"));
 });
 
 // unavailable video patcher
@@ -63,8 +67,6 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
 
     if (settings.disablePlayerInfoPanels)
         addStyle(".ytp-info-panel-preview { display: none; }");
-
-    h264ify(settings.h264Only, settings.disable60Fps);
 
     waitForElement("#movie_player").then(function(p) {
         p.setVolume(settings.preferredVolume); // set preferred volume

@@ -80,7 +80,13 @@ void WebEnginePlayer::loadScriptString(const QString& data, QWebEngineScript::In
 
 void WebEnginePlayer::play(const QString& vId, int progress)
 {
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2").arg(vId).arg(progress)));
+    // h264 settings must be passed as a parameter because
+    // the video format is determined before QWebChannel loads
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2&h264Only=%3&no60Fps=%4")
+                          .arg(vId)
+                          .arg(progress)
+                          .arg(SettingsStore::instance()->h264Only)
+                          .arg(SettingsStore::instance()->disable60Fps)));
 }
 
 void WebEnginePlayer::seek(int progress)
