@@ -188,8 +188,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
-            <height>261</height>
+            <width>462</width>
+            <height>297</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -252,6 +252,13 @@
             <widget class="QCheckBox" name="disablePlayerInfoPanels">
              <property name="text">
               <string>Disable info panels</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="vaapi">
+             <property name="text">
+              <string>Enable VA-API hardware acceleration</string>
              </property>
             </widget>
            </item>
@@ -427,7 +434,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>215</width>
             <height>72</height>
            </rect>
           </property>
@@ -515,7 +522,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>265</width>
             <height>153</height>
            </rect>
           </property>
@@ -669,7 +676,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>300</width>
             <height>205</height>
            </rect>
           </property>
@@ -811,7 +818,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>364</width>
             <height>217</height>
            </rect>
           </property>
@@ -1014,7 +1021,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>222</width>
             <height>108</height>
            </rect>
           </property>

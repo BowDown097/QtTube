@@ -25,6 +25,7 @@ void SettingsStore::initializeFromSettingsFile()
     preferredQuality = settings.value("player/preferredQuality", static_cast<int>(PlayerQuality::Auto)).value<PlayerQuality>();
     preferredVolume = settings.value("player/preferredVolume", 100).toInt();
     restoreAnnotations = settings.value("player/restoreAnnotations", false).toBool();
+    vaapi = settings.value("player/vaapi", false).toBool();
     // privacy
     playbackTracking = settings.value("privacy/playbackTracking", true).toBool();
     watchtimeTracking = settings.value("privacy/watchtimeTracking", true).toBool();
@@ -76,6 +77,7 @@ void SettingsStore::saveToSettingsFile()
     settings.setValue("player/preferredQuality", static_cast<int>(preferredQuality));
     settings.setValue("player/preferredVolume", preferredVolume);
     settings.setValue("player/restoreAnnotations", restoreAnnotations);
+    settings.setValue("player/vaapi", vaapi);
     // privacy
     settings.setValue("privacy/playbackTracking", playbackTracking);
     settings.setValue("privacy/watchtimeTracking", watchtimeTracking);

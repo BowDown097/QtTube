@@ -28,6 +28,10 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->grayjayRadio->setProperty("id", 3);
     ui->newpipeRadio->setProperty("id", 4);
 
+#ifndef Q_OS_LINUX
+    ui->vaapi->setVisible(false);
+#endif
+
     SettingsStore* store = SettingsStore::instance();
     // app style
     ui->appStyle->addItems(QStyleFactory::keys());
@@ -46,6 +50,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->preferredQuality->setCurrentIndex(static_cast<int>(store->preferredQuality));
     ui->preferredVolume->setValue(store->preferredVolume);
     ui->restoreAnnotations->setChecked(store->restoreAnnotations);
+    ui->vaapi->setChecked(store->vaapi);
     // privacy
     ui->playbackTracking->setChecked(store->playbackTracking);
     ui->watchtimeTracking->setChecked(store->watchtimeTracking);
@@ -156,6 +161,7 @@ void SettingsForm::saveSettings()
     store->preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
     store->preferredVolume = ui->preferredVolume->value();
     store->restoreAnnotations = ui->restoreAnnotations->isChecked();
+    store->vaapi = ui->vaapi->isChecked();
     // privacy
     store->playbackTracking = ui->playbackTracking->isChecked();
     store->watchtimeTracking = ui->watchtimeTracking->isChecked();

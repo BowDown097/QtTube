@@ -34,6 +34,7 @@ class SettingsStore : public QObject
     Q_PROPERTY(bool returnDislikes MEMBER returnDislikes NOTIFY returnDislikesChanged)
     Q_PROPERTY(bool showSBToasts MEMBER showSBToasts NOTIFY showSBToastsChanged)
     Q_PROPERTY(QStringList sponsorBlockCategories MEMBER sponsorBlockCategories NOTIFY sponsorBlockCategoriesChanged)
+    Q_PROPERTY(bool vaapi MEMBER vaapi NOTIFY vaapiChanged)
     Q_PROPERTY(bool watchtimeTracking MEMBER watchtimeTracking NOTIFY watchtimeTrackingChanged)
 public:
     // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
@@ -68,6 +69,7 @@ public:
     bool returnDislikes;
     bool showSBToasts;
     QStringList sponsorBlockCategories;
+    bool vaapi;
     bool watchtimeTracking;
 
     static SettingsStore* instance();
@@ -108,6 +110,7 @@ signals:
     void returnDislikesChanged(bool);
     void showSBToastsChanged(bool);
     void sponsorBlockCategoriesChanged(const QStringList&);
+    void vaapiChanged(bool);
     void watchtimeTrackingChanged(bool);
 };
 

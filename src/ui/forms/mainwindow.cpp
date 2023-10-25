@@ -63,8 +63,17 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
 
     CredentialsStore::instance()->initializeFromStoreFile();
     SettingsStore::instance()->initializeFromSettingsFile();
+
     UIUtils::defaultStyle = qApp->style()->objectName();
     UIUtils::setAppStyle(SettingsStore::instance()->appStyle, SettingsStore::instance()->darkTheme);
+
+#ifdef Q_OS_LINUX
+    if (SettingsStore::instance()->vaapi)
+    {
+        qputenv("LIBVA_DRI3_DISABLE", "1"); // fixes issue on some older GPUs
+        qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--enable-features=VaapiVideoDecoder --disable-features=UseChromeOSDirectVideoDecoder");
+    }
+#endif
 
     InnerTube::instance().createContext(InnertubeClient(InnertubeClient::ClientType::WEB, "2.20230718.01.00", "DESKTOP"));
     tryRestoreData();
