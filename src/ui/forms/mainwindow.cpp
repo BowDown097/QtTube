@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "qttubeapplication.h"
 #include "stores/settingsstore.h"
-#include "stores/credentialsstore.h"
 #include "ui/browsehelper.h"
 #include "ui/views/channelview.h"
 #include "ui/views/viewcontroller.h"
@@ -60,15 +60,15 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     reloadShortcut->setShortcuts(QList<QKeySequence>() << Qt::Key_F5 << QKeySequence(Qt::ControlModifier | Qt::Key_R));
     connect(reloadShortcut, &QAction::triggered, this, &MainWindow::reloadCurrentTab);
     addAction(reloadShortcut);
-
-    CredentialsStore::instance()->initializeFromStoreFile();
-    SettingsStore::instance()->initializeFromSettingsFile();
+    
+    qtTubeApp->creds().initialize();
+    qtTubeApp->settings().initialize();
 
     UIUtils::defaultStyle = qApp->style()->objectName();
-    UIUtils::setAppStyle(SettingsStore::instance()->appStyle, SettingsStore::instance()->darkTheme);
+    UIUtils::setAppStyle(qtTubeApp->settings().appStyle, qtTubeApp->settings().darkTheme);
 
 #ifdef Q_OS_LINUX
-    if (SettingsStore::instance()->vaapi)
+    if (qtTubeApp->settings().vaapi)
     {
         qputenv("LIBVA_DRI3_DISABLE", "1"); // fixes issue on some older GPUs
         qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--enable-features=VaapiVideoDecoder --disable-features=UseChromeOSDirectVideoDecoder");
@@ -390,7 +390,7 @@ void MainWindow::showNotifications()
 
 void MainWindow::tryRestoreData()
 {
-    CredentialsStore::instance()->populateAuthStore(CredentialsStore::instance()->getActiveLoginIndex());
+    qtTubeApp->creds().populateAuthStore(qtTubeApp->creds().activeLogin());
     if (InnerTube::instance().hasAuthenticated())
     {
         m_topbar->avatarButton->setVisible(true);
@@ -402,7 +402,7 @@ void MainWindow::tryRestoreData()
 
 void MainWindow::trySwitchGridStatus(QListWidget* listWidget)
 {
-    bool preferLists = SettingsStore::instance()->preferLists;
+    bool preferLists = qtTubeApp->settings().preferLists;
     if (preferLists && listWidget->flow() == QListWidget::LeftToRight)
     {
         listWidget->setFlow(QListWidget::TopToBottom);

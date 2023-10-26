@@ -1,10 +1,9 @@
 #include "channelbrowser.h"
 #include "innertube/innertubeexception.h"
 #include "innertube/objects/channel/aboutfullmetadata.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "utils/uiutils.h"
-#include <QApplication>
 #include <QDesktopServices>
 #include <QJsonObject>
 #include <QUrlQuery>
@@ -143,7 +142,7 @@ void ChannelBrowser::setupHome(QListWidget* widget, const QJsonValue& renderer,
 void ChannelBrowser::setupLive(QListWidget* widget, const QJsonValue& renderer,
                                const InnertubeEndpoints::ChannelResponse& resp)
 {
-    if (SettingsStore::instance()->hideStreams)
+    if (qtTubeApp->settings().hideStreams)
     {
         widget->addItem("This tab is disabled because the live streams filter is turned on.");
         return;
@@ -310,7 +309,7 @@ void ChannelBrowser::setupMembership(QListWidget* widget, const QJsonValue& rend
 void ChannelBrowser::setupShorts(QListWidget* widget, const QJsonValue& renderer,
                                  const InnertubeEndpoints::ChannelResponse& resp)
 {
-    if (SettingsStore::instance()->hideShorts)
+    if (qtTubeApp->settings().hideShorts)
     {
         widget->addItem("This tab is disabled because the shorts filter is turned on.");
         return;

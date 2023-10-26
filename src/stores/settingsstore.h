@@ -1,6 +1,5 @@
 #ifndef SETTINGSSTORE_H
 #define SETTINGSSTORE_H
-#include <mutex>
 #include <QDir>
 #include <QSettings>
 #include <QStandardPaths>
@@ -38,8 +37,9 @@ class SettingsStore : public QObject
     Q_PROPERTY(bool watchtimeTracking MEMBER watchtimeTracking NOTIFY watchtimeTrackingChanged)
 public:
     // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
-    static inline const QString configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "QtTube"
-                                            + QDir::separator() + "settings.ini";
+    static inline const QString configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+                                           + QDir::separator() + "QtTube"
+                                           + QDir::separator() + "settings.ini";
 
     enum class PlayerQuality { Auto, HighRes, HD2160, HD1440, HD1080, HD720, Large, Medium, Small, Tiny };
     Q_ENUM(PlayerQuality)
@@ -72,16 +72,11 @@ public:
     bool vaapi;
     bool watchtimeTracking;
 
-    static SettingsStore* instance();
     explicit SettingsStore(QObject* parent = nullptr) : QObject(parent) {}
-
-    void initializeFromSettingsFile();
-    void saveToSettingsFile();
+    void initialize();
+    void save();
     bool strHasFilteredTerm(const QString& str);
 private:
-    static inline SettingsStore* m_instance;
-    static inline std::once_flag m_onceFlag;
-
     void readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key);
     void writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key);
 signals:

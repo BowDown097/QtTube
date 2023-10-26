@@ -1,8 +1,7 @@
 #include "browsechannelrenderer.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include "ui/views/viewcontroller.h"
-#include <QApplication>
 #include <QMenu>
 #include <QMessageBox>
 #include <QtNetwork/QtNetwork>
@@ -70,7 +69,7 @@ void BrowseChannelRenderer::setData(const QString& channelId, const QString& des
     subscribeWidget->setSubscribeButton(subButton);
     subscribeWidget->setSubscriberCount(subCount.contains("subscribers") ? subCount : videoCount, channelId);
 
-    if (SettingsStore::instance()->fullSubs)
+    if (qtTubeApp->settings().fullSubs)
     {
         // QNetworkAccessManager needs to be used here due to a bug with the http library
         QNetworkAccessManager* manager = new QNetworkAccessManager(this);

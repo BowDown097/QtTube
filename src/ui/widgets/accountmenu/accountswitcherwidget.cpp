@@ -1,6 +1,7 @@
 #include "accountswitcherwidget.h"
 #include "accountentrywidget.h"
 #include "innertube.h"
+#include "qttubeapplication.h"
 #include "ui/forms/mainwindow.h"
 
 AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
@@ -13,11 +14,11 @@ AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
 
     layout->addWidget(backButton);
 
-    const CredentialSet& active = CredentialsStore::instance()->credentials[CredentialsStore::instance()->getActiveLoginIndex()];
-    for (const CredentialSet& credSet : CredentialsStore::instance()->credentials)
+    CredentialSet activeLogin = qtTubeApp->creds().activeLogin();
+    for (const CredentialSet& credSet : qtTubeApp->creds().credentials())
     {
         AccountEntryWidget* accountEntry = new AccountEntryWidget(credSet, this);
-        accountEntry->setClickable(credSet.channelId != active.channelId);
+        accountEntry->setClickable(credSet.channelId != activeLogin.channelId);
         connect(accountEntry, &AccountEntryWidget::clicked, this, std::bind(&AccountSwitcherWidget::switchAccount, this, credSet));
         layout->addWidget(accountEntry);
     }
@@ -39,7 +40,7 @@ void AccountSwitcherWidget::addAccount()
 void AccountSwitcherWidget::switchAccount(const CredentialSet& credSet)
 {
     setVisible(false);
-    CredentialsStore::instance()->populateAuthStore(CredentialsStore::instance()->credentials.indexOf(credSet));
+    qtTubeApp->creds().populateAuthStore(credSet);
     MainWindow::topbar()->postSignInSetup();
     emit closeRequested();
 }

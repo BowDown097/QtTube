@@ -1,5 +1,5 @@
 #include "subscribewidget.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include <QtNetwork/QtNetwork>
 
 constexpr const char* subscribersCountStyle = R"(
@@ -48,7 +48,7 @@ void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton
 
 void SubscribeWidget::setSubscriberCount(const QString& subscriberCountText, const QString& channelId)
 {
-    if (!SettingsStore::instance()->fullSubs)
+    if (!qtTubeApp->settings().fullSubs)
     {
         subscribersCountLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
         subscribersCountLabel->adjustSize();

@@ -1,12 +1,11 @@
 #include "uiutils.h"
 #include "http.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include "ui/forms/mainwindow.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/browsechannelrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/gridvideorenderer.h"
-#include <QApplication>
 #include <QClipboard>
 #include <QPainter>
 #include <QStyleFactory>
@@ -51,7 +50,7 @@ void UIUtils::addBoldLabelToList(QListWidget* list, const QString& text)
 
 void UIUtils::addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel)
 {
-    if (SettingsStore::instance()->filteredChannels.contains(channel.channelId))
+    if (qtTubeApp->settings().filteredChannels.contains(channel.channelId))
         return;
 
     BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
@@ -85,8 +84,8 @@ void UIUtils::addShelfTitleToList(QListWidget* list, const QString& title)
 
 void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
 {
-    if (SettingsStore::instance()->filteredChannels.contains(reel.owner.id) ||
-        SettingsStore::instance()->strHasFilteredTerm(reel.headline))
+    if (qtTubeApp->settings().filteredChannels.contains(reel.owner.id) ||
+        qtTubeApp->settings().strHasFilteredTerm(reel.headline))
         return;
 
     VideoRenderer* renderer = constructVideoRenderer(list);
@@ -97,11 +96,11 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
 
 void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
 {
-    if (SettingsStore::instance()->filteredChannels.contains(video.owner.id) ||
-        SettingsStore::instance()->strHasFilteredTerm(video.title.text) ||
-        (SettingsStore::instance()->filterLengthEnabled && !video.isLive && QTime(0, 0).secsTo(video.length()) <= SettingsStore::instance()->filterLength) ||
-        (SettingsStore::instance()->hideShorts && video.isReel()) ||
-        (SettingsStore::instance()->hideStreams && video.isLive))
+    if (qtTubeApp->settings().filteredChannels.contains(video.owner.id) ||
+        qtTubeApp->settings().strHasFilteredTerm(video.title.text) ||
+        (qtTubeApp->settings().filterLengthEnabled && !video.isLive && QTime(0, 0).secsTo(video.length()) <= qtTubeApp->settings().filterLength) ||
+        (qtTubeApp->settings().hideShorts && video.isReel()) ||
+        (qtTubeApp->settings().hideStreams && video.isLive))
     {
         return;
     }

@@ -1,12 +1,6 @@
 #include "settingsstore.h"
 
-SettingsStore* SettingsStore::instance()
-{
-    std::call_once(m_onceFlag, [] { m_instance = new SettingsStore; });
-    return m_instance;
-}
-
-void SettingsStore::initializeFromSettingsFile()
+void SettingsStore::initialize()
 {
     QSettings settings(configPath, QSettings::IniFormat);
 
@@ -58,7 +52,7 @@ void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, c
     settings.endArray();
 }
 
-void SettingsStore::saveToSettingsFile()
+void SettingsStore::save()
 {
     QSettings settings(configPath, QSettings::IniFormat);
 

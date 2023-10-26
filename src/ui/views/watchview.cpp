@@ -2,7 +2,7 @@
 #include "watchview_ui.h"
 #include "http.h"
 #include "innertube.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include "ui/forms/livechat/livechatwindow.h"
 #include "ui/forms/mainwindow.h"
 #include "utils/osutils.h"
@@ -238,7 +238,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
 
-    if (SettingsStore::instance()->returnDislikes)
+    if (qtTubeApp->settings().returnDislikes)
     {
         HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + nextResp.videoId);
         connect(reply, &HttpReply::finished, this, &WatchView::updateRatings);
@@ -326,7 +326,7 @@ void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse
         dateText = "Published on " + dateText;
     ui->date->setText(dateText);
 
-    if (SettingsStore::instance()->returnDislikes)
+    if (qtTubeApp->settings().returnDislikes)
     {
         HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + resp.videoId);
         connect(reply, &HttpReply::finished, this, &WatchView::updateRatings);

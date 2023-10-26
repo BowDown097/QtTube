@@ -5,7 +5,7 @@
 #include "topbar.h"
 #include "http.h"
 #include "innertube.h"
-#include "stores/credentialsstore.h"
+#include "qttubeapplication.h"
 #include "ui/forms/settings/settingsform.h"
 #include "utils/uiutils.h"
 #include <QApplication>
@@ -90,7 +90,7 @@ void TopBar::setUpAvatarButton()
     InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
     connect(reply, qOverload<const InnertubeEndpoints::AccountMenu&>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
     {
-        CredentialsStore::instance()->updateAccount(endpoint);
+        qtTubeApp->creds().updateAccount(endpoint);
         HttpReply* photoReply = Http::instance().get(QUrl(endpoint.response.header.accountPhotos[0].url));
         connect(photoReply, &HttpReply::finished, this, [this](const HttpReply& reply)
         {
@@ -124,7 +124,7 @@ void TopBar::signOut()
     avatarButton->setVisible(false);
     signInButton->setVisible(true);
     emit signInStatusChanged();
-    QSettings(CredentialsStore::configPath, QSettings::IniFormat).clear();
+    QSettings(qtTubeApp->creds().configPath, QSettings::IniFormat).clear();
 }
 
 void TopBar::trySignIn()

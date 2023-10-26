@@ -1,5 +1,5 @@
 #include "webengineplayer.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include "webchannelinterface.h"
 #include <QVBoxLayout>
 #include <QWebChannel>
@@ -20,7 +20,7 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     QWebChannel* channel = new QWebChannel(m_view->page());
     m_view->page()->setWebChannel(channel);
     channel->registerObject("interface", m_interface);
-    channel->registerObject("settings", SettingsStore::instance());
+    channel->registerObject("settings", &qtTubeApp->settings());
 
     loadScriptFile(":/qtwebchannel/qwebchannel.js", QWebEngineScript::DocumentCreation);
     loadScriptFile(":/player/annotationlib/AnnotationParser.js", QWebEngineScript::DocumentReady);
@@ -85,8 +85,8 @@ void WebEnginePlayer::play(const QString& vId, int progress)
     m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2&h264Only=%3&no60Fps=%4")
                           .arg(vId)
                           .arg(progress)
-                          .arg(SettingsStore::instance()->h264Only)
-                          .arg(SettingsStore::instance()->disable60Fps)));
+                          .arg(qtTubeApp->settings().h264Only)
+                          .arg(qtTubeApp->settings().disable60Fps)));
 }
 
 void WebEnginePlayer::seek(int progress)

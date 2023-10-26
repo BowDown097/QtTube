@@ -1,7 +1,7 @@
 #include "channelfiltertable.h"
 #include "ui_channelfiltertable.h"
 #include "innertube.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include <QMessageBox>
 
 ChannelFilterTable::ChannelFilterTable(QWidget* parent) : QWidget(parent), ui(new Ui::ChannelFilterTable)
@@ -25,7 +25,7 @@ void ChannelFilterTable::addNewRow()
 void ChannelFilterTable::populateFromSettings()
 {
     populating = true;
-    for (const QString& channelId : SettingsStore::instance()->filteredChannels)
+    for (const QString& channelId : qtTubeApp->settings().filteredChannels)
     {
         addNewRow();
         QTableWidgetItem* item = new QTableWidgetItem(channelId);
@@ -52,8 +52,8 @@ void ChannelFilterTable::processChannelEntry(const InnertubeEndpoints::BrowseCha
     QTableWidgetItem* handleItem = ui->tableWidget->item(item->row(), 1);
     handleItem->setText(channelHandle);
 
-    if (!SettingsStore::instance()->filteredChannels.contains(channelId))
-        SettingsStore::instance()->filteredChannels.append(channelId);
+    if (!qtTubeApp->settings().filteredChannels.contains(channelId))
+        qtTubeApp->settings().filteredChannels.append(channelId);
 }
 
 void ChannelFilterTable::removeCurrentRow()
@@ -63,7 +63,7 @@ void ChannelFilterTable::removeCurrentRow()
         return;
 
     int row = selModel->selectedRows().constFirst().row();
-    SettingsStore::instance()->filteredChannels.removeOne(ui->tableWidget->item(row, 0)->text());
+    qtTubeApp->settings().filteredChannels.removeOne(ui->tableWidget->item(row, 0)->text());
     ui->tableWidget->removeRow(row);
 }
 

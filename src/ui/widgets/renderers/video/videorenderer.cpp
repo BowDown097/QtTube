@@ -1,10 +1,9 @@
 #include "videorenderer.h"
 #include "http.h"
 #include "innertube.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include "ui/views/viewcontroller.h"
-#include <QApplication>
 #include <QMenu>
 #include <QMessageBox>
 
@@ -105,7 +104,7 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
     QStringList metadataList {
         video.lengthText.text,
         video.publishedTimeText.text,
-        SettingsStore::instance()->condensedViews ? video.shortViewCountText.text : video.viewCountText.text
+        qtTubeApp->settings().condensedViews ? video.shortViewCountText.text : video.viewCountText.text
     };
     if (progress != 0) metadataList.append(progStr);
     metadataList.removeAll({});
@@ -129,13 +128,13 @@ void VideoRenderer::setDeArrowData(const HttpReply& reply, const QString& thumbF
     const QJsonArray titles = obj["titles"].toArray();
     const QJsonArray thumbs = obj["thumbnails"].toArray();
 
-    if (SettingsStore::instance()->deArrowTitles && !titles.isEmpty() && (titles[0]["locked"].toBool() || titles[0]["votes"].toInt() >= 0))
+    if (qtTubeApp->settings().deArrowTitles && !titles.isEmpty() && (titles[0]["locked"].toBool() || titles[0]["votes"].toInt() >= 0))
     {
         titleLabel->setText(titles[0]["title"].toString());
         titleLabel->setToolTip(titles[0]["title"].toString());
     }
 
-    if (SettingsStore::instance()->deArrowThumbs && !thumbs.isEmpty() && (thumbs[0]["locked"].toBool() || thumbs[0]["votes"].toInt() >= 0))
+    if (qtTubeApp->settings().deArrowThumbs && !thumbs.isEmpty() && (thumbs[0]["locked"].toBool() || thumbs[0]["votes"].toInt() >= 0))
     {
         HttpReply* reply = Http::instance().get(QStringLiteral("https://dearrow-thumb.ajay.app/api/v1/getThumbnail?videoID=%1&timestamp=%2")
                                                     .arg(videoId).arg(thumbs[0]["timestamp"].toDouble()));
@@ -150,7 +149,7 @@ void VideoRenderer::setDeArrowData(const HttpReply& reply, const QString& thumbF
 
 void VideoRenderer::setThumbnail(const QString& url)
 {
-    if (SettingsStore::instance()->deArrow)
+    if (qtTubeApp->settings().deArrow)
     {
         HttpReply* arrowReply = Http::instance().get("https://sponsor.ajay.app/api/branding?videoID=" + videoId);
         connect(arrowReply, &HttpReply::finished, this, std::bind(&VideoRenderer::setDeArrowData, this, std::placeholders::_1, url));

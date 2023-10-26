@@ -3,27 +3,20 @@
 #include "protobuf/simpleprotobuf.h"
 #include <QSettings>
 
-CredentialsStore* CredentialsStore::instance()
+CredentialSet CredentialsStore::activeLogin() const
 {
-    std::call_once(m_onceFlag, [] { m_instance = new CredentialsStore; });
-    return m_instance;
+    auto it = std::ranges::find_if(m_credentials, [](const CredentialSet& cs) { return cs.active; });
+    return it != m_credentials.end() ? *it : CredentialSet();
 }
 
-qsizetype CredentialsStore::getActiveLoginIndex() const
-{
-    auto it = std::ranges::find_if(credentials, [](const CredentialSet& credSet) { return credSet.active; });
-    qsizetype index = std::distance(credentials.begin(), it);
-    return index != credentials.size() ? index : -1;
-}
-
-void CredentialsStore::initializeFromStoreFile()
+void CredentialsStore::initialize()
 {
     QSettings settings(configPath, QSettings::IniFormat);
 
     for (const QString& group : settings.childGroups())
     {
         settings.beginGroup(group);
-        credentials.append(CredentialSet
+        m_credentials.append(CredentialSet
         {
             .active = settings.value("active", false).toBool(),
             .apisid = settings.value("apisid").toString(),
@@ -40,14 +33,9 @@ void CredentialsStore::initializeFromStoreFile()
     }
 }
 
-void CredentialsStore::populateAuthStore(int index)
+void CredentialsStore::populateAuthStore(const CredentialSet& credSet)
 {
-    if (index < 0 || index >= credentials.size())
-        return;
-
-    const CredentialSet& credSet = credentials[index];
     InnertubeAuthStore* authStore = InnerTube::instance().authStore();
-
     authStore->apisid = credSet.apisid;
     authStore->hsid = credSet.hsid;
     authStore->sapisid = credSet.sapisid;
@@ -57,11 +45,10 @@ void CredentialsStore::populateAuthStore(int index)
     InnerTube::instance().context()->client.visitorData = SimpleProtobuf::padded(credSet.visitorInfo);
 }
 
-void CredentialsStore::saveToStoreFile()
+void CredentialsStore::save()
 {
     QSettings settings(configPath, QSettings::IniFormat);
-
-    for (const CredentialSet& credSet : credentials)
+    for (const CredentialSet& credSet : m_credentials)
     {
         settings.beginGroup(credSet.channelId);
         settings.setValue("active", credSet.active);
@@ -77,47 +64,44 @@ void CredentialsStore::saveToStoreFile()
     }
 }
 
-void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& accountMenuData)
+void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data)
 {
-    const QList<InnertubeObjects::CompactLink>& section = accountMenuData.response.sections[0];
-    auto iter = std::ranges::find_if(section, [](const InnertubeObjects::CompactLink& link) { return link.iconType == "ACCOUNT_BOX"; });
-    if (iter == section.end())
+    const QList<InnertubeObjects::CompactLink>& section = data.response.sections[0];
+    auto accBox = std::ranges::find_if(section, [](const InnertubeObjects::CompactLink& link) { return link.iconType == "ACCOUNT_BOX"; });
+    if (accBox == section.end())
         return;
 
-    QString avatarUrl = accountMenuData.response.header.accountPhotos[0].url;
-    QString channelId = iter->navigationEndpoint["browseEndpoint"]["browseId"].toString();
-    QString username = accountMenuData.response.header.accountName;
+    QString avatarUrl = data.response.header.accountPhotos[0].url;
+    QString channelId = accBox->navigationEndpoint["browseEndpoint"]["browseId"].toString();
+    QString username = data.response.header.accountName;
 
-    qsizetype activeIndex = getActiveLoginIndex();
-    if (activeIndex != -1)
+    if (auto active = std::ranges::find_if(m_credentials, [](const CredentialSet& cs) { return cs.active; });
+        active != m_credentials.end())
     {
-        CredentialSet& credSet = credentials[activeIndex];
-        if (credSet.channelId != channelId)
+        if (active->channelId != channelId)
         {
-            credSet.active = false;
-            auto credIter = std::ranges::find_if(credentials, [&channelId](const CredentialSet& credSet) {
-                return credSet.channelId == channelId;
-            });
-            if (credIter != credentials.end())
+            active->active = false;
+            if (auto match = std::ranges::find_if(m_credentials, [&channelId](const CredentialSet& cs) { return cs.channelId == channelId; });
+                match != m_credentials.end())
             {
-                credIter->active = true;
-                credIter->avatarUrl = avatarUrl;
-                credIter->username = username;
-                saveToStoreFile();
+                match->active = true;
+                match->avatarUrl = avatarUrl;
+                match->username = username;
+                save();
                 return;
             }
         }
         else
         {
-            credSet.avatarUrl = avatarUrl;
-            credSet.username = username;
-            saveToStoreFile();
+            active->avatarUrl = avatarUrl;
+            active->username = username;
+            save();
             return;
         }
     }
 
     const InnertubeAuthStore* authStore = InnerTube::instance().authStore();
-    credentials.append(CredentialSet {
+    m_credentials.append(CredentialSet {
         .active = true,
         .apisid = authStore->apisid,
         .avatarUrl = avatarUrl,
@@ -129,5 +113,5 @@ void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& acco
         .username = username,
         .visitorInfo = authStore->visitorInfo
     });
-    saveToStoreFile();
+    save();
 }

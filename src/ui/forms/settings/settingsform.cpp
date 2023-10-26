@@ -5,7 +5,7 @@
 #include "data-wizards/import/newpipeimportwizard.h"
 #include "data-wizards/import/pipedimportwizard.h"
 #include "data-wizards/import/takeoutimportwizard.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include "termfilterview.h"
 #include "utils/uiutils.h"
 #include <QMessageBox>
@@ -32,48 +32,48 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->vaapi->setVisible(false);
 #endif
 
-    SettingsStore* store = SettingsStore::instance();
+    SettingsStore& store = qtTubeApp->settings();
     // app style
     ui->appStyle->addItems(QStyleFactory::keys());
-    ui->appStyle->setCurrentIndex(ui->appStyle->findText(store->appStyle));
-    ui->darkTheme->setChecked(store->darkTheme);
+    ui->appStyle->setCurrentIndex(ui->appStyle->findText(store.appStyle));
+    ui->darkTheme->setChecked(store.darkTheme);
     // general
-    ui->condensedViews->setChecked(store->condensedViews);
-    ui->fullSubs->setChecked(store->fullSubs);
-    ui->preferLists->setChecked(store->preferLists);
-    ui->returnDislikes->setChecked(store->returnDislikes);
+    ui->condensedViews->setChecked(store.condensedViews);
+    ui->fullSubs->setChecked(store.fullSubs);
+    ui->preferLists->setChecked(store.preferLists);
+    ui->returnDislikes->setChecked(store.returnDislikes);
     // player
-    ui->blockAds->setChecked(store->blockAds);
-    ui->disable60Fps->setChecked(store->disable60Fps);
-    ui->disablePlayerInfoPanels->setChecked(store->disablePlayerInfoPanels);
-    ui->h264Only->setChecked(store->h264Only);
-    ui->preferredQuality->setCurrentIndex(static_cast<int>(store->preferredQuality));
-    ui->preferredVolume->setValue(store->preferredVolume);
-    ui->restoreAnnotations->setChecked(store->restoreAnnotations);
-    ui->vaapi->setChecked(store->vaapi);
+    ui->blockAds->setChecked(store.blockAds);
+    ui->disable60Fps->setChecked(store.disable60Fps);
+    ui->disablePlayerInfoPanels->setChecked(store.disablePlayerInfoPanels);
+    ui->h264Only->setChecked(store.h264Only);
+    ui->preferredQuality->setCurrentIndex(static_cast<int>(store.preferredQuality));
+    ui->preferredVolume->setValue(store.preferredVolume);
+    ui->restoreAnnotations->setChecked(store.restoreAnnotations);
+    ui->vaapi->setChecked(store.vaapi);
     // privacy
-    ui->playbackTracking->setChecked(store->playbackTracking);
-    ui->watchtimeTracking->setChecked(store->watchtimeTracking);
+    ui->playbackTracking->setChecked(store.playbackTracking);
+    ui->watchtimeTracking->setChecked(store.watchtimeTracking);
     // filtering
-    ui->filterLength->setEnabled(store->filterLengthEnabled);
-    ui->filterLength->setValue(store->filterLength);
-    ui->filterLengthCheck->setChecked(store->filterLengthEnabled);
-    ui->hideShorts->setChecked(store->hideShorts);
-    ui->hideStreams->setChecked(store->hideStreams);
+    ui->filterLength->setEnabled(store.filterLengthEnabled);
+    ui->filterLength->setValue(store.filterLength);
+    ui->filterLengthCheck->setChecked(store.filterLengthEnabled);
+    ui->hideShorts->setChecked(store.hideShorts);
+    ui->hideStreams->setChecked(store.hideStreams);
     // sponsorblock
-    ui->blockFiller->setChecked(store->sponsorBlockCategories.contains("filler"));
-    ui->blockInteraction->setChecked(store->sponsorBlockCategories.contains("interaction"));
-    ui->blockIntro->setChecked(store->sponsorBlockCategories.contains("intro"));
-    ui->blockNonMusic->setChecked(store->sponsorBlockCategories.contains("music_offtopic"));
-    ui->blockOutro->setChecked(store->sponsorBlockCategories.contains("outro"));
-    ui->blockPreview->setChecked(store->sponsorBlockCategories.contains("preview"));
-    ui->blockSelfPromo->setChecked(store->sponsorBlockCategories.contains("selfpromo"));
-    ui->blockSponsor->setChecked(store->sponsorBlockCategories.contains("sponsor"));
-    ui->showSBToasts->setChecked(store->showSBToasts);
+    ui->blockFiller->setChecked(store.sponsorBlockCategories.contains("filler"));
+    ui->blockInteraction->setChecked(store.sponsorBlockCategories.contains("interaction"));
+    ui->blockIntro->setChecked(store.sponsorBlockCategories.contains("intro"));
+    ui->blockNonMusic->setChecked(store.sponsorBlockCategories.contains("music_offtopic"));
+    ui->blockOutro->setChecked(store.sponsorBlockCategories.contains("outro"));
+    ui->blockPreview->setChecked(store.sponsorBlockCategories.contains("preview"));
+    ui->blockSelfPromo->setChecked(store.sponsorBlockCategories.contains("selfpromo"));
+    ui->blockSponsor->setChecked(store.sponsorBlockCategories.contains("sponsor"));
+    ui->showSBToasts->setChecked(store.showSBToasts);
     // dearrow
-    ui->deArrow->setChecked(store->deArrow);
-    ui->deArrowThumbs->setChecked(store->deArrowThumbs);
-    ui->deArrowTitles->setChecked(store->deArrowTitles);
+    ui->deArrow->setChecked(store.deArrow);
+    ui->deArrowThumbs->setChecked(store.deArrowThumbs);
+    ui->deArrowTitles->setChecked(store.deArrowTitles);
     toggleDeArrowSettings(ui->deArrow->isChecked());
 
     connect(ui->deArrow, &QCheckBox::toggled, this, [this](bool checked) { toggleDeArrowSettings(checked); });
@@ -145,50 +145,50 @@ void SettingsForm::openImportWizard()
 
 void SettingsForm::saveSettings()
 {
-    SettingsStore* store = SettingsStore::instance();
+    SettingsStore& store = qtTubeApp->settings();
     // general
-    store->appStyle = ui->appStyle->currentText();
-    store->condensedViews = ui->condensedViews->isChecked();
-    store->darkTheme = ui->darkTheme->isChecked();
-    store->fullSubs = ui->fullSubs->isChecked();
-    store->preferLists = ui->preferLists->isChecked();
-    store->returnDislikes = ui->returnDislikes->isChecked();
+    store.appStyle = ui->appStyle->currentText();
+    store.condensedViews = ui->condensedViews->isChecked();
+    store.darkTheme = ui->darkTheme->isChecked();
+    store.fullSubs = ui->fullSubs->isChecked();
+    store.preferLists = ui->preferLists->isChecked();
+    store.returnDislikes = ui->returnDislikes->isChecked();
     // player
-    store->blockAds = ui->blockAds->isChecked();
-    store->disable60Fps = ui->disable60Fps->isChecked();
-    store->disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
-    store->h264Only = ui->h264Only->isChecked();
-    store->preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
-    store->preferredVolume = ui->preferredVolume->value();
-    store->restoreAnnotations = ui->restoreAnnotations->isChecked();
-    store->vaapi = ui->vaapi->isChecked();
+    store.blockAds = ui->blockAds->isChecked();
+    store.disable60Fps = ui->disable60Fps->isChecked();
+    store.disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
+    store.h264Only = ui->h264Only->isChecked();
+    store.preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
+    store.preferredVolume = ui->preferredVolume->value();
+    store.restoreAnnotations = ui->restoreAnnotations->isChecked();
+    store.vaapi = ui->vaapi->isChecked();
     // privacy
-    store->playbackTracking = ui->playbackTracking->isChecked();
-    store->watchtimeTracking = ui->watchtimeTracking->isChecked();
+    store.playbackTracking = ui->playbackTracking->isChecked();
+    store.watchtimeTracking = ui->watchtimeTracking->isChecked();
     // filtering
-    store->filterLength = ui->filterLength->value();
-    store->filterLengthEnabled = ui->filterLengthCheck->isChecked();
-    store->hideShorts = ui->hideShorts->isChecked();
-    store->hideStreams = ui->hideStreams->isChecked();
+    store.filterLength = ui->filterLength->value();
+    store.filterLengthEnabled = ui->filterLengthCheck->isChecked();
+    store.hideShorts = ui->hideShorts->isChecked();
+    store.hideStreams = ui->hideStreams->isChecked();
     // sponsorblock
-    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "filler", ui->blockFiller);
-    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "interaction", ui->blockInteraction);
-    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "intro", ui->blockIntro);
-    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "music_offtopic", ui->blockNonMusic);
-    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "outro", ui->blockOutro);
-    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "preview", ui->blockPreview);
-    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
-    tryAddSponsorBlockCategory(store->sponsorBlockCategories, "sponsor", ui->blockSponsor);
-    store->showSBToasts = ui->showSBToasts->isChecked();
+    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "filler", ui->blockFiller);
+    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "interaction", ui->blockInteraction);
+    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "intro", ui->blockIntro);
+    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "music_offtopic", ui->blockNonMusic);
+    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "outro", ui->blockOutro);
+    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "preview", ui->blockPreview);
+    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
+    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "sponsor", ui->blockSponsor);
+    store.showSBToasts = ui->showSBToasts->isChecked();
     // dearrow
-    store->deArrow = ui->deArrow->isChecked();
-    store->deArrowThumbs = ui->deArrowThumbs->isChecked();
-    store->deArrowTitles = ui->deArrowTitles->isChecked();
+    store.deArrow = ui->deArrow->isChecked();
+    store.deArrowThumbs = ui->deArrowThumbs->isChecked();
+    store.deArrowTitles = ui->deArrowTitles->isChecked();
 
-    store->saveToSettingsFile();
-    store->initializeFromSettingsFile();
+    store.save();
+    store.initialize();
 
-    UIUtils::setAppStyle(store->appStyle, store->darkTheme);
+    UIUtils::setAppStyle(store.appStyle, store.darkTheme);
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
 }
 

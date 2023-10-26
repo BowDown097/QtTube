@@ -1,6 +1,6 @@
 #include "termfilterview.h"
 #include "ui_termfilterview.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include <QMessageBox>
 
 TermFilterView::TermFilterView(QWidget *parent) :
@@ -22,7 +22,7 @@ void TermFilterView::addNewRow()
 
 void TermFilterView::populateFromSettings()
 {
-    for (const QString& term : SettingsStore::instance()->filteredTerms)
+    for (const QString& term : qtTubeApp->settings().filteredTerms)
     {
         QListWidgetItem* item = new QListWidgetItem(term);
         item->setFlags(item->flags() ^ Qt::ItemIsEditable);
@@ -42,8 +42,8 @@ void TermFilterView::registerInSettings(QListWidgetItem* item)
         return;
     }
 
-    if (!SettingsStore::instance()->filteredTerms.contains(item->text()))
-        SettingsStore::instance()->filteredTerms.append(item->text());
+    if (!qtTubeApp->settings().filteredTerms.contains(item->text()))
+        qtTubeApp->settings().filteredTerms.append(item->text());
 }
 
 void TermFilterView::removeCurrentRow()
@@ -54,7 +54,7 @@ void TermFilterView::removeCurrentRow()
 
     int row = selModel->selectedRows().constFirst().row();
     QListWidgetItem* item = ui->listWidget->item(row);
-    SettingsStore::instance()->filteredTerms.removeOne(item->text());
+    qtTubeApp->settings().filteredTerms.removeOne(item->text());
     delete item;
 }
 

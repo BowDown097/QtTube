@@ -1,8 +1,7 @@
 #include "watchview_ui.h"
-#include "stores/settingsstore.h"
+#include "qttubeapplication.h"
 #include "ui/forms/mainwindow.h"
 #include "utils/uiutils.h"
-#include <QApplication>
 
 constexpr const char* likeBarStyle = R"(
     QProgressBar {
@@ -88,7 +87,7 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
     viewCount->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 3));
     menuVbox->addWidget(viewCount);
 
-    if (SettingsStore::instance()->returnDislikes)
+    if (qtTubeApp->settings().returnDislikes)
     {
         // i have to wrap the like bar for alignment to work... cringe!
         likeBarWrapper = new QHBoxLayout;

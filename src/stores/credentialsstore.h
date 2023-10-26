@@ -1,13 +1,12 @@
 #ifndef CREDENTIALSSTORE_H
 #define CREDENTIALSSTORE_H
 #include "innertube/endpoints/misc/accountmenu.h"
-#include <mutex>
 #include <QDir>
 #include <QStandardPaths>
 
 struct CredentialSet
 {
-    bool active;
+    bool active = false;
     QString apisid;
     QString avatarUrl;
     QString channelId;
@@ -26,22 +25,22 @@ class CredentialsStore : public QObject
     Q_OBJECT
 public:
     // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
-    static inline const QString configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + QDir::separator() + "QtTube"
-                                             + QDir::separator() + "store.ini";
+    static inline const QString configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+                                           + QDir::separator() + "QtTube"
+                                           + QDir::separator() + "store.ini";
 
-    QList<CredentialSet> credentials;
-
-    static CredentialsStore* instance();
     explicit CredentialsStore(QObject* parent = nullptr) : QObject(parent) {}
 
-    qsizetype getActiveLoginIndex() const;
-    void initializeFromStoreFile();
-    void populateAuthStore(int index);
-    void saveToStoreFile();
-    void updateAccount(const InnertubeEndpoints::AccountMenu& accountMenuData);
+    CredentialSet activeLogin() const;
+    QList<CredentialSet> credentials() const { return m_credentials; }
+
+    void initialize();
+    void save();
+
+    void populateAuthStore(const CredentialSet& credSet);
+    void updateAccount(const InnertubeEndpoints::AccountMenu& data);
 private:
-    static inline CredentialsStore* m_instance;
-    static inline std::once_flag m_onceFlag;
+    QList<CredentialSet> m_credentials;
 };
 
 #endif // CREDENTIALSSTORE_H
