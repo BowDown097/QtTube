@@ -39,6 +39,11 @@ void SettingsStore::initialize()
     deArrowTitles = settings.value("deArrow/titles", true).toBool();
 }
 
+bool SettingsStore::channelIsFiltered(const QString& channelId) const
+{
+    return std::ranges::any_of(filteredChannels, [&channelId](const QString& c) { return c.startsWith(channelId); });
+}
+
 void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key)
 {
     list.clear();
@@ -91,9 +96,9 @@ void SettingsStore::save()
     settings.setValue("deArrow/titles", deArrowTitles);
 }
 
-bool SettingsStore::strHasFilteredTerm(const QString& str)
+bool SettingsStore::strHasFilteredTerm(const QString& str) const
 {
-    return std::ranges::any_of(filteredTerms, [&str](const QString& term) { return str.contains(term, Qt::CaseInsensitive); });
+    return std::ranges::any_of(filteredTerms, [&str](const QString& t) { return str.contains(t, Qt::CaseInsensitive); });
 }
 
 void SettingsStore::writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key)

@@ -25,11 +25,19 @@ void ChannelFilterTable::addNewRow()
 void ChannelFilterTable::populateFromSettings()
 {
     populating = true;
-    for (const QString& channelId : qtTubeApp->settings().filteredChannels)
+    for (const QString& channel : qtTubeApp->settings().filteredChannels)
     {
+        QStringList split = channel.split('|');
         addNewRow();
-        QTableWidgetItem* item = new QTableWidgetItem(channelId);
-        ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, 0, item);
+
+        QTableWidgetItem* channelIdItem = new QTableWidgetItem(split[0]);
+        ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, 0, channelIdItem);
+
+        if (split.size() > 1)
+        {
+            QTableWidgetItem* channelHandleItem = new QTableWidgetItem(split[1]);
+            ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, 1, channelHandleItem);
+        }
     }
     populating = false;
 
@@ -44,16 +52,27 @@ void ChannelFilterTable::processChannelEntry(const InnertubeEndpoints::BrowseCha
 
     if (channelHandle.isEmpty())
     {
+        QMessageBox::critical(this, "Invalid channel ID", "Could not find a channel with the ID \"" + item->text() + "\".");
         ui->tableWidget->removeRow(item->row());
-        QMessageBox::critical(this, "Invalid channel ID", "Could not find a channel with that ID.");
         return;
+    }
+
+    QStringList& filteredChannels = qtTubeApp->settings().filteredChannels;
+    auto matchingIt = std::ranges::find_if(filteredChannels, [&channelId](const QString& s) {
+        return s.startsWith(channelId);
+    });
+
+    if (matchingIt != filteredChannels.end())
+    {
+        if (QStringList split = matchingIt->split('|'); split.size() > 1 && split[1] == channelHandle)
+            return;
+        filteredChannels.removeOne(*matchingIt);
     }
 
     QTableWidgetItem* handleItem = ui->tableWidget->item(item->row(), 1);
     handleItem->setText(channelHandle);
 
-    if (!qtTubeApp->settings().filteredChannels.contains(channelId))
-        qtTubeApp->settings().filteredChannels.append(channelId);
+    filteredChannels.append(channelId + "|" + channelHandle);
 }
 
 void ChannelFilterTable::removeCurrentRow()
@@ -74,8 +93,8 @@ void ChannelFilterTable::validateItemInput(QTableWidgetItem* item)
 
     if (ui->tableWidget->findItems(item->text(), Qt::MatchFixedString).count() > 1)
     {
+        QMessageBox::critical(this, "Duplicate channel ID", "There is already a filter for the channel ID \"" + item->text() + "\".");
         ui->tableWidget->removeRow(item->row());
-        QMessageBox::critical(this, "Duplicate channel ID", "There is already a filter for this channel ID.");
         return;
     }
 

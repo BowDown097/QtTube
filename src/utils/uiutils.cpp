@@ -50,7 +50,7 @@ void UIUtils::addBoldLabelToList(QListWidget* list, const QString& text)
 
 void UIUtils::addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel)
 {
-    if (qtTubeApp->settings().filteredChannels.contains(channel.channelId))
+    if (qtTubeApp->settings().channelIsFiltered(channel.channelId))
         return;
 
     BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
@@ -84,7 +84,7 @@ void UIUtils::addShelfTitleToList(QListWidget* list, const QString& title)
 
 void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
 {
-    if (qtTubeApp->settings().filteredChannels.contains(reel.owner.id) ||
+    if (qtTubeApp->settings().channelIsFiltered(reel.owner.id) ||
         qtTubeApp->settings().strHasFilteredTerm(reel.headline))
         return;
 
@@ -96,7 +96,7 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
 
 void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
 {
-    if (qtTubeApp->settings().filteredChannels.contains(video.owner.id) ||
+    if (qtTubeApp->settings().channelIsFiltered(video.owner.id) ||
         qtTubeApp->settings().strHasFilteredTerm(video.title.text) ||
         (qtTubeApp->settings().filterLengthEnabled && !video.isLive && QTime(0, 0).secsTo(video.length()) <= qtTubeApp->settings().filterLength) ||
         (qtTubeApp->settings().hideShorts && video.isReel()) ||
