@@ -1,8 +1,8 @@
 #include "accountswitcherwidget.h"
 #include "accountentrywidget.h"
 #include "innertube.h"
+#include "mainwindow.h"
 #include "qttubeapplication.h"
-#include "ui/forms/mainwindow.h"
 
 AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
     : QWidget(parent), addAccountButton(new QPushButton(this)), backButton(new QPushButton(this)), layout(new QVBoxLayout(this))

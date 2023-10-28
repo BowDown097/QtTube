@@ -1,6 +1,6 @@
 #include "accountmenuwidget.h"
 #include "http.h"
-#include "ui/forms/mainwindow.h"
+#include "mainwindow.h"
 #include "ui/views/viewcontroller.h"
 #include <QApplication>
 

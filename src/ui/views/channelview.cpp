@@ -1,7 +1,7 @@
 #include "channelview.h"
 #include "http.h"
+#include "mainwindow.h"
 #include "ui/browsehelper.h"
-#include "ui/forms/mainwindow.h"
 #include <QApplication>
 #include <QScrollBar>
 

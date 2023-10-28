@@ -1,6 +1,6 @@
 #include "qttubeapplication.h"
 #include "eastereggs.h"
-#include "ui/forms/mainwindow.h"
+#include "mainwindow.h"
 #include <QMouseEvent>
 
 bool QtTubeApplication::notify(QObject* receiver, QEvent* event)

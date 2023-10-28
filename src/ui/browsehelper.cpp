@@ -1,8 +1,8 @@
 #include "browsehelper.h"
 #include "channelbrowser.h"
 #include "http.h"
+#include "mainwindow.h"
 #include "protobuf/simpleprotobuf.h"
-#include "ui/forms/mainwindow.h"
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "utils/uiutils.h"
 #include <QApplication>

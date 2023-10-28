@@ -1,6 +1,6 @@
 #include "viewcontroller.h"
 #include "channelview.h"
-#include "ui/forms/mainwindow.h"
+#include "mainwindow.h"
 #include "watchview.h"
 #include <QMessageBox>
 

@@ -1,7 +1,7 @@
 #include "uiutils.h"
 #include "http.h"
+#include "mainwindow.h"
 #include "qttubeapplication.h"
-#include "ui/forms/mainwindow.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/browsechannelrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"

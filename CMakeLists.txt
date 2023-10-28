@@ -73,6 +73,7 @@ endif()
 set(SOURCE_FILES
     src/eastereggs.cpp
     src/main.cpp
+    src/mainwindow.cpp
     src/qttubeapplication.cpp
     src/ytemoji.cpp
     src/stores/credentialsstore.cpp
@@ -80,7 +81,6 @@ set(SOURCE_FILES
     src/ui/browsehelper.cpp
     src/ui/channelbrowser.cpp
     src/ui/forms/emojimenu.cpp
-    src/ui/forms/mainwindow.cpp
     src/ui/forms/livechat/giftredemptionmessage.cpp
     src/ui/forms/livechat/livechatwindow.cpp
     src/ui/forms/livechat/paidmessage.cpp
@@ -140,6 +140,7 @@ set(SOURCE_FILES
 
 set(HEADERS
     src/eastereggs.h
+    src/mainwindow.h
     src/qttubeapplication.h
     src/ytemoji.h
     src/stores/credentialsstore.h
@@ -147,7 +148,6 @@ set(HEADERS
     src/ui/browsehelper.h
     src/ui/channelbrowser.h
     src/ui/forms/emojimenu.h
-    src/ui/forms/mainwindow.h
     src/ui/forms/livechat/giftredemptionmessage.h
     src/ui/forms/livechat/livechatwindow.h
     src/ui/forms/livechat/paidmessage.h
@@ -206,8 +206,8 @@ set(HEADERS
 )
 
 set(FORMS
+    src/mainwindow.ui
     src/ui/forms/emojimenu.ui
-    src/ui/forms/mainwindow.ui
     src/ui/forms/livechat/livechatwindow.ui
     src/ui/forms/settings/channelfiltertable.ui
     src/ui/forms/settings/settingsform.ui

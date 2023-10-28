@@ -2,9 +2,9 @@
 #include "watchview_ui.h"
 #include "http.h"
 #include "innertube.h"
+#include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/forms/livechat/livechatwindow.h"
-#include "ui/forms/mainwindow.h"
 #include "utils/osutils.h"
 #include "utils/uiutils.h"
 #include <QDesktopServices>

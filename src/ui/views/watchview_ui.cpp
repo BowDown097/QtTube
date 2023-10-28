@@ -1,6 +1,6 @@
 #include "watchview_ui.h"
+#include "mainwindow.h"
 #include "qttubeapplication.h"
-#include "ui/forms/mainwindow.h"
 #include "utils/uiutils.h"
 
 constexpr const char* likeBarStyle = R"(
