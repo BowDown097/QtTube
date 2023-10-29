@@ -66,13 +66,8 @@ void CredentialsStore::save()
 
 void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data)
 {
-    const QList<InnertubeObjects::CompactLink>& section = data.response.sections[0];
-    auto accBox = std::ranges::find_if(section, [](const InnertubeObjects::CompactLink& link) { return link.iconType == "ACCOUNT_BOX"; });
-    if (accBox == section.end())
-        return;
-
     QString avatarUrl = data.response.header.accountPhotos[0].url;
-    QString channelId = accBox->navigationEndpoint["browseEndpoint"]["browseId"].toString();
+    QString channelId = data.response.header.manageAccountEndpoint["browseEndpoint"]["browseId"].toString();
     QString username = data.response.header.accountName;
 
     if (auto active = std::ranges::find_if(m_credentials, [](const CredentialSet& cs) { return cs.active; });
