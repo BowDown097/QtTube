@@ -22,4 +22,5 @@ GridVideoRenderer::GridVideoRenderer(QWidget* parent) : VideoRenderer(parent), v
     vbox->addWidget(titleLabel);
     vbox->addWidget(channelLabel);
     vbox->addWidget(metadataLabel);
+    vbox->addStretch();
 }
