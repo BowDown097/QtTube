@@ -17,7 +17,7 @@
    <string>QtTube</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../res/resources.qrc">
+   <iconset resource="../res/resources.qrc">
     <normaloff>:/qttube.svg</normaloff>:/qttube.svg</iconset>
   </property>
   <widget class="QStackedWidget" name="centralwidget">
@@ -199,7 +199,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../res/resources.qrc"/>
+  <include location="../res/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

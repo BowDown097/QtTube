@@ -57,7 +57,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>184</height>
+            <height>194</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -80,7 +80,7 @@
             <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>10</number>
            </property>
            <item>
             <widget class="QCheckBox" name="returnDislikes">
@@ -187,9 +187,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-45</y>
             <width>462</width>
-            <height>297</height>
+            <height>307</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -212,7 +212,7 @@
             <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>10</number>
            </property>
            <item>
             <widget class="QCheckBox" name="blockAds">
@@ -434,8 +434,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>215</width>
-            <height>72</height>
+            <width>476</width>
+            <height>82</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -458,7 +458,7 @@
             <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>10</number>
            </property>
            <item>
             <widget class="QCheckBox" name="playbackTracking">
@@ -522,8 +522,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>265</width>
-            <height>153</height>
+            <width>476</width>
+            <height>163</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -546,7 +546,7 @@
             <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>10</number>
            </property>
            <item>
             <widget class="QCheckBox" name="hideShorts">
@@ -676,8 +676,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>300</width>
-            <height>205</height>
+            <width>476</width>
+            <height>215</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -700,7 +700,7 @@
             <number>10</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>10</number>
            </property>
            <item>
             <widget class="QGroupBox" name="groupBox">
@@ -818,8 +818,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>364</width>
-            <height>217</height>
+            <width>476</width>
+            <height>227</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -842,7 +842,7 @@
             <number>10</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>10</number>
            </property>
            <item>
             <widget class="QGroupBox" name="groupBox_2">
@@ -1021,8 +1021,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>222</width>
-            <height>108</height>
+            <width>476</width>
+            <height>118</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1045,7 +1045,7 @@
             <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>10</number>
            </property>
            <item>
             <widget class="QCheckBox" name="deArrow">

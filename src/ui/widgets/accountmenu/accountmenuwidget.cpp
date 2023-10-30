@@ -45,21 +45,18 @@ void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoi
     HttpReply* avatarReply = Http::instance().get(QUrl(endpoint.response.header.accountPhotos[0].url));
     connect(avatarReply, &HttpReply::finished, this, &AccountMenuWidget::setAvatar);
 
-    const QList<InnertubeObjects::CompactLink>& section = endpoint.response.sections[0];
-    auto iter = std::ranges::find_if(section, [](const InnertubeObjects::CompactLink& link) { return link.iconType == "ACCOUNT_BOX"; });
-
-    if (iter != endpoint.response.sections[0].end())
-    {
-        const QString channelId = iter->navigationEndpoint["browseEndpoint"]["browseId"].toString();
-        connect(yourChannelLabel, &IconLabel::clicked, this, [this, channelId] {
-            setVisible(false);
-            ViewController::loadChannel(channelId);
-            emit closeRequested();
-        });
-    }
+    QString channelId = endpoint.response.header.manageAccountEndpoint["browseEndpoint"]["browseId"].toString();
+    connect(yourChannelLabel, &IconLabel::clicked, this, std::bind(&AccountMenuWidget::gotoChannel, this, channelId));
 
     adjustSize();
     emit finishedInitializing();
+}
+
+void AccountMenuWidget::gotoChannel(const QString& channelId)
+{
+    setVisible(false);
+    ViewController::loadChannel(channelId);
+    emit closeRequested();
 }
 
 void AccountMenuWidget::setAvatar(const HttpReply& reply)

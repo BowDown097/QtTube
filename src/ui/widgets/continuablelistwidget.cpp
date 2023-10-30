@@ -5,7 +5,6 @@
 ContinuableListWidget::ContinuableListWidget(QWidget* parent) : QListWidget(parent)
 {
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &ContinuableListWidget::scrollValueChanged);
-    verticalScrollBar()->setSingleStep(25);
 }
 
 void ContinuableListWidget::scrollValueChanged(int value)
@@ -16,4 +15,12 @@ void ContinuableListWidget::scrollValueChanged(int value)
     {
         emit continuationReady();
     }
+}
+
+// singleStep is reset when changing the list to a grid, this makes sure it stays at 25
+// without needing any extra code in individual usages
+void ContinuableListWidget::updateGeometries()
+{
+    QListView::updateGeometries();
+    verticalScrollBar()->setSingleStep(25);
 }

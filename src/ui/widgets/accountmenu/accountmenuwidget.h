@@ -24,6 +24,7 @@ private:
     IconLabel* switchAccountsLabel;
     IconLabel* yourChannelLabel;
 private slots:
+    void gotoChannel(const QString& channelId);
     void setAvatar(const HttpReply& reply);
     void triggerSignOut();
 signals:

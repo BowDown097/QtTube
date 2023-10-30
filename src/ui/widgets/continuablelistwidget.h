@@ -11,6 +11,8 @@ public:
 
     explicit ContinuableListWidget(QWidget* parent = nullptr);
     void setContinuationThreshold(int threshold) { continuationThreshold = threshold; }
+protected:
+    void updateGeometries() override;
 private:
     int continuationThreshold = 10;
 private slots:
