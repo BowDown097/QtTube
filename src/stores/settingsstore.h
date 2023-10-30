@@ -25,7 +25,7 @@ public:
 
     QString appStyle;
     bool blockAds;
-    bool condensedViews;
+    bool condensedCounts;
     bool darkTheme;
     bool deArrow;
     bool deArrowThumbs;

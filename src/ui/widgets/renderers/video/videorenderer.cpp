@@ -104,7 +104,7 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
     QStringList metadataList {
         video.lengthText.text,
         video.publishedTimeText.text,
-        qtTubeApp->settings().condensedViews ? video.shortViewCountText.text : video.viewCountText.text
+        qtTubeApp->settings().condensedCounts ? video.shortViewCountText.text : video.viewCountText.text
     };
     if (progress != 0) metadataList.append(progStr);
     metadataList.removeAll({});

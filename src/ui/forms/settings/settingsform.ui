@@ -100,12 +100,12 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="condensedViews">
+            <widget class="QCheckBox" name="condensedCounts">
              <property name="toolTip">
               <string>As an example, &quot;135,230 views&quot; would be condensed to &quot;135.2k views.&quot;</string>
              </property>
              <property name="text">
-              <string>Use condensed view counts</string>
+              <string>Use condensed counts</string>
              </property>
             </widget>
            </item>
@@ -187,7 +187,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-45</y>
+            <y>0</y>
             <width>462</width>
             <height>307</height>
            </rect>

@@ -38,7 +38,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->appStyle->setCurrentIndex(ui->appStyle->findText(store.appStyle));
     ui->darkTheme->setChecked(store.darkTheme);
     // general
-    ui->condensedViews->setChecked(store.condensedViews);
+    ui->condensedCounts->setChecked(store.condensedCounts);
     ui->fullSubs->setChecked(store.fullSubs);
     ui->preferLists->setChecked(store.preferLists);
     ui->returnDislikes->setChecked(store.returnDislikes);
@@ -148,7 +148,7 @@ void SettingsForm::saveSettings()
     SettingsStore& store = qtTubeApp->settings();
     // general
     store.appStyle = ui->appStyle->currentText();
-    store.condensedViews = ui->condensedViews->isChecked();
+    store.condensedCounts = ui->condensedCounts->isChecked();
     store.darkTheme = ui->darkTheme->isChecked();
     store.fullSubs = ui->fullSubs->isChecked();
     store.preferLists = ui->preferLists->isChecked();

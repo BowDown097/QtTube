@@ -173,7 +173,9 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     ui->subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
     ui->subscribeWidget->setSubscriberCount(nextResp.secondaryInfo.owner.subscriberCountText.text, nextResp.secondaryInfo.subscribeButton.channelId);
     ui->subscribeWidget->subscribersCountLabel->setVisible(true);
-    ui->viewCount->setText(nextResp.primaryInfo.viewCount.text);
+    ui->viewCount->setText(qtTubeApp->settings().condensedCounts && !nextResp.primaryInfo.viewCount.isLive
+                               ? nextResp.primaryInfo.viewCount.extraShortViewCount.text + " views"
+                               : nextResp.primaryInfo.viewCount.viewCount.text);
 
     for (const InnertubeObjects::MenuFlexibleItem& fi : nextResp.primaryInfo.videoActions.flexibleItems)
     {
@@ -245,7 +247,10 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     }
     else
     {
-        ui->likeLabel->setText(nextResp.primaryInfo.videoActions.likeButton.defaultText.text);
+        InnertubeObjects::InnertubeString likeText = nextResp.primaryInfo.videoActions.likeButton.defaultText;
+        ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
+                                   ? likeText.text : UIUtils::extractDigits(likeText.accessibilityLabel));
+        ui->dislikeLabel->setText("Dislike");
     }
 
     QString dateText = nextResp.primaryInfo.dateText.text;
@@ -319,7 +324,7 @@ void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse
 {
     ui->description->setText(generateFormattedDescription(resp.description));
     ui->titleLabel->setText(resp.title.text);
-    ui->viewCount->setText(resp.viewCount);
+    ui->viewCount->setText(resp.viewCount.viewCount.text);
 
     QString dateText = resp.dateText;
     if (!dateText.startsWith("Premier") && !dateText.startsWith("Stream") && !dateText.startsWith("Start") && !dateText.startsWith("Sched"))
@@ -333,7 +338,7 @@ void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse
     }
     else
     {
-        ui->likeLabel->setText(resp.likeDefaultText);
+        ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? resp.likeDefaultText : resp.likeNumericalValue);
     }
 }
 
@@ -349,6 +354,16 @@ void WatchView::updateRatings(const HttpReply& reply)
     }
 
     ui->likeBar->setVisible(true);
+
+#ifdef QTTUBE_HAS_ICU
+    if (qtTubeApp->settings().condensedCounts)
+    {
+        ui->dislikeLabel->setText(UIUtils::condensedNumericString(dislikes));
+        ui->likeLabel->setText(UIUtils::condensedNumericString(likes));
+        return;
+    }
+#endif
+
     ui->dislikeLabel->setText(QLocale::system().toString(dislikes));
     ui->likeLabel->setText(QLocale::system().toString(likes));
 }

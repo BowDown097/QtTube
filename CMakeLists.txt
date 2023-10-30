@@ -253,6 +253,13 @@ target_include_directories(QtTube PRIVATE src lib/http/src lib/innertube-qt/src)
 target_link_libraries(QtTube PRIVATE http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Sql Qt::Widgets)
 
 ## Optional
+find_package(ICU COMPONENTS i18n uc)
+if (ICU_FOUND)
+    target_compile_definitions(QtTube PUBLIC QTTUBE_HAS_ICU)
+    target_include_directories(QtTube PRIVATE ${ICU_INCLUDE_DIRS})
+    target_link_libraries(QtTube PRIVATE ${ICU_LIBRARIES})
+endif()
+
 if(QTTUBE_USE_MPV)
     target_sources(QtTube PRIVATE
         lib/media/media.h
