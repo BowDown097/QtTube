@@ -8,7 +8,9 @@ function addStyle(css) {
 function waitForElement(selector) {
     return new Promise(resolve => {
         const query = document.querySelector(selector);
-        if (query) return resolve(query);
+        if (query)
+            return resolve(query);
+
         const observer = new MutationObserver(() => {
             const query = document.querySelector(selector);
             if (query) {
@@ -16,6 +18,7 @@ function waitForElement(selector) {
                 observer.disconnect();
             }
         });
+
         observer.observe(document, {
             childList: true,
             subtree: true

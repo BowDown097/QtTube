@@ -16,10 +16,12 @@ void SettingsStore::initialize()
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
     disablePlayerInfoPanels = settings.value("player/disableInfoPanels", false).toBool();
     h264Only = settings.value("player/h264Only", false).toBool();
-    preferredQuality = settings.value("player/preferredQuality", static_cast<int>(PlayerQuality::Auto)).value<PlayerQuality>();
+    preferredQuality = settings.value("player/preferredQuality", 0).value<PlayerQuality>();
     preferredVolume = settings.value("player/preferredVolume", 100).toInt();
+    qualityFromPlayer = settings.value("player/qualityFromPlayer", true).toBool();
     restoreAnnotations = settings.value("player/restoreAnnotations", false).toBool();
     vaapi = settings.value("player/vaapi", false).toBool();
+    volumeFromPlayer = settings.value("player/volumeFromPlayer", true).toBool();
     // privacy
     playbackTracking = settings.value("privacy/playbackTracking", true).toBool();
     watchtimeTracking = settings.value("privacy/watchtimeTracking", true).toBool();
@@ -75,8 +77,10 @@ void SettingsStore::save()
     settings.setValue("player/h264Only", h264Only);
     settings.setValue("player/preferredQuality", static_cast<int>(preferredQuality));
     settings.setValue("player/preferredVolume", preferredVolume);
+    settings.setValue("player/qualityFromPlayer", qualityFromPlayer);
     settings.setValue("player/restoreAnnotations", restoreAnnotations);
     settings.setValue("player/vaapi", vaapi);
+    settings.setValue("player/volumeFromPlayer", volumeFromPlayer);
     // privacy
     settings.setValue("privacy/playbackTracking", playbackTracking);
     settings.setValue("privacy/watchtimeTracking", watchtimeTracking);

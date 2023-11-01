@@ -265,7 +265,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <property name="spacing">
-              <number>50</number>
+              <number>10</number>
              </property>
              <item>
               <widget class="QLabel" name="preferredVolumeLabel">
@@ -291,12 +291,16 @@
               </widget>
              </item>
              <item>
+              <widget class="QCheckBox" name="volumeFromPlayer">
+               <property name="text">
+                <string>Set from player</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Expanding</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -311,7 +315,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <property name="spacing">
-              <number>50</number>
+              <number>10</number>
              </property>
              <item>
               <widget class="QLabel" name="preferredQualityLabel">
@@ -381,12 +385,16 @@
               </widget>
              </item>
              <item>
+              <widget class="QCheckBox" name="qualityFromPlayer">
+               <property name="text">
+                <string>Set from player</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Expanding</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -434,7 +442,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>215</width>
             <height>82</height>
            </rect>
           </property>
@@ -522,7 +530,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>265</width>
             <height>163</height>
            </rect>
           </property>
@@ -676,7 +684,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>300</width>
             <height>215</height>
            </rect>
           </property>
@@ -818,7 +826,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>364</width>
             <height>227</height>
            </rect>
           </property>
@@ -1021,7 +1029,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>222</width>
             <height>118</height>
            </rect>
           </property>

@@ -46,11 +46,10 @@ function fetchVideoAnnotations(videoId) {
     return new Promise((resolve, reject) => {
         fetch(requestUrl)
         .then(response => {
-            if (response.ok) {
+            if (response.ok)
                 response.text().then(resolve).catch(reject);
-            } else {
+            else
                 reject("Annotations unavailable");
-            }
         }).catch(reject);
     });
 }
@@ -67,11 +66,10 @@ function getVideoPath(videoId) {
 function handleAnnotations(videoId) {
     fetchVideoAnnotations(videoId).then(async (xml) => {
         console.info(`Received annotations for ${videoId} from server..`);
-        if (xml) {
+        if (xml)
             parseAnnotations(xml);
-        } else {
+        else
             console.info(`Annotations received for ${videoId}, but video has no annotations`);
-        }
     }).catch(e => {
         console.info(`Annotation data is unavailable for this video (${videoId})\n (${e})`);
     });

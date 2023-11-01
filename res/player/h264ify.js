@@ -10,7 +10,8 @@ function h264ify(h264Only, no60Fps) {
     // Override media source extension isTypeSupported() function
     const mse = window.MediaSource;
     // Check for MSE support before use
-    if (!mse) return;
+    if (!mse)
+        return;
     const origIsTypeSupported = mse.isTypeSupported.bind(mse);
     mse.isTypeSupported = makeModifiedTypeChecker(origIsTypeSupported, h264Only, no60Fps);
 }
@@ -19,7 +20,8 @@ function h264ify(h264Only, no60Fps) {
 function makeModifiedTypeChecker(origChecker, h264Only, no60Fps) {
     // Check if a video type is allowed
     return function (type) {
-        if (!type) return '';
+        if (!type)
+            return '';
 
         if (h264Only) {
             const disallowedTypes = ["webm", "vp8", "vp9", "vp09", "av01"];
@@ -29,7 +31,8 @@ function makeModifiedTypeChecker(origChecker, h264Only, no60Fps) {
 
         if (no60Fps) {
             const match = /framerate=(\d+)/.exec(type);
-            if (match && match[1] > 30) return '';
+            if (match && match[1] > 30)
+                return '';
         }
 
         // Otherwise, ask the browser

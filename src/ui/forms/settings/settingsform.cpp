@@ -47,10 +47,14 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->disable60Fps->setChecked(store.disable60Fps);
     ui->disablePlayerInfoPanels->setChecked(store.disablePlayerInfoPanels);
     ui->h264Only->setChecked(store.h264Only);
+    ui->preferredQuality->setEnabled(!store.qualityFromPlayer);
     ui->preferredQuality->setCurrentIndex(static_cast<int>(store.preferredQuality));
+    ui->preferredVolume->setEnabled(!store.volumeFromPlayer);
     ui->preferredVolume->setValue(store.preferredVolume);
+    ui->qualityFromPlayer->setChecked(store.qualityFromPlayer);
     ui->restoreAnnotations->setChecked(store.restoreAnnotations);
     ui->vaapi->setChecked(store.vaapi);
+    ui->volumeFromPlayer->setChecked(store.volumeFromPlayer);
     // privacy
     ui->playbackTracking->setChecked(store.playbackTracking);
     ui->watchtimeTracking->setChecked(store.watchtimeTracking);
@@ -74,23 +78,17 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->deArrow->setChecked(store.deArrow);
     ui->deArrowThumbs->setChecked(store.deArrowThumbs);
     ui->deArrowTitles->setChecked(store.deArrowTitles);
-    toggleDeArrowSettings(ui->deArrow->isChecked());
+    toggleDeArrowSettings(store.deArrow);
 
-    connect(ui->deArrow, &QCheckBox::toggled, this, [this](bool checked) { toggleDeArrowSettings(checked); });
+    connect(ui->deArrow, &QCheckBox::toggled, this, &SettingsForm::toggleDeArrowSettings);
     //connect(ui->exportButton, &QPushButton::clicked, this, &SettingsForm::openExportWizard);
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool checked) { ui->filterLength->setEnabled(checked); });
     connect(ui->importButton, &QPushButton::clicked, this, &SettingsForm::openImportWizard);
+    connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool checked) { ui->preferredQuality->setEnabled(!checked); });
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
-    connect(ui->showFilteredChannels, &QPushButton::clicked, this, [] {
-        ChannelFilterTable* ft = new ChannelFilterTable;
-        ft->show();
-        ft->populateFromSettings();
-    });
-    connect(ui->showFilteredTerms, &QPushButton::clicked, this, [] {
-        TermFilterView* fv = new TermFilterView;
-        fv->show();
-        fv->populateFromSettings();
-    });
+    connect(ui->showFilteredChannels, &QPushButton::clicked, this, &SettingsForm::showChannelFilterTable);
+    connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
+    connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool checked) { ui->preferredVolume->setEnabled(!checked); });
 }
 
 /*
@@ -160,8 +158,10 @@ void SettingsForm::saveSettings()
     store.h264Only = ui->h264Only->isChecked();
     store.preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
     store.preferredVolume = ui->preferredVolume->value();
+    store.qualityFromPlayer = ui->qualityFromPlayer->isChecked();
     store.restoreAnnotations = ui->restoreAnnotations->isChecked();
     store.vaapi = ui->vaapi->isChecked();
+    store.volumeFromPlayer = ui->volumeFromPlayer->isChecked();
     // privacy
     store.playbackTracking = ui->playbackTracking->isChecked();
     store.watchtimeTracking = ui->watchtimeTracking->isChecked();
@@ -190,6 +190,20 @@ void SettingsForm::saveSettings()
 
     UIUtils::setAppStyle(store.appStyle, store.darkTheme);
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
+}
+
+void SettingsForm::showChannelFilterTable()
+{
+    ChannelFilterTable* ft = new ChannelFilterTable;
+    ft->show();
+    ft->populateFromSettings();
+}
+
+void SettingsForm::showTermFilterTable()
+{
+    TermFilterView* fv = new TermFilterView;
+    fv->show();
+    fv->populateFromSettings();
 }
 
 void SettingsForm::toggleDeArrowSettings(bool checked)

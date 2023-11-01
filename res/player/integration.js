@@ -40,18 +40,16 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         JSON.parseOG = JSON.parse;
         JSON.parse = function(obj) {
             obj = JSON.parseOG(obj);
-            if (obj?.adPlacements) {
+            if (obj?.adPlacements)
                 obj.adPlacements = [];
-            } else if (obj?.playerAds) {
+            if (obj?.playerAds)
                 obj.playerAds = [];
-            }
             return obj;
         };
     }
 
-    if (settings.sponsorBlockCategories?.length) {
+    if (settings.sponsorBlockCategories?.length)
         await sponsorBlock(settings.sponsorBlockCategories);
-    }
 
     document.addEventListener("mousedown", function(e) {
         const coveringOverlay = e.target.closest(".ytp-ce-covering-overlay");
@@ -69,8 +67,15 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         addStyle(".ytp-info-panel-preview { display: none; }");
 
     waitForElement("#movie_player").then(function(p) {
+        if (settings.volumeFromPlayer) {
+            p.addEventListener("onVolumeChange", d => {
+                if (!d.muted && d.volume != settings.preferredVolume)
+                    settings.preferredVolume = d.volume;
+            });
+        }
+
         p.setVolume(settings.preferredVolume); // set preferred volume
-        p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. there's no way out of doing this. wtf???
+        p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. why does it do that???
 
         // annotations
         if (settings.restoreAnnotations) {
@@ -84,6 +89,17 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         }, {});
 
         var qPref = qualityKeys[settings.preferredQuality].toLowerCase();
+
+        if (settings.qualityFromPlayer) {
+            p.addEventListener("onPlaybackQualityChange", q => {
+                if (q == qPref)
+                    return;
+                const match = Object.keys(settings.PlayerQuality).find(k => q == k.toLowerCase());
+                if (match)
+                    settings.preferredQuality = settings.PlayerQuality[match];
+            });
+        }
+
         if (!qPref || qPref == "auto") {
             p.playVideo();
             return;

@@ -6,7 +6,7 @@ class WebChannelInterface : public QObject
 {
     Q_OBJECT
 public:
-    explicit WebChannelInterface(QObject* parent = nullptr) : QObject(parent) {}
+    explicit WebChannelInterface(QObject* parent = nullptr);
 public slots:
     void switchWatchViewVideo(const QString& videoId);
 };

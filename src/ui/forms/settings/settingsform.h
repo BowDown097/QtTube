@@ -16,6 +16,8 @@ private slots:
     //void openExportWizard();
     void openImportWizard();
     void saveSettings();
+    void showChannelFilterTable();
+    void showTermFilterTable();
     void toggleDeArrowSettings(bool checked);
 private:
     Ui::SettingsForm* ui;

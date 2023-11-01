@@ -10,10 +10,12 @@ class SettingsStore : public QObject
 
     Q_PROPERTY(bool blockAds MEMBER blockAds NOTIFY blockAdsChanged)
     Q_PROPERTY(bool disablePlayerInfoPanels MEMBER disablePlayerInfoPanels NOTIFY disablePlayerInfoPanelsChanged)
-    Q_PROPERTY(PlayerQuality preferredQuality MEMBER preferredQuality NOTIFY preferredQualityChanged)
+    Q_PROPERTY(SettingsStore::PlayerQuality preferredQuality MEMBER preferredQuality NOTIFY preferredQualityChanged)
     Q_PROPERTY(int preferredVolume MEMBER preferredVolume NOTIFY preferredVolumeChanged)
+    Q_PROPERTY(bool qualityFromPlayer MEMBER qualityFromPlayer NOTIFY qualityFromPlayerChanged)
     Q_PROPERTY(bool restoreAnnotations MEMBER restoreAnnotations NOTIFY restoreAnnotationsChanged)
     Q_PROPERTY(QStringList sponsorBlockCategories MEMBER sponsorBlockCategories NOTIFY sponsorBlockCategoriesChanged)
+    Q_PROPERTY(bool volumeFromPlayer MEMBER volumeFromPlayer NOTIFY volumeFromPlayerChanged)
 public:
     // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
     static inline const QString configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
@@ -44,11 +46,13 @@ public:
     bool preferLists;
     PlayerQuality preferredQuality;
     int preferredVolume;
+    bool qualityFromPlayer;
     bool restoreAnnotations;
     bool returnDislikes;
     bool showSBToasts;
     QStringList sponsorBlockCategories;
     bool vaapi;
+    bool volumeFromPlayer;
     bool watchtimeTracking;
 
     explicit SettingsStore(QObject* parent = nullptr) : QObject(parent) {}
@@ -64,8 +68,10 @@ signals:
     void disablePlayerInfoPanelsChanged(bool);
     void preferredQualityChanged(SettingsStore::PlayerQuality);
     void preferredVolumeChanged(int);
+    void qualityFromPlayerChanged(bool);
     void restoreAnnotationsChanged(bool);
     void sponsorBlockCategoriesChanged(const QStringList&);
+    void volumeFromPlayerChanged(bool);
 };
 
 #endif // SETTINGSSTORE_H
