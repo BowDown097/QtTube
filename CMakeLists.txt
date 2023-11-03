@@ -290,8 +290,6 @@ endif()
 
 ## Platform-specific
 if(WIN32)
-    target_link_libraries(QtTube PRIVATE user32)
-
     find_package(OpenSSL QUIET)
     if(OpenSSL_FOUND)
         target_include_directories(QtTube PRIVATE ${OPENSSL_INCLUDE_DIR})

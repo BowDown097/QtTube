@@ -18,9 +18,6 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     m_centralWidget = ui->centralwidget;
     m_size = geometry().size();
     m_topbar = new TopBar(this);
-#ifdef Q_OS_WIN
-    m_winId = winId();
-#endif
 
     notificationMenu = new ContinuableListWidget(this);
     notificationMenu->setContinuationThreshold(5);

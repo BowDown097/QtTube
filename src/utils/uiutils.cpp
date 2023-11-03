@@ -14,10 +14,6 @@
 #include <QThread>
 #endif
 
-#ifdef Q_OS_WIN
-#include "osutils.h"
-#endif
-
 #ifdef QTTUBE_HAS_ICU
 #include <unicode/errorcode.h>
 #include <unicode/numberformatter.h>
@@ -264,19 +260,10 @@ QString UIUtils::resolveThemedIconName(const QString& name, const QPalette& pal)
 
 void UIUtils::setAppStyle(const QString& styleName, bool dark)
 {
-    if (styleName == "Default")
-    {
-        if (qApp->style()->objectName() != defaultStyle)
-            qApp->setStyle(QStyleFactory::create(defaultStyle));
-    }
+    if (styleName == "Default" && qApp->style()->objectName() != defaultStyle)
+        qApp->setStyle(QStyleFactory::create(defaultStyle));
     else if (QStyle* style = QStyleFactory::create(styleName))
-    {
         qApp->setStyle(style);
-    }
-
-#ifdef Q_OS_WIN
-    OSUtils::setWinDarkModeEnabled(MainWindow::windowId(), dark);
-#endif
 
     if (dark)
     {
@@ -299,6 +286,16 @@ void UIUtils::setAppStyle(const QString& styleName, bool dark)
         qApp->setStyleSheet(darkStylesheet);
         MainWindow::topbar()->updatePalette(darkPalette);
     }
+    else if (qApp->styleSheet() == darkStylesheet)
+    {
+        qApp->setPalette(qApp->style()->standardPalette());
+        qApp->setStyleSheet(QString());
+        MainWindow::topbar()->updatePalette(qApp->palette());
+    }
+
+#ifdef Q_OS_WIN // for some reason, wrong palette is applied to topbar on windows
+    MainWindow::topbar()->updatePalette(qApp->palette());
+#endif
 }
 
 // this will be used for the description and perhaps elsewhere

@@ -11,6 +11,11 @@ int main(int argc, char *argv[])
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
+#ifdef Q_OS_WIN
+    QApplication::setStyle("fusion");
+    qputenv("QT_QPA_PLATFORM", "windows:darkmode=2");
+#endif
+
     QtTubeApplication a(argc, argv);
 
     QCommandLineParser parser;
