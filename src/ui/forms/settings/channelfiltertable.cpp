@@ -42,7 +42,8 @@ void ChannelFilterTable::populateFromSettings()
     populating = false;
 
     for (int i = 0; i < ui->tableWidget->rowCount(); i++)
-        validateItemInput(ui->tableWidget->item(i, 0));
+        if (ui->tableWidget->item(i, 1)->text().isEmpty())
+            validateItemInput(ui->tableWidget->item(i, 0));
 }
 
 void ChannelFilterTable::processChannelEntry(const InnertubeEndpoints::BrowseChannel& channel, QTableWidgetItem* item)
@@ -88,7 +89,7 @@ void ChannelFilterTable::removeCurrentRow()
 
 void ChannelFilterTable::validateItemInput(QTableWidgetItem* item)
 {
-    if (item->column() == 1 || populating || item->text().isEmpty())
+    if (!item || item->column() == 1 || populating || item->text().isEmpty())
         return;
 
     if (ui->tableWidget->findItems(item->text(), Qt::MatchFixedString).count() > 1)

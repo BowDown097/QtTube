@@ -14,22 +14,26 @@ bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
         TopBar* topbar = MainWindow::topbar();
         if (!topbar->alwaysShow)
         {
-            if (mouseEvent->pos().y() < 35)
+            if (mouseEvent->pos().y() < topbar->height())
             {
-                if (topbar->isHidden() && topbar->animation->state() != topbar->animation->Running)
+                if (topbar->isHidden() && topbar->animation->state() != QAbstractAnimation::Running)
                 {
                     topbar->animation->setStartValue(QRect(0, 0, topbar->width(), 0));
-                    topbar->animation->setEndValue(QRect(0, 0, topbar->width(), 35));
-                    disconnect(topbar->animation, &QPropertyAnimation::finished, topbar, &TopBar::hide);
+                    topbar->animation->setEndValue(QRect(0, 0, topbar->width(), topbar->height()));
+                    disconnect(topbar->animation, &QPropertyAnimation::finished, topbar, nullptr);
                     topbar->animation->start();
                     topbar->show();
                 }
             }
-            else if (topbar->animation->state() != topbar->animation->Running && !topbar->isHidden())
+            else if (topbar->animation->state() != QAbstractAnimation::Running && !topbar->isHidden())
             {
+                int height = topbar->height();
                 topbar->animation->setEndValue(QRect(0, 0, topbar->width(), 0));
-                topbar->animation->setStartValue(QRect(0, 0, topbar->width(), 35));
-                connect(topbar->animation, &QPropertyAnimation::finished, topbar, &TopBar::hide);
+                topbar->animation->setStartValue(QRect(0, 0, topbar->width(), topbar->height()));
+                connect(topbar->animation, &QPropertyAnimation::finished, topbar, [height, topbar] {
+                    topbar->hide();
+                    topbar->resize(topbar->width(), height);
+                });
                 topbar->animation->start();
             }
         }

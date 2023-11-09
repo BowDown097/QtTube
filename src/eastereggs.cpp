@@ -6,10 +6,10 @@
 
 namespace EasterEggs
 {
-    constexpr std::array<Qt::Key, 5> basedKeys = { Qt::Key_B, Qt::Key_A, Qt::Key_S, Qt::Key_E, Qt::Key_D };
-    constexpr std::array<Qt::Key, 5> sneedKeys = { Qt::Key_S, Qt::Key_N, Qt::Key_E, Qt::Key_E, Qt::Key_D };
-    static int basedProgress = 0;
-    static int sneedProgress = 0;
+    constexpr std::array<int, 5> bk = { 0x42, 0x41, 0x53, 0x45, 0x44 };
+    constexpr std::array<int, 5> sk = { 0x53, 0x4e, 0x45, 0x45, 0x44 };
+    static int bp = 0;
+    static int sp = 0;
 
     void checkEasterEggs(QKeyEvent* keyEvent)
     {
@@ -17,23 +17,23 @@ namespace EasterEggs
         if (focused && qobject_cast<QLineEdit*>(focused)) // make sure the user isn't typing in a text input
             return;
 
-        Qt::Key key = static_cast<Qt::Key>(keyEvent->key());
-        if (key == basedKeys[basedProgress])
-            basedProgress++;
-        else if (key == sneedKeys[sneedProgress])
-            sneedProgress++;
+        int key = keyEvent->key();
+        if (key == bk[bp])
+            bp++;
+        else if (key == sk[sp])
+            sp++;
         else
-            basedProgress = sneedProgress = 0;
+            bp = sp = 0;
 
-        if (basedProgress == basedKeys.size())
+        if (bp == bk.size())
         {
-            basedProgress = 0;
-            ViewController::loadVideo("L1ZuTjqEX98");
+            bp = 0;
+            ViewController::loadVideo(QByteArray::fromBase64("\x54\x44\x46\x61\x64\x56\x52\x71\x63\x55\x56\x59\x4f\x54\x67"));
         }
-        else if (sneedProgress == sneedKeys.size())
+        else if (sp == sk.size())
         {
-            sneedProgress = 0;
-            ViewController::loadVideo("T3ElIvNBYj0");
+            sp = 0;
+            ViewController::loadVideo(QByteArray::fromBase64("\x56\x44\x4e\x46\x62\x45\x6c\x32\x54\x6b\x4a\x5a\x61\x6a\x41"));
         }
     }
 }
