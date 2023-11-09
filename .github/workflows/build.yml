@@ -117,6 +117,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
+          rm /home/runner/work/QtTube/Qt/${{ matrix.qt_version }}/gcc_64/plugins/sqldrivers/libqsqlmimer.so
           export OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
           chmod +x linuxdeploy-*.AppImage
           cp /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
