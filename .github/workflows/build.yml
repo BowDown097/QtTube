@@ -21,7 +21,7 @@ jobs:
             name: Ubuntu
             qt_ver: 6
             qt_host: linux
-            qt_version: '6.5.1'
+            qt_version: '6.6.0'
             qt_modules: 'qt5compat qtserialport qtpositioning qtwebchannel qtwebengine'
           - os: ubuntu-latest
             name: Ubuntu-Legacy
