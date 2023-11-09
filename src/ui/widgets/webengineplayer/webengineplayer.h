@@ -28,6 +28,8 @@ private:
     QString getFileContents(const QString& path);
     void loadScriptFile(const QString& path, QWebEngineScript::InjectionPoint injectionPoint);
     void loadScriptString(const QString& data, QWebEngineScript::InjectionPoint injectionPoint);
+signals:
+    void progressChanged(double progress, double previousProgress);
 };
 
 #endif // WEBENGINEPLAYER_H

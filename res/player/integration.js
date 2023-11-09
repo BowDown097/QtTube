@@ -67,6 +67,16 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         addStyle(".ytp-info-panel-preview { display: none; }");
 
     waitForElement("#movie_player").then(function(p) {
+        // emit progress change when time text changes (every ~1 second)
+        var previousProgress = 0;
+        p.addEventListener("onVideoProgress", progress => {
+            if (Math.abs(progress - previousProgress) < 1)
+                return;
+            channel.objects.interface.emitProgressChanged(progress, previousProgress);
+            previousProgress = progress;
+        });
+
+        // set preferred volume when volume changes if we are setting it from player
         if (settings.volumeFromPlayer) {
             p.addEventListener("onVolumeChange", d => {
                 if (!d.muted && d.volume != settings.preferredVolume)
@@ -74,7 +84,8 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
             });
         }
 
-        p.setVolume(settings.preferredVolume); // set preferred volume
+        // set preferred volume
+        p.setVolume(settings.preferredVolume);
         p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. why does it do that???
 
         // annotations

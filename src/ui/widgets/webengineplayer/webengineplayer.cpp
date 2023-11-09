@@ -39,6 +39,8 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     m_view->page()->profile()->setUrlRequestInterceptor(m_interceptor);
     m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
     m_view->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
+
+    connect(m_interface, &WebChannelInterface::progressChanged, this, &WebEnginePlayer::progressChanged);
     connect(m_view->page(), &QWebEnginePage::fullScreenRequested, this, &WebEnginePlayer::fullScreenRequested);
 }
 

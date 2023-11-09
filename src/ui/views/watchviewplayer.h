@@ -34,6 +34,8 @@ private slots:
     void mediaStateChanged(Media::State state);
     void volumeChanged(double volume);
 #endif
+signals:
+    void progressChanged(double progress, double previousProgress);
 };
 
 #endif // WATCHVIEWPLAYER_H

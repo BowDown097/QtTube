@@ -22,6 +22,8 @@ WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QOb
     wePlayer = new WebEnginePlayer(watchView);
     wePlayer->setAuthStore(InnerTube::instance().authStore());
     wePlayer->setContext(InnerTube::instance().context());
+
+    connect(wePlayer, &WebEnginePlayer::progressChanged, this, &WatchViewPlayer::progressChanged);
 #endif
 
     calcAndSetSize(maxSize);

@@ -13,8 +13,10 @@ private:
     QLabel* authorIcon;
     QLabel* authorLabel;
     QVBoxLayout* contentLayout;
+    QHBoxLayout* headerLayout;
     QHBoxLayout* layout;
     QLabel* messageLabel;
+    QLabel* timestampLabel;
 private slots:
     void insertEmojiIntoMessage(const HttpReply& reply, const QString& placeholder);
     void setAuthorIcon(const HttpReply& reply);

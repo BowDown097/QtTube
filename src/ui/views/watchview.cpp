@@ -202,11 +202,11 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         IconLabel* liveChatLabel = new IconLabel("live-chat", "Chat", QMargins(15, 0, 0, 0));
         ui->topLevelButtons->addWidget(liveChatLabel);
 
-        connect(liveChatLabel, &IconLabel::clicked, this, [nextResp]
+        connect(liveChatLabel, &IconLabel::clicked, this, [this, nextResp]
         {
             LiveChatWindow* liveChatWindow = new LiveChatWindow;
             liveChatWindow->show();
-            liveChatWindow->initialize(nextResp.liveChat.value());
+            liveChatWindow->initialize(nextResp.liveChat.value(), ui->player);
         });
     }
 

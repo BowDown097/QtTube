@@ -1,6 +1,7 @@
 #include "textmessage.h"
 #include "http.h"
 #include "utils/uiutils.h"
+#include <QApplication>
 
 constexpr const char* imgPlaceholder = "<img src='data:%1;base64,%2' width='20' height='20'>";
 
@@ -9,8 +10,10 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
       authorIcon(new QLabel(this)),
       authorLabel(new QLabel(renderer["authorName"]["simpleText"].toString(), this)),
       contentLayout(new QVBoxLayout),
+      headerLayout(new QHBoxLayout),
       layout(new QHBoxLayout(this)),
-      messageLabel(new QLabel(this))
+      messageLabel(new QLabel(this)),
+      timestampLabel(new QLabel(this))
 {
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
@@ -26,9 +29,26 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     contentLayout->addStretch();
     layout->addLayout(contentLayout);
 
-    authorLabel->setFixedWidth(parent->width() - 70);
+    authorLabel->setMaximumWidth(parent->width() - 150);
     authorLabel->setStyleSheet(renderer["authorBadges"].isObject() ? "font-weight: bold; color: #2ba640" : "font-weight: bold");
-    contentLayout->addWidget(authorLabel);
+
+    timestampLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
+    if (renderer["timestampText"].isObject())
+    {
+        timestampLabel->setText(renderer["timestampText"]["simpleText"].toString());
+    }
+    else
+    {
+        quint64 timestampUsec = renderer["timestampUsec"].toString().toULongLong();
+        timestampLabel->setText(QDateTime::fromSecsSinceEpoch(timestampUsec / 1000000)
+                                    .toString(QLocale::system().timeFormat(QLocale::ShortFormat)));
+    }
+
+    headerLayout->addWidget(authorLabel);
+    headerLayout->addWidget(timestampLabel);
+    headerLayout->addStretch();
+    headerLayout->setSpacing(5);
+    contentLayout->addLayout(headerLayout);
 
     messageLabel->setFixedWidth(parent->width() - 70);
     messageLabel->setTextFormat(Qt::RichText);
