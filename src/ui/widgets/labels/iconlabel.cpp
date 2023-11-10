@@ -46,8 +46,3 @@ void IconLabel::setIcon(const QString& iconId)
 {
     icon->setPixmap(UIUtils::pixmapThemed(iconId));
 }
-
-void IconLabel::setText(const QString& text)
-{
-    textLabel->setText(text);
-}
