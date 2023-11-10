@@ -92,7 +92,7 @@
     line-height: 36px !important;
 }
 
-.ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-button, .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-replay-button {
+.ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-button:not(.ytp-live-badge), .ytp-embed:not(.ytp-big-mode) .ytp-chrome-controls .ytp-replay-button {
     width: 36px !important;
     padding: 0 !important;
 }
