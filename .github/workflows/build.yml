@@ -118,7 +118,7 @@ jobs:
         run: |
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
           rm -f /home/runner/work/QtTube/Qt/${{ matrix.qt_version }}/gcc_64/plugins/sqldrivers/libqsqlmimer.so
-          export OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
+          export OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
           chmod +x linuxdeploy-*.AppImage
           cp /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           cp /usr/lib/x86_64-linux-gnu/libssl.so.1.1 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
@@ -130,26 +130,26 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v3
         with:
-          name: QtTube-${{ runner.os }}-${{ env.VERSION }}-${{ env.BUILD_TYPE }}
+          name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
           path: ${{ env.INSTALL_DIR }}/**
           
       - name: Upload artifact (installer)
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v3
         with:
-          name: QtTube-${{ runner.os }}-Setup-${{ env.VERSION }}-${{ env.BUILD_TYPE }}
+          name: QtTube-${{ runner.os }}-Setup-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
           path: QtTube-Setup.exe
           
       - name: Upload artifact (tarball)
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v3
         with:
-          name: QtTube-${{ runner.os }}-${{ env.VERSION }}-${{ env.BUILD_TYPE }}
+          name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
           path: QtTube.tar.gz
       
       - name: Upload artifact (AppImage)
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v3
         with:
-          name: QtTube-${{ runner.os }}-${{ env.VERSION }}-${{ env.BUILD_TYPE }}-x86_64.AppImage
-          path: QtTube-${{ runner.os }}-${{ env.VERSION }}-${{ env.BUILD_TYPE }}-x86_64.AppImage
+          name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage
+          path: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage
