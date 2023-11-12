@@ -23,20 +23,20 @@ public:
     void search(ContinuableListWidget* widget, const QString& query,
                 int dateF = -1, int typeF = -1, int durF = -1, int featF = -1, int sort = -1);
 
-    template<typename T> requires std::derived_from<T, InnertubeEndpoints::BaseEndpoint>
+    template<EndpointWithData E>
     void continuation(ContinuableListWidget* widget, const QString& data = "", int threshold = 10)
     {
         widget->continuationRunning = true;
 
         try
         {
-            T newData = InnerTube::instance().getBlocking<T>(data, widget->continuationToken);
-            if constexpr (std::is_same_v<T, InnertubeEndpoints::Search>)
+            E newData = browseRequest<E>(widget->continuationToken, data);
+            if constexpr (std::is_same_v<E, InnertubeEndpoints::Search>)
             {
                 setupChannelList(newData.response.channels, widget);
                 setupVideoList(newData.response.videos, widget);
             }
-            else if constexpr (std::is_same_v<T, InnertubeEndpoints::GetNotificationMenu>)
+            else if constexpr (std::is_same_v<E, InnertubeEndpoints::GetNotificationMenu>)
             {
                 setupNotificationList(newData.response.notifications, widget);
             }
@@ -59,6 +59,15 @@ private slots:
 private:
     static inline BrowseHelper* m_instance;
     static inline std::once_flag m_onceFlag;
+
+    template<EndpointWithData E>
+    E browseRequest(const QString& continuationToken, const QString& data = "")
+    {
+        if constexpr (innertube_is_any_v<E, InnertubeEndpoints::BrowseHome, InnertubeEndpoints::BrowseSubscriptions>)
+            return InnerTube::instance().getBlocking<E>(continuationToken);
+        else
+            return InnerTube::instance().getBlocking<E>(data, continuationToken);
+    }
 
     void setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget);
     void setupNotificationList(const QList<InnertubeObjects::Notification>& notifications, QListWidget* widget);
