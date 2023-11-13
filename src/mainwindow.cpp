@@ -364,9 +364,8 @@ void MainWindow::showAccountMenu()
         accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
     });
 
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
-    connect(reply, qOverload<const InnertubeEndpoints::AccountMenu&>(&InnertubeReply::finished), accountController->accountMenu,
-            &AccountMenuWidget::initialize);
+    auto reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
+    connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, accountController->accountMenu, &AccountMenuWidget::initialize);
 }
 
 void MainWindow::showNotifications()

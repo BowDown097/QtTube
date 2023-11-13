@@ -36,11 +36,11 @@ void VideoRenderer::copyChannelUrl()
 
 void VideoRenderer::copyDirectUrl()
 {
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
-    connect(reply, &InnertubeReply::exception, this, [this] {
+    auto reply = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
+    connect(reply, &InnertubeReply<InnertubeEndpoints::Player>::exception, this, [this] {
         QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
     });
-    connect(reply, qOverload<const InnertubeEndpoints::Player&>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::Player& endpoint) {
+    connect(reply, &InnertubeReply<InnertubeEndpoints::Player>::finished, this, [this](const InnertubeEndpoints::Player& endpoint) {
         if (endpoint.response.videoDetails.isLive || endpoint.response.videoDetails.isLiveContent)
         {
             UIUtils::copyToClipboard(endpoint.response.streamingData.hlsManifestUrl);

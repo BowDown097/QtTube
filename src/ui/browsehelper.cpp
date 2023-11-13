@@ -7,6 +7,9 @@
 #include "utils/uiutils.h"
 #include <QApplication>
 
+using namespace InnertubeEndpoints;
+using namespace std::placeholders;
+
 BrowseHelper* BrowseHelper::instance()
 {
     std::call_once(m_onceFlag, [] { m_instance = new BrowseHelper; });
@@ -19,7 +22,7 @@ void BrowseHelper::browseChannel(QListWidget* widget, int index, const Innertube
     if (!tabRenderer["selected"].toBool())
     {
         QString params = tabRenderer["endpoint"]["browseEndpoint"]["params"].toString();
-        auto bc = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(resp.metadata.externalId, "", params);
+        auto bc = InnerTube::instance().getBlocking<BrowseChannel>(resp.metadata.externalId, "", params);
         tabRenderer = bc.response.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
     }
 
@@ -45,7 +48,7 @@ void BrowseHelper::browseChannel(QListWidget* widget, int index, const Innertube
     }
     catch (const InnertubeException& ie)
     {
-        browseFailed(ie, "Failed to get channel tab data");
+        browseFailed(ie, "channel tab");
     }
 }
 
@@ -57,10 +60,9 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
         return;
     }
 
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHistory>(query);
-    connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get history data"));
-    connect(reply, qOverload<const InnertubeEndpoints::BrowseHistory&>(&InnertubeReply::finished), this, [this, widget](const InnertubeEndpoints::BrowseHistory& endpoint)
-    {
+    auto reply = InnerTube::instance().get<BrowseHistory>(query);
+    connect(reply, &InnertubeReply<BrowseHistory>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "history"));
+    connect(reply, &InnertubeReply<BrowseHistory>::finished, this, [this, widget](const BrowseHistory& endpoint) {
         setupVideoList(endpoint.response.videos, widget);
         widget->continuationToken = endpoint.continuationToken;
     });
@@ -68,10 +70,9 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
 
 void BrowseHelper::browseHome(ContinuableListWidget* widget)
 {
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseHome>();
-    connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get home data"));
-    connect(reply, qOverload<const InnertubeEndpoints::BrowseHome&>(&InnertubeReply::finished), this, [this, widget](const InnertubeEndpoints::BrowseHome& endpoint)
-    {
+    auto reply = InnerTube::instance().get<BrowseHome>();
+    connect(reply, &InnertubeReply<BrowseHome>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "home"));
+    connect(reply, &InnertubeReply<BrowseHome>::finished, this, [this, widget](const BrowseHome& endpoint) {
         setupVideoList(endpoint.response.videos, widget);
         widget->continuationToken = endpoint.continuationToken;
     });
@@ -79,10 +80,9 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
 
 void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 {
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
-    connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get notification data"));
-    connect(reply, qOverload<const InnertubeEndpoints::GetNotificationMenu&>(&InnertubeReply::finished), this, [this, widget](const InnertubeEndpoints::GetNotificationMenu& endpoint)
-    {
+    auto reply = InnerTube::instance().get<GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
+    connect(reply, &InnertubeReply<GetNotificationMenu>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "notification"));
+    connect(reply, &InnertubeReply<GetNotificationMenu>::finished, this, [this, widget](const GetNotificationMenu& endpoint) {
         setupNotificationList(endpoint.response.notifications, widget);
         widget->continuationToken = endpoint.continuationToken;
         MainWindow::topbar()->updateNotificationCount();
@@ -97,10 +97,9 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
         return;
     }
 
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseSubscriptions>();
-    connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get subscriptions data"));
-    connect(reply, qOverload<const InnertubeEndpoints::BrowseSubscriptions&>(&InnertubeReply::finished), this, [this, widget](const InnertubeEndpoints::BrowseSubscriptions& endpoint)
-    {
+    auto reply = InnerTube::instance().get<BrowseSubscriptions>();
+    connect(reply, &InnertubeReply<BrowseSubscriptions>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "subscriptions"));
+    connect(reply, &InnertubeReply<BrowseSubscriptions>::finished, this, [this, widget](const BrowseSubscriptions& endpoint) {
         setupVideoList(endpoint.response.videos, widget);
         widget->continuationToken = endpoint.continuationToken;
     });
@@ -108,10 +107,9 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 
 void BrowseHelper::browseTrending(QListWidget* widget)
 {
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::BrowseTrending>();
-    connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get trending data"));
-    connect(reply, qOverload<const InnertubeEndpoints::BrowseTrending&>(&InnertubeReply::finished), this, [this, widget](const InnertubeEndpoints::BrowseTrending& endpoint)
-    {
+    auto reply = InnerTube::instance().get<BrowseTrending>();
+    connect(reply, &InnertubeReply<BrowseTrending>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "trending"));
+    connect(reply, &InnertubeReply<BrowseTrending>::finished, this, [this, widget](const BrowseTrending& endpoint) {
         setupVideoList(endpoint.response.videos, widget);
     });
 }
@@ -131,10 +129,9 @@ void BrowseHelper::search(ContinuableListWidget* searchWidget, const QString& qu
     if (!params.isEmpty())
         compiledParams = QByteArray::fromHex(SimpleProtobuf::compile(params, searchMsgFields)).toBase64().toPercentEncoding();
 
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::Search>(query, "", compiledParams);
-    connect(reply, &InnertubeReply::exception, this, std::bind(&BrowseHelper::browseFailed, this, std::placeholders::_1, "Failed to get search data"));
-    connect(reply, qOverload<const InnertubeEndpoints::Search&>(&InnertubeReply::finished), this, [this, searchWidget](const InnertubeEndpoints::Search& endpoint)
-    {
+    auto reply = InnerTube::instance().get<Search>(query, "", compiledParams);
+    connect(reply, &InnertubeReply<Search>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "search"));
+    connect(reply, &InnertubeReply<Search>::finished, this, [this, searchWidget](const Search& endpoint) {
         searchWidget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(endpoint.response.estimatedResults)));
         setupChannelList(endpoint.response.channels, searchWidget);
         setupVideoList(endpoint.response.videos, searchWidget);
@@ -145,9 +142,9 @@ void BrowseHelper::search(ContinuableListWidget* searchWidget, const QString& qu
 void BrowseHelper::browseFailed(const InnertubeException& ie, const QString& title)
 {
     if (ie.severity() == InnertubeException::Severity::Normal)
-        QMessageBox::critical(nullptr, title, ie.message());
+        QMessageBox::critical(nullptr, "Failed to get " + title + " data", ie.message());
     else
-        qWarning().nospace() << title << ": " << ie.message();
+        qWarning().nospace() << "Failed to get " << title << " data: " << ie.message();
 }
 
 void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget)

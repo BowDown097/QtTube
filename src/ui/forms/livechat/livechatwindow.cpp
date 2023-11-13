@@ -70,14 +70,14 @@ void LiveChatWindow::chatReplayTick(double progress, double previousProgress)
     if (previousProgress > 0 && (progDiff <= -1 || progDiff > 1))
     {
         ui->listWidget->clear();
-        InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChatReplay>(seekContinuation, playerOffsetMs);
-        connect(reply, qOverload<const InnertubeEndpoints::GetLiveChatReplay&>(&InnertubeReply::finished), this,
+        auto reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChatReplay>(seekContinuation, playerOffsetMs);
+        connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChatReplay>::finished, this,
                 std::bind(&LiveChatWindow::processChatReplayData, this, std::placeholders::_1, progress, previousProgress, true));
     }
     else if (progress < firstChatItemOffset || progress > lastChatItemOffset)
     {
-        InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChatReplay>(currentContinuation, playerOffsetMs);
-        connect(reply, qOverload<const InnertubeEndpoints::GetLiveChatReplay&>(&InnertubeReply::finished), this,
+        auto reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChatReplay>(currentContinuation, playerOffsetMs);
+        connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChatReplay>::finished, this,
                 std::bind(&LiveChatWindow::processChatReplayData, this, std::placeholders::_1, progress, previousProgress, false));
     }
     else
@@ -91,9 +91,8 @@ void LiveChatWindow::chatTick()
     if (populating)
         return;
 
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChat>(currentContinuation);
-    connect(reply, qOverload<const InnertubeEndpoints::GetLiveChat&>(&InnertubeReply::finished), this,
-            &LiveChatWindow::processChatData);
+    auto reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChat>(currentContinuation);
+    connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChat>::finished, this, &LiveChatWindow::processChatData);
 }
 
 void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData, WatchViewPlayer* player)
@@ -145,6 +144,7 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
             addChatItemToList(v["addChatItemAction"]["item"]);
 
     currentContinuation = liveChat.liveChatContinuation["continuations"][0]["invalidationContinuationData"]["continuation"].toString();
+    qDebug() << liveChat.liveChatContinuation["actions"].toArray().isEmpty() << liveChat.liveChatContinuation["continuations"].toArray().isEmpty() << currentContinuation;
 
     processingEnd();
 }

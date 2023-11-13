@@ -25,13 +25,13 @@ WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QW
 
     ui->setupUi(this);
 
-    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
-    connect(next, qOverload<const InnertubeEndpoints::Next&>(&InnertubeReply::finished), this, &WatchView::processNext);
-    connect(next, &InnertubeReply::exception, this, &WatchView::loadFailed);
+    auto next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
+    connect(next, &InnertubeReply<InnertubeEndpoints::Next>::finished, this, &WatchView::processNext);
+    connect(next, &InnertubeReply<InnertubeEndpoints::Next>::exception, this, &WatchView::loadFailed);
 
-    InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
-    connect(player, qOverload<const InnertubeEndpoints::Player&>(&InnertubeReply::finished), this, &WatchView::processPlayer);
-    connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
+    auto player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
+    connect(player, &InnertubeReply<InnertubeEndpoints::Player>::finished, this, &WatchView::processPlayer);
+    connect(player, &InnertubeReply<InnertubeEndpoints::Player>::exception, this, &WatchView::loadFailed);
 
     ui->player->play(videoId, progress);
     connect(ui->channelLabel->text, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
@@ -117,13 +117,13 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
     UIUtils::clearLayout(ui->topLevelButtons);
     disconnect(ui->channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
 
-    InnertubeReply* next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
-    connect(next, qOverload<const InnertubeEndpoints::Next&>(&InnertubeReply::finished), this, &WatchView::processNext);
-    connect(next, &InnertubeReply::exception, this, &WatchView::loadFailed);
+    auto next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
+    connect(next, &InnertubeReply<InnertubeEndpoints::Next>::finished, this, &WatchView::processNext);
+    connect(next, &InnertubeReply<InnertubeEndpoints::Next>::exception, this, &WatchView::loadFailed);
 
-    InnertubeReply* player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
-    connect(player, qOverload<const InnertubeEndpoints::Player&>(&InnertubeReply::finished), this, &WatchView::processPlayer);
-    connect(player, &InnertubeReply::exception, this, &WatchView::loadFailed);
+    auto player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
+    connect(player, &InnertubeReply<InnertubeEndpoints::Player>::finished, this, &WatchView::processPlayer);
+    connect(player, &InnertubeReply<InnertubeEndpoints::Player>::exception, this, &WatchView::loadFailed);
 
     ui->player->play(videoId, progress);
 }

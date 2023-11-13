@@ -87,8 +87,8 @@ void TopBar::scaleAppropriately()
 void TopBar::setUpAvatarButton()
 {
     scaleAppropriately();
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
-    connect(reply, qOverload<const InnertubeEndpoints::AccountMenu&>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
+    auto reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
+    connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
     {
         qtTubeApp->creds().updateAccount(endpoint);
         HttpReply* photoReply = Http::instance().get(QUrl(endpoint.response.header.accountPhotos[0].url));
@@ -162,8 +162,8 @@ If you provided credentials, please check them, refer back to the previous linke
 
 void TopBar::updateNotificationCount()
 {
-    InnertubeReply* reply = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>();
-    connect(reply, qOverload<const InnertubeEndpoints::UnseenCount&>(&InnertubeReply::finished), this, [this](const InnertubeEndpoints::UnseenCount& endpoint)
+    auto reply = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>();
+    connect(reply, &InnertubeReply<InnertubeEndpoints::UnseenCount>::finished, this, [this](const InnertubeEndpoints::UnseenCount& endpoint)
     {
         notificationBell->updatePixmap(endpoint.unseenCount > 0, palette());
         notificationBell->setVisible(true);
