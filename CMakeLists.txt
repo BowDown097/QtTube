@@ -124,6 +124,7 @@ set(SOURCE_FILES
     src/ui/widgets/renderers/video/browsevideorenderer.cpp
     src/ui/widgets/renderers/video/gridvideorenderer.cpp
     src/ui/widgets/renderers/video/videorenderer.cpp
+    src/ui/widgets/renderers/video/videothumbnailwidget.cpp
     src/ui/widgets/subscribe/notificationbell.cpp
     src/ui/widgets/subscribe/subscribelabel.cpp
     src/ui/widgets/subscribe/subscribewidget.cpp
@@ -192,6 +193,7 @@ set(HEADERS
     src/ui/widgets/renderers/video/browsevideorenderer.h
     src/ui/widgets/renderers/video/gridvideorenderer.h
     src/ui/widgets/renderers/video/videorenderer.h
+    src/ui/widgets/renderers/video/videothumbnailwidget.h
     src/ui/widgets/subscribe/notificationbell.h
     src/ui/widgets/subscribe/subscribelabel.h
     src/ui/widgets/subscribe/subscribewidget.h

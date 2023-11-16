@@ -18,7 +18,7 @@ GridVideoRenderer::GridVideoRenderer(QWidget* parent) : VideoRenderer(parent), v
     metadataLabel->setWordWrap(true);
     UIUtils::setMaximumLines(metadataLabel, 2);
 
-    vbox->addWidget(thumbLabel);
+    vbox->addWidget(thumbnail);
     vbox->addWidget(titleLabel);
     vbox->addWidget(channelLabel);
     vbox->addWidget(metadataLabel);

@@ -8,6 +8,6 @@ BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent)
     textVbox->addWidget(channelLabel);
     textVbox->addWidget(metadataLabel);
 
-    hbox->addWidget(thumbLabel);
+    hbox->addWidget(thumbnail);
     hbox->addLayout(textVbox, 1);
 }

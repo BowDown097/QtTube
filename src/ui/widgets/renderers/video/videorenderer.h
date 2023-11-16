@@ -5,9 +5,11 @@
 #include "innertube/objects/video/video.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/elidedtubelabel.h"
+#include "videothumbnailwidget.h"
 
 class VideoRenderer : public QWidget
 {
+    Q_OBJECT
 public:
     explicit VideoRenderer(QWidget* parent = nullptr);
     void setData(const InnertubeObjects::Reel& reel);
@@ -15,27 +17,26 @@ public:
     void setTargetElisionWidth(int width) { targetElisionWidth = width; }
     void setThumbnail(const QString& url);
     void setThumbnailSize(const QSize& size);
-private slots:
-    void copyChannelUrl();
-    void copyDirectUrl();
-    void copyVideoUrl();
-    void navigateChannel();
-    void navigateVideo();
-    void setDeArrowData(const HttpReply& reply, const QString& fallbackThumbUrl);
-    void setThumbnailData(const HttpReply& reply);
-    void showChannelContextMenu(const QPoint& pos);
-    void showTitleContextMenu(const QPoint& pos);
 protected:
     ChannelLabel* channelLabel;
     TubeLabel* metadataLabel;
-    TubeLabel* thumbLabel;
+    VideoThumbnailWidget* thumbnail;
     ElidedTubeLabel* titleLabel;
 private:
     QString channelId;
     int progress = 0;
     int targetElisionWidth = 0;
-    QSize thumbnailSize;
     QString videoId;
+private slots:
+    void copyChannelUrl();
+    void copyDirectUrl();
+    void copyVideoUrl();
+    void elideTitle();
+    void navigateChannel();
+    void navigateVideo();
+    void setDeArrowData(const HttpReply& reply, const QString& fallbackThumbUrl);
+    void showChannelContextMenu(const QPoint& pos);
+    void showTitleContextMenu(const QPoint& pos);
 };
 
 #endif // VIDEORENDERER_H
