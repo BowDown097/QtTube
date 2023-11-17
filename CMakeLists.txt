@@ -115,6 +115,7 @@ set(SOURCE_FILES
     src/ui/widgets/accountmenu/accountentrywidget.cpp
     src/ui/widgets/accountmenu/accountmenuwidget.cpp
     src/ui/widgets/accountmenu/accountswitcherwidget.cpp
+    src/ui/widgets/labels/channelbadgelabel.cpp
     src/ui/widgets/labels/channellabel.cpp
     src/ui/widgets/labels/elidedtubelabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
@@ -184,6 +185,7 @@ set(HEADERS
     src/ui/widgets/accountmenu/accountentrywidget.h
     src/ui/widgets/accountmenu/accountmenuwidget.h
     src/ui/widgets/accountmenu/accountswitcherwidget.h
+    src/ui/widgets/labels/channelbadgelabel.h
     src/ui/widgets/labels/channellabel.h
     src/ui/widgets/labels/elidedtubelabel.h
     src/ui/widgets/labels/iconlabel.h

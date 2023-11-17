@@ -1,29 +1,26 @@
 #include "channellabel.h"
+#include "channelbadgelabel.h"
 
 ChannelLabel::ChannelLabel(QWidget* parent)
-    : QWidget(parent), text(new TubeLabel(this)), badgeLabel(new QLabel(this)), layout(new QHBoxLayout(this))
+    : QWidget(parent), text(new TubeLabel(this)), layout(new QHBoxLayout(this))
 {
     text->setClickable(true, true);
     text->setContextMenuPolicy(Qt::CustomContextMenu);
     layout->addWidget(text);
-
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addSpacing(2);
-    layout->addWidget(badgeLabel);
-    layout->addStretch();
 }
 
 void ChannelLabel::setInfo(const QString& channelName, const QList<InnertubeObjects::MetadataBadge>& badges)
 {
     text->setText(channelName);
-    if (badges.size() > 0)
+
+    for (const InnertubeObjects::MetadataBadge& badge : badges)
     {
-        badgeLabel->setText("✔");
-        badgeLabel->setToolTip(badges[0].tooltip);
+        ChannelBadgeLabel* badgeLabel = new ChannelBadgeLabel(this);
+        badgeLabel->setData(badge);
+        layout->addSpacing(2);
+        layout->addWidget(badgeLabel);
     }
-    else
-    {
-        badgeLabel->setText(QString());
-        badgeLabel->setToolTip(QString());
-    }
+
+    layout->addStretch();
 }

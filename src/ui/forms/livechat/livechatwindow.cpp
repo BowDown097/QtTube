@@ -143,8 +143,11 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
         if (v["addChatItemAction"]["item"].isObject())
             addChatItemToList(v["addChatItemAction"]["item"]);
 
-    currentContinuation = liveChat.liveChatContinuation["continuations"][0]["invalidationContinuationData"]["continuation"].toString();
-    qDebug() << liveChat.liveChatContinuation["actions"].toArray().isEmpty() << liveChat.liveChatContinuation["continuations"].toArray().isEmpty() << currentContinuation;
+    QString continuation = liveChat.liveChatContinuation["continuations"][0]["invalidationContinuationData"]["continuation"].toString();
+    if (!continuation.isEmpty())
+        currentContinuation = continuation;
+    else
+        qDebug() << QJsonDocument(liveChat.liveChatContinuation.toObject()).toJson();
 
     processingEnd();
 }
