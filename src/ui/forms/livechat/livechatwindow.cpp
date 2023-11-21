@@ -146,6 +146,8 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
     QString continuation = liveChat.liveChatContinuation["continuations"][0]["invalidationContinuationData"]["continuation"].toString();
     if (!continuation.isEmpty())
         currentContinuation = continuation;
+    else if (liveChat.liveChatContinuation["continuations"][0]["reloadContinuationData"].isObject()) // should be true if live stream has finished
+        messagesTimer->stop();
 
     processingEnd();
 }
@@ -217,9 +219,12 @@ void LiveChatWindow::updateChatReplay(double progress, double previousProgress)
 LiveChatWindow::~LiveChatWindow()
 {
     // avoid use-after-free when closing
-    QEventLoop loop;
-    connect(this, &LiveChatWindow::getLiveChatFinished, &loop, &QEventLoop::quit);
-    loop.exec();
+    if (populating)
+    {
+        QEventLoop loop;
+        connect(this, &LiveChatWindow::getLiveChatFinished, &loop, &QEventLoop::quit);
+        loop.exec();
+    }
 
     messagesTimer->deleteLater();
     delete ui;
