@@ -146,8 +146,6 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
     QString continuation = liveChat.liveChatContinuation["continuations"][0]["invalidationContinuationData"]["continuation"].toString();
     if (!continuation.isEmpty())
         currentContinuation = continuation;
-    else
-        qDebug() << QJsonDocument(liveChat.liveChatContinuation.toObject()).toJson();
 
     processingEnd();
 }
