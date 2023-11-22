@@ -8,6 +8,7 @@
 #include "ui/views/watchview.h"
 #include "ui/widgets/accountmenu/accountcontrollerwidget.h"
 #include "utils/uiutils.h"
+#include <QAction>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QScrollBar>
