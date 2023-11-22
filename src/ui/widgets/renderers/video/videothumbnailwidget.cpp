@@ -2,6 +2,7 @@
 #include "http.h"
 #include <QApplication>
 #include <QMouseEvent>
+#include <QProgressBar>
 
 constexpr const char* progressStyle = R"(
     QProgressBar { background-color: #717171; }

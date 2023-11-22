@@ -1,5 +1,7 @@
 #include "importfileselectpage.h"
+#include <QBoxLayout>
 #include <QFileDialog>
+#include <QLineEdit>
 #include <QPushButton>
 
 ImportFileSelectPage::ImportFileSelectPage(const QString& title, const QString& subtitle, const QString& targetFile,

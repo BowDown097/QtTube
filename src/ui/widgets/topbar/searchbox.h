@@ -1,9 +1,11 @@
 #ifndef SEARCHBOX_H
 #define SEARCHBOX_H
-#include "extmenu.h"
-#include "exttoolbutton.h"
-#include <QHBoxLayout>
-#include <QLineEdit>
+#include <QWidget>
+
+class ExtMenu;
+class ExtToolButton;
+class QHBoxLayout;
+class QLineEdit;
 
 class SearchBox : public QWidget
 {

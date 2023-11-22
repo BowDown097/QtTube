@@ -1,8 +1,11 @@
 #include "accountmenuwidget.h"
 #include "http.h"
+#include "innertube/endpoints/misc/accountmenu.h"
 #include "mainwindow.h"
 #include "ui/views/viewcontroller.h"
+#include "ui/widgets/labels/iconlabel.h"
 #include <QApplication>
+#include <QBoxLayout>
 
 AccountMenuWidget::AccountMenuWidget(QWidget* parent)
     : QWidget(parent),

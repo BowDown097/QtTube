@@ -1,7 +1,8 @@
 #ifndef CHANNELBADGELABEL_H
 #define CHANNELBADGELABEL_H
-#include "innertube/objects/channel/metadatabadge.h"
 #include <QLabel>
+
+namespace InnertubeObjects { class MetadataBadge; }
 
 class ChannelBadgeLabel : public QLabel
 {

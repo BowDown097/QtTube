@@ -1,10 +1,14 @@
 #ifndef ACCOUNTMENUWIDGET_H
 #define ACCOUNTMENUWIDGET_H
-#include "httpreply.h"
-#include "innertube/endpoints/misc/accountmenu.h"
-#include "ui/widgets/labels/iconlabel.h"
-#include <QLabel>
-#include <QVBoxLayout>
+#include <QWidget>
+
+namespace InnertubeEndpoints { class AccountMenu; }
+
+class HttpReply;
+class IconLabel;
+class QHBoxLayout;
+class QLabel;
+class QVBoxLayout;
 
 class AccountMenuWidget : public QWidget
 {

@@ -1,8 +1,10 @@
 #ifndef IMPORTFILESELECTPAGE_H
 #define IMPORTFILESELECTPAGE_H
-#include <QLineEdit>
-#include <QVBoxLayout>
 #include <QWizardPage>
+
+class QHBoxLayout;
+class QLineEdit;
+class QVBoxLayout;
 
 class ImportFileSelectPage : public QWizardPage
 {

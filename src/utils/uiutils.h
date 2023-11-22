@@ -1,14 +1,21 @@
 #ifndef UIUTILS_H
 #define UIUTILS_H
-#include "innertube/objects/channel/channel.h"
-#include "innertube/objects/video/reel.h"
-#include "innertube/objects/video/video.h"
-#include "ui/widgets/renderers/video/videorenderer.h"
 #include <initializer_list>
-#include <QLabel>
-#include <QLayout>
-#include <QListWidget>
-#include <QTabWidget>
+#include <QWidget>
+
+namespace InnertubeObjects
+{
+class Channel;
+class Reel;
+class Video;
+}
+
+class QLabel;
+class QLayout;
+class QListWidget;
+class QListWidgetItem;
+class QTabWidget;
+class VideoRenderer;
 
 class UIUtils
 {

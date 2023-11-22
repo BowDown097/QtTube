@@ -1,10 +1,16 @@
 #include "channelbrowser.h"
 #include "innertube/innertubeexception.h"
 #include "innertube/objects/channel/aboutfullmetadata.h"
+#include "innertube/objects/channel/channel.h"
+#include "innertube/objects/video/reel.h"
+#include "innertube/objects/video/video.h"
+#include "innertube/responses/browse/channelresponse.h"
 #include "qttubeapplication.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "utils/uiutils.h"
+#include <QBoxLayout>
 #include <QDesktopServices>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QUrlQuery>
 

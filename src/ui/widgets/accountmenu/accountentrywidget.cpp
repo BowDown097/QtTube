@@ -1,6 +1,9 @@
 #include "accountentrywidget.h"
 #include "http.h"
+#include "stores/credentialsstore.h"
 #include "utils/uiutils.h"
+#include <QBoxLayout>
+#include <QLabel>
 #include <QMouseEvent>
 
 AccountEntryWidget::AccountEntryWidget(const CredentialSet& credSet, QWidget* parent)

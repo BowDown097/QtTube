@@ -1,9 +1,13 @@
 #include "videorenderer.h"
 #include "http.h"
 #include "innertube.h"
+#include "innertube/objects/video/reel.h"
 #include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include "ui/views/viewcontroller.h"
+#include "ui/widgets/labels/channellabel.h"
+#include "ui/widgets/labels/elidedtubelabel.h"
+#include "videothumbnailwidget.h"
 #include <QMenu>
 #include <QMessageBox>
 

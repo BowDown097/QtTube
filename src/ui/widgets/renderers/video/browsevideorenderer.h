@@ -1,7 +1,9 @@
 #ifndef BROWSEVIDEORENDERER_H
 #define BROWSEVIDEORENDERER_H
 #include "videorenderer.h"
-#include <QVBoxLayout>
+
+class QHBoxLayout;
+class QVBoxLayout;
 
 class BrowseVideoRenderer : public VideoRenderer
 {

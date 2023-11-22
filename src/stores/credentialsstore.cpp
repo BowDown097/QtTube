@@ -11,7 +11,7 @@ CredentialSet CredentialsStore::activeLogin() const
 
 void CredentialsStore::initialize()
 {
-    QSettings settings(configPath, QSettings::IniFormat);
+    QSettings settings(configPath(), QSettings::IniFormat);
 
     for (const QString& group : settings.childGroups())
     {
@@ -47,7 +47,7 @@ void CredentialsStore::populateAuthStore(const CredentialSet& credSet)
 
 void CredentialsStore::save()
 {
-    QSettings settings(configPath, QSettings::IniFormat);
+    QSettings settings(configPath(), QSettings::IniFormat);
     for (const CredentialSet& credSet : m_credentials)
     {
         settings.beginGroup(credSet.channelId);

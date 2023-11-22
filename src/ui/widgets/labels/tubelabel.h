@@ -1,7 +1,8 @@
 #ifndef TUBELABEL_H
 #define TUBELABEL_H
-#include "innertube/objects/innertubestring.h"
 #include <QLabel>
+
+namespace InnertubeObjects { class InnertubeString; }
 
 class TubeLabel : public QLabel
 {

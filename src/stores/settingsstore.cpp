@@ -1,8 +1,14 @@
 #include "settingsstore.h"
+#include <QSettings>
+
+bool SettingsStore::channelIsFiltered(const QString& channelId) const
+{
+    return std::ranges::any_of(filteredChannels, [&channelId](const QString& c) { return c.startsWith(channelId); });
+}
 
 void SettingsStore::initialize()
 {
-    QSettings settings(configPath, QSettings::IniFormat);
+    QSettings settings(configPath(), QSettings::IniFormat);
 
     // general
     appStyle = settings.value("appStyle", "Default").toString();
@@ -41,11 +47,6 @@ void SettingsStore::initialize()
     deArrowTitles = settings.value("deArrow/titles", true).toBool();
 }
 
-bool SettingsStore::channelIsFiltered(const QString& channelId) const
-{
-    return std::ranges::any_of(filteredChannels, [&channelId](const QString& c) { return c.startsWith(channelId); });
-}
-
 void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key)
 {
     list.clear();
@@ -61,7 +62,7 @@ void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, c
 
 void SettingsStore::save()
 {
-    QSettings settings(configPath, QSettings::IniFormat);
+    QSettings settings(configPath(), QSettings::IniFormat);
 
     // general
     settings.setValue("appStyle", appStyle);

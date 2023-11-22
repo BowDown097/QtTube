@@ -5,9 +5,16 @@
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/forms/livechat/livechatwindow.h"
+#include "ui/widgets/labels/channellabel.h"
+#include "ui/widgets/labels/iconlabel.h"
+#include "ui/widgets/subscribe/subscribewidget.h"
 #include "utils/osutils.h"
 #include "utils/uiutils.h"
+#include <QBoxLayout>
 #include <QDesktopServices>
+#include <QMenu>
+#include <QProgressBar>
+#include <QScrollArea>
 #include <QScrollBar>
 
 WatchView::~WatchView()

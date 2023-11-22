@@ -1,6 +1,10 @@
 #include "gridvideorenderer.h"
+#include "ui/widgets/labels/channellabel.h"
+#include "ui/widgets/labels/elidedtubelabel.h"
 #include "utils/uiutils.h"
+#include "videothumbnailwidget.h"
 #include <QApplication>
+#include <QBoxLayout>
 
 GridVideoRenderer::GridVideoRenderer(QWidget* parent) : VideoRenderer(parent), vbox(new QVBoxLayout(this))
 {

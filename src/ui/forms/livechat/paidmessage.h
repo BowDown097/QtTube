@@ -1,9 +1,12 @@
 #ifndef PAIDMESSAGE_H
 #define PAIDMESSAGE_H
-#include "httpreply.h"
 #include <QJsonValue>
-#include <QLabel>
-#include <QVBoxLayout>
+#include <QWidget>
+
+class HttpReply;
+class QHBoxLayout;
+class QLabel;
+class QVBoxLayout;
 
 class PaidMessage : public QWidget
 {

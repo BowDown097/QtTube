@@ -1,7 +1,10 @@
 #include "webengineplayer.h"
+#include "fullscreenwindow.h"
+#include "playerinterceptor.h"
 #include "qttubeapplication.h"
 #include "webchannelinterface.h"
-#include <QVBoxLayout>
+#include <QBoxLayout>
+#include <QFile>
 #include <QWebChannel>
 #include <QWebEngineProfile>
 #include <QWebEngineScriptCollection>
@@ -90,6 +93,15 @@ void WebEnginePlayer::play(const QString& vId, int progress)
                           .arg(qtTubeApp->settings().h264Only)
                           .arg(qtTubeApp->settings().disable60Fps)));
 }
+
+void WebEnginePlayer::setAuthStore(InnertubeAuthStore* authStore)
+{ m_interceptor->setAuthStore(authStore); }
+
+void WebEnginePlayer::setContext(InnertubeContext* context)
+{ m_interceptor->setContext(context); }
+
+void WebEnginePlayer::setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp)
+{ m_interceptor->setPlayerResponse(resp); }
 
 void WebEnginePlayer::seek(int progress)
 {

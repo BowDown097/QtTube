@@ -3,6 +3,8 @@
 #include "innertube/objects/innertubestring.h"
 #include "utils/uiutils.h"
 #include <QApplication>
+#include <QBoxLayout>
+#include <QLabel>
 
 constexpr const char* headerStyle = R"(
     background: #%1;

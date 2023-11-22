@@ -1,5 +1,8 @@
 #include "channellabel.h"
 #include "channelbadgelabel.h"
+#include "innertube/objects/channel/metadatabadge.h"
+#include "ui/widgets/labels/tubelabel.h"
+#include <QBoxLayout>
 
 ChannelLabel::ChannelLabel(QWidget* parent)
     : QWidget(parent), text(new TubeLabel(this)), layout(new QHBoxLayout(this))

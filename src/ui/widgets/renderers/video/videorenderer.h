@@ -1,11 +1,18 @@
 #ifndef VIDEORENDERER_H
 #define VIDEORENDERER_H
-#include "httpreply.h"
-#include "innertube/objects/video/reel.h"
-#include "innertube/objects/video/video.h"
-#include "ui/widgets/labels/channellabel.h"
-#include "ui/widgets/labels/elidedtubelabel.h"
-#include "videothumbnailwidget.h"
+#include <QWidget>
+
+namespace InnertubeObjects
+{
+class Reel;
+class Video;
+}
+
+class ChannelLabel;
+class ElidedTubeLabel;
+class HttpReply;
+class TubeLabel;
+class VideoThumbnailWidget;
 
 class VideoRenderer : public QWidget
 {

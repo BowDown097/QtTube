@@ -21,8 +21,7 @@ class TakeoutImportIntroPage : public IntroPage
 public:
     explicit TakeoutImportIntroPage(QWidget* parent = nullptr)
         : IntroPage(introInfo, "takeout.import.watch_history", parent) {}
-    int nextId() const override
-    { return subsCheckBox->isChecked() ? TakeoutImportWizard::Page_Subs : TakeoutImportWizard::Page_WatchHistory; }
+    int nextId() const override;
 };
 
 class TakeoutImportSubsPage : public ImportFileSelectPage

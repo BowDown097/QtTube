@@ -1,9 +1,11 @@
 #ifndef ACCOUNTENTRYWIDGET_H
 #define ACCOUNTENTRYWIDGET_H
-#include "httpreply.h"
-#include "stores/credentialsstore.h"
-#include <QHBoxLayout>
-#include <QLabel>
+#include <QWidget>
+
+class CredentialSet;
+class HttpReply;
+class QHBoxLayout;
+class QLabel;
 
 class AccountEntryWidget : public QWidget
 {

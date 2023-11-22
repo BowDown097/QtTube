@@ -1,8 +1,8 @@
 #ifndef FULLSCREENWINDOW_H
 #define FULLSCREENWINDOW_H
-#include "fullscreennotification.h"
 #include <QWebEngineView>
-#include <QWidget>
+
+class FullScreenNotification;
 
 class FullScreenWindow : public QWidget
 {

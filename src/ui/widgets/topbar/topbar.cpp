@@ -124,7 +124,7 @@ void TopBar::signOut()
     avatarButton->setVisible(false);
     signInButton->setVisible(true);
     emit signInStatusChanged();
-    QSettings(qtTubeApp->creds().configPath, QSettings::IniFormat).clear();
+    qtTubeApp->creds().clear();
 }
 
 void TopBar::trySignIn()

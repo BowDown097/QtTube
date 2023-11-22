@@ -1,16 +1,24 @@
 #ifndef LIVECHATWINDOW_H
 #define LIVECHATWINDOW_H
-#include "innertube/endpoints/live_chat/getlivechat.h"
-#include "innertube/endpoints/live_chat/getlivechatreplay.h"
-#include "innertube/objects/live_chat/livechat.h"
 #include "ui/views/watchviewplayer.h"
-#include "ui/widgets/labels/tubelabel.h"
 #include <QJsonArray>
-#include <QTimer>
+#include <QWidget>
 
 namespace Ui {
 class LiveChatWindow;
 }
+
+namespace InnertubeEndpoints
+{
+class GetLiveChat;
+class GetLiveChatReplay;
+}
+
+namespace InnertubeObjects { class LiveChat; }
+
+class QJsonArray;
+class QTimer;
+class TubeLabel;
 
 class LiveChatWindow : public QWidget
 {

@@ -1,7 +1,8 @@
 #ifndef GRIDVIDEORENDERER_H
 #define GRIDVIDEORENDERER_H
 #include "videorenderer.h"
-#include <QVBoxLayout>
+
+class QVBoxLayout;
 
 class GridVideoRenderer : public VideoRenderer
 {

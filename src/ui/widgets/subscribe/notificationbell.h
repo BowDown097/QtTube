@@ -1,8 +1,9 @@
 #ifndef NOTIFICATIONBELL_H
 #define NOTIFICATIONBELL_H
 #include "innertube/objects/channel/notificationpreferencebutton.h"
-#include <QMenu>
 #include <QToolButton>
+
+class QMenu;
 
 class NotificationBell : public QToolButton
 {

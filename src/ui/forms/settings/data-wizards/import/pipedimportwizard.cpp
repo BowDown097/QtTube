@@ -2,9 +2,12 @@
 #include "innertube.h"
 #include "shared/choosesubspage.h"
 #include "shared/choosewatchhistorypage.h"
+#include <QCheckBox>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLineEdit>
+#include <QProgressDialog>
 
 constexpr const char* subsSubtitle = "Select the subscriptions.json file you got from Piped.";
 constexpr const char* watchHistorySubtitle = "Select the piped_history_XXX.json file you got from Piped.";
@@ -16,6 +19,11 @@ PipedImportWizard::PipedImportWizard(QWidget* parent)
     setPage(Page_Subs, new PipedImportSubsPage(this));
     setPage(Page_WatchHistory, new PipedImportWatchHistoryPage(this));
     setStartId(Page_Intro);
+}
+
+int PipedImportIntroPage::nextId() const
+{
+    return subsCheckBox->isChecked() ? PipedImportWizard::Page_Subs : PipedImportWizard::Page_WatchHistory;
 }
 
 PipedImportSubsPage::PipedImportSubsPage(QWidget* parent)

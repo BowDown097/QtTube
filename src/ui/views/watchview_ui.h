@@ -1,15 +1,20 @@
 #ifndef WATCHVIEW_UI_H
 #define WATCHVIEW_UI_H
-#include "ui/widgets/labels/channellabel.h"
-#include "ui/widgets/labels/iconlabel.h"
-#include "ui/widgets/labels/tubelabel.h"
-#include "ui/widgets/subscribe/subscribewidget.h"
-#include "watchviewplayer.h"
-#include <QProgressBar>
-#include <QScrollArea>
-#include <QSpacerItem>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
+
+class ChannelLabel;
+class IconLabel;
+class QFrame;
+class QHBoxLayout;
+class QProgressBar;
+class QScrollArea;
+class QSpacerItem;
+class QVBoxLayout;
+class SubscribeWidget;
+class TubeLabel;
+class WatchViewPlayer;
 
 class WatchView_Ui : public QObject
 {

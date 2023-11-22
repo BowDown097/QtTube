@@ -1,12 +1,14 @@
 #ifndef CHOOSEENTITIESPAGE_H
 #define CHOOSEENTITIESPAGE_H
 #include "ui/forms/settings/data-wizards/entityselecttablemodel.h"
-#include "ui/forms/settings/data-wizards/richtableview/richtableview.h"
-#include <QCheckBox>
-#include <QProgressBar>
-#include <QThreadPool>
-#include <QVBoxLayout>
 #include <QWizardPage>
+
+class QCheckBox;
+class QHBoxLayout;
+class QProgressBar;
+class QThreadPool;
+class QVBoxLayout;
+class RichTableView;
 
 class ChooseEntitiesPage : public QWizardPage
 {
@@ -17,7 +19,7 @@ public:
     ~ChooseEntitiesPage();
 
     void initializePage() override;
-    bool isComplete() const override { return progressBar->value() == progressBar->maximum(); }
+    bool isComplete() const override;
 protected:
     bool stopped = false;
     QThreadPool* threadPool;

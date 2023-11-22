@@ -1,4 +1,5 @@
 #include "channelbadgelabel.h"
+#include "innertube/objects/channel/metadatabadge.h"
 #include <QApplication>
 
 constexpr const char* hoveredStylesheet = "QLabel { background: #4aa1df; border-radius: 1px; color: #ddd }";

@@ -1,5 +1,9 @@
 #include "browsenotificationrenderer.h"
+#include "httpreply.h"
+#include "innertube/objects/notification/notification.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include <QApplication>
+#include <QBoxLayout>
 
 BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
     : QWidget(parent),

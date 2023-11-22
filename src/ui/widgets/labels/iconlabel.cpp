@@ -1,5 +1,6 @@
 #include "iconlabel.h"
 #include "utils/uiutils.h"
+#include <QBoxLayout>
 #include <QMouseEvent>
 
 IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, const QSize& size, QWidget* parent)

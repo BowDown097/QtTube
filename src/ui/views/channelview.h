@@ -1,10 +1,16 @@
 #ifndef CHANNELVIEW_H
 #define CHANNELVIEW_H
-#include "httpreply.h"
-#include "innertube/responses/browse/channelresponse.h"
-#include "ui/widgets/subscribe/subscribewidget.h"
-#include <QStackedWidget>
-#include <QTabWidget>
+#include <QWidget>
+
+namespace InnertubeEndpoints { class ChannelResponse; }
+
+class HttpReply;
+class QHBoxLayout;
+class QLabel;
+class QTabWidget;
+class QVBoxLayout;
+class SubscribeWidget;
+class TubeLabel;
 
 class ChannelView : public QWidget
 {

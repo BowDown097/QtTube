@@ -2,7 +2,9 @@
 #include "http.h"
 #include "mainwindow.h"
 #include "ui/browsehelper.h"
+#include "ui/widgets/subscribe/subscribewidget.h"
 #include <QApplication>
+#include <QBoxLayout>
 #include <QScrollBar>
 
 ChannelView::~ChannelView()
@@ -14,6 +16,7 @@ ChannelView::ChannelView(const QString& channelId)
     : channelBanner(new QLabel(this)),
       channelHeaderWidget(new QWidget(this)),
       channelIcon(new QLabel(this)),
+      channelId(channelId),
       channelName(new TubeLabel(this)),
       channelTabs(new QTabWidget(this)),
       handleAndVideos(new TubeLabel(this)),
@@ -23,7 +26,6 @@ ChannelView::ChannelView(const QString& channelId)
       subscribeWidget(new SubscribeWidget(this))
 {
     auto channelResp = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
-    this->channelId = channelId;
 
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->setSpacing(0);

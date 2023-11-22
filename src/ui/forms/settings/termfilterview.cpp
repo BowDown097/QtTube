@@ -3,9 +3,7 @@
 #include "qttubeapplication.h"
 #include <QMessageBox>
 
-TermFilterView::TermFilterView(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::TermFilterView)
+TermFilterView::TermFilterView(QWidget *parent) : QWidget(parent), ui(new Ui::TermFilterView)
 {
     ui->setupUi(this);
     connect(ui->addButton, &QPushButton::clicked, this, &TermFilterView::addNewRow);

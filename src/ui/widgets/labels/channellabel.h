@@ -1,8 +1,9 @@
 #ifndef CHANNELLABEL_H
 #define CHANNELLABEL_H
-#include "innertube/objects/channel/metadatabadge.h"
 #include "tubelabel.h"
-#include <QHBoxLayout>
+
+namespace InnertubeObjects { class MetadataBadge; }
+class QHBoxLayout;
 
 class ChannelLabel : public QWidget
 {

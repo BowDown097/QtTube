@@ -1,8 +1,10 @@
 #ifndef GIFTREDEMPTIONMESSAGE_H
 #define GIFTREDEMPTIONMESSAGE_H
-#include <QHBoxLayout>
 #include <QJsonValue>
-#include <QLabel>
+#include <QWidget>
+
+class QHBoxLayout;
+class QLabel;
 
 class GiftRedemptionMessage : public QWidget
 {

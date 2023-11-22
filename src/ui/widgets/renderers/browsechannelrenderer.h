@@ -1,10 +1,14 @@
 #ifndef BROWSECHANNELRENDERER_H
 #define BROWSECHANNELRENDERER_H
-#include "httpreply.h"
-#include "innertube/objects/channel/subscribebutton.h"
-#include "ui/widgets/labels/tubelabel.h"
-#include "ui/widgets/subscribe/subscribewidget.h"
-#include <QVBoxLayout>
+#include <QWidget>
+
+namespace InnertubeObjects { class SubscribeButton; }
+
+class HttpReply;
+class QHBoxLayout;
+class QVBoxLayout;
+class SubscribeWidget;
+class TubeLabel;
 
 class BrowseChannelRenderer : public QWidget
 {

@@ -1,7 +1,8 @@
 #ifndef CHANNELBROWSER_H
 #define CHANNELBROWSER_H
-#include "innertube/responses/browse/channelresponse.h"
 #include <QListWidget>
+
+namespace InnertubeEndpoints { class ChannelResponse; }
 
 class ChannelBrowser
 {

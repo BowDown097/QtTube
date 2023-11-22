@@ -5,6 +5,6 @@
 namespace EasterEggs
 {
     void checkEasterEggs(QKeyEvent* keyEvent);
-};
+}
 
 #endif // EASTEREGGS_H

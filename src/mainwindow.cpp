@@ -9,7 +9,9 @@
 #include "ui/widgets/accountmenu/accountcontrollerwidget.h"
 #include "utils/uiutils.h"
 #include <QComboBox>
+#include <QLineEdit>
 #include <QScrollBar>
+#include <QUrlQuery>
 
 MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {

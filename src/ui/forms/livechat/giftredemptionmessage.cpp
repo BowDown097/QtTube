@@ -1,6 +1,8 @@
 #include "giftredemptionmessage.h"
 #include "innertube/objects/innertubestring.h"
 #include <QApplication>
+#include <QBoxLayout>
+#include <QLabel>
 
 GiftRedemptionMessage::GiftRedemptionMessage(const QJsonValue& renderer, QWidget* parent)
     : QWidget(parent),

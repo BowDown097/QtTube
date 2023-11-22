@@ -1,10 +1,12 @@
 #ifndef SETTINGSFORM_H
 #define SETTINGSFORM_H
-#include <QCheckBox>
+#include <QWidget>
 
 namespace Ui {
 class SettingsForm;
 }
+
+class QCheckBox;
 
 class SettingsForm : public QWidget
 {
@@ -12,6 +14,9 @@ class SettingsForm : public QWidget
 public:
     explicit SettingsForm(QWidget* parent = nullptr);
     ~SettingsForm();
+private:
+    Ui::SettingsForm* ui;
+    void tryAddSponsorBlockCategory(QStringList& sponsorBlockCategories, const QString& category, QCheckBox* checkBox);
 private slots:
     //void openExportWizard();
     void openImportWizard();
@@ -19,9 +24,6 @@ private slots:
     void showChannelFilterTable();
     void showTermFilterTable();
     void toggleDeArrowSettings(bool checked);
-private:
-    Ui::SettingsForm* ui;
-    void tryAddSponsorBlockCategory(QStringList& sponsorBlockCategories, const QString& category, QCheckBox* checkBox);
 };
 
 #endif // SETTINGSFORM_H

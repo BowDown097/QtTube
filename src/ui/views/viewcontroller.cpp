@@ -1,5 +1,6 @@
 #include "viewcontroller.h"
 #include "channelview.h"
+#include "innertube/innertubeexception.h"
 #include "mainwindow.h"
 #include "watchview.h"
 #include <QMessageBox>

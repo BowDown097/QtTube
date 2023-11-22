@@ -1,8 +1,9 @@
 #ifndef VIDEOTHUMBNAILWIDGET_H
 #define VIDEOTHUMBNAILWIDGET_H
-#include "httpreply.h"
 #include <QLabel>
-#include <QProgressBar>
+
+class HttpReply;
+class QProgressBar;
 
 class VideoThumbnailWidget : public QLabel
 {

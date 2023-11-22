@@ -1,6 +1,7 @@
 #include "notificationbell.h"
 #include "innertube.h"
 #include "utils/uiutils.h"
+#include <QMenu>
 
 constexpr const char* stylesheet = R"(
     QToolButton {

@@ -1,11 +1,14 @@
 #ifndef CHANNELFILTERTABLE_H
 #define CHANNELFILTERTABLE_H
-#include "innertube/endpoints/browse/browsechannel.h"
-#include <QTableWidgetItem>
+#include <QWidget>
+
+namespace InnertubeEndpoints { class BrowseChannel; }
 
 namespace Ui {
 class ChannelFilterTable;
 }
+
+class QTableWidgetItem;
 
 class ChannelFilterTable : public QWidget
 {

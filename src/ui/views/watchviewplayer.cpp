@@ -6,6 +6,8 @@
 #include "stores/settingsstore.h"
 #include "utils/statsutils.h"
 #include <QMessageBox>
+#else
+#include "ui/widgets/webengineplayer/webengineplayer.h"
 #endif
 
 WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QObject(watchView)

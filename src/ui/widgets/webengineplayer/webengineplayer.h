@@ -1,19 +1,27 @@
 #ifndef WEBENGINEPLAYER_H
 #define WEBENGINEPLAYER_H
-#include "fullscreenwindow.h"
-#include "playerinterceptor.h"
-#include "webchannelinterface.h"
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineScript>
+#include <QWidget>
+
+namespace InnertubeEndpoints { class PlayerResponse; }
+
+class FullScreenWindow;
+class InnertubeAuthStore;
+class InnertubeContext;
+class PlayerInterceptor;
+class QWebEngineFullScreenRequest;
+class QWebEngineView;
+class WebChannelInterface;
 
 class WebEnginePlayer : public QWidget
 {
     Q_OBJECT
 public:
     explicit WebEnginePlayer(QWidget* parent = nullptr);
-    void setAuthStore(InnertubeAuthStore* authStore) { m_interceptor->setAuthStore(authStore); }
-    void setContext(InnertubeContext* context) { m_interceptor->setContext(context); }
-    void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp) { m_interceptor->setPlayerResponse(resp); }
+    void setAuthStore(InnertubeAuthStore* authStore);
+    void setContext(InnertubeContext* context);
+    void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp);
 public slots:
     void play(const QString& vId, int progress);
     void seek(int progress);

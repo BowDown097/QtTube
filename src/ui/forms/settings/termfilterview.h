@@ -1,11 +1,12 @@
 #ifndef TERMFILTERVIEW_H
 #define TERMFILTERVIEW_H
-#include <QListWidgetItem>
 #include <QWidget>
 
 namespace Ui {
 class TermFilterView;
 }
+
+class QListWidgetItem;
 
 class TermFilterView : public QWidget
 {

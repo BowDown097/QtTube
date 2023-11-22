@@ -1,8 +1,9 @@
 #ifndef BASICINFOPAGE_H
 #define BASICINFOPAGE_H
-#include <QLabel>
-#include <QVBoxLayout>
 #include <QWizardPage>
+
+class QLabel;
+class QVBoxLayout;
 
 class BasicInfoPage : public QWizardPage
 {

@@ -1,7 +1,11 @@
 #include "findbar.h"
 #include "utils/uiutils.h"
 #include <QApplication>
+#include <QBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
+#include <QPushButton>
 
 FindBar::FindBar(QWidget* parent)
     : QWidget(parent),
@@ -36,10 +40,8 @@ FindBar::FindBar(QWidget* parent)
 void FindBar::clearLabels()
 {
     for (QLabel* label : matches)
-    {
         if (!label->styleSheet().isEmpty())
             label->setStyleSheet(QString());
-    }
 
     matches.clear();
     currentIndex = 0;
@@ -64,13 +66,9 @@ void FindBar::initializeSearch(const QString& searchText)
     clearLabels();
 
     if (!searchText.isEmpty())
-    {
         for (QLabel* label : parentWidget()->findChildren<QLabel*>())
-        {
             if (label->text().contains(searchText, Qt::CaseInsensitive))
                 matches.append(label);
-        }
-    }
 
     jumpToLabel();
 }

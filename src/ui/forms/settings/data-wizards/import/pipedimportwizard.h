@@ -4,7 +4,8 @@
 #include "ui/forms/settings/data-wizards/datawizard.h"
 #include "ui/forms/settings/data-wizards/entityselecttablemodel.h"
 #include "ui/forms/settings/data-wizards/intropage.h"
-#include <QProgressDialog>
+
+class QProgressDialog;
 
 class PipedImportWizard : public DataWizard
 {
@@ -18,10 +19,8 @@ class PipedImportIntroPage : public IntroPage
     static constexpr const char* introInfo = "This wizard will help you import subscriptions from Piped into QtTube.\n"
                                              "Check the box(es) for the data you wish to import, then continue.";
 public:
-    explicit PipedImportIntroPage(QWidget* parent = nullptr)
-        : IntroPage(introInfo, "piped.import.watch_history", parent) {}
-    int nextId() const override
-    { return subsCheckBox->isChecked() ? PipedImportWizard::Page_Subs : PipedImportWizard::Page_WatchHistory; }
+    explicit PipedImportIntroPage(QWidget* parent = nullptr) : IntroPage(introInfo, "piped.import.watch_history", parent) {}
+    int nextId() const override;
 };
 
 class PipedImportSubsPage : public ImportFileSelectPage

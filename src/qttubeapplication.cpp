@@ -2,6 +2,7 @@
 #include "eastereggs.h"
 #include "mainwindow.h"
 #include <QMouseEvent>
+#include <QPropertyAnimation>
 
 bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
 {

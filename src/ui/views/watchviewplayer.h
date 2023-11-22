@@ -1,13 +1,16 @@
 #ifndef WATCHVIEWPLAYER_H
 #define WATCHVIEWPLAYER_H
-#include "innertube/responses/video/playerresponse.h"
+#include <QObject>
+#include <QSize>
 
 #ifdef QTTUBE_USE_MPV
 #include "lib/media/media.h"
 #include <QTimer>
 #else
-#include "ui/widgets/webengineplayer/webengineplayer.h"
+class WebEnginePlayer;
 #endif
+
+namespace InnertubeEndpoints { class PlayerResponse; }
 
 class WatchViewPlayer : public QObject
 {

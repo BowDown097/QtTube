@@ -1,4 +1,5 @@
 #include "tubelabel.h"
+#include "innertube/objects/innertubestring.h"
 #include <QMouseEvent>
 
 TubeLabel::TubeLabel(QWidget* parent, Qt::WindowFlags f) : QLabel(parent, f)

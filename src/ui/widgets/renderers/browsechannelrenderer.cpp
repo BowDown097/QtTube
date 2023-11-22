@@ -1,7 +1,11 @@
 #include "browsechannelrenderer.h"
+#include "httpreply.h"
 #include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include "ui/views/viewcontroller.h"
+#include "ui/widgets/labels/tubelabel.h"
+#include "ui/widgets/subscribe/subscribewidget.h"
+#include <QBoxLayout>
 #include <QMenu>
 #include <QMessageBox>
 #include <QtNetwork/QtNetwork>

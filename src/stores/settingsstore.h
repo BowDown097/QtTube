@@ -1,10 +1,11 @@
 #ifndef SETTINGSSTORE_H
 #define SETTINGSSTORE_H
-#include <QDir>
-#include <QSettings>
-#include <QStandardPaths>
+#include "genericstore.h"
+#include <QObject>
 
-class SettingsStore : public QObject
+class QSettings;
+
+class SettingsStore : public GenericStore
 {
     Q_OBJECT
 
@@ -17,11 +18,6 @@ class SettingsStore : public QObject
     Q_PROPERTY(QStringList sponsorBlockCategories MEMBER sponsorBlockCategories NOTIFY sponsorBlockCategoriesChanged)
     Q_PROPERTY(bool volumeFromPlayer MEMBER volumeFromPlayer NOTIFY volumeFromPlayerChanged)
 public:
-    // QStandardPaths::AppConfigLocation appears to not work in a static context, so we have to make it ourselves :(
-    static inline const QString configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
-                                           + QDir::separator() + "QtTube"
-                                           + QDir::separator() + "settings.ini";
-
     enum class PlayerQuality { Auto, HighRes, HD2160, HD1440, HD1080, HD720, Large, Medium, Small, Tiny };
     Q_ENUM(PlayerQuality)
 
@@ -55,11 +51,13 @@ public:
     bool volumeFromPlayer;
     bool watchtimeTracking;
 
-    explicit SettingsStore(QObject* parent = nullptr) : QObject(parent) {}
+    explicit SettingsStore(QObject* parent = nullptr) : GenericStore("settings.ini") {}
+
     bool channelIsFiltered(const QString& channelId) const;
-    void initialize();
-    void save();
     bool strHasFilteredTerm(const QString& str) const;
+
+    void initialize() override;
+    void save() override;
 private:
     void readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key);
     void writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key);

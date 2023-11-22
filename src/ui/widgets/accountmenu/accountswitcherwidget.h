@@ -1,8 +1,10 @@
 #ifndef ACCOUNTSWITCHERWIDGET_H
 #define ACCOUNTSWITCHERWIDGET_H
-#include "stores/credentialsstore.h"
-#include <QPushButton>
-#include <QVBoxLayout>
+#include <QWidget>
+
+class CredentialSet;
+class QPushButton;
+class QVBoxLayout;
 
 class AccountSwitcherWidget : public QWidget
 {

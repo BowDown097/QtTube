@@ -3,6 +3,7 @@
 #include "innertube.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
+#include <QBoxLayout>
 
 AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
     : QWidget(parent), addAccountButton(new QPushButton(this)), backButton(new QPushButton(this)), layout(new QVBoxLayout(this))

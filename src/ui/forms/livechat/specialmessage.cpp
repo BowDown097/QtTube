@@ -1,6 +1,8 @@
 #include "specialmessage.h"
 #include "innertube/objects/innertubestring.h"
 #include <QApplication>
+#include <QBoxLayout>
+#include <QLabel>
 
 constexpr const char* stylesheet = R"(
     background: %1;

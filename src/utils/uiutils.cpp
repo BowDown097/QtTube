@@ -1,5 +1,8 @@
 #include "uiutils.h"
 #include "http.h"
+#include "innertube/objects/channel/channel.h"
+#include "innertube/objects/video/reel.h"
+#include "innertube/objects/video/video.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/widgets/labels/tubelabel.h"
@@ -7,6 +10,7 @@
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/gridvideorenderer.h"
 #include <QClipboard>
+#include <QLayout>
 #include <QPainter>
 #include <QStyleFactory>
 

@@ -1,17 +1,26 @@
 #ifndef WATCHVIEW_H
 #define WATCHVIEW_H
-#include "httpreply.h"
-#include "innertube/endpoints/video/next.h"
-#include "innertube/endpoints/video/player.h"
-#include "innertube/innertubeexception.h"
-#include "innertube/responses/video/updatedmetadataresponse.h"
-#include <QTimer>
+#include <QPointer>
 #include <QWidget>
 
-namespace Ui
+namespace InnertubeEndpoints
 {
-    class WatchView;
+class Next;
+class Player;
+class UpdatedMetadataResponse;
 }
+
+namespace InnertubeObjects
+{
+class InnertubeString;
+class ToggleButton;
+}
+
+namespace Ui { class WatchView; }
+
+class HttpReply;
+class InnertubeException;
+class QTimer;
 
 class WatchView : public QWidget
 {

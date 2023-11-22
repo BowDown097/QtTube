@@ -1,4 +1,7 @@
 #include "intropage.h"
+#include <QBoxLayout>
+#include <QCheckBox>
+#include <QLabel>
 
 IntroPage::IntroPage(const QString& infoText, const QString& watchHistoryField, QWidget* parent)
     : QWizardPage(parent),
@@ -20,4 +23,9 @@ IntroPage::IntroPage(const QString& infoText, const QString& watchHistoryField, 
 
     connect(subsCheckBox, &QCheckBox::clicked, this, &IntroPage::completeChanged);
     connect(watchHistoryCheckBox, &QCheckBox::clicked, this, &IntroPage::completeChanged);
+}
+
+bool IntroPage::isComplete() const
+{
+    return subsCheckBox->isChecked() || watchHistoryCheckBox->isChecked();
 }

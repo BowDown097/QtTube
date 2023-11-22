@@ -2,6 +2,7 @@
 #include "ui_livechatwindow.h"
 #include "innertube.h"
 #include "ui/forms/emojimenu.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include "utils/uiutils.h"
 #include "ytemoji.h"
 
@@ -9,6 +10,8 @@
 #include "paidmessage.h"
 #include "specialmessage.h"
 #include "textmessage.h"
+
+#include <QTimer>
 
 LiveChatWindow::LiveChatWindow(QWidget* parent)
     : QWidget(parent), emojiMenuLabel(new TubeLabel(this)), messagesTimer(new QTimer(this)), ui(new Ui::LiveChatWindow)

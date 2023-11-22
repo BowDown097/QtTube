@@ -2,6 +2,8 @@
 #include "shared/choosesubspage.h"
 #include "shared/choosewatchhistorypage.h"
 #include "ui/forms/settings/data-wizards/entityselecttablemodel.h"
+#include <QCheckBox>
+#include <QLineEdit>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 

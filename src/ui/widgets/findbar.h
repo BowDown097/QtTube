@@ -1,9 +1,11 @@
 #ifndef FINDBAR_H
 #define FINDBAR_H
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
+#include <QWidget>
+
+class QHBoxLayout;
+class QLabel;
+class QLineEdit;
+class QPushButton;
 
 class FindBar : public QWidget
 {

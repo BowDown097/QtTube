@@ -3,9 +3,9 @@
 #include "searchbox.h"
 #include "topbarbell.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include <QLineEdit>
-#include <QPropertyAnimation>
 #include <QPushButton>
+
+class QPropertyAnimation;
 
 class TopBar : public QWidget
 {

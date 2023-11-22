@@ -1,9 +1,11 @@
 #include "emojimenu.h"
 #include "ui_emojimenu.h"
 #include "http.h"
+#include "ui/widgets/flowlayout.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include "ytemoji.h"
 
-int codepoint(const std::string &u)
+int codepoint(const std::string& u)
 {
     int l = u.length();
     if (l<1) return -1; unsigned char u0 = u[0]; if (u0<=127) return u0;
@@ -14,7 +16,7 @@ int codepoint(const std::string &u)
     return -1;
 }
 
-EmojiMenu::EmojiMenu(QWidget *parent) : QWidget(parent), ui(new Ui::EmojiMenu)
+EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -74,9 +76,7 @@ EmojiMenu::~EmojiMenu()
 void EmojiMenu::filterEmojis()
 {
     for (TubeLabel* label : ui->filteredScrollAreaContents->findChildren<TubeLabel*>())
-    {
         layout->addWidget(label);
-    }
 
     if (ui->emojiSearch->text().isEmpty())
     {
@@ -88,10 +88,8 @@ void EmojiMenu::filterEmojis()
         ui->filteredScrollArea->setVisible(true);
         ui->scrollArea->setVisible(false);
         for (TubeLabel* label : ui->scrollAreaContents->findChildren<TubeLabel*>())
-        {
             if (label->toolTip().contains(ui->emojiSearch->text()))
                 filteredLayout->addWidget(label);
-        }
     }
 }
 

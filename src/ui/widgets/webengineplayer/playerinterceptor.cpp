@@ -1,4 +1,5 @@
 #include "playerinterceptor.h"
+#include "http.h"
 #include "qttubeapplication.h"
 #include "utils/statsutils.h"
 #include <QUrlQuery>

@@ -1,8 +1,11 @@
 #ifndef STATSUTILS_H
 #define STATSUTILS_H
-#include "http.h"
-#include "innertube/itc-objects/innertubeauthstore.h"
-#include "innertube/responses/video/playerresponse.h"
+
+namespace InnertubeEndpoints { class PlayerResponse; }
+
+class Http;
+class InnertubeAuthStore;
+class InnertubeContext;
 
 namespace StatsUtils
 {

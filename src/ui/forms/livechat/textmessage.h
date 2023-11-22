@@ -1,9 +1,12 @@
 #ifndef TEXTMESSAGE_H
 #define TEXTMESSAGE_H
-#include "httpreply.h"
-#include <QHBoxLayout>
 #include <QJsonValue>
-#include <QLabel>
+#include <QWidget>
+
+class HttpReply;
+class QHBoxLayout;
+class QLabel;
+class QVBoxLayout;
 
 class TextMessage : public QWidget
 {

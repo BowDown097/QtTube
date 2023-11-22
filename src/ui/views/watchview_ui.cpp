@@ -1,7 +1,13 @@
 #include "watchview_ui.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
+#include "ui/widgets/labels/channellabel.h"
+#include "ui/widgets/subscribe/subscribewidget.h"
 #include "utils/uiutils.h"
+#include "watchviewplayer.h"
+#include <QBoxLayout>
+#include <QProgressBar>
+#include <QScrollArea>
 
 constexpr const char* likeBarStyle = R"(
     QProgressBar {

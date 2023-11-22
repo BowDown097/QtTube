@@ -1,8 +1,10 @@
 #ifndef SPECIALMESSAGE_H
 #define SPECIALMESSAGE_H
 #include <QJsonValue>
-#include <QLabel>
-#include <QVBoxLayout>
+#include <QWidget>
+
+class QLabel;
+class QVBoxLayout;
 
 class SpecialMessage : public QWidget
 {

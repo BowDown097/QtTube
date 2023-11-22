@@ -4,7 +4,8 @@
 #include "ui/forms/settings/data-wizards/datawizard.h"
 #include "ui/forms/settings/data-wizards/entityselecttablemodel.h"
 #include "ui/forms/settings/data-wizards/intropage.h"
-#include <QProgressDialog>
+
+class QProgressDialog;
 
 constexpr const char* introInfo = "This wizard will help you import data from Grayjay into QtTube.\n"
                                   "Check the box(es) for the data you wish to import, then continue.";
@@ -21,8 +22,7 @@ class GrayjayImportIntroPage : public IntroPage
 public:
     explicit GrayjayImportIntroPage(QWidget* parent = nullptr)
         : IntroPage(introInfo, "grayjay.import.watch_history", parent) {}
-    int nextId() const override
-    { return subsCheckBox->isChecked() ? GrayjayImportWizard::Page_Subs : GrayjayImportWizard::Page_WatchHistory; }
+    int nextId() const override;
 };
 
 class GrayjayImportSubsPage : public ImportFileSelectPage

@@ -1,6 +1,10 @@
 #include "chooseentitiespage.h"
 #include "ui/forms/settings/data-wizards/richtableview/richitemdelegate.h"
+#include "ui/forms/settings/data-wizards/richtableview/richtableview.h"
+#include <QBoxLayout>
+#include <QCheckBox>
 #include <QHeaderView>
+#include <QProgressBar>
 #include <QPushButton>
 #include <QThreadPool>
 
@@ -54,6 +58,11 @@ void ChooseEntitiesPage::initializePage()
     for (const Entity& entity : entities)
         tableModel->append(entity);
     table->setModel(tableModel);
+}
+
+bool ChooseEntitiesPage::isComplete() const
+{
+    return progressBar->value() == progressBar->maximum();
 }
 
 void ChooseEntitiesPage::selectAll(bool checked)

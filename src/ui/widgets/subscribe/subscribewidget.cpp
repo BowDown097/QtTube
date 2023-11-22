@@ -1,5 +1,9 @@
 #include "subscribewidget.h"
+#include "notificationbell.h"
 #include "qttubeapplication.h"
+#include "subscribelabel.h"
+#include "ui/widgets/labels/tubelabel.h"
+#include <QHBoxLayout>
 #include <QtNetwork/QtNetwork>
 
 constexpr const char* subscribersCountStyle = R"(

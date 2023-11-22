@@ -1,7 +1,8 @@
 #ifndef ICONLABEL_H
 #define ICONLABEL_H
-#include <QHBoxLayout>
 #include <QLabel>
+
+class QHBoxLayout;
 
 class IconLabel : public QWidget
 {

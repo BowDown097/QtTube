@@ -1,5 +1,9 @@
 #include "searchbox.h"
+#include "extmenu.h"
+#include "exttoolbutton.h"
 #include "utils/uiutils.h"
+#include <QBoxLayout>
+#include <QLineEdit>
 
 SearchBox::SearchBox(QWidget* parent)
     : QWidget(parent),

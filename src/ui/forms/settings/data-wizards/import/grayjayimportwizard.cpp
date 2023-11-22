@@ -2,9 +2,12 @@
 #include "innertube.h"
 #include "shared/choosesubspage.h"
 #include "shared/choosewatchhistorypage.h"
+#include <QCheckBox>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLineEdit>
+#include <QProgressDialog>
 
 constexpr const char* subsSubtitle = "Select the Subscriptions file inside of the \"stores\" folder in the export folder.";
 constexpr const char* watchHistorySubtitle = "Select the History file inside of the \"stores\" folder in the export folder.";
@@ -18,9 +21,13 @@ GrayjayImportWizard::GrayjayImportWizard(QWidget* parent)
     setStartId(Page_Intro);
 }
 
+int GrayjayImportIntroPage::nextId() const
+{
+    return subsCheckBox->isChecked() ? GrayjayImportWizard::Page_Subs : GrayjayImportWizard::Page_WatchHistory;
+}
+
 GrayjayImportSubsPage::GrayjayImportSubsPage(QWidget* parent)
-    : ImportFileSelectPage("Subscriptions", subsSubtitle, "Subscriptions",
-                           GrayjayImportWizard::Page_ChooseSubs, parent),
+    : ImportFileSelectPage("Subscriptions", subsSubtitle, "Subscriptions", GrayjayImportWizard::Page_ChooseSubs, parent),
       progressDialog(new QProgressDialog(this))
 {
     progressDialog->cancel(); // just prevents from showing automatically

@@ -1,9 +1,11 @@
 #include "takeoutimportwizard.h"
 #include "shared/choosesubspage.h"
 #include "shared/choosewatchhistorypage.h"
+#include <QCheckBox>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLineEdit>
 
 constexpr const char* subsSubtitle = "Select the subscriptions.csv file inside of the takeout folder.\n"
                                      "It should be inside \"Takeout/YouTube and YouTube Music/subscriptions\".";
@@ -70,6 +72,11 @@ TakeoutImportWizard::TakeoutImportWizard(QWidget* parent)
     setPage(Page_Subs, new TakeoutImportSubsPage(this));
     setPage(Page_WatchHistory, new TakeoutImportWatchHistoryPage(this));
     setStartId(Page_Intro);
+}
+
+int TakeoutImportIntroPage::nextId() const
+{
+    return subsCheckBox->isChecked() ? TakeoutImportWizard::Page_Subs : TakeoutImportWizard::Page_WatchHistory;
 }
 
 TakeoutImportSubsPage::TakeoutImportSubsPage(QWidget* parent)

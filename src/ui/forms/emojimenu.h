@@ -1,13 +1,14 @@
 #ifndef EMOJIMENU_H
 #define EMOJIMENU_H
-#include "httpreply.h"
-#include "ui/widgets/flowlayout.h"
-#include "ui/widgets/labels/tubelabel.h"
 #include <QWidget>
 
 namespace Ui {
 class EmojiMenu;
 }
+
+class FlowLayout;
+class HttpReply;
+class TubeLabel;
 
 class EmojiMenu : public QWidget
 {
@@ -23,7 +24,7 @@ signals:
 private:
     FlowLayout* filteredLayout;
     FlowLayout* layout;
-    Ui::EmojiMenu *ui;
+    Ui::EmojiMenu* ui;
 };
 
 #endif // EMOJIMENU_H
