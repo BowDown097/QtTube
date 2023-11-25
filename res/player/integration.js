@@ -76,6 +76,9 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
             previousProgress = progress;
         });
 
+        // communicate state changes to interface
+        p.addEventListener("onStateChange", state => channel.objects.interface.handleStateChange(state));
+
         // set preferred volume when volume changes if we are setting it from player
         if (settings.volumeFromPlayer) {
             p.addEventListener("onVolumeChange", d => {

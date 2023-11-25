@@ -26,7 +26,6 @@ WatchView::~WatchView()
 
 WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QWidget(parent), ui(new Ui::WatchView)
 {
-    OSUtils::toggleIdleSleep(true);
     MainWindow::topbar()->setVisible(false);
     MainWindow::topbar()->alwaysShow = false;
 
