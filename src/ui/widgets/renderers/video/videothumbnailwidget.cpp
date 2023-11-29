@@ -15,13 +15,13 @@ VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
     setMinimumSize(1, 1);
     setScaledContents(true);
 
+    lengthLabel->hide();
     lengthLabel->setFont(QFont(qApp->font().toString(), 9, QFont::Bold));
     lengthLabel->setStyleSheet("background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0 1px");
-    lengthLabel->setVisible(false);
 
+    progressBar->hide();
     progressBar->setFixedHeight(3);
     progressBar->setStyleSheet(progressStyle);
-    progressBar->setVisible(false);
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -46,14 +46,12 @@ void VideoThumbnailWidget::mousePressEvent(QMouseEvent* event)
 
 void VideoThumbnailWidget::resizeEvent(QResizeEvent* event)
 {
-    if (!lengthLabel->isVisible() && !lengthLabel->text().isEmpty())
-        lengthLabel->setVisible(true);
-    if (!progressBar->isVisible() && progressBar->value() > 0)
-        progressBar->setVisible(true);
+    lengthLabel->setVisible(lengthLabel->isHidden() && !lengthLabel->text().isEmpty());
+    progressBar->setVisible(progressBar->isHidden() && progressBar->value() > 0);
 
     lengthLabel->move(event->size().width() - lengthLabel->width() - 3, event->size().height() - lengthLabel->height() - 3);
-
     progressBar->move(0, event->size().height() - 3);
+
     progressBar->setFixedWidth(event->size().width());
 }
 

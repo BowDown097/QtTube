@@ -20,7 +20,7 @@ EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    ui->filteredScrollArea->setVisible(false);
+    ui->filteredScrollArea->hide();
     connect(ui->emojiSearch, &QLineEdit::textEdited, this, &EmojiMenu::filterEmojis);
 
     filteredLayout = new FlowLayout(ui->filteredScrollAreaContents);
@@ -78,18 +78,19 @@ void EmojiMenu::filterEmojis()
     for (TubeLabel* label : ui->filteredScrollAreaContents->findChildren<TubeLabel*>())
         layout->addWidget(label);
 
-    if (ui->emojiSearch->text().isEmpty())
+    bool searchingEmojis = !ui->emojiSearch->text().isEmpty();
+    ui->filteredScrollArea->setVisible(searchingEmojis);
+    ui->scrollArea->setVisible(!searchingEmojis);
+
+    if (searchingEmojis)
     {
-        ui->filteredScrollArea->setVisible(false);
-        ui->scrollArea->setVisible(true);
-    }
-    else
-    {
-        ui->filteredScrollArea->setVisible(true);
-        ui->scrollArea->setVisible(false);
         for (TubeLabel* label : ui->scrollAreaContents->findChildren<TubeLabel*>())
+        {
             if (label->toolTip().contains(ui->emojiSearch->text()))
+            {
                 filteredLayout->addWidget(label);
+            }
+        }
     }
 }
 

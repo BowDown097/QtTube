@@ -27,7 +27,7 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
 
     layout->addWidget(subscribeLabel);
 
-    notificationBell->setVisible(false);
+    notificationBell->hide();
     layout->addWidget(notificationBell);
 
     subscribersCountLabel->setFixedHeight(24);

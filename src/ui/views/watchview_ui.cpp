@@ -100,10 +100,9 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
         likeBarWrapper->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
         likeBar = new QProgressBar(watchView);
+        likeBar->hide();
         likeBar->setFixedSize(155, 2);
         likeBar->setStyleSheet(likeBarStyle);
-        likeBar->setTextVisible(false);
-        likeBar->setVisible(false);
         likeBarWrapper->addWidget(likeBar);
 
         menuVbox->addLayout(likeBarWrapper);
@@ -144,7 +143,7 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
 
     subscribeWidget = new SubscribeWidget(watchView);
     subscribeWidget->layout->addStretch();
-    subscribeWidget->subscribersCountLabel->setVisible(false);
+    subscribeWidget->subscribersCountLabel->hide();
     primaryInfoVbox->addWidget(subscribeWidget);
 
     primaryInfoHbox->addLayout(primaryInfoVbox);

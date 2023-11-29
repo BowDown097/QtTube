@@ -57,7 +57,7 @@ void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoi
 
 void AccountMenuWidget::gotoChannel(const QString& channelId)
 {
-    setVisible(false);
+    hide();
     ViewController::loadChannel(channelId);
     emit closeRequested();
 }
@@ -71,7 +71,7 @@ void AccountMenuWidget::setAvatar(const HttpReply& reply)
 
 void AccountMenuWidget::triggerSignOut()
 {
-    setVisible(false);
+    hide();
     MainWindow::topbar()->signOut();
     emit closeRequested();
 }

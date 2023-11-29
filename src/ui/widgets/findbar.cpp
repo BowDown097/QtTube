@@ -28,9 +28,9 @@ FindBar::FindBar(QWidget* parent)
 
     hbox->addWidget(matchesLabel);
 
+    hide();
     setAutoFillBackground(true);
     setPalette(qApp->palette().alternateBase().color());
-    setVisible(false);
 
     connect(nextButton, &QPushButton::clicked, this, &FindBar::goToNext);
     connect(previousButton, &QPushButton::clicked, this, &FindBar::goToPrevious);

@@ -104,9 +104,9 @@ void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData, 
 
     if (liveChatData.isReplay)
     {
-        emojiMenuLabel->setVisible(false);
-        ui->messageBox->setVisible(false);
-        ui->sendButton->setVisible(false);
+        emojiMenuLabel->hide();
+        ui->messageBox->hide();
+        ui->sendButton->hide();
 
         using namespace std::placeholders;
         connect(player, &WatchViewPlayer::progressChanged, this, std::bind(&LiveChatWindow::chatReplayTick, this, _1, _2));

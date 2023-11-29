@@ -26,8 +26,8 @@ WatchView::~WatchView()
 
 WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QWidget(parent), ui(new Ui::WatchView)
 {
+    MainWindow::topbar()->hide();
     MainWindow::topbar()->setAlwaysShow(false);
-    MainWindow::topbar()->setVisible(false);
 
     ui->setupUi(this);
 
@@ -177,7 +177,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     ui->subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
     ui->subscribeWidget->setSubscriberCount(nextResp.secondaryInfo.owner.subscriberCountText.text, nextResp.secondaryInfo.subscribeButton.channelId);
-    ui->subscribeWidget->subscribersCountLabel->setVisible(true);
+    ui->subscribeWidget->subscribersCountLabel->show();
     ui->viewCount->setText(qtTubeApp->settings().condensedCounts && !nextResp.primaryInfo.viewCount.isLive
                                ? nextResp.primaryInfo.viewCount.extraShortViewCount.text + " views"
                                : nextResp.primaryInfo.viewCount.viewCount.text);
@@ -355,7 +355,7 @@ void WatchView::setDislikes(const HttpReply& reply)
         ui->likeBar->setValue(likes);
     }
 
-    ui->likeBar->setVisible(true);
+    ui->likeBar->show();
 
 #ifdef QTTUBE_HAS_ICU
     if (qtTubeApp->settings().condensedCounts)

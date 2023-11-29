@@ -33,10 +33,10 @@ TopBar::TopBar(QWidget* parent)
     animation->setDuration(250);
     animation->setEasingCurve(QEasingCurve::InOutQuint);
 
+    avatarButton->hide();
     avatarButton->move(673, 3);
     avatarButton->resize(30, 30);
     avatarButton->setClickable(true, false);
-    avatarButton->setVisible(false);
 
     logo->move(10, 2);
     logo->resize(134, 30);
@@ -90,8 +90,8 @@ void TopBar::handleMouseEvent(QMouseEvent* event)
 
 void TopBar::postSignInSetup(bool emitSignal)
 {
-    avatarButton->setVisible(true);
-    signInButton->setVisible(false);
+    avatarButton->show();
+    signInButton->hide();
     setUpAvatarButton();
     setUpNotifications();
 
@@ -140,7 +140,7 @@ void TopBar::setUpNotifications()
     if (InnerTube::instance().hasAuthenticated())
         updateNotificationCount();
     else
-        notificationBell->setVisible(false);
+        notificationBell->hide();
 }
 
 void TopBar::showSettings()
@@ -153,8 +153,8 @@ void TopBar::signOut()
 {
     InnerTube::instance().unauthenticate();
     setUpNotifications();
-    avatarButton->setVisible(false);
-    signInButton->setVisible(true);
+    avatarButton->hide();
+    signInButton->show();
     emit signInStatusChanged();
     qtTubeApp->creds().clear();
 }
@@ -197,8 +197,8 @@ void TopBar::updateNotificationCount()
     auto reply = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>();
     connect(reply, &InnertubeReply<InnertubeEndpoints::UnseenCount>::finished, this, [this](const InnertubeEndpoints::UnseenCount& endpoint)
     {
+        notificationBell->show();
         notificationBell->updatePixmap(endpoint.unseenCount > 0, palette());
-        notificationBell->setVisible(true);
         notificationBell->updateCount(endpoint.unseenCount);
     });
 }
@@ -212,5 +212,5 @@ void TopBar::updatePalette(const QPalette& palette)
     settingsButton->setPixmap(UIUtils::pixmapThemed("settings", false, QSize(), palette));
 
     if (!InnerTube::instance().hasAuthenticated())
-        notificationBell->setVisible(false);
+        notificationBell->hide();
 }

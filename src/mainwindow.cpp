@@ -23,8 +23,8 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     m_topbar = new TopBar(this);
 
     notificationMenu = new ContinuableListWidget(this);
+    notificationMenu->hide();
     notificationMenu->setContinuationThreshold(5);
-    notificationMenu->setVisible(false);
 
     findbar = new FindBar(this);
     connect(ui->centralwidget, &QStackedWidget::currentChanged, this, [this] { if (findbar->isVisible()) { findbar->setReveal(false); } });
@@ -128,7 +128,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     {
         bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
         if ((ctrlPressed && event->key() == Qt::Key_F) || event->key() == Qt::Key_Escape)
-            findbar->setReveal(!findbar->isVisible());
+            findbar->setReveal(findbar->isHidden());
     }
 
     QWidget::keyPressEvent(event);
@@ -376,12 +376,12 @@ void MainWindow::showNotifications()
     {
         m_topbar->setAlwaysShow(ui->centralwidget->currentIndex() == 0);
         notificationMenu->clear();
-        notificationMenu->setVisible(false);
+        notificationMenu->hide();
         return;
     }
 
     m_topbar->setAlwaysShow(true);
-    notificationMenu->setVisible(true);
+    notificationMenu->show();
     BrowseHelper::instance()->browseNotificationMenu(notificationMenu);
 }
 

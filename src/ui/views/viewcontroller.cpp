@@ -76,5 +76,6 @@ void ViewController::loadVideo(const QString& videoId, int progress)
         QMessageBox::critical(nullptr, "Failed to load video", ie.message());
         watchView->deleteLater();
         MainWindow::topbar()->setAlwaysShow(true);
+        MainWindow::topbar()->show();
     });
 }

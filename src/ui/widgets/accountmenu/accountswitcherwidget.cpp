@@ -33,7 +33,7 @@ AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
 
 void AccountSwitcherWidget::addAccount()
 {
-    setVisible(false);
+    hide();
     InnerTube::instance().unauthenticate();
     MainWindow::topbar()->trySignIn();
     emit closeRequested();
@@ -41,7 +41,7 @@ void AccountSwitcherWidget::addAccount()
 
 void AccountSwitcherWidget::switchAccount(const CredentialSet& credSet)
 {
-    setVisible(false);
+    hide();
     qtTubeApp->creds().populateAuthStore(credSet);
     MainWindow::topbar()->postSignInSetup();
     emit closeRequested();

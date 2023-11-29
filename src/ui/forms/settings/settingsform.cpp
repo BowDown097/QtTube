@@ -29,7 +29,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->newpipeRadio->setProperty("id", 4);
 
 #ifndef Q_OS_LINUX
-    ui->vaapi->setVisible(false);
+    ui->vaapi->hide();
 #endif
 
     SettingsStore& store = qtTubeApp->settings();
