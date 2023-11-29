@@ -26,8 +26,8 @@ WatchView::~WatchView()
 
 WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QWidget(parent), ui(new Ui::WatchView)
 {
+    MainWindow::topbar()->setAlwaysShow(false);
     MainWindow::topbar()->setVisible(false);
-    MainWindow::topbar()->alwaysShow = false;
 
     ui->setupUi(this);
 

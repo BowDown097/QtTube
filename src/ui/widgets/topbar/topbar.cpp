@@ -9,6 +9,8 @@
 #include "ui/forms/settings/settingsform.h"
 #include "utils/uiutils.h"
 #include <QApplication>
+#include <QMouseEvent>
+#include <QPushButton>
 
 #ifdef INNERTUBE_NO_WEBENGINE
 #include <QMessageBox>
@@ -58,13 +60,43 @@ TopBar::TopBar(QWidget* parent)
     connect(signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
 }
 
-void TopBar::postSignInSetup()
+void TopBar::handleMouseEvent(QMouseEvent* event)
+{
+    if (alwaysShow || animation->state() == QAbstractAnimation::Running)
+        return;
+
+    if (event->pos().y() < height())
+    {
+        if (isHidden())
+        {
+            animation->setStartValue(QRect(0, 0, width(), 0));
+            animation->setEndValue(QRect(0, 0, width(), height()));
+            disconnect(animation, &QPropertyAnimation::finished, this, nullptr);
+            animation->start();
+            show();
+        }
+    }
+    else if (isVisible())
+    {
+        animation->setStartValue(QRect(0, 0, width(), height()));
+        animation->setEndValue(QRect(0, 0, width(), 0));
+        connect(animation, &QPropertyAnimation::finished, this, [this] {
+            hide();
+            resize(width(), animation->startValue().toRect().height());
+        });
+        animation->start();
+    }
+}
+
+void TopBar::postSignInSetup(bool emitSignal)
 {
     avatarButton->setVisible(true);
     signInButton->setVisible(false);
     setUpAvatarButton();
     setUpNotifications();
-    emit signInStatusChanged();
+
+    if (emitSignal)
+        emit signInStatusChanged();
 }
 
 void TopBar::scaleAppropriately()

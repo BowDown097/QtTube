@@ -77,7 +77,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
 
     InnerTube::instance().createContext(InnertubeClient(InnertubeClient::ClientType::WEB, "2.20230718.01.00", "DESKTOP"));
     tryRestoreData();
-    connect(InnerTube::instance().authStore(), &InnertubeAuthStore::authenticateSuccess, m_topbar, &TopBar::postSignInSetup);
+    connect(InnerTube::instance().authStore(), &InnertubeAuthStore::authenticateSuccess, m_topbar, [this] { m_topbar->postSignInSetup(); });
 
     if (parser.isSet("channel"))
         ViewController::loadChannel(parser.value("channel"));
@@ -264,7 +264,7 @@ void MainWindow::searchByLink(const QString& link)
 
 void MainWindow::searchByQuery(const QString& query)
 {
-    m_topbar->alwaysShow = true;
+    m_topbar->setAlwaysShow(true);
     UIUtils::clearLayout(ui->additionalWidgets);
     ui->historySearchWidget->clear();
 
@@ -350,13 +350,12 @@ void MainWindow::showAccountMenu()
 {
     if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>("accountController"))
     {
-        if (ui->centralwidget->currentIndex() != 0)
-            m_topbar->alwaysShow = false;
+        m_topbar->setAlwaysShow(ui->centralwidget->currentIndex() == 0);
         accountController->deleteLater();
         return;
     }
 
-    m_topbar->alwaysShow = true;
+    m_topbar->setAlwaysShow(true);
 
     AccountControllerWidget* accountController = new AccountControllerWidget(this);
     accountController->setObjectName("accountController");
@@ -375,14 +374,13 @@ void MainWindow::showNotifications()
 {
     if (notificationMenu->isVisible())
     {
-        if (ui->centralwidget->currentIndex() != 0)
-            m_topbar->alwaysShow = false;
+        m_topbar->setAlwaysShow(ui->centralwidget->currentIndex() == 0);
         notificationMenu->clear();
         notificationMenu->setVisible(false);
         return;
     }
 
-    m_topbar->alwaysShow = true;
+    m_topbar->setAlwaysShow(true);
     notificationMenu->setVisible(true);
     BrowseHelper::instance()->browseNotificationMenu(notificationMenu);
 }
@@ -391,12 +389,7 @@ void MainWindow::tryRestoreData()
 {
     qtTubeApp->creds().populateAuthStore(qtTubeApp->creds().activeLogin());
     if (InnerTube::instance().hasAuthenticated())
-    {
-        m_topbar->avatarButton->setVisible(true);
-        m_topbar->signInButton->setVisible(false);
-        m_topbar->setUpAvatarButton();
-        m_topbar->setUpNotifications();
-    }
+        m_topbar->postSignInSetup(false);
 }
 
 void MainWindow::trySwitchGridStatus(QListWidget* listWidget)

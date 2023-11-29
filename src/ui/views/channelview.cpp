@@ -126,7 +126,7 @@ void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& ch
 
     bool hasBanner = !channelResp.header.banners.isEmpty();
     channelBanner->setFixedHeight(hasBanner ? 129 : 40);
-    MainWindow::topbar()->alwaysShow = !hasBanner;
+    MainWindow::topbar()->setAlwaysShow(!hasBanner);
     MainWindow::topbar()->setVisible(!hasBanner);
 
     if (hasBanner)

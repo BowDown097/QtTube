@@ -36,7 +36,7 @@ void ViewController::loadChannel(const QString& channelId)
         if (channelView)
         {
             channelView->deleteLater();
-            MainWindow::topbar()->alwaysShow = true;
+            MainWindow::topbar()->setAlwaysShow(true);
         }
     }
 
@@ -45,7 +45,7 @@ void ViewController::loadChannel(const QString& channelId)
     QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, channelView, [channelView]
     {
         channelView->deleteLater();
-        MainWindow::topbar()->alwaysShow = true;
+        MainWindow::topbar()->setAlwaysShow(true);
     });
 }
 
@@ -69,12 +69,12 @@ void ViewController::loadVideo(const QString& videoId, int progress)
     QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, watchView, [watchView]
     {
         watchView->deleteLater();
-        MainWindow::topbar()->alwaysShow = true;
+        MainWindow::topbar()->setAlwaysShow(true);
     });
     QObject::connect(watchView, &WatchView::loadFailed, [watchView](const InnertubeException& ie)
     {
         QMessageBox::critical(nullptr, "Failed to load video", ie.message());
         watchView->deleteLater();
-        MainWindow::topbar()->alwaysShow = true;
+        MainWindow::topbar()->setAlwaysShow(true);
     });
 }
