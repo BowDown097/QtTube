@@ -17,7 +17,7 @@ namespace StatsUtils
 
     void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp)
     {
-        InnertubeClient itc = InnerTube::instance().context()->client;
+        InnertubeClient itc = InnerTube::instance()->context()->client;
 
         QUrlQuery playbackQuery(QUrl(playerResp.playbackTracking.videostatsPlaybackUrl));
         QUrl outPlaybackUrl("https://www.youtube.com/api/stats/playback");
@@ -65,13 +65,13 @@ namespace StatsUtils
         outPlaybackUrl.setQuery(outPlaybackQuery);
 
         Http http;
-        setNeededHeaders(http, InnerTube::instance().context(), InnerTube::instance().authStore());
+        setNeededHeaders(http, InnerTube::instance()->context(), InnerTube::instance()->authStore());
         http.get(outPlaybackUrl);
     }
 
     void reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position)
     {
-        InnertubeClient itc = InnerTube::instance().context()->client;
+        InnertubeClient itc = InnerTube::instance()->context()->client;
 
         QUrlQuery watchtimeQuery(QUrl(playerResp.playbackTracking.videostatsWatchtimeUrl));
         QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
@@ -126,7 +126,7 @@ namespace StatsUtils
         outWatchtimeUrl.setQuery(outWatchtimeQuery);
 
         Http http;
-        setNeededHeaders(http, InnerTube::instance().context(), InnerTube::instance().authStore());
+        setNeededHeaders(http, InnerTube::instance()->context(), InnerTube::instance()->authStore());
         http.get(outWatchtimeUrl);
     }
 

@@ -81,7 +81,7 @@ void SubscribeLabel::leaveEvent(QEvent*)
 
 void SubscribeLabel::mousePressEvent(QMouseEvent*)
 {
-    if (!InnerTube::instance().hasAuthenticated())
+    if (!InnerTube::instance()->hasAuthenticated())
     {
         QMessageBox::information(nullptr, "Need to log in", "You must be logged in to subscribe to channels.\nLocal subscriptions are planned, but not implemented.");
         return;
@@ -90,7 +90,7 @@ void SubscribeLabel::mousePressEvent(QMouseEvent*)
     if (subscribeButton.subscribed && QMessageBox::question(nullptr, "Unsubscribe?", "Unsubscribe from this channel?") == QMessageBox::StandardButton::Yes)
     {
         toggleSubscriptionStatus(subscribeStyle, subscribeButton.unsubscribedButtonText.text);
-        InnerTube::instance().subscribe(
+        InnerTube::instance()->subscribe(
             std::as_const(subscribeButton.onUnsubscribeEndpoints)[0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"]["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"],
             false
         );
@@ -98,7 +98,7 @@ void SubscribeLabel::mousePressEvent(QMouseEvent*)
     else if (!subscribeButton.subscribed)
     {
         toggleSubscriptionStatus(subscribedStyle, subscribeButton.subscribedButtonText.text);
-        InnerTube::instance().subscribe(std::as_const(subscribeButton.onSubscribeEndpoints)[0]["subscribeEndpoint"], true);
+        InnerTube::instance()->subscribe(std::as_const(subscribeButton.onSubscribeEndpoints)[0]["subscribeEndpoint"], true);
     }
 }
 

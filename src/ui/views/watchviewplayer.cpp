@@ -22,8 +22,8 @@ WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QOb
     connect(media, &Media::volumeChanged, this, &WatchViewPlayer::volumeChanged);
 #else
     wePlayer = new WebEnginePlayer(watchView);
-    wePlayer->setAuthStore(InnerTube::instance().authStore());
-    wePlayer->setContext(InnerTube::instance().context());
+    wePlayer->setAuthStore(InnerTube::instance()->authStore());
+    wePlayer->setContext(InnerTube::instance()->context());
 
     connect(wePlayer, &WebEnginePlayer::progressChanged, this, &WatchViewPlayer::progressChanged);
 #endif

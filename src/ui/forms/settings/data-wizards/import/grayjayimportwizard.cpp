@@ -87,7 +87,7 @@ void GrayjayImportSubsPage::verifyFile(const QString& fileName)
             {
                 try
                 {
-                    auto endpoint = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(id);
+                    auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(id);
                     subs.append(Entity(id, endpoint.response.header.title));
                     // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
                     QThread::sleep(1);

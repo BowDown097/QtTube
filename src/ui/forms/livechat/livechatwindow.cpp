@@ -73,13 +73,13 @@ void LiveChatWindow::chatReplayTick(double progress, double previousProgress)
     if (previousProgress > 0 && (progDiff <= -1 || progDiff > 1))
     {
         ui->listWidget->clear();
-        auto reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChatReplay>(seekContinuation, playerOffsetMs);
+        auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChatReplay>(seekContinuation, playerOffsetMs);
         connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChatReplay>::finished, this,
                 std::bind(&LiveChatWindow::processChatReplayData, this, std::placeholders::_1, progress, previousProgress, true));
     }
     else if (progress < firstChatItemOffset || progress > lastChatItemOffset)
     {
-        auto reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChatReplay>(currentContinuation, playerOffsetMs);
+        auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChatReplay>(currentContinuation, playerOffsetMs);
         connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChatReplay>::finished, this,
                 std::bind(&LiveChatWindow::processChatReplayData, this, std::placeholders::_1, progress, previousProgress, false));
     }
@@ -94,7 +94,7 @@ void LiveChatWindow::chatTick()
     if (populating)
         return;
 
-    auto reply = InnerTube::instance().get<InnertubeEndpoints::GetLiveChat>(currentContinuation);
+    auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChat>(currentContinuation);
     connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChat>::finished, this, &LiveChatWindow::processChatData);
 }
 
@@ -199,7 +199,7 @@ void LiveChatWindow::sendMessage()
     QString params = sendEndpoint["params"].toString();
     QJsonArray textSegments = ytemoji::produceRichText(ytemoji::emojize(ui->messageBox->text().trimmed()));
 
-    InnerTube::instance().sendMessage(textSegments, clientMessageId, params);
+    InnerTube::instance()->sendMessage(textSegments, clientMessageId, params);
     ui->messageBox->clear();
 }
 

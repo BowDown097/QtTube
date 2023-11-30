@@ -19,7 +19,7 @@ void ChooseWatchHistoryPage::addToWatchHistoryInThread(const Entity& video)
         {
             try
             {
-                auto player = InnerTube::instance().getBlocking<InnertubeEndpoints::Player>(video.id);
+                auto player = InnerTube::instance()->getBlocking<InnertubeEndpoints::Player>(video.id);
                 StatsUtils::reportPlayback(player.response);
                 // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
                 QThread::sleep(1);

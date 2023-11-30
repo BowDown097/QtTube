@@ -64,9 +64,9 @@ private:
     E browseRequest(const QString& continuationToken, const QString& data = "")
     {
         if constexpr (innertube_is_any_v<E, InnertubeEndpoints::BrowseHome, InnertubeEndpoints::BrowseSubscriptions>)
-            return InnerTube::instance().getBlocking<E>(continuationToken);
+            return InnerTube::instance()->getBlocking<E>(continuationToken);
         else
-            return InnerTube::instance().getBlocking<E>(data, continuationToken);
+            return InnerTube::instance()->getBlocking<E>(data, continuationToken);
     }
 
     void setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget);

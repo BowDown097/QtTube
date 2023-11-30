@@ -25,7 +25,7 @@ ChannelView::ChannelView(const QString& channelId)
       pageLayout(new QVBoxLayout(this)),
       subscribeWidget(new SubscribeWidget(this))
 {
-    auto channelResp = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
+    auto channelResp = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
 
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->setSpacing(0);
@@ -71,7 +71,7 @@ void ChannelView::hotLoadChannel(const QString& channelId)
     if (this->channelId == channelId)
         return;
 
-    auto channelResp = InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
+    auto channelResp = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
     this->channelId = channelId;
 
     channelName->setText(channelResp.header.title);

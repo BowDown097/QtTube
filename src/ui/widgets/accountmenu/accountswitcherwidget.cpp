@@ -34,7 +34,7 @@ AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
 void AccountSwitcherWidget::addAccount()
 {
     hide();
-    InnerTube::instance().unauthenticate();
+    InnerTube::instance()->unauthenticate();
     MainWindow::topbar()->trySignIn();
     emit closeRequested();
 }

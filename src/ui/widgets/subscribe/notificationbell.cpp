@@ -84,5 +84,5 @@ void NotificationBell::updateNotificationState(const QString& iconType)
 {
     const InnertubeObjects::MenuServiceItem& msi = notificationPreferenceButton.getService(iconType);
     QString params = msi.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString();
-    InnerTube::instance().get<InnertubeEndpoints::ModifyChannelPreference>(params);
+    InnerTube::instance()->get<InnertubeEndpoints::ModifyChannelPreference>(params);
 }

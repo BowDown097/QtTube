@@ -18,7 +18,7 @@ void ChooseSubsPage::subToChannelInThread(const Entity& channel)
     threadPool->start([this, channel] {
         if (!stopped)
         {
-            InnerTube::instance().subscribeBlocking(QStringList { channel.id }, true);
+            InnerTube::instance()->subscribeBlocking(QStringList { channel.id }, true);
             // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
             QThread::sleep(1);
         }

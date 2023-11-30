@@ -124,7 +124,7 @@ void PipedImportWatchHistoryPage::verifyFile(const QString& fileName)
             {
                 try
                 {
-                    auto endpoint = InnerTube::instance().getBlocking<InnertubeEndpoints::Player>(id);
+                    auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::Player>(id);
                     QString name = QStringLiteral("<a href=\"%1\">%2</a> by <a href=\"%3\">%4</a>").arg(
                         "https://www.youtube.com/watch?v=" + id,
                         endpoint.response.videoDetails.title,

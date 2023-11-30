@@ -75,9 +75,9 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     }
 #endif
 
-    InnerTube::instance().createContext(InnertubeClient(InnertubeClient::ClientType::WEB, "2.20230718.01.00", "DESKTOP"));
+    InnerTube::instance()->createContext(InnertubeClient(InnertubeClient::ClientType::WEB, "2.20230718.01.00", "DESKTOP"));
     tryRestoreData();
-    connect(InnerTube::instance().authStore(), &InnertubeAuthStore::authenticateSuccess, m_topbar, [this] { m_topbar->postSignInSetup(); });
+    connect(InnerTube::instance()->authStore(), &InnertubeAuthStore::authenticateSuccess, m_topbar, [this] { m_topbar->postSignInSetup(); });
 
     if (parser.isSet("channel"))
         ViewController::loadChannel(parser.value("channel"));
@@ -366,7 +366,7 @@ void MainWindow::showAccountMenu()
         accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
     });
 
-    auto reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
+    auto reply = InnerTube::instance()->get<InnertubeEndpoints::AccountMenu>();
     connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, accountController->accountMenu, &AccountMenuWidget::initialize);
 }
 
@@ -388,7 +388,7 @@ void MainWindow::showNotifications()
 void MainWindow::tryRestoreData()
 {
     qtTubeApp->creds().populateAuthStore(qtTubeApp->creds().activeLogin());
-    if (InnerTube::instance().hasAuthenticated())
+    if (InnerTube::instance()->hasAuthenticated())
         m_topbar->postSignInSetup(false);
 }
 

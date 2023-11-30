@@ -37,7 +37,7 @@ void VideoRenderer::copyChannelUrl()
 
 void VideoRenderer::copyDirectUrl()
 {
-    auto reply = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
+    auto reply = InnerTube::instance()->get<InnertubeEndpoints::Player>(videoId);
     connect(reply, &InnertubeReply<InnertubeEndpoints::Player>::exception, this, [this] {
         QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
     });

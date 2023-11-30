@@ -31,11 +31,11 @@ WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QW
 
     ui->setupUi(this);
 
-    auto next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
+    auto next = InnerTube::instance()->get<InnertubeEndpoints::Next>(videoId);
     connect(next, &InnertubeReply<InnertubeEndpoints::Next>::finished, this, &WatchView::processNext);
     connect(next, &InnertubeReply<InnertubeEndpoints::Next>::exception, this, &WatchView::loadFailed);
 
-    auto player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
+    auto player = InnerTube::instance()->get<InnertubeEndpoints::Player>(videoId);
     connect(player, &InnertubeReply<InnertubeEndpoints::Player>::finished, this, &WatchView::processPlayer);
     connect(player, &InnertubeReply<InnertubeEndpoints::Player>::exception, this, &WatchView::loadFailed);
 
@@ -123,11 +123,11 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
     UIUtils::clearLayout(ui->topLevelButtons);
     disconnect(ui->channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
 
-    auto next = InnerTube::instance().get<InnertubeEndpoints::Next>(videoId);
+    auto next = InnerTube::instance()->get<InnertubeEndpoints::Next>(videoId);
     connect(next, &InnertubeReply<InnertubeEndpoints::Next>::finished, this, &WatchView::processNext);
     connect(next, &InnertubeReply<InnertubeEndpoints::Next>::exception, this, &WatchView::loadFailed);
 
-    auto player = InnerTube::instance().get<InnertubeEndpoints::Player>(videoId);
+    auto player = InnerTube::instance()->get<InnertubeEndpoints::Player>(videoId);
     connect(player, &InnertubeReply<InnertubeEndpoints::Player>::finished, this, &WatchView::processPlayer);
     connect(player, &InnertubeReply<InnertubeEndpoints::Player>::exception, this, &WatchView::loadFailed);
 
@@ -154,7 +154,7 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
             return;
 
         const QJsonValue& defaultCommand = *defaultCommandIt;
-        InnerTube::instance().like(defaultCommand["likeEndpoint"], like);
+        InnerTube::instance()->like(defaultCommand["likeEndpoint"], like);
     }
     else
     {
@@ -163,7 +163,7 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count - 1));
 
-        InnerTube::instance().like(toggleButton.toggledServiceEndpoint["likeEndpoint"], like);
+        InnerTube::instance()->like(toggleButton.toggledServiceEndpoint["likeEndpoint"], like);
     }
 }
 
@@ -282,7 +282,7 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
         {
             try
             {
-                auto updatedMetadata = InnerTube::instance().getBlocking<InnertubeEndpoints::UpdatedMetadata>(playerResp.videoDetails.videoId);
+                auto updatedMetadata = InnerTube::instance()->getBlocking<InnertubeEndpoints::UpdatedMetadata>(playerResp.videoDetails.videoId);
                 updateMetadata(updatedMetadata.response);
             }
             catch (const InnertubeException&)

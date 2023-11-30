@@ -11,7 +11,7 @@ void ContinuableListWidget::scrollValueChanged(int value)
 {
     if (count() > 0 && value >= verticalScrollBar()->maximum() - continuationThreshold &&
         !continuationToken.isEmpty() && !continuationRunning &&
-        !InnerTube::instance().context()->client.visitorData.isEmpty())
+        !InnerTube::instance()->context()->client.visitorData.isEmpty())
     {
         emit continuationReady();
     }

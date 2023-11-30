@@ -35,14 +35,14 @@ void CredentialsStore::initialize()
 
 void CredentialsStore::populateAuthStore(const CredentialSet& credSet)
 {
-    InnertubeAuthStore* authStore = InnerTube::instance().authStore();
+    InnertubeAuthStore* authStore = InnerTube::instance()->authStore();
     authStore->apisid = credSet.apisid;
     authStore->hsid = credSet.hsid;
     authStore->sapisid = credSet.sapisid;
     authStore->sid = credSet.sid;
     authStore->ssid = credSet.ssid;
     authStore->visitorInfo = credSet.visitorInfo;
-    InnerTube::instance().context()->client.visitorData = SimpleProtobuf::padded(credSet.visitorInfo);
+    InnerTube::instance()->context()->client.visitorData = SimpleProtobuf::padded(credSet.visitorInfo);
 }
 
 void CredentialsStore::save()
@@ -95,7 +95,7 @@ void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data
         }
     }
 
-    const InnertubeAuthStore* authStore = InnerTube::instance().authStore();
+    const InnertubeAuthStore* authStore = InnerTube::instance()->authStore();
     m_credentials.append(CredentialSet {
         .active = true,
         .apisid = authStore->apisid,

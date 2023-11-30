@@ -22,7 +22,7 @@ void BrowseHelper::browseChannel(QListWidget* widget, int index, const Innertube
     if (!tabRenderer["selected"].toBool())
     {
         QString params = tabRenderer["endpoint"]["browseEndpoint"]["params"].toString();
-        auto bc = InnerTube::instance().getBlocking<BrowseChannel>(resp.metadata.externalId, "", params);
+        auto bc = InnerTube::instance()->getBlocking<BrowseChannel>(resp.metadata.externalId, "", params);
         tabRenderer = bc.response.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
     }
 
@@ -54,13 +54,13 @@ void BrowseHelper::browseChannel(QListWidget* widget, int index, const Innertube
 
 void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& query)
 {
-    if (!InnerTube::instance().hasAuthenticated())
+    if (!InnerTube::instance()->hasAuthenticated())
     {
         widget->addItem("Local history has not been implemented yet. You will need to log in.");
         return;
     }
 
-    auto reply = InnerTube::instance().get<BrowseHistory>(query);
+    auto reply = InnerTube::instance()->get<BrowseHistory>(query);
     connect(reply, &InnertubeReply<BrowseHistory>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "history"));
     connect(reply, &InnertubeReply<BrowseHistory>::finished, this, [this, widget](const BrowseHistory& endpoint) {
         setupVideoList(endpoint.response.videos, widget);
@@ -70,7 +70,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
 
 void BrowseHelper::browseHome(ContinuableListWidget* widget)
 {
-    auto reply = InnerTube::instance().get<BrowseHome>();
+    auto reply = InnerTube::instance()->get<BrowseHome>();
     connect(reply, &InnertubeReply<BrowseHome>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "home"));
     connect(reply, &InnertubeReply<BrowseHome>::finished, this, [this, widget](const BrowseHome& endpoint) {
         setupVideoList(endpoint.response.videos, widget);
@@ -80,7 +80,7 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
 
 void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 {
-    auto reply = InnerTube::instance().get<GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
+    auto reply = InnerTube::instance()->get<GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
     connect(reply, &InnertubeReply<GetNotificationMenu>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "notification"));
     connect(reply, &InnertubeReply<GetNotificationMenu>::finished, this, [this, widget](const GetNotificationMenu& endpoint) {
         setupNotificationList(endpoint.response.notifications, widget);
@@ -91,13 +91,13 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 
 void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 {
-    if (!InnerTube::instance().hasAuthenticated())
+    if (!InnerTube::instance()->hasAuthenticated())
     {
         widget->addItem("You need to log in to view subscriptions.");
         return;
     }
 
-    auto reply = InnerTube::instance().get<BrowseSubscriptions>();
+    auto reply = InnerTube::instance()->get<BrowseSubscriptions>();
     connect(reply, &InnertubeReply<BrowseSubscriptions>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "subscriptions"));
     connect(reply, &InnertubeReply<BrowseSubscriptions>::finished, this, [this, widget](const BrowseSubscriptions& endpoint) {
         setupVideoList(endpoint.response.videos, widget);
@@ -107,7 +107,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 
 void BrowseHelper::browseTrending(QListWidget* widget)
 {
-    auto reply = InnerTube::instance().get<BrowseTrending>();
+    auto reply = InnerTube::instance()->get<BrowseTrending>();
     connect(reply, &InnertubeReply<BrowseTrending>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "trending"));
     connect(reply, &InnertubeReply<BrowseTrending>::finished, this, [this, widget](const BrowseTrending& endpoint) {
         setupVideoList(endpoint.response.videos, widget);
@@ -129,7 +129,7 @@ void BrowseHelper::search(ContinuableListWidget* searchWidget, const QString& qu
     if (!params.isEmpty())
         compiledParams = QByteArray::fromHex(SimpleProtobuf::compile(params, searchMsgFields)).toBase64().toPercentEncoding();
 
-    auto reply = InnerTube::instance().get<Search>(query, "", compiledParams);
+    auto reply = InnerTube::instance()->get<Search>(query, "", compiledParams);
     connect(reply, &InnertubeReply<Search>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "search"));
     connect(reply, &InnertubeReply<Search>::finished, this, [this, searchWidget](const Search& endpoint) {
         searchWidget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(endpoint.response.estimatedResults)));

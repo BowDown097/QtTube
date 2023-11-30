@@ -101,7 +101,7 @@ void TopBar::postSignInSetup(bool emitSignal)
 
 void TopBar::scaleAppropriately()
 {
-    if (InnerTube::instance().hasAuthenticated())
+    if (InnerTube::instance()->hasAuthenticated())
     {
         searchBox->resize(502 + width() - 800, 35);
         notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
@@ -119,7 +119,7 @@ void TopBar::scaleAppropriately()
 void TopBar::setUpAvatarButton()
 {
     scaleAppropriately();
-    auto reply = InnerTube::instance().get<InnertubeEndpoints::AccountMenu>();
+    auto reply = InnerTube::instance()->get<InnertubeEndpoints::AccountMenu>();
     connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
     {
         qtTubeApp->creds().updateAccount(endpoint);
@@ -137,7 +137,7 @@ void TopBar::setUpAvatarButton()
 void TopBar::setUpNotifications()
 {
     scaleAppropriately();
-    if (InnerTube::instance().hasAuthenticated())
+    if (InnerTube::instance()->hasAuthenticated())
         updateNotificationCount();
     else
         notificationBell->hide();
@@ -151,7 +151,7 @@ void TopBar::showSettings()
 
 void TopBar::signOut()
 {
-    InnerTube::instance().unauthenticate();
+    InnerTube::instance()->unauthenticate();
     setUpNotifications();
     avatarButton->hide();
     signInButton->show();
@@ -162,7 +162,7 @@ void TopBar::signOut()
 void TopBar::trySignIn()
 {
 #ifndef INNERTUBE_NO_WEBENGINE
-    InnerTube::instance().authenticate();
+    InnerTube::instance()->authenticate();
 #else
     QMessageBox::StandardButton box = QMessageBox::information(nullptr, "YouTube Login",
 R"(
@@ -178,7 +178,7 @@ For info on how to do this, see https://github.com/BowDown097/QtTube/wiki/Manual
         index = 0;
 
     CredentialsStore::instance()->populateAuthStore(index);
-    if (!InnerTube::instance().hasAuthenticated())
+    if (!InnerTube::instance()->hasAuthenticated())
     {
         QMessageBox::information(nullptr, "Not Logged In",
 R"(
@@ -194,7 +194,7 @@ If you provided credentials, please check them, refer back to the previous linke
 
 void TopBar::updateNotificationCount()
 {
-    auto reply = InnerTube::instance().get<InnertubeEndpoints::UnseenCount>();
+    auto reply = InnerTube::instance()->get<InnertubeEndpoints::UnseenCount>();
     connect(reply, &InnertubeReply<InnertubeEndpoints::UnseenCount>::finished, this, [this](const InnertubeEndpoints::UnseenCount& endpoint)
     {
         notificationBell->show();
@@ -211,6 +211,6 @@ void TopBar::updatePalette(const QPalette& palette)
     searchBox->updatePalette(palette);
     settingsButton->setPixmap(UIUtils::pixmapThemed("settings", false, QSize(), palette));
 
-    if (!InnerTube::instance().hasAuthenticated())
+    if (!InnerTube::instance()->hasAuthenticated())
         notificationBell->hide();
 }

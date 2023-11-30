@@ -99,7 +99,7 @@ void ChannelFilterTable::validateItemInput(QTableWidgetItem* item)
         return;
     }
 
-    processChannelEntry(InnerTube::instance().getBlocking<InnertubeEndpoints::BrowseChannel>(item->text()), item);
+    processChannelEntry(InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(item->text()), item);
 }
 
 ChannelFilterTable::~ChannelFilterTable()
