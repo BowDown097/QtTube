@@ -134,7 +134,7 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
     ui->player->play(videoId, progress);
 }
 
-void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton)
+void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButtonViewModel& toggleButton)
 {
     IconLabel* senderLabel = qobject_cast<IconLabel*>(sender());
 
@@ -148,13 +148,9 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count + 1));
 
-        const QJsonArray defaultCommands = toggleButton.defaultServiceEndpoint["commandExecutorCommand"]["commands"].toArray();
-        auto defaultCommandIt = std::ranges::find_if(defaultCommands, [](const QJsonValue& v) { return v["commandMetadata"].isObject(); });
-        if (defaultCommandIt == defaultCommands.end())
-            return;
-
-        const QJsonValue& defaultCommand = *defaultCommandIt;
-        InnerTube::instance()->like(defaultCommand["likeEndpoint"], like);
+        QJsonValue likeEndpoint = toggleButton.defaultButtonViewModel.onTap["serialCommand"]["commands"][1]
+                                                                           ["innertubeCommand"]["likeEndpoint"];
+        InnerTube::instance()->like(likeEndpoint, like);
     }
     else
     {
@@ -163,7 +159,9 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButton& t
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count - 1));
 
-        InnerTube::instance()->like(toggleButton.toggledServiceEndpoint["likeEndpoint"], like);
+        QJsonValue likeEndpoint = toggleButton.toggledButtonViewModel.onTap["serialCommand"]["commands"][1]
+                                                                           ["innertubeCommand"]["likeEndpoint"];
+        InnerTube::instance()->like(likeEndpoint, like);
     }
 }
 
@@ -185,17 +183,17 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     for (const InnertubeObjects::MenuFlexibleItem& fi : nextResp.primaryInfo.videoActions.flexibleItems)
     {
         // these will never be implemented
-        if (fi.topLevelButton.iconType == "CONTENT_CUT" || fi.topLevelButton.iconType == "MONEY_HEART")
+        if (fi.topLevelButton.iconName == "CONTENT_CUT" || fi.topLevelButton.iconName == "MONEY_HEART")
             continue;
 
         // change "Save" button to "Add to" to replicate Hitchhiker style
-        QString labelText = fi.topLevelButton.text.text;
-        if (labelText == "Save")
-            labelText = "Add to";
+        QString title = fi.topLevelButton.title;
+        if (title == "Save")
+            title = "Add to";
 
         ui->topLevelButtons->addWidget(new IconLabel(
-            fi.topLevelButton.iconType.toLower(),
-            labelText,
+            fi.topLevelButton.iconName.toLower(),
+            title,
             ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0)
         ));
     }
@@ -218,10 +216,12 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     ui->topLevelButtons->addStretch();
 
+    InnertubeObjects::LikeDislikeViewModel likeDislikeViewModel = nextResp.primaryInfo.videoActions.segmentedLikeDislikeButtonViewModel;
+
     ui->likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
     ui->topLevelButtons->addWidget(ui->likeLabel);
-    connect(ui->likeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, true, nextResp.primaryInfo.videoActions.likeButton));
-    if (nextResp.primaryInfo.videoActions.likeButton.isToggled)
+    connect(ui->likeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, true, likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel));
+    if (likeDislikeViewModel.likeButtonViewModel.likeStatus == "LIKE")
     {
         ui->likeLabel->setIcon("like-toggled");
         ui->likeLabel->setStyleSheet("color: #167ac6");
@@ -229,8 +229,8 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     ui->dislikeLabel = new IconLabel("dislike");
     ui->topLevelButtons->addWidget(ui->dislikeLabel);
-    connect(ui->dislikeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, false, nextResp.primaryInfo.videoActions.dislikeButton));
-    if (nextResp.primaryInfo.videoActions.dislikeButton.isToggled)
+    connect(ui->dislikeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, false, likeDislikeViewModel.dislikeButtonViewModel.toggleButtonViewModel));
+    if (likeDislikeViewModel.likeButtonViewModel.likeStatus == "DISLIKE")
     {
         ui->dislikeLabel->setIcon("dislike-toggled");
         ui->dislikeLabel->setStyleSheet("color: #167ac6");
@@ -246,8 +246,8 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
 
-    InnertubeObjects::InnertubeString likeText = nextResp.primaryInfo.videoActions.likeButton.defaultText;
-    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? likeText.text : UIUtils::extractDigits(likeText.accessibilityLabel));
+    InnertubeObjects::ButtonViewModel likeViewModel = likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel.defaultButtonViewModel;
+    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? likeViewModel.title : UIUtils::extractDigits(likeViewModel.accessibilityText));
 
     if (qtTubeApp->settings().returnDislikes)
     {

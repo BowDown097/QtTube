@@ -13,7 +13,7 @@ class UpdatedMetadataResponse;
 namespace InnertubeObjects
 {
 class InnertubeString;
-class ToggleButton;
+class ToggleButtonViewModel;
 }
 
 namespace Ui { class WatchView; }
@@ -40,7 +40,7 @@ private:
     void updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp);
 private slots:
     void descriptionLinkActivated(const QString& url);
-    void likeOrDislike(bool like, const InnertubeObjects::ToggleButton& toggleButton);
+    void likeOrDislike(bool like, const InnertubeObjects::ToggleButtonViewModel& toggleButton);
     void processNext(const InnertubeEndpoints::Next& endpoint);
     void processPlayer(const InnertubeEndpoints::Player& endpoint);
     void setChannelIcon(const HttpReply& reply);
