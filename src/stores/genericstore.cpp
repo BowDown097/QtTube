@@ -5,10 +5,7 @@
 
 GenericStore::GenericStore(const QString& filename, QObject* parent)
     : m_configPath(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + filename),
-      QObject(parent)
-{
-
-}
+      QObject(parent) {}
 
 void GenericStore::clear()
 {

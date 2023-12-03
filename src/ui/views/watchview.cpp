@@ -59,15 +59,17 @@ void WatchView::descriptionLinkActivated(const QString& url)
     else if (url.startsWith("/watch"))
     {
         ui->scrollArea->verticalScrollBar()->setValue(0);
+
         QUrlQuery query(qUrl);
+        int progress = query.queryItemValue("t").replace("s", "").toInt();
+
         if (query.queryItemValue("continuePlayback") == "1")
         {
-            int progress = query.queryItemValue("t").replace("s", "").toInt();
             ui->player->seek(progress);
         }
         else
         {
-            hotLoadVideo(query.queryItemValue("v"), query.queryItemValue("t").toInt());
+            hotLoadVideo(query.queryItemValue("v"), progress);
             ui->toggleShowMore();
         }
     }
@@ -81,7 +83,7 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
 {
     QString descriptionText;
 
-    for (const InnertubeObjects::InnertubeRun& run : description.runs)
+    for (InnertubeObjects::InnertubeRun run : description.runs)
     {
         if (run.navigationEndpoint.isNull() || run.navigationEndpoint.isUndefined())
         {
@@ -94,18 +96,51 @@ QString WatchView::generateFormattedDescription(const InnertubeObjects::Innertub
         {
             QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
             QUrlQuery query(url);
+
             if (query.hasQueryItem("q"))
-                href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
-            else if (url.host() == "www.youtube.com" && url.path().startsWith("/channel"))
+            {
+                run.text = href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
+            }
+            else if (QString urlStr = url.toString(); urlStr.contains("youtube.com/channel"))
+            {
                 href = url.path();
+                run.text = urlStr;
+            }
             else
-                href = url.toString();
+            {
+                run.text = href = url.toString();
+            }
+
+            truncateDescriptionUrl(run.text);
+        }
+        else if (run.navigationEndpoint["browseEndpoint"].isObject())
+        {
+            QString browseId = run.navigationEndpoint["browseEndpoint"]["browseId"].toString();
+            QString code = browseId.left(2);
+
+            if (code == "UC")
+            {
+                run.text.replace(run.text.indexOf('/'), 1, "").replace("/xc2/xa0", "");
+                if (run.text[0] != '@')
+                    run.text.prepend('@');
+                href = "/channel/" + browseId;
+            }
+            else if (code != "FE")
+            {
+                run.text = href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
+                truncateDescriptionUrl(run.text, true);
+            }
         }
         else
         {
-            href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
+            run.text = href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
             if (run.navigationEndpoint["watchEndpoint"].isObject())
+            {
+                run.text.prepend("https://www.youtube.com");
                 href += "&continuePlayback=" + QString::number(run.navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
+            }
+
+            truncateDescriptionUrl(run.text);
         }
 
         descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, run.text);
@@ -265,7 +300,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         dateText.prepend("Published on ");
 
     ui->date->setText(dateText);
-    ui->description->setText(generateFormattedDescription(nextResp.secondaryInfo.description));
+    ui->description->setText(generateFormattedDescription(unattributeDescription(nextResp.secondaryInfo.attributedDescription)));
 }
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
@@ -317,32 +352,6 @@ void WatchView::setChannelIcon(const HttpReply& reply)
     ui->channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
-void WatchView::showContextMenu(const QPoint& pos)
-{
-    QMenu* menu = new QMenu(this);
-
-    QAction* copyUrlAction = new QAction("Copy channel page URL", this);
-    connect(copyUrlAction, &QAction::triggered, this, std::bind(&UIUtils::copyToClipboard, "https://www.youtube.com/channel/" + channelId));
-
-    menu->addAction(copyUrlAction);
-    menu->popup(ui->channelLabel->text->mapToGlobal(pos));
-}
-
-void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)
-{
-    ui->date->setText(resp.dateText);
-    ui->description->setText(generateFormattedDescription(resp.description));
-    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? resp.likeDefaultText : QLocale::system().toString(resp.likeNumericalValue.toLongLong()));
-    ui->titleLabel->setText(resp.title.text);
-    ui->viewCount->setText(resp.viewCount.viewCount.text);
-
-    if (qtTubeApp->settings().returnDislikes)
-    {
-        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + resp.videoId);
-        connect(reply, &HttpReply::finished, this, &WatchView::setDislikes);
-    }
-}
-
 void WatchView::setDislikes(const HttpReply& reply)
 {
     QJsonDocument doc = QJsonDocument::fromJson(reply.body());
@@ -366,4 +375,70 @@ void WatchView::setDislikes(const HttpReply& reply)
 #endif
 
     ui->dislikeLabel->setText(QLocale::system().toString(dislikes));
+}
+
+void WatchView::showContextMenu(const QPoint& pos)
+{
+    QMenu* menu = new QMenu(this);
+
+    QAction* copyUrlAction = new QAction("Copy channel page URL", this);
+    connect(copyUrlAction, &QAction::triggered, this, std::bind(&UIUtils::copyToClipboard, "https://www.youtube.com/channel/" + channelId));
+
+    menu->addAction(copyUrlAction);
+    menu->popup(ui->channelLabel->text->mapToGlobal(pos));
+}
+
+void WatchView::truncateDescriptionUrl(QString& url, bool prefix)
+{
+    if (prefix)
+        url.prepend("https://www.youtube.com");
+    if (url.length() > 37)
+        url = url.left(37) + "...";
+}
+
+InnertubeObjects::InnertubeString WatchView::unattributeDescription(const QJsonValue& attributedDescription)
+{
+    QString content = attributedDescription["content"].toString();
+    if (!attributedDescription["commandRuns"].isArray())
+        return InnertubeObjects::InnertubeString(content);
+
+    const QJsonArray commandRuns = attributedDescription["commandRuns"].toArray();
+    InnertubeObjects::InnertubeString out;
+    int start = 0;
+
+    for (const QJsonValue& commandRun : commandRuns)
+    {
+        int length = commandRun["length"].toInt();
+        int startIndex = commandRun["startIndex"].toInt();
+
+        QString beforeText = content.mid(start, startIndex - start);
+        if (!beforeText.isEmpty())
+            out.runs.append(InnertubeObjects::InnertubeRun(beforeText));
+
+        QString linkText = content.mid(startIndex, length);
+        out.runs.append(InnertubeObjects::InnertubeRun(linkText, commandRun["onTap"]["innertubeCommand"]));
+
+        start = startIndex + length;
+    }
+
+    QString lastText = content.mid(start);
+    if (!lastText.isEmpty())
+        out.runs.append(InnertubeObjects::InnertubeRun(lastText));
+
+    return out;
+}
+
+void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)
+{
+    ui->date->setText(resp.dateText);
+    ui->description->setText(generateFormattedDescription(resp.description));
+    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? resp.likeDefaultText : QLocale::system().toString(resp.likeNumericalValue.toLongLong()));
+    ui->titleLabel->setText(resp.title.text);
+    ui->viewCount->setText(resp.viewCount.viewCount.text);
+
+    if (qtTubeApp->settings().returnDislikes)
+    {
+        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + resp.videoId);
+        connect(reply, &HttpReply::finished, this, &WatchView::setDislikes);
+    }
 }
