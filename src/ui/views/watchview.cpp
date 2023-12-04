@@ -309,7 +309,7 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
     ui->player->startTracking(playerResp);
     ui->titleLabel->setText(playerResp.videoDetails.title);
 
-    if (playerResp.videoDetails.isLive)
+    if (playerResp.videoDetails.isLive || playerResp.videoDetails.isUpcoming)
     {
         metadataUpdateTimer = new QTimer(this);
         metadataUpdateTimer->setInterval(60000);
@@ -320,9 +320,9 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
                 auto updatedMetadata = InnerTube::instance()->getBlocking<InnertubeEndpoints::UpdatedMetadata>(playerResp.videoDetails.videoId);
                 updateMetadata(updatedMetadata.response);
             }
-            catch (const InnertubeException&)
+            catch (const InnertubeException& ie)
             {
-                qDebug() << "InnertubeException on UpdateMetadata. Stream/premiere likely ended. Killing update timer.";
+                qDebug() << ie.message() << "Stream/premiere could have ended - killing update timer.";
                 metadataUpdateTimer->deleteLater();
             }
         });
@@ -432,7 +432,7 @@ void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse
 {
     ui->date->setText(resp.dateText);
     ui->description->setText(generateFormattedDescription(resp.description));
-    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? resp.likeDefaultText : QLocale::system().toString(resp.likeNumericalValue.toLongLong()));
+    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? resp.likeCountEntity.likeCountIfIndifferent : resp.likeCountEntity.expandedLikeCountIfIndifferent);
     ui->titleLabel->setText(resp.title.text);
     ui->viewCount->setText(resp.viewCount.viewCount.text);
 

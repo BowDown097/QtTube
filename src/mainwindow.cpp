@@ -75,7 +75,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     }
 #endif
 
-    InnerTube::instance()->createContext(InnertubeClient(InnertubeClient::ClientType::WEB, "2.20231130.09.00", "DESKTOP"));
+    InnerTube::instance()->createContext(InnertubeClient(InnertubeClient::ClientType::WEB));
     tryRestoreData();
     connect(InnerTube::instance()->authStore(), &InnertubeAuthStore::authenticateSuccess, m_topbar, [this] { m_topbar->postSignInSetup(); });
 
