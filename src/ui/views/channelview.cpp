@@ -88,7 +88,7 @@ void ChannelView::setBanner(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    channelBanner->setPixmap(pixmap.scaled(channelBanner->width(), channelBanner->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    channelBanner->setPixmap(pixmap.scaled(channelBanner->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
 void ChannelView::setIcon(const HttpReply& reply)
@@ -124,17 +124,17 @@ void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& ch
         channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
     }
 
-    bool hasBanner = !channelResp.header.banners.isEmpty();
+    bool hasBanner = !channelResp.header.banner.isEmpty();
     channelBanner->setFixedHeight(hasBanner ? 129 : 40);
     MainWindow::topbar()->setAlwaysShow(!hasBanner);
     MainWindow::topbar()->setVisible(!hasBanner);
 
     if (hasBanner)
     {
-        HttpReply* bannerReply = Http::instance().get(channelResp.header.banners[0].url);
+        HttpReply* bannerReply = Http::instance().get(channelResp.header.banner.bestQuality().url);
         connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
     }
 
-    HttpReply* iconReply = Http::instance().get(channelResp.header.avatars[0].url);
+    HttpReply* iconReply = Http::instance().get(channelResp.header.avatar.recommendedQuality(QSize(48, 48)).url);
     connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
 }

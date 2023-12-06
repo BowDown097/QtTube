@@ -66,7 +66,7 @@ void CredentialsStore::save()
 
 void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data)
 {
-    QString avatarUrl = data.response.header.accountPhotos[0].url;
+    QString avatarUrl = data.response.header.accountPhoto.bestQuality().url;
     QString channelId = data.response.header.manageAccountEndpoint["browseEndpoint"]["browseId"].toString();
     QString username = data.response.header.accountName;
 

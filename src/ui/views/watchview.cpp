@@ -271,13 +271,9 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         ui->dislikeLabel->setStyleSheet("color: #167ac6");
     }
 
-    if (!nextResp.secondaryInfo.owner.thumbnails.isEmpty())
+    if (!nextResp.secondaryInfo.owner.thumbnail.isEmpty())
     {
-        QList<InnertubeObjects::GenericThumbnail>::iterator bestThumb = std::ranges::max_element(
-            nextResp.secondaryInfo.owner.thumbnails,
-            [](const auto& a, const auto& b) { return a.width < b.width; }
-        );
-        HttpReply* reply = Http::instance().get(bestThumb->url);
+        HttpReply* reply = Http::instance().get(nextResp.secondaryInfo.owner.thumbnail.recommendedQuality(QSize(48, 48)).url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
 

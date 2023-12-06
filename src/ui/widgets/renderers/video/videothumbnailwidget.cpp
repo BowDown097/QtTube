@@ -10,18 +10,18 @@ constexpr const char* progressStyle = R"(
 )";
 
 VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
-    : QLabel(parent), lengthLabel(new QLabel(this)), progressBar(new QProgressBar(this))
+    : QLabel(parent), m_lengthLabel(new QLabel(this)), m_progressBar(new QProgressBar(this))
 {
     setMinimumSize(1, 1);
     setScaledContents(true);
 
-    lengthLabel->hide();
-    lengthLabel->setFont(QFont(qApp->font().toString(), 9, QFont::Bold));
-    lengthLabel->setStyleSheet("background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0 1px");
+    m_lengthLabel->hide();
+    m_lengthLabel->setFont(QFont(qApp->font().toString(), 9, QFont::Bold));
+    m_lengthLabel->setStyleSheet("background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0 1px");
 
-    progressBar->hide();
-    progressBar->setFixedHeight(3);
-    progressBar->setStyleSheet(progressStyle);
+    m_progressBar->hide();
+    m_progressBar->setFixedHeight(3);
+    m_progressBar->setStyleSheet(progressStyle);
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -46,13 +46,13 @@ void VideoThumbnailWidget::mousePressEvent(QMouseEvent* event)
 
 void VideoThumbnailWidget::resizeEvent(QResizeEvent* event)
 {
-    lengthLabel->setVisible(lengthLabel->isHidden() && !lengthLabel->text().isEmpty());
-    progressBar->setVisible(progressBar->isHidden() && progressBar->value() > 0);
+    m_lengthLabel->setVisible(m_lengthLabel->isHidden() && !m_lengthLabel->text().isEmpty());
+    m_progressBar->setVisible(m_progressBar->isHidden() && m_progressBar->value() > 0);
 
-    lengthLabel->move(event->size().width() - lengthLabel->width() - 3, event->size().height() - lengthLabel->height() - 3);
-    progressBar->move(0, event->size().height() - 3);
+    m_lengthLabel->move(event->size().width() - m_lengthLabel->width() - 3, event->size().height() - m_lengthLabel->height() - 3);
+    m_progressBar->move(0, event->size().height() - 3);
 
-    progressBar->setFixedWidth(event->size().width());
+    m_progressBar->setFixedWidth(event->size().width());
 }
 
 void VideoThumbnailWidget::setData(const HttpReply& reply)
@@ -63,7 +63,7 @@ void VideoThumbnailWidget::setData(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     setPixmap(pixmap.scaled(
-        preferredSize.height() == 0 ? QSize(preferredSize.width(), height()) : preferredSize,
+        m_preferredSize.height() == 0 ? QSize(m_preferredSize.width(), height()) : m_preferredSize,
         Qt::KeepAspectRatio,
         Qt::SmoothTransformation)
     );
@@ -73,15 +73,15 @@ void VideoThumbnailWidget::setData(const HttpReply& reply)
 
 void VideoThumbnailWidget::setPreferredSize(const QSize& size)
 {
-    preferredSize = size;
+    m_preferredSize = size;
     if (size.height() > 0)
         setFixedSize(size);
 }
 
 void VideoThumbnailWidget::setProgress(int progress, int length)
 {
-    progressBar->setMaximum(length);
-    progressBar->setValue(progress);
+    m_progressBar->setMaximum(length);
+    m_progressBar->setValue(progress);
 }
 
 void VideoThumbnailWidget::setUrl(const QString& url)

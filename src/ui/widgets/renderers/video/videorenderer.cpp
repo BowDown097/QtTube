@@ -150,6 +150,11 @@ void VideoRenderer::setDeArrowData(const HttpReply& reply, const QString& thumbF
         thumbnail->setUrl(thumbFallbackUrl);
 }
 
+void VideoRenderer::setThumbnail(const InnertubeObjects::ResponsiveImage& thumbImage)
+{
+    setThumbnail(thumbImage.recommendedQuality(thumbnail->preferredSize()).url);
+}
+
 void VideoRenderer::setThumbnail(const QString& url)
 {
     if (qtTubeApp->settings().deArrow)

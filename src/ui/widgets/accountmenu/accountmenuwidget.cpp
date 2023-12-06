@@ -45,7 +45,7 @@ void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoi
     accountNameLabel->setText(endpoint.response.header.accountName);
     handleLabel->setText(endpoint.response.header.channelHandle);
 
-    HttpReply* avatarReply = Http::instance().get(QUrl(endpoint.response.header.accountPhotos[0].url));
+    HttpReply* avatarReply = Http::instance().get(QUrl(endpoint.response.header.accountPhoto.recommendedQuality(avatar->size()).url));
     connect(avatarReply, &HttpReply::finished, this, &AccountMenuWidget::setAvatar);
 
     QString channelId = endpoint.response.header.manageAccountEndpoint["browseEndpoint"]["browseId"].toString();

@@ -5,6 +5,7 @@
 namespace InnertubeObjects
 {
 class Reel;
+class ResponsiveImage;
 class Video;
 }
 
@@ -23,6 +24,7 @@ public:
     void setData(const InnertubeObjects::Video& video);
     void setTargetElisionWidth(int width) { targetElisionWidth = width; }
     void setThumbnail(const QString& url);
+    void setThumbnail(const InnertubeObjects::ResponsiveImage& thumbImage);
     void setThumbnailSize(const QSize& size);
 protected:
     ChannelLabel* channelLabel;

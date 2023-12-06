@@ -63,7 +63,7 @@ void UIUtils::addChannelRendererToList(QListWidget* list, const InnertubeObjects
                       channel.subscriberCountText.text, channel.videoCountText.text);
     addWidgetToList(list, renderer);
 
-    HttpReply* reply = Http::instance().get(channel.thumbnails.last().url);
+    HttpReply* reply = Http::instance().get("https:" + channel.thumbnail.recommendedQuality(QSize(80, 80)).url);
     QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
 }
 
@@ -95,7 +95,8 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
 
     VideoRenderer* renderer = constructVideoRenderer(list);
     renderer->setData(reel);
-    renderer->setThumbnail(reel.thumbnails[0].url);
+    if (!reel.image.isEmpty())
+        renderer->setThumbnail(reel.image);
     addWidgetToList(list, renderer);
 }
 
