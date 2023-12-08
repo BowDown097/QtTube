@@ -278,7 +278,9 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     }
 
     InnertubeObjects::ButtonViewModel likeViewModel = likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel.defaultButtonViewModel;
-    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? likeViewModel.title : UIUtils::extractDigits(likeViewModel.accessibilityText));
+    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
+                               ? likeViewModel.title
+                               : UIUtils::extractDigits(likeViewModel.accessibilityText));
 
     if (qtTubeApp->settings().returnDislikes)
     {
@@ -296,7 +298,10 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         dateText.prepend("Published on ");
 
     ui->date->setText(dateText);
+
     ui->description->setText(generateFormattedDescription(unattributeDescription(nextResp.secondaryInfo.attributedDescription)));
+    ui->description->setVisible(!ui->description->text().isEmpty());
+    ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumWidth());
 }
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
