@@ -121,6 +121,9 @@ set(SOURCE_FILES
     src/ui/widgets/labels/elidedtubelabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
+    src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.cpp
+    src/ui/widgets/renderers/backstage/backstagepollrenderer.cpp
+    src/ui/widgets/renderers/backstage/backstagepostrenderer.cpp
     src/ui/widgets/renderers/browsechannelrenderer.cpp
     src/ui/widgets/renderers/browsenotificationrenderer.cpp
     src/ui/widgets/renderers/video/browsevideorenderer.cpp
@@ -192,6 +195,9 @@ set(HEADERS
     src/ui/widgets/labels/elidedtubelabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
+    src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.h
+    src/ui/widgets/renderers/backstage/backstagepollrenderer.h
+    src/ui/widgets/renderers/backstage/backstagepostrenderer.h
     src/ui/widgets/renderers/browsechannelrenderer.h
     src/ui/widgets/renderers/browsenotificationrenderer.h
     src/ui/widgets/renderers/video/browsevideorenderer.h

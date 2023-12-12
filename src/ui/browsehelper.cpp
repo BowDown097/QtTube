@@ -39,6 +39,8 @@ void BrowseHelper::browseChannel(QListWidget* widget, int index, const Innertube
             ChannelBrowser::setupLive(widget, tabRenderer, resp);
         else if (title == "Membership")
             ChannelBrowser::setupMembership(widget, tabRenderer);
+        else if (title == "Community")
+            ChannelBrowser::setupCommunity(widget, tabRenderer);
         else if (title == "Channels")
             ChannelBrowser::setupChannels(widget, tabRenderer);
         else if (title == "About")

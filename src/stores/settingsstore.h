@@ -3,6 +3,8 @@
 #include "genericstore.h"
 #include <QObject>
 
+namespace InnertubeObjects { class Reel; class Video; }
+
 class QSettings;
 
 class SettingsStore : public GenericStore
@@ -55,6 +57,8 @@ public:
 
     bool channelIsFiltered(const QString& channelId) const;
     bool strHasFilteredTerm(const QString& str) const;
+    bool videoIsFiltered(const InnertubeObjects::Reel& reel) const;
+    bool videoIsFiltered(const InnertubeObjects::Video& video) const;
 
     void initialize() override;
     void save() override;

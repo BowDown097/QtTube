@@ -1,11 +1,13 @@
 #include "uiutils.h"
 #include "http.h"
+#include "innertube/objects/backstage/backstagepost.h"
 #include "innertube/objects/channel/channel.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/widgets/labels/tubelabel.h"
+#include "ui/widgets/renderers/backstage/backstagepostrenderer.h"
 #include "ui/widgets/renderers/browsechannelrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/gridvideorenderer.h"
@@ -45,6 +47,19 @@ constexpr const char* darkStylesheet = R"(
         border: 1px solid rgb(30,30,30);
     }
 )";
+
+void UIUtils::addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post)
+{
+    if (qtTubeApp->settings().channelIsFiltered(post.authorEndpoint["browseEndpoint"]["browseId"].toString()))
+        return;
+
+    BackstagePostRenderer* renderer = new BackstagePostRenderer;
+    renderer->setData(post);
+
+    QListWidgetItem* item = addWidgetToList(list, renderer);
+    QObject::connect(renderer, &BackstagePostRenderer::dynamicSizeChange,
+                     std::bind(&QListWidgetItem::setSizeHint, item, std::placeholders::_1));
+}
 
 void UIUtils::addBoldLabelToList(QListWidget* list, const QString& text)
 {
@@ -89,8 +104,7 @@ void UIUtils::addShelfTitleToList(QListWidget* list, const QString& title)
 
 void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
 {
-    if (qtTubeApp->settings().channelIsFiltered(reel.owner.id) ||
-        qtTubeApp->settings().strHasFilteredTerm(reel.headline))
+    if (qtTubeApp->settings().videoIsFiltered(reel))
         return;
 
     VideoRenderer* renderer = constructVideoRenderer(list);
@@ -102,14 +116,8 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
 
 void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
 {
-    if (qtTubeApp->settings().channelIsFiltered(video.owner.id) ||
-        qtTubeApp->settings().strHasFilteredTerm(video.title.text) ||
-        (qtTubeApp->settings().filterLengthEnabled && !video.isLive && QTime(0, 0).secsTo(video.length()) <= qtTubeApp->settings().filterLength) ||
-        (qtTubeApp->settings().hideShorts && video.isReel()) ||
-        (qtTubeApp->settings().hideStreams && video.isLive))
-    {
+    if (qtTubeApp->settings().videoIsFiltered(video))
         return;
-    }
 
     VideoRenderer* renderer = constructVideoRenderer(list);
     renderer->setData(video);

@@ -1,4 +1,6 @@
 #include "settingsstore.h"
+#include "innertube/objects/video/reel.h"
+#include "innertube/objects/video/video.h"
 #include <QSettings>
 
 bool SettingsStore::channelIsFiltered(const QString& channelId) const
@@ -104,6 +106,19 @@ void SettingsStore::save()
 bool SettingsStore::strHasFilteredTerm(const QString& str) const
 {
     return std::ranges::any_of(filteredTerms, [&str](const QString& t) { return str.contains(t, Qt::CaseInsensitive); });
+}
+
+bool SettingsStore::videoIsFiltered(const InnertubeObjects::Reel& reel) const
+{
+    return channelIsFiltered(reel.owner.id) || strHasFilteredTerm(reel.headline);
+}
+
+bool SettingsStore::videoIsFiltered(const InnertubeObjects::Video& video) const
+{
+    return channelIsFiltered(video.owner.id) || strHasFilteredTerm(video.title.text) ||
+           (filterLengthEnabled && !video.isLive && QTime(0, 0).secsTo(video.length()) <= filterLength) ||
+           (hideShorts && video.isReel()) ||
+           (hideStreams && video.isLive);
 }
 
 void SettingsStore::writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key)

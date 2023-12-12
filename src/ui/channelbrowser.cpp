@@ -1,5 +1,6 @@
 #include "channelbrowser.h"
 #include "innertube/innertubeexception.h"
+#include "innertube/objects/backstage/backstagepost.h"
 #include "innertube/objects/channel/aboutfullmetadata.h"
 #include "innertube/objects/channel/channel.h"
 #include "innertube/objects/video/reel.h"
@@ -103,6 +104,20 @@ void ChannelBrowser::setupChannels(QListWidget* widget, const QJsonValue& render
 
     if (widget->count() == 0)
         widget->addItem("This channel doesn't feature any other channels.");
+}
+
+void ChannelBrowser::setupCommunity(QListWidget* widget, const QJsonValue& renderer)
+{
+    const QJsonArray contents = renderer["content"]["sectionListRenderer"]["contents"][0]
+                                        ["itemSectionRenderer"]["contents"].toArray();
+    for (const QJsonValue& v : contents)
+    {
+        InnertubeObjects::BackstagePost post(v["backstagePostThreadRenderer"]["post"]["backstagePostRenderer"]);
+        UIUtils::addBackstagePostToList(widget, post);
+    }
+
+    if (widget->count() == 0)
+        widget->addItem("This channel hasn't posted yet.");
 }
 
 void ChannelBrowser::setupHome(QListWidget* widget, const QJsonValue& renderer,

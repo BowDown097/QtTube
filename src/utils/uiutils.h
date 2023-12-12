@@ -5,6 +5,7 @@
 
 namespace InnertubeObjects
 {
+class BackstagePost;
 class Channel;
 class Reel;
 class Video;
@@ -22,6 +23,7 @@ class UIUtils
 public:
     static inline QString defaultStyle;
 
+    static void addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post);
     static void addBoldLabelToList(QListWidget* list, const QString& text);
     static void addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel);
     static void addSeparatorToList(QListWidget* list);

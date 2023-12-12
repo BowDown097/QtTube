@@ -301,7 +301,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     ui->description->setText(generateFormattedDescription(unattributeDescription(nextResp.secondaryInfo.attributedDescription)));
     ui->description->setVisible(!ui->description->text().isEmpty());
-    ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumWidth());
+    ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumHeight());
 }
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
