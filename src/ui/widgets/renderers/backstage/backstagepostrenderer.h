@@ -2,7 +2,13 @@
 #define BACKSTAGEPOSTRENDERER_H
 #include <QWidget>
 
-namespace InnertubeObjects { class BackstageImage; class BackstagePost; class Poll; class Video; }
+namespace InnertubeObjects
+{
+    class BackstageImage;
+    class BackstagePost;
+    class Poll;
+    class Video;
+}
 
 class HttpReply;
 class IconLabel;
@@ -43,6 +49,7 @@ private:
 private slots:
     void copyChannelUrl();
     void copyPostUrl();
+    void linkActivated(const QString& url);
     void navigateChannel();
     void setChannelIcon(const HttpReply& reply);
     void setImageLabelData(const HttpReply& reply, QLabel* imageLabel);

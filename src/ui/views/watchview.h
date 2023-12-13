@@ -36,11 +36,7 @@ private:
     QPointer<QTimer> metadataUpdateTimer;
     Ui::WatchView* ui;
 
-    // most logic for these 3 methods courtesy of https://github.com/Rehike/Rehike
-    QString generateFormattedDescription(const InnertubeObjects::InnertubeString& description);
-    void truncateDescriptionUrl(QString& url, bool prefix = false);
     InnertubeObjects::InnertubeString unattributeDescription(const QJsonValue& attributedDescription);
-
     void updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp);
 private slots:
     void descriptionLinkActivated(const QString& url);

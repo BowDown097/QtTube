@@ -9,6 +9,7 @@
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
 #include "utils/osutils.h"
+#include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QDesktopServices>
@@ -77,76 +78,6 @@ void WatchView::descriptionLinkActivated(const QString& url)
     {
         qDebug() << "Ran into unsupported description link:" << url;
     }
-}
-
-QString WatchView::generateFormattedDescription(const InnertubeObjects::InnertubeString& description)
-{
-    QString descriptionText;
-
-    for (InnertubeObjects::InnertubeRun run : description.runs)
-    {
-        if (run.navigationEndpoint.isNull() || run.navigationEndpoint.isUndefined())
-        {
-            descriptionText += run.text;
-            continue;
-        }
-
-        QString href;
-        if (run.navigationEndpoint["urlEndpoint"].isObject())
-        {
-            QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
-            QUrlQuery query(url);
-
-            if (query.hasQueryItem("q"))
-            {
-                run.text = href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
-            }
-            else if (QString urlStr = url.toString(); urlStr.contains("youtube.com/channel"))
-            {
-                href = url.path();
-                run.text = urlStr;
-            }
-            else
-            {
-                run.text = href = url.toString();
-            }
-
-            truncateDescriptionUrl(run.text);
-        }
-        else if (run.navigationEndpoint["browseEndpoint"].isObject())
-        {
-            QString browseId = run.navigationEndpoint["browseEndpoint"]["browseId"].toString();
-            QString code = browseId.left(2);
-
-            if (code == "UC")
-            {
-                run.text.replace(run.text.indexOf('/'), 1, "").replace("/xc2/xa0", "");
-                if (run.text[0] != '@')
-                    run.text.prepend('@');
-                href = "/channel/" + browseId;
-            }
-            else if (code != "FE")
-            {
-                run.text = href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
-                truncateDescriptionUrl(run.text, true);
-            }
-        }
-        else
-        {
-            run.text = href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
-            if (run.navigationEndpoint["watchEndpoint"].isObject())
-            {
-                run.text.prepend("https://www.youtube.com");
-                href += "&continuePlayback=" + QString::number(run.navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
-            }
-
-            truncateDescriptionUrl(run.text);
-        }
-
-        descriptionText += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, run.text);
-    }
-
-    return descriptionText.replace("\n", "<br>");
 }
 
 void WatchView::hotLoadVideo(const QString& videoId, int progress)
@@ -280,7 +211,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     InnertubeObjects::ButtonViewModel likeViewModel = likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel.defaultButtonViewModel;
     ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
                                ? likeViewModel.title
-                               : UIUtils::extractDigits(likeViewModel.accessibilityText));
+                               : StringUtils::extractDigits(likeViewModel.accessibilityText));
 
     if (qtTubeApp->settings().returnDislikes)
     {
@@ -299,7 +230,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     ui->date->setText(dateText);
 
-    ui->description->setText(generateFormattedDescription(unattributeDescription(nextResp.secondaryInfo.attributedDescription)));
+    ui->description->setText(StringUtils::innertubeStringToRichText(unattributeDescription(nextResp.secondaryInfo.attributedDescription)));
     ui->description->setVisible(!ui->description->text().isEmpty());
     ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumHeight());
 }
@@ -370,7 +301,7 @@ void WatchView::setDislikes(const HttpReply& reply)
 #ifdef QTTUBE_HAS_ICU
     if (qtTubeApp->settings().condensedCounts)
     {
-        ui->dislikeLabel->setText(UIUtils::condensedNumericString(dislikes));
+        ui->dislikeLabel->setText(StringUtils::condensedNumericString(dislikes));
         return;
     }
 #endif
@@ -389,14 +320,7 @@ void WatchView::showContextMenu(const QPoint& pos)
     menu->popup(ui->channelLabel->text->mapToGlobal(pos));
 }
 
-void WatchView::truncateDescriptionUrl(QString& url, bool prefix)
-{
-    if (prefix)
-        url.prepend("https://www.youtube.com");
-    if (url.length() > 37)
-        url = url.left(37) + "...";
-}
-
+// most logic courtesy of https://github.com/Rehike/Rehike
 InnertubeObjects::InnertubeString WatchView::unattributeDescription(const QJsonValue& attributedDescription)
 {
     QString content = attributedDescription["content"].toString();
@@ -432,7 +356,7 @@ InnertubeObjects::InnertubeString WatchView::unattributeDescription(const QJsonV
 void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)
 {
     ui->date->setText(resp.dateText);
-    ui->description->setText(generateFormattedDescription(resp.description));
+    ui->description->setText(StringUtils::innertubeStringToRichText(resp.description));
     ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? resp.likeCountEntity.likeCountIfIndifferent : resp.likeCountEntity.expandedLikeCountIfIndifferent);
     ui->titleLabel->setText(resp.title.text);
     ui->viewCount->setText(resp.viewCount.viewCount.text);

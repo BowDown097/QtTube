@@ -7,8 +7,10 @@
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
+#include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
+#include <QDesktopServices>
 #include <QMenu>
 
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; void operator()(std::monostate) const {}};
@@ -48,6 +50,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     contentTextLineSpacing = QFontMetrics(contentText->font()).lineSpacing();
     contentText->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     contentText->setMaximumHeight(contentTextLineSpacing * 3);
+    contentText->setTextFormat(Qt::RichText);
     contentText->setWordWrap(true);
     innerLayout->addWidget(contentText);
 
@@ -64,6 +67,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     connect(channelIconLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
     connect(channelLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
     connect(channelLabel, &TubeLabel::customContextMenuRequested, this, &BackstagePostRenderer::showChannelContextMenu);
+    connect(contentText, &QLabel::linkActivated, this, &BackstagePostRenderer::linkActivated);
     connect(publishedTimeLabel, &TubeLabel::customContextMenuRequested, this,
             &BackstagePostRenderer::showPublishedTimeContextMenu);
     connect(readMoreLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::toggleReadMore);
@@ -77,6 +81,30 @@ void BackstagePostRenderer::copyChannelUrl()
 void BackstagePostRenderer::copyPostUrl()
 {
     UIUtils::copyToClipboard("https://www.youtube.com/post/" + postId);
+}
+
+void BackstagePostRenderer::linkActivated(const QString& url)
+{
+    QUrl qUrl(url);
+    if (url.startsWith("http"))
+    {
+        QDesktopServices::openUrl(qUrl);
+    }
+    else if (url.startsWith("/channel"))
+    {
+        QString funnyPath = qUrl.path().replace("/channel/", "");
+        ViewController::loadChannel(funnyPath.left(funnyPath.indexOf('/')));
+    }
+    else if (url.startsWith("/watch"))
+    {
+        QUrlQuery query(qUrl);
+        int progress = query.queryItemValue("t").replace("s", "").toInt();
+        ViewController::loadVideo(query.queryItemValue("v"), progress);
+    }
+    else
+    {
+        qDebug() << "Ran into unsupported description link:" << url;
+    }
 }
 
 void BackstagePostRenderer::navigateChannel()
@@ -100,10 +128,10 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     surface = post.surface;
 
     channelLabel->setText(post.authorText.text);
-    contentText->setText(post.contentText.text);
+    contentText->setText(StringUtils::innertubeStringToRichText(post.contentText));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
                            ? post.voteCount.text
-                           : UIUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
+                           : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
     publishedTimeLabel->setText(post.publishedTimeText.text);
     readMoreLabel->setText(readMoreText);
     readMoreLabel->setVisible(contentText->heightForWidth(width()) > contentTextLineSpacing * 4);

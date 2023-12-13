@@ -20,11 +20,6 @@
 #include <QThread>
 #endif
 
-#ifdef QTTUBE_HAS_ICU
-#include <unicode/errorcode.h>
-#include <unicode/numberformatter.h>
-#endif
-
 constexpr const char* darkStylesheet = R"(
     QLineEdit {
         background: rgb(42,42,42);
@@ -153,33 +148,6 @@ void UIUtils::clearLayout(QLayout* layout)
     }
 }
 
-// Qt provides no way to do this (surprisingly), so we have to do it manually with ICU.
-#ifdef QTTUBE_HAS_ICU
-QString UIUtils::condensedNumericString(qint64 num, int precision)
-{
-    using namespace icu::number;
-    static const LocalizedNumberFormatter formatter = NumberFormatter::withLocale(icu::Locale::getDefault())
-        .notation(Notation::compactShort()).precision(Precision::maxFraction(1));
-
-    icu::ErrorCode errorCode;
-    FormattedNumber formatted = formatter.formatInt(num, errorCode);
-    if (errorCode.isFailure())
-    {
-        qDebug().noquote().nospace() << "Error condensing " << num << ": " << errorCode.errorName();
-        return QString();
-    }
-
-    icu::UnicodeString formattedStr = formatted.toTempString(errorCode);
-    if (errorCode.isFailure())
-    {
-        qDebug().noquote().nospace() << "Error condensing " << num << ": " << errorCode.errorName();
-        return QString();
-    }
-
-    return QString(reinterpret_cast<const QChar*>(formattedStr.getBuffer()), formattedStr.length());
-}
-#endif
-
 VideoRenderer* UIUtils::constructVideoRenderer(QListWidget* list)
 {
     VideoRenderer* renderer;
@@ -216,20 +184,6 @@ void UIUtils::elide(QLabel* label, int targetWidth)
     QString elidedText = fm.elidedText(label->text(), Qt::ElideRight, targetWidth);
     label->setFixedWidth(targetWidth);
     label->setText(elidedText);
-}
-
-QString UIUtils::extractDigits(const QString& str, bool useLocale, bool reserve)
-{
-    QString out;
-    if (reserve)
-        out.reserve(str.size());
-
-    for (const QChar& c : str)
-        if (c.isDigit())
-            out.append(c);
-
-    out.squeeze();
-    return useLocale ? QLocale::system().toString(out.toLongLong()) : out;
 }
 
 QIcon UIUtils::iconThemed(const QString& name, const QPalette& pal)
