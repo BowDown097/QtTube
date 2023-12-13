@@ -1,6 +1,6 @@
 #include "credentialsstore.h"
 #include "innertube.h"
-#include "protobuf/simpleprotobuf.h"
+#include "protobuf/protobufcompiler.h"
 #include <QSettings>
 
 CredentialSet CredentialsStore::activeLogin() const
@@ -42,7 +42,7 @@ void CredentialsStore::populateAuthStore(const CredentialSet& credSet)
     authStore->sid = credSet.sid;
     authStore->ssid = credSet.ssid;
     authStore->visitorInfo = credSet.visitorInfo;
-    InnerTube::instance()->context()->client.visitorData = SimpleProtobuf::padded(credSet.visitorInfo);
+    InnerTube::instance()->context()->client.visitorData = ProtobufCompiler::padded(credSet.visitorInfo);
 }
 
 void CredentialsStore::save()

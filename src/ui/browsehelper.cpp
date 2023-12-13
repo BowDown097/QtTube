@@ -2,7 +2,7 @@
 #include "channelbrowser.h"
 #include "http.h"
 #include "mainwindow.h"
-#include "protobuf/simpleprotobuf.h"
+#include "protobuf/protobufcompiler.h"
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "utils/uiutils.h"
 #include <QApplication>
@@ -129,7 +129,7 @@ void BrowseHelper::search(ContinuableListWidget* searchWidget, const QString& qu
     if (!filter.isEmpty()) params.insert("filter", filter);
 
     if (!params.isEmpty())
-        compiledParams = QByteArray::fromHex(SimpleProtobuf::compile(params, searchMsgFields)).toBase64().toPercentEncoding();
+        compiledParams = QByteArray::fromHex(ProtobufCompiler::compile(params, searchMsgFields)).toBase64().toPercentEncoding();
 
     auto reply = InnerTube::instance()->get<Search>(query, "", compiledParams);
     connect(reply, &InnertubeReply<Search>::exception, this, std::bind(&BrowseHelper::browseFailed, this, _1, "search"));
