@@ -65,6 +65,7 @@ namespace StatsUtils
         outPlaybackUrl.setQuery(outPlaybackQuery);
 
         Http http;
+        http.setMaxRetries(0);
         setNeededHeaders(http, InnerTube::instance()->context(), InnerTube::instance()->authStore());
         http.get(outPlaybackUrl);
     }
@@ -126,6 +127,7 @@ namespace StatsUtils
         outWatchtimeUrl.setQuery(outWatchtimeQuery);
 
         Http http;
+        http.setMaxRetries(0);
         setNeededHeaders(http, InnerTube::instance()->context(), InnerTube::instance()->authStore());
         http.get(outWatchtimeUrl);
     }

@@ -77,6 +77,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
         outWatchtimeUrl.setQuery(outWatchtimeQuery);
 
         Http http;
+        http.setMaxRetries(0);
         StatsUtils::setNeededHeaders(http, m_context, m_authStore);
         http.get(outWatchtimeUrl);
     }
@@ -131,6 +132,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
         outPlaybackUrl.setQuery(outPlaybackQuery);
 
         Http http;
+        http.setMaxRetries(0);
         StatsUtils::setNeededHeaders(http, m_context, m_authStore);
         http.get(outPlaybackUrl);
     }
