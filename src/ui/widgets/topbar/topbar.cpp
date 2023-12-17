@@ -123,6 +123,9 @@ void TopBar::setUpAvatarButton()
     connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
     {
         qtTubeApp->creds().updateAccount(endpoint);
+        if (endpoint.response.header.accountPhoto.isEmpty())
+            return;
+
         HttpReply* photoReply = Http::instance().get(QUrl(endpoint.response.header.accountPhoto.recommendedQuality(avatarButton->size()).url));
         connect(photoReply, &HttpReply::finished, this, [this](const HttpReply& reply)
         {

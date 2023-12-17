@@ -1,6 +1,8 @@
 #include "credentialsstore.h"
 #include "innertube.h"
+#include "mainwindow.h"
 #include "protobuf/protobufcompiler.h"
+#include <QMessageBox>
 #include <QSettings>
 
 CredentialSet CredentialsStore::activeLogin() const
@@ -66,8 +68,15 @@ void CredentialsStore::save()
 
 void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data)
 {
-    QString avatarUrl = data.response.header.accountPhoto.bestQuality().url;
     QString channelId = data.response.header.manageAccountEndpoint["browseEndpoint"]["browseId"].toString();
+    if (channelId.isEmpty())
+    {
+        QMessageBox::critical(nullptr, "Invalid Login Credentials", "Your login credentials are invalid. They may have expired. You will be logged out, then try logging in again.");
+        MainWindow::topbar()->signOut();
+        return;
+    }
+
+    QString avatarUrl = data.response.header.accountPhoto.bestQuality().url;
     QString username = data.response.header.accountName;
 
     if (auto active = std::ranges::find_if(m_credentials, [](const CredentialSet& cs) { return cs.active; });
