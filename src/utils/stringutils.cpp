@@ -105,11 +105,13 @@ namespace StringUtils
             }
             else
             {
-                run.text = href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
+                href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
                 if (run.navigationEndpoint["watchEndpoint"].isObject())
                 {
-                    run.text.prepend("https://www.youtube.com");
-                    href += "&continuePlayback=" + QString::number(run.navigationEndpoint["watchEndpoint"]["continuePlayback"].toBool());
+                    if (!run.navigationEndpoint["watchEndpoint"]["continuePlayback"].isBool())
+                        run.text = "https://www.youtube.com" + href;
+                    else
+                        href += "&continuePlayback=1";
                 }
 
                 truncateUrlString(run.text, false);
