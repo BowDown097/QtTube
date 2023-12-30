@@ -4,6 +4,7 @@
 
 ContinuableListWidget::ContinuableListWidget(QWidget* parent) : QListWidget(parent)
 {
+    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &ContinuableListWidget::scrollValueChanged);
 }
 
