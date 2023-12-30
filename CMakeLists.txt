@@ -112,6 +112,7 @@ set(SOURCE_FILES
     src/ui/widgets/continuablelistwidget.cpp
     src/ui/widgets/findbar.cpp
     src/ui/widgets/flowlayout.cpp
+    src/ui/widgets/watchnextfeed.cpp
     src/ui/widgets/accountmenu/accountcontrollerwidget.cpp
     src/ui/widgets/accountmenu/accountentrywidget.cpp
     src/ui/widgets/accountmenu/accountmenuwidget.cpp
@@ -187,6 +188,7 @@ set(HEADERS
     src/ui/widgets/continuablelistwidget.h
     src/ui/widgets/findbar.h
     src/ui/widgets/flowlayout.h
+    src/ui/widgets/watchnextfeed.h
     src/ui/widgets/accountmenu/accountcontrollerwidget.h
     src/ui/widgets/accountmenu/accountentrywidget.h
     src/ui/widgets/accountmenu/accountmenuwidget.h

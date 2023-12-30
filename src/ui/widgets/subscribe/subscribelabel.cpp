@@ -91,14 +91,14 @@ void SubscribeLabel::mousePressEvent(QMouseEvent*)
     {
         toggleSubscriptionStatus(subscribeStyle, subscribeButton.unsubscribedButtonText.text);
         InnerTube::instance()->subscribe(
-            std::as_const(subscribeButton.onUnsubscribeEndpoints)[0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"]["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"],
+            subscribeButton.onUnsubscribeEndpoints[0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"]["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"],
             false
         );
     }
     else if (!subscribeButton.subscribed)
     {
         toggleSubscriptionStatus(subscribedStyle, subscribeButton.subscribedButtonText.text);
-        InnerTube::instance()->subscribe(std::as_const(subscribeButton.onSubscribeEndpoints)[0]["subscribeEndpoint"], true);
+        InnerTube::instance()->subscribe(subscribeButton.onSubscribeEndpoints[0]["subscribeEndpoint"], true);
     }
 }
 

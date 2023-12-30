@@ -47,11 +47,9 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     channelTimeLayout->addStretch();
     innerLayout->addLayout(channelTimeLayout);
 
-    contentTextLineSpacing = QFontMetrics(contentText->font()).lineSpacing();
-    contentText->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-    contentText->setMaximumHeight(contentTextLineSpacing * 3);
     contentText->setTextFormat(Qt::RichText);
     contentText->setWordWrap(true);
+    UIUtils::setMaximumLines(contentText, 3);
     innerLayout->addWidget(contentText);
 
     readMoreLabel->setClickable(true, false);
@@ -134,7 +132,7 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
                            : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
     publishedTimeLabel->setText(post.publishedTimeText.text);
     readMoreLabel->setText(readMoreText);
-    readMoreLabel->setVisible(contentText->heightForWidth(width()) > contentTextLineSpacing * 4);
+    readMoreLabel->setVisible(contentText->heightForWidth(width() - channelIconLabel->width()) > contentText->maximumHeight());
     replyLabel->setText(post.actionButtons.replyButton.text.text);
 
     HttpReply* reply = Http::instance().get("https:" + post.authorThumbnail.recommendedQuality(channelIconLabel->size()).url);
@@ -147,6 +145,7 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     }, post.backstageAttachment);
 
     innerLayout->addLayout(actionButtons);
+    innerLayout->addStretch();
 }
 
 void BackstagePostRenderer::setImage(const InnertubeObjects::BackstageImage& image)
@@ -193,7 +192,6 @@ void BackstagePostRenderer::setVideo(const InnertubeObjects::Video& video)
     BrowseVideoRenderer* videoRenderer = new BrowseVideoRenderer(this);
     videoRenderer->setData(video);
     videoRenderer->setTargetElisionWidth(width() - 100);
-    videoRenderer->setThumbnail(video.thumbnail.mqdefault);
     innerLayout->addWidget(videoRenderer);
 }
 

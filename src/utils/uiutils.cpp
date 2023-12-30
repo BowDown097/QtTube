@@ -104,8 +104,6 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
 
     VideoRenderer* renderer = constructVideoRenderer(list);
     renderer->setData(reel);
-    if (!reel.image.isEmpty())
-        renderer->setThumbnail(reel.image);
     addWidgetToList(list, renderer);
 }
 
@@ -116,7 +114,6 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
 
     VideoRenderer* renderer = constructVideoRenderer(list);
     renderer->setData(video);
-    renderer->setThumbnail(video.thumbnail.mqdefault);
     addWidgetToList(list, renderer);
 }
 

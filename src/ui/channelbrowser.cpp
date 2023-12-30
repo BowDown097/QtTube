@@ -150,7 +150,7 @@ void ChannelBrowser::setupHome(QListWidget* widget, const QJsonValue& renderer,
                 else if (it.key() == "gridVideoRenderer" || it.key() == "videoRenderer")
                 {
                     // id and name are missing a lot of the time, so we need to populate them manually
-                    InnertubeObjects::Video video(it.value(), it.key() == "gridVideoRenderer");
+                    InnertubeObjects::Video video(it.value());
                     video.owner.id = resp.metadata.externalId;
                     video.owner.name = resp.metadata.title;
                     UIUtils::addVideoRendererToList(widget, video);
@@ -175,7 +175,7 @@ void ChannelBrowser::setupLive(QListWidget* widget, const QJsonValue& renderer,
         if (!v["richItemRenderer"].isObject())
             continue;
 
-        InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);
+        InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"]);
         video.owner.id = resp.metadata.externalId;
         video.owner.name = resp.metadata.title;
         UIUtils::addVideoRendererToList(widget, video);
@@ -322,7 +322,7 @@ void ChannelBrowser::setupMembership(QListWidget* widget, const QJsonValue& rend
     {
         if (!v["videoRenderer"].isObject())
             continue;
-        InnertubeObjects::Video video(v["videoRenderer"], false);
+        InnertubeObjects::Video video(v["videoRenderer"]);
         UIUtils::addVideoRendererToList(widget, video);
     }
 }
@@ -367,7 +367,7 @@ void ChannelBrowser::setupVideos(QListWidget* widget, const QJsonValue& renderer
         if (!v["richItemRenderer"].isObject())
             continue;
 
-        InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"], false);
+        InnertubeObjects::Video video(v["richItemRenderer"]["content"]["videoRenderer"]);
         video.owner.id = resp.metadata.externalId;
         video.owner.name = resp.metadata.title;
         UIUtils::addVideoRendererToList(widget, video);

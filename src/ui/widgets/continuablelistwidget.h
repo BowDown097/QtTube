@@ -13,6 +13,7 @@ public:
     void setContinuationThreshold(int threshold) { continuationThreshold = threshold; }
 protected:
     void updateGeometries() override;
+    void wheelEvent(QWheelEvent* event) override;
 private:
     int continuationThreshold = 10;
 private slots:

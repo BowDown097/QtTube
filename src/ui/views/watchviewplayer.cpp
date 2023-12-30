@@ -33,14 +33,24 @@ WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QOb
 
 void WatchViewPlayer::calcAndSetSize(const QSize& maxSize)
 {
+    PlayerScaleMode currentScaleMode = m_scaleMode;
     int playerWidth = maxSize.width();
     int playerHeight = playerWidth * 9/16;
+    int maxHeightBeforeScale = maxSize.height() - 150;
 
-    if (playerHeight > maxSize.height() - 150)
+    if (playerHeight > maxHeightBeforeScale)
     {
-        playerHeight = maxSize.height() - 150;
-        playerWidth = playerHeight * 16/9;
+        playerWidth = std::min(maxHeightBeforeScale * 16/9, maxSize.width() - 500);
+        playerHeight = playerWidth * 9/16;
+        m_scaleMode = PlayerScaleMode::Scaled;
     }
+    else
+    {
+        m_scaleMode = PlayerScaleMode::NoScale;
+    }
+
+    if (m_scaleMode != currentScaleMode)
+        emit scaleModeChanged(m_scaleMode);
 
     QSize sz(playerWidth, playerHeight);
     m_size = sz;

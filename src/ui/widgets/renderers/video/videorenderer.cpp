@@ -92,7 +92,10 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
 
     channelLabel->setInfo(reel.owner.name, reel.owner.badges);
     metadataLabel->setText(reel.viewCountText.text);
+
     thumbnail->setLengthText("SHORTS");
+    if (!reel.image.isEmpty())
+        setThumbnail(reel.image.recommendedQuality(thumbnail->preferredSize()).url);
 
     QString title = QString(reel.headline).replace("\r\n", " ");
     titleLabel->setText(title);
@@ -116,6 +119,8 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
 
     thumbnail->setLengthText(video.lengthText.text);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
+    if (!video.thumbnail.isEmpty())
+        setThumbnail(video.thumbnail.recommendedQuality(thumbnail->preferredSize()).url);
 
     QString title = QString(video.title.text).replace("\r\n", " ");
     titleLabel->setText(title);
@@ -148,11 +153,6 @@ void VideoRenderer::setDeArrowData(const HttpReply& reply, const QString& thumbF
         thumbnail->setUrl(QStringLiteral("https://dearrow-thumb.ajay.app/api/v1/getThumbnail?videoID=%1&timestamp=%2").arg(videoId).arg(thumbs[0]["timestamp"].toDouble()));
     else
         thumbnail->setUrl(thumbFallbackUrl);
-}
-
-void VideoRenderer::setThumbnail(const InnertubeObjects::ResponsiveImage& thumbImage)
-{
-    setThumbnail(thumbImage.recommendedQuality(thumbnail->preferredSize()).url);
 }
 
 void VideoRenderer::setThumbnail(const QString& url)

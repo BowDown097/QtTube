@@ -19,23 +19,23 @@ class VideoRenderer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit VideoRenderer(QWidget* parent = nullptr);
-    void setData(const InnertubeObjects::Reel& reel);
-    void setData(const InnertubeObjects::Video& video);
-    void setTargetElisionWidth(int width) { targetElisionWidth = width; }
-    void setThumbnail(const QString& url);
-    void setThumbnail(const InnertubeObjects::ResponsiveImage& thumbImage);
-    void setThumbnailSize(const QSize& size);
-protected:
     ChannelLabel* channelLabel;
     TubeLabel* metadataLabel;
     VideoThumbnailWidget* thumbnail;
     ElidedTubeLabel* titleLabel;
+
+    explicit VideoRenderer(QWidget* parent = nullptr);
+    void setData(const InnertubeObjects::Reel& reel);
+    void setData(const InnertubeObjects::Video& video);
+    void setTargetElisionWidth(int width) { targetElisionWidth = width; }
+    void setThumbnailSize(const QSize& size);
 private:
     QString channelId;
     int progress = 0;
     int targetElisionWidth = 0;
     QString videoId;
+
+    void setThumbnail(const QString& url);
 private slots:
     void copyChannelUrl();
     void copyDirectUrl();

@@ -3,11 +3,13 @@
 #include "qttubeapplication.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
+#include "ui/widgets/watchnextfeed.h"
 #include "utils/uiutils.h"
 #include "watchviewplayer.h"
 #include <QBoxLayout>
 #include <QProgressBar>
 #include <QScrollArea>
+#include <QScrollBar>
 
 constexpr const char* likeBarStyle = R"(
     QProgressBar {
@@ -20,6 +22,23 @@ constexpr const char* likeBarStyle = R"(
     }
 )";
 
+void WatchView_Ui::moveFeed(PlayerScaleMode scaleMode)
+{
+    feed->currentList()->verticalScrollBar()->setEnabled(scaleMode == PlayerScaleMode::Scaled);
+    if (scaleMode == PlayerScaleMode::NoScale)
+    {
+        primaryLayout->removeWidget(feed);
+        frameLayout->addWidget(feed);
+        feed->setMinimumHeight(500);
+    }
+    else if (scaleMode == PlayerScaleMode::Scaled)
+    {
+        frameLayout->removeWidget(feed);
+        primaryLayout->addWidget(feed);
+        feed->setMinimumHeight(0);
+    }
+}
+
 void WatchView_Ui::setupUi(QWidget* watchView)
 {
     setupFrame(watchView);
@@ -29,17 +48,18 @@ void WatchView_Ui::setupUi(QWidget* watchView)
     setupMenu(watchView);
     setupDate(watchView);
     setupDescription(watchView);
-    qobject_cast<QVBoxLayout*>(frame->layout())->addStretch(); // disable the layout from stretching on resize
+    setupFeed(watchView);
+    frameLayout->addStretch();
 }
 
 void WatchView_Ui::setupDate(QWidget* watchView)
 {
     infoSpacer = new QSpacerItem(20, 20);
-    frame->layout()->addItem(infoSpacer);
+    frameLayout->addItem(infoSpacer);
 
     date = new TubeLabel(watchView);
     date->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
-    frame->layout()->addWidget(date);
+    frameLayout->addWidget(date);
 }
 
 void WatchView_Ui::setupDescription(QWidget* watchView)
@@ -49,7 +69,7 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
     description->setTextFormat(Qt::RichText);
     description->setWordWrap(true);
     UIUtils::setMaximumLines(description, 3);
-    frame->layout()->addWidget(description);
+    frameLayout->addWidget(description);
 
     showMoreLabel = new TubeLabel(watchView);
     showMoreLabel->setAlignment(Qt::AlignCenter);
@@ -57,32 +77,55 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
     showMoreLabel->setFixedWidth(player->size().width());
     showMoreLabel->setStyleSheet("border-top: 1px solid " + qApp->palette().text().color().name());
     showMoreLabel->setText("SHOW MORE");
-    frame->layout()->addWidget(showMoreLabel);
+    frameLayout->addWidget(showMoreLabel);
     connect(showMoreLabel, &TubeLabel::clicked, this, &WatchView_Ui::toggleShowMore);
+}
+
+void WatchView_Ui::setupFeed(QWidget* watchView)
+{
+    feed = new WatchNextFeed(watchView);
+    if (player->scaleMode() == PlayerScaleMode::NoScale)
+    {
+        frameLayout->addWidget(feed);
+        feed->currentList()->verticalScrollBar()->setEnabled(false);
+        feed->setMinimumHeight(500);
+    }
+    else if (player->scaleMode() == PlayerScaleMode::Scaled)
+    {
+        primaryLayout->addWidget(feed);
+        feed->setMaximumWidth(MainWindow::size().width() - player->size().width());
+    }
 }
 
 void WatchView_Ui::setupFrame(QWidget* watchView)
 {
     scrollArea = new QScrollArea(watchView);
-    scrollArea->setFixedSize(MainWindow::size());
+    scrollArea->setMaximumHeight(MainWindow::size().height());
     scrollArea->setFrameShape(QFrame::NoFrame);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setWidgetResizable(true);
     scrollArea->show();
+    connect(scrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this, &WatchView_Ui::scrollValueChanged);
+
+    primaryLayout = new QHBoxLayout(watchView);
+    primaryLayout->setContentsMargins(0, 0, 0, 0);
+    primaryLayout->setSpacing(5);
 
     frame = new QFrame(scrollArea);
-    frame->setLayout(new QVBoxLayout);
-    frame->layout()->setContentsMargins(0, 0, 0, 0);
-    frame->layout()->setSpacing(5);
+    frameLayout = new QVBoxLayout;
+    frameLayout->setContentsMargins(0, 0, 0, 0);
+    frame->setLayout(frameLayout);
+
     scrollArea->setWidget(frame);
+    primaryLayout->addWidget(scrollArea);
 }
 
 void WatchView_Ui::setupMenu(QWidget* watchView)
 {
     menuWrapper = new QWidget(watchView);
     menuWrapper->setFixedWidth(player->size().width());
-    frame->layout()->addWidget(menuWrapper);
+    frameLayout->addWidget(menuWrapper);
 
     menuVbox = new QVBoxLayout(menuWrapper);
     menuVbox->setContentsMargins(0, 0, 20, 0);
@@ -117,14 +160,16 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
 void WatchView_Ui::setupPlayer(QWidget* watchView)
 {
     player = new WatchViewPlayer(watchView, MainWindow::size());
-    frame->layout()->addWidget(player->widget());
+    scrollArea->setMaximumWidth(player->size().width());
+    frameLayout->addWidget(player->widget());
+    connect(player, &WatchViewPlayer::scaleModeChanged, this, &WatchView_Ui::moveFeed);
 }
 
 void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
 {
     primaryInfoWrapper = new QWidget(watchView);
     primaryInfoWrapper->setFixedWidth(player->size().width());
-    frame->layout()->addWidget(primaryInfoWrapper);
+    frameLayout->addWidget(primaryInfoWrapper);
 
     primaryInfoHbox = new QHBoxLayout(primaryInfoWrapper);
     primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
@@ -156,7 +201,19 @@ void WatchView_Ui::setupTitle(QWidget* watchView)
     titleLabel->setFixedWidth(player->size().width());
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 4));
     titleLabel->setWordWrap(true);
-    frame->layout()->addWidget(titleLabel);
+    frameLayout->addWidget(titleLabel);
+}
+
+void WatchView_Ui::scrollValueChanged(int value)
+{
+    if (player->scaleMode() == PlayerScaleMode::Scaled)
+        return;
+
+    QScrollBar* feedScrollBar = feed->currentList()->verticalScrollBar();
+    if (value == scrollArea->verticalScrollBar()->maximum())
+        feedScrollBar->setEnabled(true);
+    else if (feedScrollBar->value() == feedScrollBar->minimum())
+        feedScrollBar->setEnabled(false);
 }
 
 void WatchView_Ui::toggleShowMore()

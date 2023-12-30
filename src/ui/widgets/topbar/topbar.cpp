@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QPushButton>
+#include <QTabBar>
 
 #ifdef INNERTUBE_NO_WEBENGINE
 #include <QMessageBox>
@@ -62,7 +63,13 @@ TopBar::TopBar(QWidget* parent)
 
 void TopBar::handleMouseEvent(QMouseEvent* event)
 {
-    if (alwaysShow || animation->state() == QAbstractAnimation::Running)
+    bool interferingWithTab = false;
+    QWidget* widgetAtPoint = qApp->widgetAt(QCursor::pos());
+    if (widgetAtPoint)
+        interferingWithTab = strncmp(widgetAtPoint->metaObject()->className(), "QTab", 4) == 0;
+
+    // QTab part is to prevent interference with watch view feed
+    if (alwaysShow || animation->state() == QAbstractAnimation::Running || interferingWithTab)
         return;
 
     if (event->pos().y() < height())

@@ -12,6 +12,8 @@ class WebEnginePlayer;
 
 namespace InnertubeEndpoints { class PlayerResponse; }
 
+enum class PlayerScaleMode { Unset, NoScale, Scaled };
+
 class WatchViewPlayer : public QObject
 {
     Q_OBJECT
@@ -24,9 +26,12 @@ public:
     void calcAndSetSize(const QSize& maxSize);
     const QSize& size() const { return m_size; }
 
+    PlayerScaleMode scaleMode() const { return m_scaleMode; }
+
     void startTracking(const InnertubeEndpoints::PlayerResponse& playerResp);
     void stopTracking();
 private:
+    PlayerScaleMode m_scaleMode;
     QSize m_size;
 #ifndef QTTUBE_USE_MPV
     WebEnginePlayer* wePlayer;
@@ -39,6 +44,7 @@ private slots:
 #endif
 signals:
     void progressChanged(double progress, double previousProgress);
+    void scaleModeChanged(PlayerScaleMode scaleMode);
 };
 
 #endif // WATCHVIEWPLAYER_H

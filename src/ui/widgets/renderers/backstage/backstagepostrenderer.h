@@ -30,7 +30,6 @@ private:
     TubeLabel* channelLabel;
     QHBoxLayout* channelTimeLayout;
     QLabel* contentText;
-    int contentTextLineSpacing;
     IconLabel* dislikeLabel;
     QVBoxLayout* innerLayout;
     QHBoxLayout* layout;

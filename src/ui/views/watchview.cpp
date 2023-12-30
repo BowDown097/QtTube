@@ -8,6 +8,7 @@
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
+#include "ui/widgets/watchnextfeed.h"
 #include "utils/osutils.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
@@ -82,7 +83,11 @@ void WatchView::descriptionLinkActivated(const QString& url)
 
 void WatchView::hotLoadVideo(const QString& videoId, int progress)
 {
+    ui->feed->reset();
     ui->player->stopTracking();
+    ui->scrollArea->horizontalScrollBar()->setValue(0);
+    ui->scrollArea->verticalScrollBar()->setValue(0);
+
     if (metadataUpdateTimer)
         metadataUpdateTimer->deleteLater();
 
@@ -134,19 +139,21 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButtonVie
 void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 {
     InnertubeEndpoints::NextResponse nextResp = endpoint.response;
-    channelId = nextResp.secondaryInfo.owner.navigationEndpoint["browseEndpoint"]["browseId"].toString();
+    channelId = nextResp.results.results.secondaryInfo.owner.navigationEndpoint["browseEndpoint"]["browseId"].toString();
 
-    ui->channelLabel->setInfo(nextResp.secondaryInfo.owner.title.text, nextResp.secondaryInfo.owner.badges);
+    ui->channelLabel->setInfo(nextResp.results.results.secondaryInfo.owner.title.text,
+                              nextResp.results.results.secondaryInfo.owner.badges);
     connect(ui->channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannelRequested, this, channelId));
 
-    ui->subscribeWidget->setSubscribeButton(nextResp.secondaryInfo.subscribeButton);
-    ui->subscribeWidget->setSubscriberCount(nextResp.secondaryInfo.owner.subscriberCountText.text, nextResp.secondaryInfo.subscribeButton.channelId);
+    ui->subscribeWidget->setSubscribeButton(nextResp.results.results.secondaryInfo.subscribeButton);
+    ui->subscribeWidget->setSubscriberCount(nextResp.results.results.secondaryInfo.owner.subscriberCountText.text,
+                                            nextResp.results.results.secondaryInfo.subscribeButton.channelId);
     ui->subscribeWidget->subscribersCountLabel->show();
-    ui->viewCount->setText(qtTubeApp->settings().condensedCounts && !nextResp.primaryInfo.viewCount.isLive
-                               ? nextResp.primaryInfo.viewCount.extraShortViewCount.text + " views"
-                               : nextResp.primaryInfo.viewCount.viewCount.text);
+    ui->viewCount->setText(qtTubeApp->settings().condensedCounts && !nextResp.results.results.primaryInfo.viewCount.isLive
+                               ? nextResp.results.results.primaryInfo.viewCount.extraShortViewCount.text + " views"
+                               : nextResp.results.results.primaryInfo.viewCount.viewCount.text);
 
-    for (const InnertubeObjects::MenuFlexibleItem& fi : nextResp.primaryInfo.videoActions.flexibleItems)
+    for (const InnertubeObjects::MenuFlexibleItem& fi : nextResp.results.results.primaryInfo.videoActions.flexibleItems)
     {
         // these will never be implemented
         if (fi.topLevelButton.iconName == "CONTENT_CUT" || fi.topLevelButton.iconName == "MONEY_HEART")
@@ -167,7 +174,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     IconLabel* shareLabel = new IconLabel("share", "Share", ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0));
     ui->topLevelButtons->addWidget(shareLabel);
 
-    if (nextResp.liveChat.has_value())
+    if (nextResp.results.liveChat.has_value())
     {
         IconLabel* liveChatLabel = new IconLabel("live-chat", "Chat", QMargins(15, 0, 0, 0));
         ui->topLevelButtons->addWidget(liveChatLabel);
@@ -176,13 +183,14 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         {
             LiveChatWindow* liveChatWindow = new LiveChatWindow;
             liveChatWindow->show();
-            liveChatWindow->initialize(nextResp.liveChat.value(), ui->player);
+            liveChatWindow->initialize(nextResp.results.liveChat.value(), ui->player);
         });
     }
 
     ui->topLevelButtons->addStretch();
 
-    InnertubeObjects::LikeDislikeViewModel likeDislikeViewModel = nextResp.primaryInfo.videoActions.segmentedLikeDislikeButtonViewModel;
+    InnertubeObjects::LikeDislikeViewModel likeDislikeViewModel = nextResp.results.results.primaryInfo.videoActions
+                                                                      .segmentedLikeDislikeButtonViewModel;
 
     ui->likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
     ui->topLevelButtons->addWidget(ui->likeLabel);
@@ -202,16 +210,15 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         ui->dislikeLabel->setStyleSheet("color: #167ac6");
     }
 
-    if (!nextResp.secondaryInfo.owner.thumbnail.isEmpty())
+    if (!nextResp.results.results.secondaryInfo.owner.thumbnail.isEmpty())
     {
-        HttpReply* reply = Http::instance().get(nextResp.secondaryInfo.owner.thumbnail.recommendedQuality(QSize(48, 48)).url);
+        HttpReply* reply = Http::instance().get(nextResp.results.results.secondaryInfo.owner.thumbnail.recommendedQuality(QSize(48, 48)).url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
 
     InnertubeObjects::ButtonViewModel likeViewModel = likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel.defaultButtonViewModel;
     ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
-                               ? likeViewModel.title
-                               : StringUtils::extractDigits(likeViewModel.accessibilityText));
+                               ? likeViewModel.title : StringUtils::extractDigits(likeViewModel.accessibilityText));
 
     if (qtTubeApp->settings().returnDislikes)
     {
@@ -224,15 +231,16 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     }
 
     // Add "Published on" before date of normal videos to replicate Hitchhiker style
-    QString dateText = nextResp.primaryInfo.dateText.text;
+    QString dateText = nextResp.results.results.primaryInfo.dateText.text;
     if (!dateText.startsWith("Premier") && !dateText.startsWith("St") && !dateText.startsWith("Sched"))
         dateText.prepend("Published on ");
 
     ui->date->setText(dateText);
 
-    ui->description->setText(StringUtils::innertubeStringToRichText(unattributeDescription(nextResp.secondaryInfo.attributedDescription)));
+    ui->description->setText(StringUtils::innertubeStringToRichText(unattributeDescription(nextResp.results.results.secondaryInfo.attributedDescription)));
     ui->description->setVisible(!ui->description->text().isEmpty());
     ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumHeight());
+    ui->feed->setData(endpoint);
 }
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
@@ -267,14 +275,18 @@ void WatchView::resizeEvent(QResizeEvent* event)
     if (!ui->primaryInfoWrapper || !event->oldSize().isValid())
         return;
 
-    ui->player->calcAndSetSize(size());
-    ui->scrollArea->setFixedSize(event->size());
+    ui->player->calcAndSetSize(event->size());
+    ui->scrollArea->setMaximumHeight(event->size().height());
 
-    ui->description->setFixedWidth(ui->player->size().width());
-    ui->menuWrapper->setFixedWidth(ui->player->size().width());
-    ui->primaryInfoWrapper->setFixedWidth(ui->player->size().width());
-    ui->showMoreLabel->setFixedWidth(ui->player->size().width());
-    ui->titleLabel->setFixedWidth(ui->player->size().width());
+    int width = ui->player->size().width();
+    ui->description->setFixedWidth(width);
+    ui->feed->setMaximumWidth(ui->player->scaleMode() == PlayerScaleMode::Scaled
+                                  ? event->size().width() - width : QWIDGETSIZE_MAX);
+    ui->menuWrapper->setFixedWidth(width);
+    ui->primaryInfoWrapper->setFixedWidth(width);
+    ui->scrollArea->setMaximumWidth(width);
+    ui->showMoreLabel->setFixedWidth(width);
+    ui->titleLabel->setFixedWidth(width);
 }
 
 void WatchView::setChannelIcon(const HttpReply& reply)

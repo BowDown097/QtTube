@@ -6,6 +6,7 @@ QT_BEGIN_NAMESPACE
 
 class ChannelLabel;
 class IconLabel;
+enum class PlayerScaleMode;
 class QFrame;
 class QHBoxLayout;
 class QProgressBar;
@@ -14,6 +15,7 @@ class QSpacerItem;
 class QVBoxLayout;
 class SubscribeWidget;
 class TubeLabel;
+class WatchNextFeed;
 class WatchViewPlayer;
 
 class WatchView_Ui : public QObject
@@ -25,7 +27,9 @@ public:
     TubeLabel* date;
     TubeLabel* description;
     IconLabel* dislikeLabel;
+    WatchNextFeed* feed;
     QFrame* frame;
+    QVBoxLayout* frameLayout;
     QSpacerItem* infoSpacer;
     QProgressBar* likeBar;
     QHBoxLayout* likeBarWrapper;
@@ -36,6 +40,7 @@ public:
     QHBoxLayout* primaryInfoHbox;
     QVBoxLayout* primaryInfoVbox;
     QWidget* primaryInfoWrapper;
+    QHBoxLayout* primaryLayout;
     QScrollArea* scrollArea;
     TubeLabel* showMoreLabel;
     SubscribeWidget* subscribeWidget;
@@ -44,16 +49,20 @@ public:
     TubeLabel* viewCount;
 
     void setupUi(QWidget* watchView);
-public slots:
-    void toggleShowMore();
 private:
     void setupDate(QWidget* watchView);
     void setupDescription(QWidget* watchView);
+    void setupFeed(QWidget* watchView);
     void setupFrame(QWidget* watchView);
     void setupMenu(QWidget* watchView);
     void setupPlayer(QWidget* watchView);
     void setupPrimaryInfo(QWidget* watchView);
     void setupTitle(QWidget* watchView);
+public slots:
+    void toggleShowMore();
+private slots:
+    void moveFeed(PlayerScaleMode scaleMode);
+    void scrollValueChanged(int value);
 };
 
 namespace Ui
