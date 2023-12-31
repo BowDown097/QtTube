@@ -131,6 +131,9 @@ int FlowLayout::doLayout(const QRect &rect, bool testOnly) const
     //! [10]
     for (QLayoutItem *item : std::as_const(itemList)) {
         const QWidget *wid = item->widget();
+        if (wid->isHidden())
+            continue;
+
         int spaceX = horizontalSpacing();
         if (spaceX == -1)
             spaceX = wid->style()->layoutSpacing(

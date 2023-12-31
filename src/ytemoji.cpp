@@ -1,91 +1,86 @@
 #include "ytemoji.h"
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 
-namespace ytemoji
+ytemoji::UnicodeEmoji::UnicodeEmoji(const QJsonValue& emojiJson)
 {
-    QString emojize(QString s, bool escape)
+    emojiId = emojiJson["emojiId"].toString();
+    image = emojiJson["image"]["thumbnails"][0]["url"].toString();
+    supportsSkinTone = emojiJson["supportsSkinTone"].toBool();
+
+    const QJsonArray searchTermsJson = emojiJson["searchTerms"].toArray();
+    for (const QJsonValue& searchTerm : searchTermsJson)
+        searchTerms.append(searchTerm.toString());
+
+    const QJsonArray shortcutsJson = emojiJson["shortcuts"].toArray();
+    for (const QJsonValue& shortcut : shortcutsJson)
+        shortcuts.append(shortcut.toString());
+}
+
+ytemoji* ytemoji::instance()
+{
+    std::call_once(m_onceFlag, [] { m_instance = new ytemoji; });
+    return m_instance;
+}
+
+ytemoji::ytemoji()
+{
+    QFile emojisFile(":/emojis-svg-10.json");
+    emojisFile.open(QFile::ReadOnly);
+
+    const QJsonArray doc = QJsonDocument::fromJson(emojisFile.readAll()).array();
+    for (const QJsonValue& emoji : doc)
+        m_unicodeEmojis.append(UnicodeEmoji(emoji));
+}
+
+QString ytemoji::emojize(QString s, bool escape)
+{
+    for (const UnicodeEmoji& emoji : m_unicodeEmojis)
+        for (const QString& shortcut : emoji.shortcuts)
+            s.replace(shortcut, emoji.emojiId);
+    return s;
+}
+
+QJsonArray ytemoji::produceRichText(QString s)
+{
+    QJsonArray textSegments;
+
+    int i, index = -1;
+    int sLen = s.size();
+
+    for (i = 0; i < sLen; i++)
     {
-        int index = -1;
-        int sLen = s.size();
+        // check if char is colon and not escaped
+        if (s[i] != ':' || (i != 0 && s[i - 1] == '\\'))
+            continue;
 
-        for (int i = 0; i < sLen; i++)
+        if (index == -1 || i - index == 1)
         {
-            // check if char is colon and not escaped
-            if (s[i] != ':' || (escape && i != 0 && s[i - 1] == '\\'))
-                continue;
-
-            if (index == -1 || i - index == 1)
-            {
-                index = i;
-                continue;
-            }
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0) && defined(__cpp_lib_char8_t)
-            QMap<QString, std::u8string>::const_iterator it = BUILTIN_EMOJIS.constFind(s.mid(index, i - index + 1));
-#else
-            QMap<QString, QString>::const_iterator it = BUILTIN_EMOJIS.constFind(s.mid(index, i - index + 1));
-#endif
-            if (it == BUILTIN_EMOJIS.constEnd())
-            {
-                index = i;
-                continue;
-            }
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0) && defined(__cpp_lib_char8_t)
-            QString emo = QString::fromStdString(std::string(it.value().begin(), it.value().end()));
-#else
-            const QString& emo = it.value();
-#endif
-            // replace from index to i
-            s.replace(index, i - index + 1, emo);
-            int goBack = i - index + 1 - emo.size();
-            sLen -= goBack;
-            i -= goBack;
-            index = -1;
+            index = i;
+            continue;
         }
 
-        return s;
-    }
-
-    QJsonArray produceRichText(QString s)
-    {
-        QJsonArray textSegments;
-
-        int i, index = -1;
-        int sLen = s.size();
-
-        for (i = 0; i < sLen; i++)
+        auto it = std::ranges::find_if(m_youtubeEmojis, [index, &s, i](const YouTubeEmoji& e) {
+            return e.shortcut == s.mid(index, i - index + 1);
+        });
+        if (it == m_youtubeEmojis.end())
         {
-            // check if char is colon and not escaped
-            if (s[i] != ':' || (i != 0 && s[i - 1] == '\\'))
-                continue;
-
-            if (index == -1 || i - index == 1)
-            {
-                index = i;
-                continue;
-            }
-
-            auto it = std::ranges::find_if(YOUTUBE_EMOJIS, [index, &s, i](const YouTubeEmoji& e) {
-                return e.emojiName == s.mid(index, i - index + 1);
-            });
-            if (it == YOUTUBE_EMOJIS.end())
-            {
-                index = i;
-                continue;
-            }
-
-            textSegments.append(QJsonObject { { "text", s.left(index) } });
-            textSegments.append(QJsonObject { { "emojiId", it->emojiId } });
-
-            s.remove(0, i + 1);
-            sLen -= i + 1;
-            i = index = -1;
+            index = i;
+            continue;
         }
 
-        if (!s.isEmpty()) // if any remaining text, add it
-            textSegments.append(QJsonObject { { "text", s } });
+        textSegments.append(QJsonObject { { "text", s.left(index) } });
+        textSegments.append(QJsonObject { { "emojiId", it->emojiId } });
 
-        return textSegments;
+        s.remove(0, i + 1);
+        sLen -= i + 1;
+        i = index = -1;
     }
+
+    if (!s.isEmpty()) // if any remaining text, add it
+        textSegments.append(QJsonObject { { "text", s } });
+
+    return textSegments;
 }

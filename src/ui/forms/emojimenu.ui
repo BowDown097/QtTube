@@ -53,24 +53,7 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>76</height>
-       </rect>
-      </property>
-     </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="QScrollArea" name="filteredScrollArea">
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="filteredScrollAreaContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>198</width>
-        <height>75</height>
+        <height>166</height>
        </rect>
       </property>
      </widget>

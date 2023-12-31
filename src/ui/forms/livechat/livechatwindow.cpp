@@ -5,12 +5,10 @@
 #include "ui/widgets/labels/tubelabel.h"
 #include "utils/uiutils.h"
 #include "ytemoji.h"
-
 #include "giftredemptionmessage.h"
 #include "paidmessage.h"
 #include "specialmessage.h"
 #include "textmessage.h"
-
 #include <QTimer>
 
 LiveChatWindow::LiveChatWindow(QWidget* parent)
@@ -197,7 +195,7 @@ void LiveChatWindow::sendMessage()
 
     QString clientMessageId = sendEndpoint["clientIdPrefix"].toString() + QString::number(numSentMessages++);
     QString params = sendEndpoint["params"].toString();
-    QJsonArray textSegments = ytemoji::produceRichText(ytemoji::emojize(ui->messageBox->text().trimmed()));
+    QJsonArray textSegments = ytemoji::instance()->produceRichText(ytemoji::instance()->emojize(ui->messageBox->text().trimmed()));
 
     InnerTube::instance()->sendMessage(textSegments, clientMessageId, params);
     ui->messageBox->clear();

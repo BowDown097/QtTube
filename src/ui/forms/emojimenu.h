@@ -22,7 +22,6 @@ private slots:
 signals:
     void emojiClicked(const QString& emoji);
 private:
-    FlowLayout* filteredLayout;
     FlowLayout* layout;
     Ui::EmojiMenu* ui;
 };

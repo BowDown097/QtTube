@@ -1,6 +1,9 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
+        <file>emojis-svg-10.json</file>
+    </qresource>
+    <qresource>
         <file>dislike.svg</file>
     </qresource>
     <qresource>
