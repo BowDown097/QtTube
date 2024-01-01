@@ -10,6 +10,8 @@ class ChannelLabel : public QWidget
 public:
     TubeLabel* text;
     explicit ChannelLabel(QWidget* parent = nullptr);
+
+    void reset();
     void setInfo(const QString& channelName, const QList<InnertubeObjects::MetadataBadge>& badges);
 private:
     QHBoxLayout* layout;

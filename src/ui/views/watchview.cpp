@@ -83,6 +83,7 @@ void WatchView::descriptionLinkActivated(const QString& url)
 
 void WatchView::hotLoadVideo(const QString& videoId, int progress)
 {
+    ui->channelLabel->reset();
     ui->feed->reset();
     ui->player->stopTracking();
     ui->scrollArea->horizontalScrollBar()->setValue(0);
