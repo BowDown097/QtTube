@@ -93,7 +93,7 @@ void WatchView_Ui::setupFeed(QWidget* watchView)
     else if (player->scaleMode() == PlayerScaleMode::Scaled)
     {
         primaryLayout->addWidget(feed);
-        feed->setMaximumWidth(MainWindow::size().width() - player->size().width());
+        feed->setMaximumWidth(MainWindow::size().width() - player->size().width() - primaryLayout->spacing());
     }
 }
 

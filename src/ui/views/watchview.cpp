@@ -281,7 +281,7 @@ void WatchView::resizeEvent(QResizeEvent* event)
     int width = ui->player->size().width();
     ui->description->setFixedWidth(width);
     ui->feed->setMaximumWidth(ui->player->scaleMode() == PlayerScaleMode::Scaled
-                                  ? event->size().width() - width : QWIDGETSIZE_MAX);
+                                  ? event->size().width() - width - ui->primaryLayout->spacing() : QWIDGETSIZE_MAX);
     ui->menuWrapper->setFixedWidth(width);
     ui->primaryInfoWrapper->setFixedWidth(width);
     ui->scrollArea->setMaximumWidth(width);
