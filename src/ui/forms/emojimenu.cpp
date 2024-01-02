@@ -1,8 +1,7 @@
 #include "emojimenu.h"
 #include "ui_emojimenu.h"
-#include "http.h"
 #include "ui/widgets/flowlayout.h"
-#include "ui/widgets/labels/tubelabel.h"
+#include "ui/widgets/labels/emojilabel.h"
 #include "ytemoji.h"
 
 EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
@@ -15,15 +14,9 @@ EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
 
     for (const ytemoji::YouTubeEmoji& ytEmoji : ytemoji::instance()->youtubeEmojis())
     {
-        TubeLabel* emoji = new TubeLabel(ui->scrollAreaContents);
-        emoji->setClickable(true, false);
-        emoji->setToolTip(ytEmoji.shortcut);
+        EmojiLabel* emoji = new EmojiLabel(ytEmoji.shortcut, ytEmoji.image, ui->scrollAreaContents);
         layout->addWidget(emoji);
-        connect(emoji, &TubeLabel::clicked, this, std::bind(&EmojiMenu::emojiClicked, this, ytEmoji.shortcut));
-
-        QUrl url(ytEmoji.image);
-        HttpReply* reply = Http::instance().get(url);
-        connect(reply, &HttpReply::finished, this, std::bind(&EmojiMenu::setEmojiIcon, this, std::placeholders::_1, emoji));
+        connect(emoji, &EmojiLabel::clicked, this, std::bind(&EmojiMenu::emojiClicked, this, emoji->primaryShortcut()));
     }
 
     for (const ytemoji::UnicodeEmoji& uniEmoji : ytemoji::instance()->unicodeEmojis())
@@ -32,15 +25,9 @@ EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
         if (uniEmoji.shortcuts.isEmpty())
             continue;
 
-        TubeLabel* emoji = new TubeLabel(ui->scrollAreaContents);
-        emoji->setClickable(true, false);
-        emoji->setToolTip(uniEmoji.shortcuts[0]);
+        EmojiLabel* emoji = new EmojiLabel(uniEmoji.shortcuts, uniEmoji.searchTerms, uniEmoji.image, ui->scrollAreaContents);
         layout->addWidget(emoji);
-        connect(emoji, &TubeLabel::clicked, this, std::bind(&EmojiMenu::emojiClicked, this, uniEmoji.shortcuts[0]));
-
-        QUrl url(uniEmoji.image);
-        HttpReply* reply = Http::instance().get(url);
-        connect(reply, &HttpReply::finished, this, std::bind(&EmojiMenu::setEmojiIcon, this, std::placeholders::_1, emoji));
+        connect(emoji, &EmojiLabel::clicked, this, std::bind(&EmojiMenu::emojiClicked, this, emoji->primaryShortcut()));
     }
 }
 
@@ -51,23 +38,20 @@ EmojiMenu::~EmojiMenu()
 
 void EmojiMenu::filterEmojis()
 {
-    // TODO: use youtube's search terms instead of label tooltip
-    bool searchingEmojis = !ui->emojiSearch->text().isEmpty();
-    if (searchingEmojis)
+    const QString searchText = ui->emojiSearch->text();
+    if (!searchText.isEmpty())
     {
-        for (TubeLabel* label : ui->scrollAreaContents->findChildren<TubeLabel*>())
-            label->setVisible(label->toolTip().contains(ui->emojiSearch->text()));
+        for (EmojiLabel* label : ui->scrollAreaContents->findChildren<EmojiLabel*>())
+        {
+            const QStringList searchTerms = label->searchTerms();
+            label->setVisible(std::ranges::any_of(searchTerms, [label, &searchText](const QString& searchTerm) {
+                return searchTerm.contains(searchText);
+            }));
+        }
     }
     else
     {
-        for (TubeLabel* label : ui->scrollAreaContents->findChildren<TubeLabel*>())
+        for (EmojiLabel* label : ui->scrollAreaContents->findChildren<EmojiLabel*>())
             label->setVisible(true);
     }
-}
-
-void EmojiMenu::setEmojiIcon(const HttpReply& reply, TubeLabel* emojiLabel)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    emojiLabel->setPixmap(pixmap.scaled(24, 24, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }

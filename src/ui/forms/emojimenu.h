@@ -18,7 +18,6 @@ public:
     ~EmojiMenu();
 private slots:
     void filterEmojis();
-    void setEmojiIcon(const HttpReply& reply, TubeLabel* emojiLabel);
 signals:
     void emojiClicked(const QString& emoji);
 private:

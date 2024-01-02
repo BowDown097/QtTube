@@ -120,6 +120,7 @@ set(SOURCE_FILES
     src/ui/widgets/labels/channelbadgelabel.cpp
     src/ui/widgets/labels/channellabel.cpp
     src/ui/widgets/labels/elidedtubelabel.cpp
+    src/ui/widgets/labels/emojilabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
     src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.cpp
@@ -196,6 +197,7 @@ set(HEADERS
     src/ui/widgets/labels/channelbadgelabel.h
     src/ui/widgets/labels/channellabel.h
     src/ui/widgets/labels/elidedtubelabel.h
+    src/ui/widgets/labels/emojilabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
     src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.h
