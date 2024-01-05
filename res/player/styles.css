@@ -128,6 +128,13 @@
 .ytp-gradient-top {
     display: none !important;
 }
+
+.ytp-big-mode .ytp-gradient-top {
+    display: block !important;
+    height: 75px !important;
+    padding: 0 !important;
+    background: linear-gradient(to bottom, #0009, #0000) !important;
+}
 /* top + bottom gradients */
 
 /* general styles */
@@ -137,6 +144,10 @@
 
 .ytp-menuitem-icon:empty {
     display: none !important;
+}
+
+.ytp-videowall-still-round-medium .ytp-videowall-still-image {
+    border-radius: 0;
 }
 
 .ytp-embed:not(.ytp-big-mode) .ytp-popup {
@@ -261,8 +272,17 @@
     color: red;
 }
 
-.ytp-chrome-top {
+.ytp-embed:not(.ytp-big-mode) .ytp-chrome-top {
     display: none !important;
+}
+
+.ytp-big-mode .ytp-title {
+    display: flex !important;
+}
+
+.ytp-title-text {
+    padding-top: 18px !important;
+    padding-left: 6px !important;
 }
 /* end general styles */
 
