@@ -284,6 +284,10 @@
     padding-top: 18px !important;
     padding-left: 6px !important;
 }
+
+.ytp-title-channel, .ytp-shorts-title-channel, .ytp-chrome-top-buttons {
+    display: none !important;
+}
 /* end general styles */
 
 /* SponsorBlock styles */
