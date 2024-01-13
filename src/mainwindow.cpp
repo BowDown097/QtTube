@@ -17,6 +17,7 @@
 MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setWindowTitle(QTTUBE_APP_NAME);
 
     m_centralWidget = ui->centralwidget;
     m_size = geometry().size();

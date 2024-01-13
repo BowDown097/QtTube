@@ -21,8 +21,8 @@ public:
     void hotLoadChannel(const QString& channelId);
 private:
     QLabel* channelBanner;
-    QHBoxLayout* channelHeader;
-    QWidget* channelHeaderWidget;
+    QWidget* channelHeaderContainer;
+    QHBoxLayout* channelHeaderLayout;
     QLabel* channelIcon;
     QString channelId;
     TubeLabel* channelName;
@@ -33,8 +33,9 @@ private:
     QVBoxLayout* pageLayout;
     SubscribeWidget* subscribeWidget;
 
-    void setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& channelResp);
+    void loadChannel(const QString& channelId);
 private slots:
+    void loadTab(const InnertubeEndpoints::ChannelResponse& response, int index);
     void setBanner(const HttpReply& reply);
     void setIcon(const HttpReply& reply);
 };

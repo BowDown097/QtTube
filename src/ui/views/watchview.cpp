@@ -24,6 +24,9 @@ WatchView::~WatchView()
     delete ui;
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
     OSUtils::toggleIdleSleep(false);
+
+    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+        mainWindow->setWindowTitle(QTTUBE_APP_NAME);
 }
 
 WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QWidget(parent), ui(new Ui::WatchView)
@@ -249,6 +252,9 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
     InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
     ui->player->startTracking(playerResp);
     ui->titleLabel->setText(playerResp.videoDetails.title);
+
+    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+        mainWindow->setWindowTitle(playerResp.videoDetails.title + " - " + QTTUBE_APP_NAME);
 
     if (playerResp.videoDetails.isLive || playerResp.videoDetails.isUpcoming)
     {

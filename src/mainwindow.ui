@@ -13,9 +13,6 @@
   <property name="mouseTracking">
    <bool>true</bool>
   </property>
-  <property name="windowTitle">
-   <string>QtTube</string>
-  </property>
   <property name="windowIcon">
    <iconset resource="../res/resources.qrc">
     <normaloff>:/qttube.svg</normaloff>:/qttube.svg</iconset>

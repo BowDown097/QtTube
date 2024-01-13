@@ -10,13 +10,15 @@
 ChannelView::~ChannelView()
 {
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
+    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+        mainWindow->setWindowTitle(QTTUBE_APP_NAME);
 }
 
 ChannelView::ChannelView(const QString& channelId)
     : channelBanner(new QLabel(this)),
-      channelHeaderWidget(new QWidget(this)),
+      channelHeaderContainer(new QWidget(this)),
+      channelHeaderLayout(new QHBoxLayout(channelHeaderContainer)),
       channelIcon(new QLabel(this)),
-      channelId(channelId),
       channelName(new TubeLabel(this)),
       channelTabs(new QTabWidget(this)),
       handleAndVideos(new TubeLabel(this)),
@@ -25,45 +27,37 @@ ChannelView::ChannelView(const QString& channelId)
       pageLayout(new QVBoxLayout(this)),
       subscribeWidget(new SubscribeWidget(this))
 {
-    auto channelResp = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
-
+    metaHbox->setContentsMargins(0, 0, 0, 0);
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->setSpacing(0);
     pageLayout->addWidget(channelBanner);
 
-    channelHeaderWidget->setFixedHeight(63);
-    channelHeaderWidget->setAutoFillBackground(true);
-
-    channelHeader = new QHBoxLayout(channelHeaderWidget);
-    channelHeader->setSpacing(10);
-
-    metaHbox->setContentsMargins(0,0,0,0);
+    channelHeaderContainer->setFixedHeight(63);
+    channelHeaderContainer->setAutoFillBackground(true);
+    channelHeaderLayout->setSpacing(10);
 
     channelIcon->setFixedSize(55, 48);
     metaHbox->addWidget(channelIcon);
 
-    channelName->setText(channelResp.header.title);
     metaVbox->addWidget(channelName);
 
     handleAndVideos->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
-    handleAndVideos->setText(channelResp.header.channelHandleText.text + " • " + channelResp.header.videosCountText.text);
     metaVbox->addWidget(handleAndVideos);
 
     metaHbox->addLayout(metaVbox);
-    channelHeader->addLayout(metaHbox);
+    channelHeaderLayout->addLayout(metaHbox);
 
     subscribeWidget->layout->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    subscribeWidget->setSubscribeButton(channelResp.header.subscribeButton);
-    subscribeWidget->setSubscriberCount(channelResp.header.subscriberCountText.text, channelResp.header.channelId);
-    channelHeader->addWidget(subscribeWidget);
+    channelHeaderLayout->addWidget(subscribeWidget);
 
-    pageLayout->addWidget(channelHeaderWidget);
+    pageLayout->addWidget(channelHeaderContainer);
 
     channelTabs->tabBar()->setAutoFillBackground(true);
     channelTabs->tabBar()->setDocumentMode(true);
     channelTabs->tabBar()->setExpanding(false);
     pageLayout->addWidget(channelTabs);
-    setTabsAndStyles(channelResp);
+
+    loadChannel(channelId);
 }
 
 void ChannelView::hotLoadChannel(const QString& channelId)
@@ -71,17 +65,69 @@ void ChannelView::hotLoadChannel(const QString& channelId)
     if (this->channelId == channelId)
         return;
 
-    auto channelResp = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
-    this->channelId = channelId;
-
-    channelName->setText(channelResp.header.title);
-    handleAndVideos->setText(channelResp.header.channelHandleText.text + " • " + channelResp.header.videosCountText.text);
-    subscribeWidget->setSubscribeButton(channelResp.header.subscribeButton);
-    subscribeWidget->setSubscriberCount(channelResp.header.subscriberCountText.text, channelResp.header.channelId);
-
     disconnect(channelTabs, &QTabWidget::currentChanged, nullptr, nullptr);
     channelTabs->clear();
-    setTabsAndStyles(channelResp);
+    loadChannel(channelId);
+}
+
+void ChannelView::loadChannel(const QString& channelId)
+{
+    this->channelId = channelId;
+    auto response = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
+
+    channelName->setText(response.header.title);
+    handleAndVideos->setText(response.header.channelHandleText.text + " • " + response.header.videosCountText.text);
+    subscribeWidget->setSubscribeButton(response.header.subscribeButton);
+    subscribeWidget->setSubscriberCount(response.header.subscriberCountText.text, response.header.channelId);
+
+    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+        mainWindow->setWindowTitle(response.header.title + " - " + QTTUBE_APP_NAME);
+
+    connect(channelTabs, &QTabWidget::currentChanged, this,
+            std::bind(&ChannelView::loadTab, this, response, std::placeholders::_1));
+
+    const QJsonArray tabs = response.contents["twoColumnBrowseResultsRenderer"]["tabs"].toArray();
+    for (const QJsonValue& v : tabs)
+    {
+        if (!v["tabRenderer"].isObject())
+            continue;
+
+        QWidget* tab = new QWidget;
+
+        QGridLayout* grid = new QGridLayout(tab);
+        grid->setContentsMargins(0, 0, 0, 0);
+
+        QListWidget* list = new QListWidget(tab);
+        list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        list->verticalScrollBar()->setSingleStep(25);
+        grid->addWidget(list, 0, 0, 1, 1);
+
+        channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
+    }
+
+    bool hasBanner = !response.header.banner.isEmpty();
+    channelBanner->setFixedHeight(hasBanner ? 129 : 40);
+    MainWindow::topbar()->setAlwaysShow(!hasBanner);
+    MainWindow::topbar()->setVisible(!hasBanner);
+
+    if (hasBanner)
+    {
+        HttpReply* bannerReply = Http::instance().get(response.header.banner.bestQuality().url);
+        connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
+    }
+
+    HttpReply* iconReply = Http::instance().get(response.header.avatar.recommendedQuality(QSize(48, 48)).url);
+    connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
+}
+
+void ChannelView::loadTab(const InnertubeEndpoints::ChannelResponse& response, int index)
+{
+    for (QListWidget* l : channelTabs->findChildren<QListWidget*>())
+        l->clear();
+
+    QListWidget* list = channelTabs->widget(index)->findChild<QListWidget*>();
+    BrowseHelper::instance()->browseChannel(list, index, response);
 }
 
 void ChannelView::setBanner(const HttpReply& reply)
@@ -96,45 +142,4 @@ void ChannelView::setIcon(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-}
-
-void ChannelView::setTabsAndStyles(const InnertubeEndpoints::ChannelResponse& channelResp)
-{
-    connect(channelTabs, &QTabWidget::currentChanged, this, [this, channelResp](int index) {
-        for (QListWidget* l : channelTabs->findChildren<QListWidget*>())
-            l->clear();
-        QListWidget* list = channelTabs->widget(index)->findChild<QListWidget*>();
-        BrowseHelper::instance()->browseChannel(list, index, channelResp);
-    });
-
-    const QJsonArray tabs = channelResp.contents["twoColumnBrowseResultsRenderer"]["tabs"].toArray();
-    for (const QJsonValue& v : tabs)
-    {
-        if (!v["tabRenderer"].isObject())
-            continue;
-
-        QWidget* tab = new QWidget;
-        QGridLayout* grid = new QGridLayout(tab);
-        grid->setContentsMargins(0, 0, 0, 0);
-        QListWidget* list = new QListWidget(tab);
-        list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-        list->verticalScrollBar()->setSingleStep(25);
-        grid->addWidget(list, 0, 0, 1, 1);
-        channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
-    }
-
-    bool hasBanner = !channelResp.header.banner.isEmpty();
-    channelBanner->setFixedHeight(hasBanner ? 129 : 40);
-    MainWindow::topbar()->setAlwaysShow(!hasBanner);
-    MainWindow::topbar()->setVisible(!hasBanner);
-
-    if (hasBanner)
-    {
-        HttpReply* bannerReply = Http::instance().get(channelResp.header.banner.bestQuality().url);
-        connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
-    }
-
-    HttpReply* iconReply = Http::instance().get(channelResp.header.avatar.recommendedQuality(QSize(48, 48)).url);
-    connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
 }
