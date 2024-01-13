@@ -33,11 +33,13 @@ private:
     QString currentContinuation;
     double firstChatItemOffset{};
     double lastChatItemOffset{};
+    QString liveChatReloadContinuation;
     QTimer* messagesTimer;
     int numSentMessages{};
     bool populating{};
     QJsonArray replayActions;
     QString seekContinuation;
+    QString topChatReloadContinuation;
 
     TubeLabel* emojiMenuLabel;
     Ui::LiveChatWindow* ui;
@@ -47,6 +49,7 @@ private:
     void processingEnd();
     void updateChatReplay(double progress, double previousProgress);
 private slots:
+    void chatModeIndexChanged(int index);
     void chatReplayTick(double progress, double previousProgress);
     void chatTick();
     void processChatData(const InnertubeEndpoints::GetLiveChat& liveChat);

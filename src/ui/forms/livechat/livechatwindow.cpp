@@ -22,6 +22,7 @@ LiveChatWindow::LiveChatWindow(QWidget* parent)
     ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
 
     connect(emojiMenuLabel, &TubeLabel::clicked, this, &LiveChatWindow::showEmojiMenu);
+    connect(ui->chatModeSwitcher, &QComboBox::currentIndexChanged, this, &LiveChatWindow::chatModeIndexChanged);
     connect(ui->messageBox, &QLineEdit::returnPressed, this, &LiveChatWindow::sendMessage);
     connect(ui->sendButton, &QPushButton::pressed, this, &LiveChatWindow::sendMessage);
 }
@@ -58,6 +59,26 @@ void LiveChatWindow::addNewChatReplayItems(double progress, double previousProgr
             if (v2["addChatItemAction"]["item"].isObject())
                 addChatItemToList(v2["addChatItemAction"]["item"]);
     }
+}
+
+void LiveChatWindow::chatModeIndexChanged(int index)
+{
+    QString continuation = index == 0 ? topChatReloadContinuation : liveChatReloadContinuation;
+    if (continuation.isEmpty())
+    {
+        qDebug() << "Failed to change chat mode: continuation is missing.";
+        return;
+    }
+
+    if (populating)
+    {
+        QEventLoop loop;
+        connect(this, &LiveChatWindow::getLiveChatFinished, &loop, &QEventLoop::quit);
+        loop.exec();
+    }
+
+    currentContinuation = continuation;
+    ui->listWidget->clear();
 }
 
 void LiveChatWindow::chatReplayTick(double progress, double previousProgress)
@@ -103,6 +124,7 @@ void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData, 
     if (liveChatData.isReplay)
     {
         emojiMenuLabel->hide();
+        ui->chatModeSwitcher->hide();
         ui->messageBox->hide();
         ui->sendButton->hide();
 
@@ -139,6 +161,15 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
         }
     }
 
+    // get top and live chat continuations
+    if (liveChat.liveChatContinuation["header"]["liveChatHeaderRenderer"]["viewSelector"].isObject())
+    {
+        QJsonValue sortFilter = liveChat.liveChatContinuation["header"]["liveChatHeaderRenderer"]["viewSelector"]
+                                                             ["sortFilterSubMenuRenderer"]["subMenuItems"];
+        topChatReloadContinuation = sortFilter[0]["continuation"]["reloadContinuationData"]["continuation"].toString();
+        liveChatReloadContinuation = sortFilter[1]["continuation"]["reloadContinuationData"]["continuation"].toString();
+    }
+
     const QJsonArray actions = liveChat.liveChatContinuation["actions"].toArray();
     for (const QJsonValue& v : actions)
         if (v["addChatItemAction"]["item"].isObject())
@@ -161,7 +192,12 @@ void LiveChatWindow::processChatReplayData(const InnertubeEndpoints::GetLiveChat
     replayActions = replay.liveChatContinuation["actions"].toArray();
     addNewChatReplayItems(progress, previousProgress, seeked);
 
-    currentContinuation = replay.liveChatContinuation["continuations"][0]["liveChatReplayContinuationData"]["continuation"].toString();
+    QJsonValue liveChatReplayContinuationData = replay.liveChatContinuation["continuations"][0]["liveChatReplayContinuationData"];
+    if (liveChatReplayContinuationData["continuation"].isString())
+        currentContinuation = liveChatReplayContinuationData["continuation"].toString();
+    if (!liveChatReplayContinuationData["timeUntilLastMessageMsec"].isUndefined())
+        messagesTimer->setInterval(liveChatReplayContinuationData["timeUntilLastMessageMsec"].toInt());
+
     firstChatItemOffset = replayActions.first()["replayChatItemAction"]["videoOffsetTimeMsec"].toString().toDouble() / 1000;
     lastChatItemOffset = replayActions.last()["replayChatItemAction"]["videoOffsetTimeMsec"].toString().toDouble() / 1000;
     seekContinuation = replay.liveChatContinuation["continuations"][1]["playerSeekContinuationData"]["continuation"].toString();
@@ -171,9 +207,9 @@ void LiveChatWindow::processChatReplayData(const InnertubeEndpoints::GetLiveChat
 
 void LiveChatWindow::processingEnd()
 {
-    if (ui->listWidget->count() > 200)
+    if (ui->listWidget->count() > 250)
     {
-        for (int i = 0; i < ui->listWidget->count() - 200; i++)
+        for (int i = 0; i < ui->listWidget->count() - 250; i++)
         {
             QListWidgetItem* item = ui->listWidget->takeItem(i);
             delete item;
