@@ -22,7 +22,7 @@ LiveChatWindow::LiveChatWindow(QWidget* parent)
     ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
 
     connect(emojiMenuLabel, &TubeLabel::clicked, this, &LiveChatWindow::showEmojiMenu);
-    connect(ui->chatModeSwitcher, &QComboBox::currentIndexChanged, this, &LiveChatWindow::chatModeIndexChanged);
+    connect(ui->chatModeSwitcher, qOverload<int>(&QComboBox::currentIndexChanged), this, &LiveChatWindow::chatModeIndexChanged);
     connect(ui->messageBox, &QLineEdit::returnPressed, this, &LiveChatWindow::sendMessage);
     connect(ui->sendButton, &QPushButton::pressed, this, &LiveChatWindow::sendMessage);
 }
