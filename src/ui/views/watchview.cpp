@@ -305,6 +305,13 @@ void WatchView::setChannelIcon(const HttpReply& reply)
 
 void WatchView::setDislikes(const HttpReply& reply)
 {
+    if (!reply.isSuccessful())
+    {
+        if (ui->dislikeLabel->text().isEmpty())
+            ui->dislikeLabel->setText("Dislike");
+        return;
+    }
+
     QJsonDocument doc = QJsonDocument::fromJson(reply.body());
     qint64 dislikes = doc["dislikes"].toVariant().toLongLong();
     qint64 likes = QLocale::system().toLongLong(ui->likeLabel->text());
