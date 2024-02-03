@@ -240,7 +240,6 @@ endif()
 
 # Add executable
 set(INNERTUBE_QT_VERSION_MAJOR ${QTTUBE_QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QTTUBE_QT_VERSION_MAJOR}" FORCE)
-add_subdirectory(lib/http) # TODO: ditch http library
 add_subdirectory(lib/innertube-qt)
 if(WIN32)
     add_executable(QtTube WIN32 ${SOURCE_FILES} ${HEADERS} ${FORMS})
@@ -267,8 +266,8 @@ if(QTTUBE_USE_MPV)
 endif()
 
 # Include directories, libraries
-target_include_directories(QtTube PRIVATE src lib/http/src lib/innertube-qt/src)
-target_link_libraries(QtTube PRIVATE http innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Sql Qt::Widgets)
+target_include_directories(QtTube PRIVATE src lib/innertube-qt/src)
+target_link_libraries(QtTube PRIVATE innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Sql Qt::Widgets)
 
 ## Optional
 find_package(ICU COMPONENTS i18n uc)
