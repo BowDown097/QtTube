@@ -286,9 +286,9 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 
 void WatchView::processPreloadData(PreloadData::WatchView* preload)
 {
-    if (preload->channelAvatar.has_value())
+    if (preload->channelAvatar.has_value() && !preload->channelAvatar->isEmpty())
     {
-        HttpReply* reply = Http::instance().get(preload->channelAvatar.value().recommendedQuality(QSize(48, 48)).url);
+        HttpReply* reply = Http::instance().get(preload->channelAvatar->recommendedQuality(QSize(48, 48)).url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
     if (preload->channelName.has_value())
