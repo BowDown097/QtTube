@@ -3,6 +3,7 @@
 #include "http.h"
 #include "innertube.h"
 #include "mainwindow.h"
+#include "preloaddata.h"
 #include "qttubeapplication.h"
 #include "ui/forms/livechat/livechatwindow.h"
 #include "ui/widgets/labels/channellabel.h"
@@ -29,12 +30,16 @@ WatchView::~WatchView()
         mainWindow->setWindowTitle(QTTUBE_APP_NAME);
 }
 
-WatchView::WatchView(const QString& videoId, int progress, QWidget* parent) : QWidget(parent), ui(new Ui::WatchView)
+WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchView* preload, QWidget* parent)
+    : QWidget(parent), ui(new Ui::WatchView)
 {
     MainWindow::topbar()->hide();
     MainWindow::topbar()->setAlwaysShow(false);
 
     ui->setupUi(this);
+
+    if (preload)
+        processPreloadData(preload);
 
     auto next = InnerTube::instance()->get<InnertubeEndpoints::Next>(videoId);
     connect(next, &InnertubeReply<InnertubeEndpoints::Next>::finished, this, &WatchView::processNext);
@@ -84,9 +89,8 @@ void WatchView::descriptionLinkActivated(const QString& url)
     }
 }
 
-void WatchView::hotLoadVideo(const QString& videoId, int progress)
+void WatchView::hotLoadVideo(const QString& videoId, int progress, PreloadData::WatchView* preload)
 {
-    ui->channelLabel->reset();
     ui->feed->reset();
     ui->player->stopTracking();
     ui->scrollArea->horizontalScrollBar()->setValue(0);
@@ -97,6 +101,9 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress)
 
     UIUtils::clearLayout(ui->topLevelButtons);
     disconnect(ui->channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
+
+    if (preload)
+        processPreloadData(preload);
 
     auto next = InnerTube::instance()->get<InnertubeEndpoints::Next>(videoId);
     connect(next, &InnertubeReply<InnertubeEndpoints::Next>::finished, this, &WatchView::processNext);
@@ -274,6 +281,23 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
             }
         });
         metadataUpdateTimer->start();
+    }
+}
+
+void WatchView::processPreloadData(PreloadData::WatchView* preload)
+{
+    if (preload->channelAvatar.has_value())
+    {
+        HttpReply* reply = Http::instance().get(preload->channelAvatar.value().recommendedQuality(QSize(48, 48)).url);
+        connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
+    }
+    if (preload->channelName.has_value())
+    {
+        ui->channelLabel->setInfo(preload->channelName.value(), preload->channelBadges);
+    }
+    if (preload->title.has_value())
+    {
+        ui->titleLabel->setText(preload->title.value());
     }
 }
 

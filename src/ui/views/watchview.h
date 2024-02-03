@@ -16,6 +16,7 @@ class InnertubeString;
 class ToggleButtonViewModel;
 }
 
+namespace PreloadData { class WatchView; }
 namespace Ui { class WatchView; }
 
 class HttpReply;
@@ -26,9 +27,10 @@ class WatchView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WatchView(const QString& videoId, int progress = 0, QWidget* parent = nullptr);
+    explicit WatchView(const QString& videoId, int progress = 0,
+                       PreloadData::WatchView* preload = nullptr, QWidget* parent = nullptr);
     ~WatchView();
-    void hotLoadVideo(const QString& videoId, int progress = 0);
+    void hotLoadVideo(const QString& videoId, int progress = 0, PreloadData::WatchView* preload = nullptr);
 protected:
     void resizeEvent(QResizeEvent* event) override;
 private:
@@ -36,6 +38,7 @@ private:
     QPointer<QTimer> metadataUpdateTimer;
     Ui::WatchView* ui;
 
+    void processPreloadData(PreloadData::WatchView* preload);
     InnertubeObjects::InnertubeString unattributeDescription(const QJsonValue& attributedDescription);
     void updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp);
 private slots:

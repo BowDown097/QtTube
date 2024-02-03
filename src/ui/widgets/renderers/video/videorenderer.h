@@ -9,6 +9,8 @@ class ResponsiveImage;
 class Video;
 }
 
+namespace PreloadData { class WatchView; }
+
 class ChannelLabel;
 class ElidedTubeLabel;
 class HttpReply;
@@ -34,6 +36,7 @@ private:
     int progress = 0;
     int targetElisionWidth = 0;
     QString videoId;
+    PreloadData::WatchView* watchPreloadData{};
 
     void setThumbnail(const QString& url);
 private slots:

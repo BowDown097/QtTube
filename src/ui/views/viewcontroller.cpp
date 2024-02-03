@@ -49,11 +49,11 @@ void ViewController::loadChannel(const QString& channelId)
     });
 }
 
-void ViewController::loadVideo(const QString& videoId, int progress)
+void ViewController::loadVideo(const QString& videoId, int progress, PreloadData::WatchView* preload)
 {
     if (WatchView* casted = qobject_cast<WatchView*>(MainWindow::centralWidget()->currentWidget()))
     {
-        casted->hotLoadVideo(videoId, progress);
+        casted->hotLoadVideo(videoId, progress, preload);
         return;
     }
     else if (ChannelView* channelView = qobject_cast<ChannelView*>(MainWindow::centralWidget()->currentWidget()))
@@ -61,7 +61,7 @@ void ViewController::loadVideo(const QString& videoId, int progress)
         channelView->deleteLater();
     }
 
-    WatchView* watchView = new WatchView(videoId, progress);
+    WatchView* watchView = new WatchView(videoId, progress, preload);
     MainWindow::centralWidget()->addWidget(watchView);
     MainWindow::centralWidget()->setCurrentWidget(watchView);
 

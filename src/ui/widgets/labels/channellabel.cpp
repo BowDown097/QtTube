@@ -4,39 +4,40 @@
 #include <QBoxLayout>
 
 ChannelLabel::ChannelLabel(QWidget* parent)
-    : QWidget(parent), text(new TubeLabel(this)), layout(new QHBoxLayout(this))
+    : QWidget(parent), text(new TubeLabel(this)), badgeLayout(new QHBoxLayout), layout(new QHBoxLayout(this))
 {
     text->setClickable(true, true);
     text->setContextMenuPolicy(Qt::CustomContextMenu);
+
     layout->addWidget(text);
     layout->setContentsMargins(0, 0, 0, 0);
+
+    badgeLayout->addStretch();
+    badgeLayout->setSpacing(2);
+    layout->addLayout(badgeLayout);
 }
 
 void ChannelLabel::reset()
 {
     text->clear();
-    for (int i = 0; i < layout->count(); i++)
+    for (int i = 0; i < badgeLayout->count() - 1; i++)
     {
-        QLayoutItem* item = layout->itemAt(i);
-        if (QWidget* widget = item->widget(); !qobject_cast<TubeLabel*>(widget))
+        QLayoutItem* item = badgeLayout->takeAt(i);
+        if (QWidget* widget = item->widget())
             widget->deleteLater();
-        layout->removeItem(item);
         delete item;
     }
 }
 
 void ChannelLabel::setInfo(const QString& channelName, const QList<InnertubeObjects::MetadataBadge>& badges)
 {
+    reset();
     text->setText(channelName);
-    text->adjustSize();
 
     for (const InnertubeObjects::MetadataBadge& badge : badges)
     {
         ChannelBadgeLabel* badgeLabel = new ChannelBadgeLabel(this);
         badgeLabel->setData(badge);
-        layout->addSpacing(2);
-        layout->addWidget(badgeLabel);
+        badgeLayout->insertWidget(badgeLayout->count() - 1, badgeLabel);
     }
-
-    layout->addStretch();
 }

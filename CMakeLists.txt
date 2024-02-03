@@ -182,6 +182,7 @@ set(HEADERS
     src/ui/forms/settings/data-wizards/richtableview/richitemdelegate.h
     src/ui/forms/settings/data-wizards/richtableview/richtableview.h
     src/ui/views/channelview.h
+    src/ui/views/preloaddata.h
     src/ui/views/viewcontroller.h
     src/ui/views/watchview.h
     src/ui/views/watchview_ui.h

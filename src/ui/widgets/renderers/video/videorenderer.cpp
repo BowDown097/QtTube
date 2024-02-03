@@ -4,6 +4,7 @@
 #include "innertube/objects/video/reel.h"
 #include "qttubeapplication.h"
 #include "utils/uiutils.h"
+#include "ui/views/preloaddata.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/elidedtubelabel.h"
@@ -82,7 +83,7 @@ void VideoRenderer::navigateChannel()
 
 void VideoRenderer::navigateVideo()
 {
-    ViewController::loadVideo(videoId, progress);
+    ViewController::loadVideo(videoId, progress, watchPreloadData);
 }
 
 void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
@@ -100,6 +101,13 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
     QString title = QString(reel.headline).replace("\r\n", " ");
     titleLabel->setText(title);
     titleLabel->setToolTip(title);
+
+    watchPreloadData = new PreloadData::WatchView {
+        .channelAvatar = reel.owner.icon,
+        .channelBadges = reel.owner.badges,
+        .channelName = reel.owner.name,
+        .title = title
+    };
 }
 
 void VideoRenderer::setData(const InnertubeObjects::Video& video)
@@ -125,6 +133,13 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
     QString title = QString(video.title.text).replace("\r\n", " ");
     titleLabel->setText(title);
     titleLabel->setToolTip(title);
+
+    watchPreloadData = new PreloadData::WatchView {
+        .channelAvatar = video.owner.icon,
+        .channelBadges = video.owner.badges,
+        .channelName = video.owner.name,
+        .title = title
+    };
 }
 
 void VideoRenderer::setDeArrowData(const HttpReply& reply, const QString& thumbFallbackUrl)
