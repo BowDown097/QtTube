@@ -86,6 +86,7 @@ void LiveChatWindow::chatReplayTick(double progress, double previousProgress)
     if (populating)
         return;
 
+    populating = true;
     QString playerOffsetMs = QString::number(int(progress * 1000));
     int progDiff = progress - previousProgress;
 
@@ -113,6 +114,7 @@ void LiveChatWindow::chatTick()
     if (populating)
         return;
 
+    populating = true;
     auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChat>(currentContinuation);
     connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChat>::finished, this, &LiveChatWindow::processChatData);
 }
@@ -140,8 +142,6 @@ void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData, 
 
 void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& liveChat)
 {
-    populating = true;
-
     // check if user can chat
     if (liveChat.liveChatContinuation["actionPanel"].isObject())
     {
@@ -187,8 +187,6 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
 void LiveChatWindow::processChatReplayData(const InnertubeEndpoints::GetLiveChatReplay& replay,
                                            double progress, double previousProgress, bool seeked)
 {
-    populating = true;
-
     replayActions = replay.liveChatContinuation["actions"].toArray();
     addNewChatReplayItems(progress, previousProgress, seeked);
 
@@ -248,7 +246,6 @@ void LiveChatWindow::showEmojiMenu()
 
 void LiveChatWindow::updateChatReplay(double progress, double previousProgress)
 {
-    populating = true;
     addNewChatReplayItems(progress, previousProgress, false);
     processingEnd();
 }
