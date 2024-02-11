@@ -160,8 +160,12 @@ void VideoRenderer::setDeArrowData(const HttpReply& reply, const QString& thumbF
 
     if (qtTubeApp->settings().deArrowTitles && validReplacement(titles))
     {
-        titleLabel->setText(titles[0]["title"].toString());
-        titleLabel->setToolTip(titles[0]["title"].toString());
+        // for some reason, a lot of dearrow titles have unnecessary >s.
+        // i haven't looked into it much but i'm just going to manually
+        // remove them for now.
+        QString title = titles[0]["title"].toString().replace(">", "");
+        titleLabel->setText(title);
+        titleLabel->setToolTip(title);
     }
 
     if (qtTubeApp->settings().deArrowThumbs && validReplacement(thumbs))
