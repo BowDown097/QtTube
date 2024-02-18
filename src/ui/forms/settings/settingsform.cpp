@@ -8,7 +8,9 @@
 #include "qttubeapplication.h"
 #include "termfilterview.h"
 #include "utils/uiutils.h"
+#include <QDir>
 #include <QMessageBox>
+#include <QStandardPaths>
 #include <QStyleFactory>
 
 SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::SettingsForm)
@@ -40,6 +42,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     // general
     ui->condensedCounts->setChecked(store.condensedCounts);
     ui->fullSubs->setChecked(store.fullSubs);
+    ui->imageCaching->setChecked(store.imageCaching);
     ui->preferLists->setChecked(store.preferLists);
     ui->returnDislikes->setChecked(store.returnDislikes);
     // player
@@ -80,6 +83,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->deArrowTitles->setChecked(store.deArrowTitles);
     toggleDeArrowSettings(store.deArrow);
 
+    connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
     connect(ui->deArrow, &QCheckBox::toggled, this, &SettingsForm::toggleDeArrowSettings);
     //connect(ui->exportButton, &QPushButton::clicked, this, &SettingsForm::openExportWizard);
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool checked) { ui->filterLength->setEnabled(checked); });
@@ -89,6 +93,19 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     connect(ui->showFilteredChannels, &QPushButton::clicked, this, &SettingsForm::showChannelFilterTable);
     connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
     connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool checked) { ui->preferredVolume->setEnabled(!checked); });
+}
+
+void SettingsForm::clearCache()
+{
+    QDir directory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/http/");
+    if (!directory.exists() || directory.isEmpty())
+    {
+        QMessageBox::critical(this, "No cache directory", "No cache directory exists.");
+        return;
+    }
+
+    directory.removeRecursively();
+    QMessageBox::information(this, "Cleared", "Cache directory cleared successfully.");
 }
 
 /*
@@ -149,6 +166,7 @@ void SettingsForm::saveSettings()
     store.condensedCounts = ui->condensedCounts->isChecked();
     store.darkTheme = ui->darkTheme->isChecked();
     store.fullSubs = ui->fullSubs->isChecked();
+    store.imageCaching = ui->imageCaching->isChecked();
     store.preferLists = ui->preferLists->isChecked();
     store.returnDislikes = ui->returnDislikes->isChecked();
     // player

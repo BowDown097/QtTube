@@ -57,7 +57,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>194</height>
+            <height>234</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -149,6 +149,43 @@
                 <string>Dark</string>
                </property>
               </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <property name="spacing">
+              <number>15</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="clearCache">
+               <property name="text">
+                <string>Clear Cache</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="imageCaching">
+               <property name="toolTip">
+                <string>Not all images are cached!</string>
+               </property>
+               <property name="text">
+                <string>Enable image caching</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </item>
@@ -442,7 +479,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>215</width>
+            <width>476</width>
             <height>82</height>
            </rect>
           </property>
@@ -530,7 +567,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>265</width>
+            <width>476</width>
             <height>163</height>
            </rect>
           </property>
@@ -684,7 +721,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>300</width>
+            <width>476</width>
             <height>215</height>
            </rect>
           </property>
@@ -826,7 +863,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>364</width>
+            <width>476</width>
             <height>227</height>
            </rect>
           </property>
@@ -1029,7 +1066,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>222</width>
+            <width>476</width>
             <height>118</height>
            </rect>
           </property>

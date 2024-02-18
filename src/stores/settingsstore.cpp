@@ -17,6 +17,7 @@ void SettingsStore::initialize()
     condensedCounts = settings.value("condensedCounts", false).toBool();
     darkTheme = settings.value("darkTheme", false).toBool();
     fullSubs = settings.value("fullSubs", false).toBool();
+    imageCaching = settings.value("imageCaching", true).toBool();
     preferLists = settings.value("preferLists", false).toBool();
     returnDislikes = settings.value("returnDislikes", true).toBool();
     // player
@@ -71,6 +72,7 @@ void SettingsStore::save()
     settings.setValue("condensedCounts", condensedCounts);
     settings.setValue("darkTheme", darkTheme);
     settings.setValue("fullSubs", fullSubs);
+    settings.setValue("imageCaching", imageCaching);
     settings.setValue("preferLists", preferLists);
     settings.setValue("returnDislikes", returnDislikes);
     // player

@@ -1,5 +1,6 @@
 #include "textmessage.h"
-#include "http.h"
+#include "cachedhttp.h"
+#include "utils/httputils.h"
 #include "utils/uiutils.h"
 #include <QApplication>
 #include <QBoxLayout>
@@ -23,7 +24,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     authorIcon->setFixedSize(38, 32);
     layout->addWidget(authorIcon);
 
-    HttpReply* iconReply = Http::instance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
+    HttpReply* iconReply = HttpUtils::cachedInstance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
     connect(iconReply, &HttpReply::finished, this, &TextMessage::setAuthorIcon);
 
     contentLayout->setContentsMargins(0, 0, 0, 0);
@@ -67,7 +68,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
                 .arg(v2["emoji"]["shortcuts"][0].toString() + v2["emoji"]["searchTerms"][0].toString() + url);
             if (!messageLabel->text().contains(placeholder))
             {
-                HttpReply* emojiReply = Http::instance().get(url);
+                HttpReply* emojiReply = HttpUtils::cachedInstance().get(url);
                 connect(emojiReply, &HttpReply::finished, this,
                         std::bind(&TextMessage::insertEmojiIntoMessage, this, std::placeholders::_1, placeholder));
             }

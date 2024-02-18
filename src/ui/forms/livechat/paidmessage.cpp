@@ -1,6 +1,7 @@
 #include "paidmessage.h"
-#include "http.h"
+#include "cachedhttp.h"
 #include "innertube/objects/innertubestring.h"
+#include "utils/httputils.h"
 #include "utils/uiutils.h"
 #include <QApplication>
 #include <QBoxLayout>
@@ -48,7 +49,7 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     authorIcon->setFixedSize(38, 32);
     headerLayout->addWidget(authorIcon);
 
-    HttpReply* iconReply = Http::instance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
+    HttpReply* iconReply = HttpUtils::cachedInstance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
     connect(iconReply, &HttpReply::finished, this, &PaidMessage::setAuthorIcon);
 
     innerHeaderLayout->setContentsMargins(0, 0, 0, 0);

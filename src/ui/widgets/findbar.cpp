@@ -77,33 +77,33 @@ void FindBar::jumpToLabel()
 {
     nextButton->setEnabled(currentIndex + 1 < matches.length());
     previousButton->setEnabled(currentIndex >= 1);
-    if (matches.length() > 0)
-    {
-        matches[currentIndex]->setStyleSheet("background-color: yellow");
-        matchesLabel->setText(matches.length() > 1
-                                  ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())
-                                  : QStringLiteral("%1 of 1 match").arg(currentIndex + 1));
 
-        if (QListWidget* list = UIUtils::findParent<QListWidget*>(matches[currentIndex]))
+    if (matches.empty())
+    {
+        matchesLabel->setText("Phrase not found");
+        return;
+    }
+
+    matches[currentIndex]->setStyleSheet("background-color: yellow");
+    matchesLabel->setText(matches.length() > 1
+                              ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())
+                              : QStringLiteral("%1 of 1 match").arg(currentIndex + 1));
+
+    if (QListWidget* list = UIUtils::findParent<QListWidget*>(matches[currentIndex]))
+    {
+        for (int i = 0; i < list->count(); i++)
         {
-            for (int i = 0; i < list->count(); i++)
+            if (QWidget* itemWidget = list->itemWidget(list->item(i)))
             {
-                if (QWidget* itemWidget = list->itemWidget(list->item(i)))
+                QList<QLabel*> labels = itemWidget->findChildren<QLabel*>();
+                bool foundMatch = std::ranges::any_of(labels, [this](const QLabel* label) { return label == matches[currentIndex]; });
+                if (foundMatch)
                 {
-                    QList<QLabel*> labels = itemWidget->findChildren<QLabel*>();
-                    bool foundMatch = std::ranges::any_of(labels, [this](const QLabel* label) { return label == matches[currentIndex]; });
-                    if (foundMatch)
-                    {
-                        list->scrollToItem(list->item(i));
-                        break;
-                    }
+                    list->scrollToItem(list->item(i));
+                    break;
                 }
             }
         }
-    }
-    else
-    {
-        matchesLabel->setText("Phrase not found");
     }
 }
 

@@ -40,6 +40,7 @@ public:
     bool h264Only;
     bool hideShorts;
     bool hideStreams;
+    bool imageCaching;
     bool playbackTracking;
     bool preferLists;
     PlayerQuality preferredQuality;
