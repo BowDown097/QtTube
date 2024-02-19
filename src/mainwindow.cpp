@@ -125,12 +125,9 @@ void MainWindow::browse()
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
-    if (ui->centralwidget->currentIndex() == 0)
-    {
-        bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
-        if ((ctrlPressed && event->key() == Qt::Key_F) || event->key() == Qt::Key_Escape)
-            findbar->setReveal(findbar->isHidden());
-    }
+    bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
+    if ((ctrlPressed && event->key() == Qt::Key_F) || (findbar->isVisible() && event->key() == Qt::Key_Escape))
+        findbar->setReveal(findbar->isHidden());
 
     QWidget::keyPressEvent(event);
 }

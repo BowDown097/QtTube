@@ -7,6 +7,8 @@
 #include <QListWidget>
 #include <QPushButton>
 
+constexpr const char* selectedStyle = "background-color: yellow";
+
 FindBar::FindBar(QWidget* parent)
     : QWidget(parent),
       hbox(new QHBoxLayout(this)),
@@ -40,8 +42,8 @@ FindBar::FindBar(QWidget* parent)
 void FindBar::clearLabels()
 {
     for (QLabel* label : matches)
-        if (!label->styleSheet().isEmpty())
-            label->setStyleSheet(QString());
+        if (label->styleSheet().contains(selectedStyle))
+            label->setStyleSheet(label->styleSheet().remove(selectedStyle));
 
     matches.clear();
     currentIndex = 0;
@@ -51,24 +53,25 @@ void FindBar::goToNext()
 {
     currentIndex++;
     jumpToLabel();
-    matches[currentIndex - 1]->setStyleSheet(QString());
+    matches[currentIndex - 1]->setStyleSheet(matches[currentIndex - 1]->styleSheet().remove(selectedStyle));
 }
 
 void FindBar::goToPrevious()
 {
     currentIndex--;
     jumpToLabel();
-    matches[currentIndex + 1]->setStyleSheet(QString());
+    matches[currentIndex + 1]->setStyleSheet(matches[currentIndex + 1]->styleSheet().remove(selectedStyle));
 }
 
 void FindBar::initializeSearch(const QString& searchText)
 {
     clearLabels();
+    if (searchText.isEmpty())
+        return;
 
-    if (!searchText.isEmpty())
-        for (QLabel* label : parentWidget()->findChildren<QLabel*>())
-            if (label->text().contains(searchText, Qt::CaseInsensitive))
-                matches.append(label);
+    for (QLabel* label : parentWidget()->findChildren<QLabel*>())
+        if (label->isVisible() && label->text().contains(searchText, Qt::CaseInsensitive))
+            matches.append(label);
 
     jumpToLabel();
 }
@@ -84,7 +87,9 @@ void FindBar::jumpToLabel()
         return;
     }
 
-    matches[currentIndex]->setStyleSheet("background-color: yellow");
+    if (!matches[currentIndex]->styleSheet().contains(selectedStyle))
+        matches[currentIndex]->setStyleSheet(matches[currentIndex]->styleSheet() + selectedStyle);
+
     matchesLabel->setText(matches.length() > 1
                               ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())
                               : QStringLiteral("%1 of 1 match").arg(currentIndex + 1));
@@ -95,8 +100,8 @@ void FindBar::jumpToLabel()
         {
             if (QWidget* itemWidget = list->itemWidget(list->item(i)))
             {
-                QList<QLabel*> labels = itemWidget->findChildren<QLabel*>();
-                bool foundMatch = std::ranges::any_of(labels, [this](const QLabel* label) { return label == matches[currentIndex]; });
+                const QList<QLabel*> labels = itemWidget->findChildren<QLabel*>();
+                bool foundMatch = std::ranges::any_of(labels, [this](QLabel* l) { return l == matches[currentIndex]; });
                 if (foundMatch)
                 {
                     list->scrollToItem(list->item(i));
