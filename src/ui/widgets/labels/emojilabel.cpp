@@ -1,5 +1,5 @@
 #include "emojilabel.h"
-#include "cachedhttp.h"
+#include "http.h"
 #include "utils/httputils.h"
 
 EmojiLabel::EmojiLabel(const QStringList& shortcuts, const QStringList& searchTerms, const QString& image, QWidget* parent)

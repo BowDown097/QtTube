@@ -1,5 +1,5 @@
 #include "textmessage.h"
-#include "cachedhttp.h"
+#include "http.h"
 #include "utils/httputils.h"
 #include "utils/uiutils.h"
 #include <QApplication>
@@ -33,7 +33,20 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     layout->addLayout(contentLayout);
 
     authorLabel->setMaximumWidth(parent->width() - 150);
-    authorLabel->setStyleSheet(renderer["authorBadges"].isObject() ? "font-weight: bold; color: #2ba640" : "font-weight: bold");
+
+    if (const QJsonArray authorBadges = renderer["authorBadges"].toArray(); !authorBadges.isEmpty())
+    {
+        bool isModerator = std::ranges::any_of(authorBadges, [](const QJsonValue& badge) {
+            return badge["liveChatAuthorBadgeRenderer"]["icon"]["iconType"].toString() == "MODERATOR";
+        });
+        // if not moderator, assume member (is there anything else?)
+        authorLabel->setStyleSheet(isModerator
+            ? "font-weight: bold; color: #5e84f1" : "font-weight: bold; color: #2ba640");
+    }
+    else
+    {
+        authorLabel->setStyleSheet("font-weight: bold");
+    }
 
     timestampLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
     if (renderer["timestampText"].isObject())
