@@ -16,7 +16,11 @@ ytemoji::UnicodeEmoji::UnicodeEmoji(const QJsonValue& emojiJson)
 
     const QJsonArray shortcutsJson = emojiJson["shortcuts"].toArray();
     for (const QJsonValue& shortcut : shortcutsJson)
-        shortcuts.append(shortcut.toString());
+    {
+        QString shortcutString = shortcut.toString();
+        if (shortcutString.endsWith(':'))
+            shortcuts.append(shortcutString);
+    }
 }
 
 ytemoji* ytemoji::instance()
