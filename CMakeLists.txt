@@ -101,7 +101,6 @@ set(SOURCE_FILES
     src/ui/views/watchview_ui.cpp
     src/ui/views/watchviewplayer.cpp
     src/ui/widgets/continuablelistwidget.cpp
-    src/ui/widgets/dynamiclistwidgetitem.cpp
     src/ui/widgets/findbar.cpp
     src/ui/widgets/flowlayout.cpp
     src/ui/widgets/watchnextfeed.cpp
@@ -111,7 +110,7 @@ set(SOURCE_FILES
     src/ui/widgets/accountmenu/accountswitcherwidget.cpp
     src/ui/widgets/labels/channelbadgelabel.cpp
     src/ui/widgets/labels/channellabel.cpp
-    src/ui/widgets/labels/elidedlabel.cpp
+    src/ui/widgets/labels/elidedtubelabel.cpp
     src/ui/widgets/labels/emojilabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
@@ -142,7 +141,6 @@ set(SOURCE_FILES
 
 set(HEADERS
     src/eastereggs.h
-    src/genericeventfilter.h
     src/mainwindow.h
     src/qttubeapplication.h
     src/ytemoji.h
@@ -182,7 +180,6 @@ set(HEADERS
     src/ui/views/watchview_ui.h
     src/ui/views/watchviewplayer.h
     src/ui/widgets/continuablelistwidget.h
-    src/ui/widgets/dynamiclistwidgetitem.h
     src/ui/widgets/findbar.h
     src/ui/widgets/flowlayout.h
     src/ui/widgets/watchnextfeed.h
@@ -192,7 +189,7 @@ set(HEADERS
     src/ui/widgets/accountmenu/accountswitcherwidget.h
     src/ui/widgets/labels/channelbadgelabel.h
     src/ui/widgets/labels/channellabel.h
-    src/ui/widgets/labels/elidedlabel.h
+    src/ui/widgets/labels/elidedtubelabel.h
     src/ui/widgets/labels/emojilabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
@@ -362,11 +359,11 @@ elseif(UNIX AND NOT APPLE)
     if(X11_FOUND AND X11_Xscreensaver_LIB)
         target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${X11_INCLUDE_DIR})
         target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${X11_X11_LIB} ${X11_Xscreensaver_LIB})
-        target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC QTTUBE_HAS_XSS)
+        target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_XSS)
 
         find_library(X11EXTRAS Qt::X11Extras)
         if(X11EXTRAS)
-            target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC QTTUBE_HAS_X11EXTRAS)
+            target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_X11EXTRAS)
             target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::X11Extras)
         endif()
     else()
