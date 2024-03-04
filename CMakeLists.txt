@@ -1,28 +1,21 @@
 cmake_minimum_required(VERSION 3.16)
-project(QtTube VERSION 1.0 LANGUAGES C CXX)
+project(QtTube
+    VERSION 0.1
+    DESCRIPTION "A Qt frontend for YouTube."
+    HOMEPAGE_URL "https://github.com/BowDown097/QtTube"
+    LANGUAGES CXX)
 
-# Find includes in the build directories
+# Have to do this for ui_ files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Set up AUTOMOC, AUTORCC, and AUTOUIC
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-include(GNUInstallDirs)
 
-# Compiler flags
-set(CMAKE_CXX_STANDARD_REQUIRED true)
-set(CMAKE_C_STANDARD_REQUIRED true)
+# Standard
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_C_STANDARD 11)
-
-# Application options
-set(QTTUBE_APP_DESC "A Qt frontend for YouTube." CACHE STRING "The description to use for the application.")
-set(QTTUBE_APP_NAME "QtTube" CACHE STRING "The name to use for the application.")
-set(QTTUBE_REPO_URL "https://github.com/BowDown097/QtTube" CACHE STRING "Git repository URL to be displayed in the about dialog.")
-set(QTTUBE_VERSION_MAJOR 0)
-set(QTTUBE_VERSION_MINOR 1)
-set(QTTUBE_VERSION_NAME "${QTTUBE_VERSION_MAJOR}.${QTTUBE_VERSION_MINOR}")
+set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Compilation options
 option(QTTUBE_ENABLE_ASAN "Enable AddressSanitizer to detect memory errors in debug builds." OFF)
@@ -43,10 +36,8 @@ endif()
 
 # Qt packages
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
-
 set(QTTUBE_QT_VERSION_MAJOR ${QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QT_VERSION_MAJOR}")
-
-find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui Network Sql Widgets)
+find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Network Sql Widgets)
 
 if(QTTUBE_QT_VERSION_MAJOR EQUAL 5)
     if(UNIX AND NOT APPLE)
@@ -63,10 +54,10 @@ endif()
 # macOS bundle settings
 if(APPLE)
     set(MACOSX_BUNDLE_BUNDLE_NAME "${QTTUBE_APP_NAME}")
-    set(MACOSX_BUNDLE_BUNDLE_VERSION "${QTTUBE_VERSION_NAME}")
-    set(MACOSX_BUNDLE_INFO_STRING "${QTTUBE_APP_NAME}: ${QTTUBE_APP_DESC}")
-    set(MACOSX_BUNDLE_LONG_VERSION_STRING "${QTTUBE_VERSION_NAME}")
-    set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${QTTUBE_VERSION_NAME}")
+    set(MACOSX_BUNDLE_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}")
+    set(MACOSX_BUNDLE_INFO_STRING "${QTTUBE_APP_NAME}: ${CMAKE_PROJECT_DESCRIPTION}")
+    set(MACOSX_BUNDLE_LONG_VERSION_STRING "${CMAKE_PROJECT_VERSION}")
+    set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${CMAKE_PROJECT_VERSION}")
 endif()
 
 # Source files
@@ -110,6 +101,7 @@ set(SOURCE_FILES
     src/ui/views/watchview_ui.cpp
     src/ui/views/watchviewplayer.cpp
     src/ui/widgets/continuablelistwidget.cpp
+    src/ui/widgets/dynamiclistwidgetitem.cpp
     src/ui/widgets/findbar.cpp
     src/ui/widgets/flowlayout.cpp
     src/ui/widgets/watchnextfeed.cpp
@@ -119,7 +111,7 @@ set(SOURCE_FILES
     src/ui/widgets/accountmenu/accountswitcherwidget.cpp
     src/ui/widgets/labels/channelbadgelabel.cpp
     src/ui/widgets/labels/channellabel.cpp
-    src/ui/widgets/labels/elidedtubelabel.cpp
+    src/ui/widgets/labels/elidedlabel.cpp
     src/ui/widgets/labels/emojilabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
@@ -150,6 +142,7 @@ set(SOURCE_FILES
 
 set(HEADERS
     src/eastereggs.h
+    src/genericeventfilter.h
     src/mainwindow.h
     src/qttubeapplication.h
     src/ytemoji.h
@@ -189,6 +182,7 @@ set(HEADERS
     src/ui/views/watchview_ui.h
     src/ui/views/watchviewplayer.h
     src/ui/widgets/continuablelistwidget.h
+    src/ui/widgets/dynamiclistwidgetitem.h
     src/ui/widgets/findbar.h
     src/ui/widgets/flowlayout.h
     src/ui/widgets/watchnextfeed.h
@@ -198,7 +192,7 @@ set(HEADERS
     src/ui/widgets/accountmenu/accountswitcherwidget.h
     src/ui/widgets/labels/channelbadgelabel.h
     src/ui/widgets/labels/channellabel.h
-    src/ui/widgets/labels/elidedtubelabel.h
+    src/ui/widgets/labels/elidedlabel.h
     src/ui/widgets/labels/emojilabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
@@ -237,51 +231,51 @@ set(FORMS
 
 # Application icon
 if(WIN32 OR APPLE)
-    include(${CMAKE_SOURCE_DIR}/cmake/AddIconToBinary.cmake)
-    AddIconToBinary(SOURCE_FILES ICONS ${CMAKE_SOURCE_DIR}/res/qttube.ico ${CMAKE_SOURCE_DIR}/res/qttube.icns)
+    include(cmake/AddIconToBinary.cmake)
+    AddIconToBinary(SOURCE_FILES ICONS res/qttube.ico res/qttube.icns)
 endif()
 
 # Add executable
 set(INNERTUBE_QT_VERSION_MAJOR ${QTTUBE_QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QTTUBE_QT_VERSION_MAJOR}" FORCE)
 add_subdirectory(lib/innertube-qt)
 if(WIN32)
-    add_executable(QtTube WIN32 ${SOURCE_FILES} ${HEADERS} ${FORMS})
+    add_executable(${CMAKE_PROJECT_NAME} WIN32 ${SOURCE_FILES} ${HEADERS} ${FORMS})
 elseif(APPLE)
-    add_executable(QtTube MACOSX_BUNDLE ${SOURCE_FILES} ${HEADERS} ${FORMS})
+    add_executable(${CMAKE_PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES} ${HEADERS} ${FORMS})
 else()
-    add_executable(QtTube ${SOURCE_FILES} ${HEADERS} ${FORMS})
+    add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} ${HEADERS} ${FORMS})
 endif()
 
-# Define variables and Git details in preprocessor
+# Preprocessor definitions
 execute_process(COMMAND git rev-parse --abbrev-ref HEAD OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE QTTUBE_BRANCH)
 execute_process(COMMAND git rev-parse --short HEAD OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE QTTUBE_COMMIT_ID)
-target_compile_definitions(QtTube PRIVATE
-    QTTUBE_APP_DESC="${QTTUBE_APP_DESC}"
-    QTTUBE_APP_NAME="${QTTUBE_APP_NAME}"
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+    QTTUBE_APP_DESC="${CMAKE_PROJECT_DESCRIPTION}"
+    QTTUBE_APP_NAME="${CMAKE_PROJECT_NAME}"
     QTTUBE_BRANCH="${QTTUBE_BRANCH}"
     QTTUBE_COMMIT_ID="${QTTUBE_COMMIT_ID}"
-    QTTUBE_REPO_URL="${QTTUBE_REPO_URL}"
-    QTTUBE_VERSION_NAME="${QTTUBE_VERSION_NAME}"
+    QTTUBE_REPO_URL="${CMAKE_PROJECT_HOMEPAGE_URL}"
+    QTTUBE_VERSION_NAME="${CMAKE_PROJECT_VERSION}"
 )
 
 if(QTTUBE_USE_MPV)
-    target_compile_definitions(QtTube PRIVATE QTTUBE_USE_MPV)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_USE_MPV)
 endif()
 
 # Include directories, libraries
-target_include_directories(QtTube PRIVATE src lib/innertube-qt/src)
-target_link_libraries(QtTube PRIVATE innertube-qt Qt::Core Qt::Gui Qt::Network Qt::Sql Qt::Widgets)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE innertube-qt Qt::Network Qt::Sql Qt::Widgets)
 
 ## Optional
 find_package(ICU COMPONENTS i18n uc)
-if (ICU_FOUND)
-    target_compile_definitions(QtTube PUBLIC QTTUBE_HAS_ICU)
-    target_include_directories(QtTube PRIVATE ${ICU_INCLUDE_DIRS})
-    target_link_libraries(QtTube PRIVATE ${ICU_LIBRARIES})
+if(ICU_FOUND)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_ICU)
+    target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ICU_INCLUDE_DIRS})
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${ICU_LIBRARIES})
 endif()
 
 if(QTTUBE_USE_MPV)
-    target_sources(QtTube PRIVATE
+    target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         lib/media/media.h
         lib/media/mpv/mediampv.cpp lib/media/mpv/mediampv.h
         lib/media/mpv/mpvwidget.cpp lib/media/mpv/mpvwidget.h
@@ -289,31 +283,31 @@ if(QTTUBE_USE_MPV)
     )
 
     if(QTTUBE_QT_VERSION_MAJOR EQUAL 6)
-        target_link_libraries(QtTube PRIVATE Qt::OpenGLWidgets)
+        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::OpenGLWidgets)
     else()
-        target_link_libraries(QtTube PRIVATE Qt::OpenGL)
+        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::OpenGL)
     endif()
 
     include(${CMAKE_SOURCE_DIR}/cmake/FindLibMPV.cmake)
-    target_include_directories(QtTube PRIVATE ${LIBMPV_INCLUDE_DIR})
-    target_link_libraries(QtTube PRIVATE ${LIBMPV_LIBRARY})
+    target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LIBMPV_INCLUDE_DIR})
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LIBMPV_LIBRARY})
 else()
-    target_sources(QtTube PRIVATE
+    target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         src/ui/widgets/webengineplayer/fullscreennotification.cpp src/ui/widgets/webengineplayer/fullscreennotification.h
         src/ui/widgets/webengineplayer/fullscreenwindow.cpp src/ui/widgets/webengineplayer/fullscreenwindow.h
         src/ui/widgets/webengineplayer/playerinterceptor.cpp src/ui/widgets/webengineplayer/playerinterceptor.h
         src/ui/widgets/webengineplayer/webchannelinterface.cpp src/ui/widgets/webengineplayer/webchannelinterface.h
         src/ui/widgets/webengineplayer/webengineplayer.cpp src/ui/widgets/webengineplayer/webengineplayer.h
     )
-    target_link_libraries(QtTube PRIVATE Qt::WebEngineWidgets)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::WebEngineWidgets)
 endif()
 
 ## Platform-specific
 if(WIN32)
     find_package(OpenSSL QUIET)
     if(OpenSSL_FOUND)
-        target_include_directories(QtTube PRIVATE ${OPENSSL_INCLUDE_DIR})
-        target_link_libraries(QtTube PRIVATE ${OPENSSL_LIBRARIES})
+        target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
+        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${OPENSSL_LIBRARIES})
     elseif(QTTUBE_EXTERNAL_OPENSSL)
         # https://stackoverflow.com/a/72187679
         set(OPENSSL_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/openssl-src) # default path by CMake
@@ -361,26 +355,28 @@ if(WIN32)
         set_property(TARGET OpenSSL::Crypto PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${OPENSSL_INCLUDE_DIR})
         add_dependencies(OpenSSL::Crypto OpenSSL)
 
-        target_link_libraries(QtTube PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
     endif()
 elseif(UNIX AND NOT APPLE)
     find_package(X11)
     if(X11_FOUND AND X11_Xscreensaver_LIB)
-        target_include_directories(QtTube PRIVATE ${X11_INCLUDE_DIR})
-        target_link_libraries(QtTube PRIVATE ${X11_X11_LIB} ${X11_Xscreensaver_LIB})
-        target_compile_definitions(QtTube PUBLIC QTTUBE_HAS_XSS)
+        target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${X11_INCLUDE_DIR})
+        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${X11_X11_LIB} ${X11_Xscreensaver_LIB})
+        target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC QTTUBE_HAS_XSS)
 
         find_library(X11EXTRAS Qt::X11Extras)
         if(X11EXTRAS)
-            target_compile_definitions(QtTube PUBLIC QTTUBE_HAS_X11EXTRAS)
-            target_link_libraries(QtTube PRIVATE Qt::X11Extras)
+            target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC QTTUBE_HAS_X11EXTRAS)
+            target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::X11Extras)
         endif()
     else()
         message(STATUS "XScreenSaver not found. Idle sleeping will not be functional.")
     endif()
 endif()
 
-# Final stuff
+# Installation
+include(GNUInstallDirs)
+
 if(WIN32)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -388,5 +384,6 @@ endif()
 
 install(TARGETS QtTube
     BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
