@@ -126,7 +126,7 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     surface = post.surface;
 
     channelLabel->setText(post.authorText.text);
-    contentText->setText(StringUtils::innertubeStringToRichText(post.contentText));
+    contentText->setText(StringUtils::innertubeStringToRichText(post.contentText, false));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
                            ? post.voteCount.text
                            : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
