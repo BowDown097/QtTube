@@ -51,11 +51,11 @@ namespace StringUtils
         return useLocale ? QLocale::system().toString(out.toLongLong()) : out;
     }
 
-    QString innertubeStringToRichText(const InnertubeObjects::InnertubeString& istr)
+    QString innertubeStringToRichText(const InnertubeObjects::InnertubeString& istr, bool useLinkText)
     {
         QString out;
 
-        for (InnertubeObjects::InnertubeRun run : istr.runs)
+        for (const InnertubeObjects::InnertubeRun& run : istr.runs)
         {
             if (run.navigationEndpoint.isNull() || run.navigationEndpoint.isUndefined())
             {
@@ -63,7 +63,7 @@ namespace StringUtils
                 continue;
             }
 
-            QString href;
+            QString href, text = run.text;
             if (run.navigationEndpoint["urlEndpoint"].isObject())
             {
                 QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
@@ -71,19 +71,25 @@ namespace StringUtils
 
                 if (query.hasQueryItem("q"))
                 {
-                    run.text = href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
+                    href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
+                    if (!useLinkText)
+                        text = href;
                 }
                 else if (QString urlStr = url.toString(); urlStr.contains("youtube.com/channel"))
                 {
                     href = url.path();
-                    run.text = urlStr;
+                    if (!useLinkText)
+                        text = urlStr;
                 }
                 else
                 {
-                    run.text = href = url.toString();
+                    href = url.toString();
+                    if (!useLinkText)
+                        text = href;
                 }
 
-                truncateUrlString(run.text, false);
+                if (!useLinkText)
+                    truncateUrlString(text, false);
             }
             else if (run.navigationEndpoint["browseEndpoint"].isObject())
             {
@@ -92,15 +98,19 @@ namespace StringUtils
 
                 if (code == "UC")
                 {
-                    run.text.replace(run.text.indexOf('/'), 1, "").replace("/xc2/xa0", "");
-                    if (run.text[0] != '@')
-                        run.text.prepend('@');
+                    text.replace(text.indexOf('/'), 1, "").replace("/xc2/xa0", "");
+                    if (text[0] != '@')
+                        text.prepend('@');
                     href = "/channel/" + browseId;
                 }
                 else if (code != "FE")
                 {
-                    run.text = href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
-                    truncateUrlString(run.text, true);
+                    href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
+                    if (!useLinkText)
+                    {
+                        text = href;
+                        truncateUrlString(text, true);
+                    }
                 }
             }
             else
@@ -109,15 +119,23 @@ namespace StringUtils
                 if (run.navigationEndpoint["watchEndpoint"].isObject())
                 {
                     if (!run.navigationEndpoint["watchEndpoint"]["continuePlayback"].isBool())
-                        run.text = "https://www.youtube.com" + href;
+                    {
+                        if (!useLinkText)
+                        {
+                            text = "https://www.youtube.com" + href;
+                        }
+                    }
                     else
+                    {
                         href += "&continuePlayback=1";
+                    }
                 }
 
-                truncateUrlString(run.text, false);
+                if (!useLinkText)
+                    truncateUrlString(text, false);
             }
 
-            out += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, run.text);
+            out += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, text);
         }
 
         return out.replace("\n", "<br>");

@@ -11,7 +11,7 @@ namespace StringUtils
 #endif
 
     QString extractDigits(const QString& str, bool useLocale = true, bool reserve = true);
-    QString innertubeStringToRichText(const InnertubeObjects::InnertubeString& istr);
+    QString innertubeStringToRichText(const InnertubeObjects::InnertubeString& istr, bool useLinkText);
     void truncateUrlString(QString& url, bool prefix);
 }
 

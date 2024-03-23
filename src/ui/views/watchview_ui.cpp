@@ -59,6 +59,9 @@ void WatchView_Ui::setupDate(QWidget* watchView)
 
     date = new TubeLabel(watchView);
     date->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+    date->setTextFormat(Qt::RichText);
+    date->setWordWrap(true);
+
     frameLayout->addWidget(date);
 }
 

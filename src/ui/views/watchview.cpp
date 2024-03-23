@@ -241,14 +241,16 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         ui->dislikeLabel->setText("Dislike");
     }
 
-    // Add "Published on" before date of normal videos to replicate Hitchhiker style
+    // Add "Published on" before date of normal videos to replicate Hitchhiker style and add super title after the date
     QString dateText = nextResp.results.results.primaryInfo.dateText.text;
     if (!dateText.startsWith("Premier") && !dateText.startsWith("St") && !dateText.startsWith("Sched"))
         dateText.prepend("Published on ");
+    if (nextResp.results.results.primaryInfo.superTitleLink.has_value())
+        dateText += " | " + StringUtils::innertubeStringToRichText(nextResp.results.results.primaryInfo.superTitleLink.value(), true);
 
     ui->date->setText(dateText);
 
-    ui->description->setText(StringUtils::innertubeStringToRichText(unattributeDescription(nextResp.results.results.secondaryInfo.attributedDescription)));
+    ui->description->setText(StringUtils::innertubeStringToRichText(unattributeDescription(nextResp.results.results.secondaryInfo.attributedDescription), false));
     ui->description->setVisible(!ui->description->text().isEmpty());
     ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumHeight());
     ui->feed->setData(endpoint);
@@ -405,8 +407,12 @@ InnertubeObjects::InnertubeString WatchView::unattributeDescription(const QJsonV
 
 void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)
 {
-    ui->date->setText(resp.dateText);
-    ui->description->setText(StringUtils::innertubeStringToRichText(resp.description));
+    if (size_t superTitleIndex = ui->date->text().indexOf(" | "); superTitleIndex != -1)
+        ui->date->setText(resp.dateText + ui->date->text().mid(superTitleIndex));
+    else
+        ui->date->setText(resp.dateText);
+
+    ui->description->setText(StringUtils::innertubeStringToRichText(resp.description, false));
     ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? resp.likeCountEntity.likeCountIfIndifferent : resp.likeCountEntity.expandedLikeCountIfIndifferent);
     ui->titleLabel->setText(resp.title.text);
     ui->viewCount->setText(resp.viewCount.viewCount.text);
