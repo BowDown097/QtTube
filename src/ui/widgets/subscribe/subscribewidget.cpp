@@ -25,6 +25,7 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
+    subscribeLabel->hide();
     layout->addWidget(subscribeLabel);
 
     notificationBell->hide();
@@ -36,18 +37,41 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
 
     connect(subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
     {
-        notificationBell->setVisualNotificationState(NotificationBell::NotificationState::Personalized);
+        notificationBell->setVisualNotificationState(NotificationBell::PreferenceListState::Personalized);
         notificationBell->setVisible(subscribed);
     });
 }
 
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
-    bool showBell = subscribeButton.subscribed && !subscribeButton.notificationPreferenceButton.states.isEmpty();
+    if (!subscribeButton.enabled)
+        return;
+
     subscribeLabel->setSubscribeButton(subscribeButton);
-    notificationBell->setVisible(showBell);
-    if (showBell)
-        notificationBell->setNotificationPreferenceButton(subscribeButton.notificationPreferenceButton);
+    subscribeLabel->show();
+
+    if (subscribeButton.notificationPreferenceButton.states.isEmpty())
+        return;
+
+    notificationBell->fromNotificationPreferenceButton(subscribeButton.notificationPreferenceButton);
+    notificationBell->setVisible(subscribeButton.subscribed);
+}
+
+void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButtonViewModel& subscribeViewModel,
+                                         bool subscribed)
+{
+    if (subscribeViewModel.disableSubscribeButton)
+        return;
+
+    subscribeLabel->setSubscribeButton(subscribeViewModel, subscribed);
+    subscribeLabel->show();
+
+    if (subscribeViewModel.disableNotificationBell)
+        return;
+
+    notificationBell->fromListViewModel(subscribeViewModel.onShowSubscriptionOptions["innertubeCommand"]
+        ["showSheetCommand"]["panelLoadingStrategy"]["inlineContent"]["sheetViewModel"]["content"]["listViewModel"]);
+    notificationBell->setVisible(subscribed);
 }
 
 void SubscribeWidget::setSubscriberCount(const QString& subscriberCountText, const QString& channelId)

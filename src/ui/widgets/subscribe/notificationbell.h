@@ -9,11 +9,14 @@ class NotificationBell : public QToolButton
 {
     Q_OBJECT
 public:
-    enum class NotificationState { None = 0, All = 2, Personalized = 3 };
+    enum class PreferenceButtonState { None = 0, All = 2, Personalized = 3 };
+    enum class PreferenceListState { All, Personalized, None };
 
     explicit NotificationBell(QWidget* parent = nullptr);
-    void setNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb);
-    void setVisualNotificationState(NotificationState state);
+    void fromListViewModel(const QJsonValue& listViewModel);
+    void fromNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb);
+    void setVisualNotificationState(PreferenceButtonState state);
+    void setVisualNotificationState(PreferenceListState state);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent*) override;
@@ -25,10 +28,10 @@ private:
     QAction* allAction;
     QAction* noneAction;
     QMenu* notificationMenu;
-    InnertubeObjects::NotificationPreferenceButton notificationPreferenceButton;
     QAction* personalizedAction;
+    QStringList serviceParams;
 private slots:
-    void updateNotificationState(const QString& iconType);
+    void updateNotificationState(PreferenceListState state);
 };
 
 #endif // NOTIFICATIONBELL_H

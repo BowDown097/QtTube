@@ -373,13 +373,13 @@ void WatchView::showContextMenu(const QPoint& pos)
 }
 
 // most logic courtesy of https://github.com/Rehike/Rehike
-InnertubeObjects::InnertubeString WatchView::unattributeDescription(const QJsonValue& attributedDescription)
+InnertubeObjects::InnertubeString WatchView::unattributeDescription(const InnertubeObjects::DynamicText& attributedDescription)
 {
-    QString content = attributedDescription["content"].toString();
-    if (!attributedDescription["commandRuns"].isArray())
+    QString content = attributedDescription.content;
+    if (!attributedDescription.commandRuns.isArray())
         return InnertubeObjects::InnertubeString(content);
 
-    const QJsonArray commandRuns = attributedDescription["commandRuns"].toArray();
+    const QJsonArray commandRuns = attributedDescription.commandRuns.toArray();
     InnertubeObjects::InnertubeString out;
     int start = 0;
 

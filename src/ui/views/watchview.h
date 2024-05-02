@@ -12,6 +12,7 @@ class UpdatedMetadataResponse;
 
 namespace InnertubeObjects
 {
+class DynamicText;
 class InnertubeString;
 class ToggleButtonViewModel;
 }
@@ -39,7 +40,7 @@ private:
     Ui::WatchView* ui;
 
     void processPreloadData(PreloadData::WatchView* preload);
-    InnertubeObjects::InnertubeString unattributeDescription(const QJsonValue& attributedDescription);
+    InnertubeObjects::InnertubeString unattributeDescription(const InnertubeObjects::DynamicText& attributedDescription);
     void updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp);
 private slots:
     void descriptionLinkActivated(const QString& url);

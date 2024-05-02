@@ -75,13 +75,22 @@ void ChannelView::loadChannel(const QString& channelId)
     this->channelId = channelId;
     auto response = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
 
-    channelName->setText(response.header.title);
-    handleAndVideos->setText(response.header.channelHandleText.text + " • " + response.header.videosCountText.text);
-    subscribeWidget->setSubscribeButton(response.header.subscribeButton);
-    subscribeWidget->setSubscriberCount(response.header.subscriberCountText.text, response.header.channelId);
+    QString channelHandle = response.header.metadata.metadataRows.value(0).value(0);
+    QString subCount = response.header.metadata.metadataRows.value(1).value(0);
+    QString videosCount = response.header.metadata.metadataRows.value(1).value(1);
+
+    channelName->setText(response.header.title.text.content);
+    handleAndVideos->setText(channelHandle + ' ' + response.header.metadata.delimiter + ' ' + videosCount);
+    subscribeWidget->setSubscriberCount(subCount, channelId);
+
+    if (response.header.subscribeButton)
+    {
+        subscribeWidget->setSubscribeButton(response.header.subscribeButton.value(),
+            response.header.subscribeButton->isSubscribed(response.mutations));
+    }
 
     if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
-        mainWindow->setWindowTitle(response.header.title + " - " + QTTUBE_APP_NAME);
+        mainWindow->setWindowTitle(response.header.title.text.content + " - " + QTTUBE_APP_NAME);
 
     connect(channelTabs, &QTabWidget::currentChanged, this,
             std::bind(&ChannelView::loadTab, this, response, std::placeholders::_1));
@@ -117,8 +126,11 @@ void ChannelView::loadChannel(const QString& channelId)
         connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
     }
 
-    HttpReply* iconReply = Http::instance().get(response.header.avatar.recommendedQuality(QSize(48, 48)).url);
-    connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
+    if (!response.header.avatar.isEmpty())
+    {
+        HttpReply* iconReply = Http::instance().get(response.header.avatar.recommendedQuality(QSize(48, 48)).url);
+        connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
+    }
 }
 
 void ChannelView::loadTab(const InnertubeEndpoints::ChannelResponse& response, int index)

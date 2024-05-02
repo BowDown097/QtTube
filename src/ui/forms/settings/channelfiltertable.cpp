@@ -48,8 +48,8 @@ void ChannelFilterTable::populateFromSettings()
 
 void ChannelFilterTable::processChannelEntry(const InnertubeEndpoints::BrowseChannel& channel, QTableWidgetItem* item)
 {
-    QString channelHandle = channel.response.header.channelHandleText.text;
-    QString channelId = channel.response.header.channelId;
+    QString channelHandle = channel.response.header.metadata.metadataRows[0][0];
+    QString channelId = channel.response.metadata.externalId;
 
     if (channelHandle.isEmpty())
     {

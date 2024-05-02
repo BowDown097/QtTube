@@ -1,6 +1,7 @@
 #ifndef QTTUBE_SUBSCRIBEBUTTON_H
 #define QTTUBE_SUBSCRIBEBUTTON_H
 #include "innertube/objects/channel/subscribebutton.h"
+#include "innertube/objects/viewmodels/subscribebuttonviewmodel.h"
 #include <QLabel>
 
 class SubscribeLabel : public QLabel
@@ -9,6 +10,7 @@ class SubscribeLabel : public QLabel
 public:
     explicit SubscribeLabel(QWidget* parent = nullptr);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
+    void setSubscribeButton(const InnertubeObjects::SubscribeButtonViewModel& subscribeViewModel, bool subscribed);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent*) override;
@@ -20,7 +22,14 @@ protected:
 signals:
     void subscribeStatusChanged(bool subscribed);
 private:
-    InnertubeObjects::SubscribeButton subscribeButton;
+    bool subscribed;
+    QJsonValue subscribeEndpoint;
+    QString subscribeText;
+    QString subscribedText;
+    QString unsubscribeDialogText;
+    QJsonValue unsubscribeEndpoint;
+    QString unsubscribeText;
+
     void toggleSubscriptionStatus(const QString& styleSheet, const QString& newText);
 };
 

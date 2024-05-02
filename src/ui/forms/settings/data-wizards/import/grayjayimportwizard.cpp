@@ -48,9 +48,9 @@ void GrayjayImportSubsPage::tickProgress()
     emit completeChanged();
     wizard()->setPage(GrayjayImportWizard::Page_ChooseSubs, new ChooseSubsPage(
         subs,
-         GrayjayImportWizard::Page_Conclusion,
-         "grayjay.import.watch_history", GrayjayImportWizard::Page_WatchHistory,
-         wizard()
+        GrayjayImportWizard::Page_Conclusion,
+        "grayjay.import.watch_history", GrayjayImportWizard::Page_WatchHistory,
+        wizard()
     ));
 }
 
@@ -88,7 +88,7 @@ void GrayjayImportSubsPage::verifyFile(const QString& fileName)
                 try
                 {
                     auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(id);
-                    subs.append(Entity(id, endpoint.response.header.title));
+                    subs.append(Entity(id, endpoint.response.header.title.text.content));
                     // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
                     QThread::sleep(1);
                 }

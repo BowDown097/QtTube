@@ -27,9 +27,12 @@ NotificationBell::NotificationBell(QWidget* parent)
     setStyleSheet(stylesheet);
     connect(this, &QToolButton::triggered, this, &QToolButton::setDefaultAction);
 
-    connect(allAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_ACTIVE"));
-    connect(noneAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_OFF"));
-    connect(personalizedAction, &QAction::triggered, this, std::bind(&NotificationBell::updateNotificationState, this, "NOTIFICATIONS_NONE"));
+    connect(allAction, &QAction::triggered, this,
+            std::bind(&NotificationBell::updateNotificationState, this, PreferenceListState::All));
+    connect(noneAction, &QAction::triggered, this,
+            std::bind(&NotificationBell::updateNotificationState, this, PreferenceListState::None));
+    connect(personalizedAction, &QAction::triggered, this,
+            std::bind(&NotificationBell::updateNotificationState, this, PreferenceListState::Personalized));
 
     notificationMenu->addAction(allAction);
     notificationMenu->addAction(personalizedAction);
@@ -38,6 +41,10 @@ NotificationBell::NotificationBell(QWidget* parent)
     setMenu(notificationMenu);
     setPopupMode(QToolButton::InstantPopup);
     setToolButtonStyle(Qt::ToolButtonIconOnly);
+
+    allAction->setIcon(UIUtils::iconThemed("notif-bell-all"));
+    noneAction->setIcon(UIUtils::iconThemed("notif-bell-none"));
+    personalizedAction->setIcon(UIUtils::iconThemed("notif-bell"));
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -54,35 +61,64 @@ void NotificationBell::leaveEvent(QEvent*)
     setCursor(QCursor());
 }
 
-void NotificationBell::setNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb)
+// this method to get the current state is pretty voodoo, i don't like it.
+// i couldn't find one that wouldn't require even more voodoo unfortunately :(
+void NotificationBell::fromListViewModel(const QJsonValue& listViewModel)
 {
-    notificationPreferenceButton = npb;
-    setVisualNotificationState(static_cast<NotificationState>(npb.getCurrentState().stateId));
+    int currentState{};
+    const QJsonArray listItems = listViewModel["listItems"].toArray();
+    for (int i = 0; i < listItems.size(); i++)
+    {
+        const QJsonValue viewModel = listItems[i]["listItemViewModel"];
+        if (viewModel["isSelected"].toBool())
+            currentState = i;
+        serviceParams.append(viewModel["rendererContext"]["commandContext"]["onTap"]["innertubeCommand"]
+                                      ["modifyChannelNotificationPreferenceEndpoint"]["params"].toString());
+    }
+
+    setVisualNotificationState(static_cast<PreferenceListState>(currentState));
 }
 
-void NotificationBell::setVisualNotificationState(NotificationState state)
+void NotificationBell::fromNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb)
+{
+    setVisualNotificationState(static_cast<PreferenceButtonState>(npb.getCurrentState().stateId));
+    for (const InnertubeObjects::MenuServiceItem& msi : npb.popup.items)
+        serviceParams.append(msi.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString());
+}
+
+void NotificationBell::setVisualNotificationState(PreferenceButtonState state)
 {
     switch (state)
     {
-    case NotificationState::None:
+    case PreferenceButtonState::None:
         setDefaultAction(noneAction);
         break;
-    case NotificationState::All:
+    case PreferenceButtonState::All:
         setDefaultAction(allAction);
         break;
-    case NotificationState::Personalized:
+    case PreferenceButtonState::Personalized:
         setDefaultAction(personalizedAction);
         break;
     }
-
-    allAction->setIcon(UIUtils::iconThemed("notif-bell-all"));
-    noneAction->setIcon(UIUtils::iconThemed("notif-bell-none"));
-    personalizedAction->setIcon(UIUtils::iconThemed("notif-bell"));
 }
 
-void NotificationBell::updateNotificationState(const QString& iconType)
+void NotificationBell::setVisualNotificationState(PreferenceListState state)
 {
-    InnertubeObjects::MenuServiceItem msi = notificationPreferenceButton.getService(iconType);
-    QString params = msi.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString();
-    InnerTube::instance()->get<InnertubeEndpoints::ModifyChannelPreference>(params);
+    switch (state)
+    {
+    case PreferenceListState::None:
+        setDefaultAction(noneAction);
+        break;
+    case PreferenceListState::All:
+        setDefaultAction(allAction);
+        break;
+    case PreferenceListState::Personalized:
+        setDefaultAction(personalizedAction);
+        break;
+    }
+}
+
+void NotificationBell::updateNotificationState(PreferenceListState state)
+{
+    InnerTube::instance()->get<InnertubeEndpoints::ModifyChannelPreference>(serviceParams[static_cast<int>(state)]);
 }
