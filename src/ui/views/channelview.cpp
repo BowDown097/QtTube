@@ -75,22 +75,10 @@ void ChannelView::loadChannel(const QString& channelId)
     this->channelId = channelId;
     auto response = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
 
-    QString channelHandle = response.header.metadata.metadataRows.value(0).value(0);
-    QString subCount = response.header.metadata.metadataRows.value(1).value(0);
-    QString videosCount = response.header.metadata.metadataRows.value(1).value(1);
-
-    channelName->setText(response.header.title.text.content);
-    handleAndVideos->setText(channelHandle + ' ' + response.header.metadata.delimiter + ' ' + videosCount);
-    subscribeWidget->setSubscriberCount(subCount, channelId);
-
-    if (response.header.subscribeButton)
-    {
-        subscribeWidget->setSubscribeButton(response.header.subscribeButton.value(),
-            response.header.subscribeButton->isSubscribed(response.mutations));
-    }
-
-    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
-        mainWindow->setWindowTitle(response.header.title.text.content + " - " + QTTUBE_APP_NAME);
+    if (auto c4 = std::get_if<InnertubeObjects::ChannelC4Header>(&response.header))
+        prepareHeader(*c4);
+    else if (auto page = std::get_if<InnertubeObjects::ChannelPageHeader>(&response.header))
+        prepareHeader(*page, response.mutations);
 
     connect(channelTabs, &QTabWidget::currentChanged, this,
             std::bind(&ChannelView::loadTab, this, response, std::placeholders::_1));
@@ -114,23 +102,6 @@ void ChannelView::loadChannel(const QString& channelId)
 
         channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
     }
-
-    bool hasBanner = !response.header.banner.isEmpty();
-    channelBanner->setFixedHeight(hasBanner ? 129 : 40);
-    MainWindow::topbar()->setAlwaysShow(!hasBanner);
-    MainWindow::topbar()->setVisible(!hasBanner);
-
-    if (hasBanner)
-    {
-        HttpReply* bannerReply = Http::instance().get(response.header.banner.bestQuality().url);
-        connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
-    }
-
-    if (!response.header.avatar.isEmpty())
-    {
-        HttpReply* iconReply = Http::instance().get(response.header.avatar.recommendedQuality(QSize(48, 48)).url);
-        connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
-    }
 }
 
 void ChannelView::loadTab(const InnertubeEndpoints::ChannelResponse& response, int index)
@@ -140,6 +111,59 @@ void ChannelView::loadTab(const InnertubeEndpoints::ChannelResponse& response, i
 
     QListWidget* list = channelTabs->widget(index)->findChild<QListWidget*>();
     BrowseHelper::instance()->browseChannel(list, index, response);
+}
+
+void ChannelView::prepareAvatarAndBanner(const InnertubeObjects::ResponsiveImage& avatar,
+                                         const InnertubeObjects::ResponsiveImage& banner)
+{
+    channelBanner->setFixedHeight(banner.isEmpty() ? 40 : 129);
+    MainWindow::topbar()->setAlwaysShow(banner.isEmpty());
+    MainWindow::topbar()->setVisible(banner.isEmpty());
+
+    if (!avatar.isEmpty())
+    {
+        HttpReply* iconReply = Http::instance().get(avatar.recommendedQuality(QSize(48, 48)).url);
+        connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
+    }
+
+    if (!banner.isEmpty())
+    {
+        HttpReply* bannerReply = Http::instance().get(banner.bestQuality().url);
+        connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
+    }
+}
+
+void ChannelView::prepareHeader(const InnertubeObjects::ChannelC4Header& c4Header)
+{
+    channelName->setText(c4Header.title);
+    handleAndVideos->setText(c4Header.channelHandleText.text + " • " + c4Header.videosCountText.text);
+    subscribeWidget->setSubscribeButton(c4Header.subscribeButton);
+    subscribeWidget->setSubscriberCount(c4Header.subscriberCountText.text, c4Header.channelId);
+
+    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+        mainWindow->setWindowTitle(c4Header.title + " - " + QTTUBE_APP_NAME);
+
+    prepareAvatarAndBanner(c4Header.avatar, c4Header.banner);
+}
+
+void ChannelView::prepareHeader(const InnertubeObjects::ChannelPageHeader& pageHeader,
+                                const QList<InnertubeObjects::EntityMutation>& mutations)
+{
+    QString channelHandle = pageHeader.metadata.metadataRows.value(0).value(0);
+    QString subCount = pageHeader.metadata.metadataRows.value(1).value(0);
+    QString videosCount = pageHeader.metadata.metadataRows.value(1).value(1);
+
+    channelName->setText(pageHeader.title.text.content);
+    handleAndVideos->setText(channelHandle + ' ' + pageHeader.metadata.delimiter + ' ' + videosCount);
+    subscribeWidget->setSubscriberCount(subCount, channelId);
+
+    if (pageHeader.subscribeButton)
+        subscribeWidget->setSubscribeButton(pageHeader.subscribeButton.value(), pageHeader.subscribeButton->isSubscribed(mutations));
+
+    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+        mainWindow->setWindowTitle(pageHeader.title.text.content + " - " + QTTUBE_APP_NAME);
+
+    prepareAvatarAndBanner(pageHeader.avatar, pageHeader.banner);
 }
 
 void ChannelView::setBanner(const HttpReply& reply)

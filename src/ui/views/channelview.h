@@ -4,6 +4,14 @@
 
 namespace InnertubeEndpoints { class ChannelResponse; }
 
+namespace InnertubeObjects
+{
+    class ChannelC4Header;
+    class ChannelPageHeader;
+    class EntityMutation;
+    class ResponsiveImage;
+}
+
 class HttpReply;
 class QHBoxLayout;
 class QLabel;
@@ -34,6 +42,11 @@ private:
     SubscribeWidget* subscribeWidget;
 
     void loadChannel(const QString& channelId);
+    void prepareAvatarAndBanner(const InnertubeObjects::ResponsiveImage& avatar,
+                                const InnertubeObjects::ResponsiveImage& banner);
+    void prepareHeader(const InnertubeObjects::ChannelC4Header& c4Header);
+    void prepareHeader(const InnertubeObjects::ChannelPageHeader& pageHeader,
+                       const QList<InnertubeObjects::EntityMutation>& mutations);
 private slots:
     void loadTab(const InnertubeEndpoints::ChannelResponse& response, int index);
     void setBanner(const HttpReply& reply);
