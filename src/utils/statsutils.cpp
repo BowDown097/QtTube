@@ -2,6 +2,7 @@
 #include "http.h"
 #include "innertube.h"
 #include <QRandomGenerator>
+#include <QUrlQuery>
 
 namespace StatsUtils
 {

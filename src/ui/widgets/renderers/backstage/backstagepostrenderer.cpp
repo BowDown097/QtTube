@@ -12,9 +12,7 @@
 #include <QBoxLayout>
 #include <QDesktopServices>
 #include <QMenu>
-
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; void operator()(std::monostate) const {}};
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+#include <QUrlQuery>
 
 BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     : QWidget(parent),
@@ -138,11 +136,12 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     HttpReply* reply = Http::instance().get("https:" + post.authorThumbnail.recommendedQuality(channelIconLabel->size()).url);
     connect(reply, &HttpReply::finished, this, &BackstagePostRenderer::setChannelIcon);
 
-    std::visit(overloaded {
-        [this](const InnertubeObjects::BackstageImage& image) { setImage(image); },
-        [this](const InnertubeObjects::Poll& poll) { setPoll(poll); },
-        [this](const InnertubeObjects::Video& video) { setVideo(video); }
-    }, post.backstageAttachment);
+    if (auto image = std::get_if<InnertubeObjects::BackstageImage>(&post.backstageAttachment))
+        setImage(*image);
+    else if (auto poll = std::get_if<InnertubeObjects::Poll>(&post.backstageAttachment))
+        setPoll(*poll);
+    else if (auto video = std::get_if<InnertubeObjects::Video>(&post.backstageAttachment))
+        setVideo(*video);
 
     innerLayout->addLayout(actionButtons);
     innerLayout->addStretch();

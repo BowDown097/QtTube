@@ -10,6 +10,7 @@
 #include "utils/uiutils.h"
 #include <QApplication>
 #include <QMouseEvent>
+#include <QPropertyAnimation>
 #include <QPushButton>
 #include <QTabBar>
 

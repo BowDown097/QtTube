@@ -9,6 +9,7 @@
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/elidedtubelabel.h"
 #include "videothumbnailwidget.h"
+#include <QJsonDocument>
 #include <QMenu>
 #include <QMessageBox>
 

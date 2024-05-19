@@ -12,13 +12,11 @@
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/gridvideorenderer.h"
 #include <QClipboard>
+#include <QFile>
+#include <QJsonArray>
 #include <QLayout>
 #include <QPainter>
 #include <QStyleFactory>
-
-#ifdef Q_OS_LINUX
-#include <QThread>
-#endif
 
 constexpr const char* darkStylesheet = R"(
     QLineEdit {
@@ -168,11 +166,6 @@ void UIUtils::copyToClipboard(const QString& text)
 
     if (clipboard->supportsSelection())
         clipboard->setText(text, QClipboard::Selection);
-
-// apparently a workaround for copying to clipboard sometimes not working on linux. see https://www.medo64.com/2019/12/copy-to-clipboard-in-qt/
-#ifdef Q_OS_LINUX
-    QThread::msleep(1);
-#endif
 }
 
 void UIUtils::elide(QLabel* label, int targetWidth)
@@ -219,7 +212,7 @@ QString UIUtils::resolveThemedIconName(const QString& name, const QPalette& pal)
 {
     const QString baseFile = ":/" + name + ".svg";
     const QString lightFile = ":/" + name + "-light.svg";
-    return QFileInfo::exists(lightFile) && UIUtils::preferDark(pal) ? lightFile : baseFile;
+    return QFile::exists(lightFile) && UIUtils::preferDark(pal) ? lightFile : baseFile;
 }
 
 void UIUtils::setAppStyle(const QString& styleName, bool dark)

@@ -15,10 +15,13 @@
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QDesktopServices>
+#include <QJsonDocument>
 #include <QMenu>
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QTimer>
+#include <QUrlQuery>
 
 WatchView::~WatchView()
 {

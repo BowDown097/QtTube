@@ -4,6 +4,7 @@
 #include "utils/uiutils.h"
 #include <QApplication>
 #include <QBoxLayout>
+#include <QJsonArray>
 #include <QLabel>
 
 constexpr const char* imgPlaceholder = "<img src='data:%1;base64,%2' width='20' height='20'>";
