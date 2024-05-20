@@ -1,5 +1,4 @@
-#ifndef CHANNELFILTERTABLE_H
-#define CHANNELFILTERTABLE_H
+#pragma once
 #include <QWidget>
 
 namespace InnertubeEndpoints { class BrowseChannel; }
@@ -26,5 +25,3 @@ private slots:
     void removeCurrentRow();
     void validateItemInput(QTableWidgetItem* item);
 };
-
-#endif // CHANNELFILTERTABLE_H

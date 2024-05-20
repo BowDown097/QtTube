@@ -1,5 +1,4 @@
-#ifndef ACCOUNTMENUWIDGET_H
-#define ACCOUNTMENUWIDGET_H
+#pragma once
 #include <QWidget>
 
 namespace InnertubeEndpoints { class AccountMenu; }
@@ -36,5 +35,3 @@ signals:
     void closeRequested();
     void finishedInitializing();
 };
-
-#endif // ACCOUNTMENUWIDGET_H

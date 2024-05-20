@@ -1,5 +1,4 @@
-#ifndef CHOOSEENTITIESPAGE_H
-#define CHOOSEENTITIESPAGE_H
+#pragma once
 #include "ui/forms/settings/data-wizards/entityselecttablemodel.h"
 #include <QWizardPage>
 
@@ -44,5 +43,3 @@ signals:
     void foundEntity(const Entity&);
     void progress();
 };
-
-#endif // CHOOSEENTITIESPAGE_H

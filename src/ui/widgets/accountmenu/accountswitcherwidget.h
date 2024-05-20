@@ -1,5 +1,4 @@
-#ifndef ACCOUNTSWITCHERWIDGET_H
-#define ACCOUNTSWITCHERWIDGET_H
+#pragma once
 #include <QWidget>
 
 class CredentialSet;
@@ -22,5 +21,3 @@ signals:
     void accountMenuRequested();
     void closeRequested();
 };
-
-#endif // ACCOUNTSWITCHERWIDGET_H

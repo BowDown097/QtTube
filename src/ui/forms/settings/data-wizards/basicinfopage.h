@@ -1,5 +1,4 @@
-#ifndef BASICINFOPAGE_H
-#define BASICINFOPAGE_H
+#pragma once
 #include <QWizardPage>
 
 class QLabel;
@@ -13,5 +12,3 @@ private:
     QLabel* infoLabel;
     QVBoxLayout* layout;
 };
-
-#endif // BASICINFOPAGE_H

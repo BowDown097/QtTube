@@ -1,5 +1,4 @@
-#ifndef ENTITYSELECTTABLEMODEL_H
-#define ENTITYSELECTTABLEMODEL_H
+#pragma once
 #include <QAbstractTableModel>
 
 struct Entity
@@ -39,5 +38,3 @@ private:
 signals:
     void checkedRowCountChnaged(int count);
 };
-
-#endif // ENTITYSELECTTABLEMODEL_H

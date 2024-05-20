@@ -1,5 +1,4 @@
-#ifndef WATCHVIEWPLAYER_H
-#define WATCHVIEWPLAYER_H
+#pragma once
 #include <QObject>
 #include <QSize>
 
@@ -46,5 +45,3 @@ signals:
     void progressChanged(double progress, double previousProgress);
     void scaleModeChanged(PlayerScaleMode scaleMode);
 };
-
-#endif // WATCHVIEWPLAYER_H

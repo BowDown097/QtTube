@@ -1,5 +1,4 @@
-#ifndef CHANNELBROWSER_H
-#define CHANNELBROWSER_H
+#pragma once
 #include <QListWidget>
 
 namespace InnertubeEndpoints { class ChannelResponse; }
@@ -17,5 +16,3 @@ public:
     static void setupUnimplemented(QListWidget* widget);
     static void setupVideos(QListWidget* widget, const QJsonValue& renderer, const InnertubeEndpoints::ChannelResponse& resp);
 };
-
-#endif // CHANNELBROWSER_H

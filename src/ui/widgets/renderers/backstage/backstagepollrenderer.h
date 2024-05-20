@@ -1,5 +1,4 @@
-#ifndef BACKSTAGEPOLLRENDERER_H
-#define BACKSTAGEPOLLRENDERER_H
+#pragma once
 #include <QWidget>
 
 class BackstagePollChoiceRenderer;
@@ -21,5 +20,3 @@ private:
 private slots:
     void pollChoiceClicked();
 };
-
-#endif // BACKSTAGEPOLLRENDERER_H

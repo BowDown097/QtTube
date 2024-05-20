@@ -1,5 +1,4 @@
-#ifndef WATCHVIEW_H
-#define WATCHVIEW_H
+#pragma once
 #include <QPointer>
 #include <QWidget>
 
@@ -54,5 +53,3 @@ signals:
     void loadFailed(const InnertubeException& ie);
     void navigateChannelRequested(const QString& channelId);
 };
-
-#endif // WATCHVIEW_H

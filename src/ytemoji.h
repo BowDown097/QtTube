@@ -1,5 +1,4 @@
-#ifndef YTEMOJI_H
-#define YTEMOJI_H
+#pragma once
 #include <mutex>
 #include <QJsonValue>
 
@@ -107,5 +106,3 @@ private:
 
     QList<UnicodeEmoji> m_unicodeEmojis;
 };
-
-#endif // YTEMOJI_H

@@ -1,5 +1,4 @@
-#ifndef ACCOUNTENTRYWIDGET_H
-#define ACCOUNTENTRYWIDGET_H
+#pragma once
 #include <QWidget>
 
 class CredentialSet;
@@ -31,5 +30,3 @@ private:
     QHBoxLayout* layout;
     QLabel* nameLabel;
 };
-
-#endif // ACCOUNTENTRYWIDGET_H

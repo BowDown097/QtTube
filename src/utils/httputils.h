@@ -1,5 +1,4 @@
-#ifndef HTTPUTILS_H
-#define HTTPUTILS_H
+#pragma once
 
 class Http;
 
@@ -7,5 +6,3 @@ namespace HttpUtils
 {
     Http& cachedInstance();
 }
-
-#endif // HTTPUTILS_H

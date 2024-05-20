@@ -1,5 +1,4 @@
-#ifndef EXTTOOLBUTTON_H
-#define EXTTOOLBUTTON_H
+#pragma once
 #include <QToolButton>
 
 // QToolButton that shows menu on right click
@@ -10,5 +9,3 @@ public:
 protected:
     void mousePressEvent(QMouseEvent* event) override;
 };
-
-#endif // EXTTOOLBUTTON_H

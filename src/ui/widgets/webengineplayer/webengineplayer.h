@@ -1,5 +1,4 @@
-#ifndef WEBENGINEPLAYER_H
-#define WEBENGINEPLAYER_H
+#pragma once
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineScript>
 #include <QWidget>
@@ -39,5 +38,3 @@ private:
 signals:
     void progressChanged(double progress, double previousProgress);
 };
-
-#endif // WEBENGINEPLAYER_H

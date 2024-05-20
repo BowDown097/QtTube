@@ -1,5 +1,4 @@
-#ifndef VIDEOTHUMBNAILWIDGET_H
-#define VIDEOTHUMBNAILWIDGET_H
+#pragma once
 #include <QLabel>
 
 class HttpReply;
@@ -35,5 +34,3 @@ signals:
     void clicked();
     void thumbnailSet();
 };
-
-#endif // VIDEOTHUMBNAILWIDGET_H

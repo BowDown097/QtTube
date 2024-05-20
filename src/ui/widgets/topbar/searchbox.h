@@ -1,5 +1,4 @@
-#ifndef SEARCHBOX_H
-#define SEARCHBOX_H
+#pragma once
 #include <QWidget>
 
 class ExtMenu;
@@ -24,5 +23,3 @@ private:
     QAction* searchTypeActionQuery;
     ExtMenu* searchTypeMenu;
 };
-
-#endif // SEARCHBOX_H

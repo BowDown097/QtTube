@@ -1,5 +1,4 @@
-#ifndef TUBELABEL_H
-#define TUBELABEL_H
+#pragma once
 #include <QLabel>
 
 namespace InnertubeObjects { class InnertubeString; }
@@ -26,5 +25,3 @@ private:
     bool clickable = false;
     bool underline = false;
 };
-
-#endif // TUBELABEL_H

@@ -1,5 +1,4 @@
-#ifndef CHOOSESUBSPAGE_H
-#define CHOOSESUBSPAGE_H
+#pragma once
 #include "chooseentitiespage.h"
 
 class ChooseSubsPage : public ChooseEntitiesPage
@@ -16,5 +15,3 @@ private:
 private slots:
     void subToChannelInThread(const Entity& channel);
 };
-
-#endif // CHOOSESUBSPAGE_H

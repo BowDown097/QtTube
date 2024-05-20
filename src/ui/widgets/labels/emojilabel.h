@@ -1,5 +1,4 @@
-#ifndef EMOJILABEL_H
-#define EMOJILABEL_H
+#pragma once
 #include "tubelabel.h"
 
 class HttpReply;
@@ -19,5 +18,3 @@ private:
 private slots:
     void setIcon(const HttpReply& reply);
 };
-
-#endif // EMOJILABEL_H

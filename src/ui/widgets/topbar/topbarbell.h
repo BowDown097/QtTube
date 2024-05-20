@@ -1,5 +1,4 @@
-#ifndef TOPBARBELL_H
-#define TOPBARBELL_H
+#pragma once
 #include <QLabel>
 
 class TopBarBell : public QWidget
@@ -23,5 +22,3 @@ protected:
 signals:
     void clicked();
 };
-
-#endif // TOPBARBELL_H

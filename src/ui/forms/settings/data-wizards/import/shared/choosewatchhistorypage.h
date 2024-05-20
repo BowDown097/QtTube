@@ -1,5 +1,4 @@
-#ifndef CHOOSEWATCHHISTORYPAGE_H
-#define CHOOSEWATCHHISTORYPAGE_H
+#pragma once
 #include "chooseentitiespage.h"
 
 class ChooseWatchHistoryPage : public ChooseEntitiesPage
@@ -13,5 +12,3 @@ private:
 private slots:
     void addToWatchHistoryInThread(const Entity& video);
 };
-
-#endif // CHOOSEWATCHHISTORYPAGE_H

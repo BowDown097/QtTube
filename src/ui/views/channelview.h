@@ -1,5 +1,4 @@
-#ifndef CHANNELVIEW_H
-#define CHANNELVIEW_H
+#pragma once
 #include <QWidget>
 
 namespace InnertubeEndpoints { class ChannelResponse; }
@@ -52,5 +51,3 @@ private slots:
     void setBanner(const HttpReply& reply);
     void setIcon(const HttpReply& reply);
 };
-
-#endif // CHANNELVIEW_H

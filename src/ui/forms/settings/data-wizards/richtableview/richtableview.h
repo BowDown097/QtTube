@@ -1,5 +1,4 @@
-#ifndef RICHTABLEVIEW_H
-#define RICHTABLEVIEW_H
+#pragma once
 #include <QTableView>
 
 // modified version of https://stackoverflow.com/a/35418703
@@ -16,5 +15,3 @@ private:
     QString mousePressAnchor;
     QString anchorAt(const QPoint& point) const;
 };
-
-#endif // RICHTABLEVIEW_H

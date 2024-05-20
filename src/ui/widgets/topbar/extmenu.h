@@ -1,5 +1,4 @@
-#ifndef EXTMENU_H
-#define EXTMENU_H
+#pragma once
 #include <QMenu>
 
 // QMenu that does not trigger actions upon switching to them
@@ -13,5 +12,3 @@ protected:
 signals:
     void switchActionRequested(QAction* action);
 };
-
-#endif // EXTMENU_H

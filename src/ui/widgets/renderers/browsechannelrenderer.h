@@ -1,5 +1,4 @@
-#ifndef BROWSECHANNELRENDERER_H
-#define BROWSECHANNELRENDERER_H
+#pragma once
 #include <QWidget>
 
 namespace InnertubeObjects { class SubscribeButton; }
@@ -33,5 +32,3 @@ private:
     TubeLabel* thumbLabel;
     TubeLabel* titleLabel;
 };
-
-#endif // BROWSECHANNELRENDERER_H

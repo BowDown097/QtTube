@@ -1,5 +1,4 @@
-#ifndef ELIDEDTUBELABEL_H
-#define ELIDEDTUBELABEL_H
+#pragma once
 #include <QLabel>
 
 class ElidedTubeLabel : public QLabel
@@ -25,5 +24,3 @@ private:
     bool m_clickable = false;
     bool m_underline = false;
 };
-
-#endif // ELIDEDTUBELABEL_H

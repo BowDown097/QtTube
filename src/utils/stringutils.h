@@ -1,5 +1,4 @@
-#ifndef STRINGUTILS_H
-#define STRINGUTILS_H
+#pragma once
 #include <QString>
 
 namespace InnertubeObjects { class InnertubeString; }
@@ -14,5 +13,3 @@ namespace StringUtils
     QString innertubeStringToRichText(const InnertubeObjects::InnertubeString& istr, bool useLinkText);
     void truncateUrlString(QString& url, bool prefix);
 }
-
-#endif // STRINGUTILS_H

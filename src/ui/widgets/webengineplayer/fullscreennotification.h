@@ -1,5 +1,4 @@
-#ifndef FULLSCREENNOTIFICATION_H
-#define FULLSCREENNOTIFICATION_H
+#pragma once
 #include <QLabel>
 
 class FullScreenNotification : public QLabel
@@ -14,5 +13,3 @@ signals:
 private:
     bool m_previouslyVisible;
 };
-
-#endif // FULLSCREENNOTIFICATION_H

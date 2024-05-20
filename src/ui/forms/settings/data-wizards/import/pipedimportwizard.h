@@ -1,5 +1,4 @@
-#ifndef PIPEDIMPORTWIZARD_H
-#define PIPEDIMPORTWIZARD_H
+#pragma once
 #include "shared/importfileselectpage.h"
 #include "ui/forms/settings/data-wizards/datawizard.h"
 #include "ui/forms/settings/data-wizards/entityselecttablemodel.h"
@@ -46,5 +45,3 @@ private slots:
 signals:
     void progress();
 };
-
-#endif // PIPEDIMPORTWIZARD_H

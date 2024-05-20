@@ -1,5 +1,4 @@
-#ifndef BACKSTAGEPOLLCHOICERENDERER_H
-#define BACKSTAGEPOLLCHOICERENDERER_H
+#pragma once
 #include "innertube/objects/backstage/poll/pollchoice.h"
 #include <QWidget>
 
@@ -38,5 +37,3 @@ private:
 signals:
     void clicked();
 };
-
-#endif // BACKSTAGEPOLLCHOICERENDERER_H

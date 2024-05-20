@@ -1,5 +1,4 @@
-#ifndef FULLSCREENWINDOW_H
-#define FULLSCREENWINDOW_H
+#pragma once
 #include <QWebEngineView>
 
 class FullScreenNotification;
@@ -18,5 +17,3 @@ private:
     QWebEngineView* m_oldView;
     QWebEngineView* m_view;
 };
-
-#endif // FULLSCREENWINDOW_H

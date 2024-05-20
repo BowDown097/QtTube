@@ -1,5 +1,4 @@
-#ifndef GENERICSTORE_H
-#define GENERICSTORE_H
+#pragma once
 #include <QObject>
 
 class GenericStore : public QObject
@@ -15,5 +14,3 @@ public:
 private:
     QString m_configPath;
 };
-
-#endif // GENERICSTORE_H

@@ -1,5 +1,4 @@
-#ifndef PRELOADDATA_H
-#define PRELOADDATA_H
+#pragma once
 #include "innertube/objects/responsiveimage.h"
 
 namespace InnertubeObjects { class MetadataBadge; }
@@ -14,5 +13,3 @@ namespace PreloadData
         std::optional<QString> title;
     };
 }
-
-#endif // PRELOADDATA_H

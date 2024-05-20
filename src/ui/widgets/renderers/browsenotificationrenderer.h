@@ -1,5 +1,4 @@
-#ifndef BROWSENOTIFICATIONRENDERER_H
-#define BROWSENOTIFICATIONRENDERER_H
+#pragma once
 #include <QWidget>
 
 namespace InnertubeObjects { class Notification; }
@@ -26,5 +25,3 @@ private:
     QVBoxLayout* textVbox;
     TubeLabel* thumbLabel;
 };
-
-#endif // BROWSENOTIFICATIONRENDERER_H

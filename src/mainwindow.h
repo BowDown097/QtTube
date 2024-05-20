@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 #include "ui/widgets/continuablelistwidget.h"
 #include "ui/widgets/findbar.h"
 #include "ui/widgets/topbar/topbar.h"
@@ -16,7 +15,6 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     explicit MainWindow(const QCommandLineParser& parser, QWidget* parent = nullptr);
     ~MainWindow();
@@ -54,4 +52,3 @@ private:
     ContinuableListWidget* notificationMenu;
     Ui::MainWindow* ui;
 };
-#endif // MAINWINDOW_H

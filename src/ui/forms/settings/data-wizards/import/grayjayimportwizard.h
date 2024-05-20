@@ -1,5 +1,4 @@
-#ifndef GRAYJAYIMPORTWIZARD_H
-#define GRAYJAYIMPORTWIZARD_H
+#pragma once
 #include "shared/importfileselectpage.h"
 #include "ui/forms/settings/data-wizards/datawizard.h"
 #include "ui/forms/settings/data-wizards/entityselecttablemodel.h"
@@ -48,5 +47,3 @@ public:
 private slots:
     void verifyFile(const QString& fileName);
 };
-
-#endif // GRAYJAYIMPORTWIZARD_H

@@ -1,5 +1,4 @@
-#ifndef STATSUTILS_H
-#define STATSUTILS_H
+#pragma once
 
 namespace InnertubeEndpoints { class PlayerResponse; }
 
@@ -13,5 +12,3 @@ namespace StatsUtils
     void reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position);
     void setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore);
 }
-
-#endif // STATSUTILS_H

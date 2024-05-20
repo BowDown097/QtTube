@@ -1,5 +1,4 @@
-#ifndef WATCHVIEW_UI_H
-#define WATCHVIEW_UI_H
+#pragma once
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -71,5 +70,3 @@ namespace Ui
 }
 
 QT_END_NAMESPACE
-
-#endif // WATCHVIEW_UI_H

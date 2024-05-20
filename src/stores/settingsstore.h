@@ -1,5 +1,4 @@
-#ifndef SETTINGSSTORE_H
-#define SETTINGSSTORE_H
+#pragma once
 #include "genericstore.h"
 #include <QObject>
 
@@ -76,5 +75,3 @@ signals:
     void sponsorBlockCategoriesChanged(const QStringList&);
     void volumeFromPlayerChanged(bool);
 };
-
-#endif // SETTINGSSTORE_H

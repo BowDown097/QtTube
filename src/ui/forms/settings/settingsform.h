@@ -1,5 +1,4 @@
-#ifndef SETTINGSFORM_H
-#define SETTINGSFORM_H
+#pragma once
 #include <QWidget>
 
 namespace Ui {
@@ -26,5 +25,3 @@ private slots:
     void showTermFilterTable();
     void toggleDeArrowSettings(bool checked);
 };
-
-#endif // SETTINGSFORM_H

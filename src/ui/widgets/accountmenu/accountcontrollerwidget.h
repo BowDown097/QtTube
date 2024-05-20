@@ -1,5 +1,4 @@
-#ifndef ACCOUNTCONTROLLERWIDGET_H
-#define ACCOUNTCONTROLLERWIDGET_H
+#pragma once
 #include "accountmenuwidget.h"
 #include "accountswitcherwidget.h"
 #include <QStackedWidget>
@@ -14,5 +13,3 @@ public:
 signals:
     void resized();
 };
-
-#endif // ACCOUNTCONTROLLERWIDGET_H

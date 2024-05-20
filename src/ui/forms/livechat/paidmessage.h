@@ -1,5 +1,4 @@
-#ifndef PAIDMESSAGE_H
-#define PAIDMESSAGE_H
+#pragma once
 #include <QJsonValue>
 #include <QWidget>
 
@@ -24,5 +23,3 @@ private:
 private slots:
     void setAuthorIcon(const HttpReply& reply);
 };
-
-#endif // PAIDMESSAGE_H

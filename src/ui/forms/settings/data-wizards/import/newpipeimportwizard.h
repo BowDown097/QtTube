@@ -1,5 +1,4 @@
-#ifndef NEWPIPEIMPORTWIZARD_H
-#define NEWPIPEIMPORTWIZARD_H
+#pragma once
 #include "shared/importfileselectpage.h"
 #include "ui/forms/settings/data-wizards/datawizard.h"
 #include "ui/forms/settings/data-wizards/intropage.h"
@@ -28,5 +27,3 @@ public:
 private slots:
     void verifyFile(const QString& fileName);
 };
-
-#endif // NEWPIPEIMPORTWIZARD_H

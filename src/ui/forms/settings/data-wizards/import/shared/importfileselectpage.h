@@ -1,5 +1,4 @@
-#ifndef IMPORTFILESELECTPAGE_H
-#define IMPORTFILESELECTPAGE_H
+#pragma once
 #include <QWizardPage>
 
 class QHBoxLayout;
@@ -26,5 +25,3 @@ private:
 signals:
     void fileSelected(const QString&);
 };
-
-#endif // IMPORTFILESELECTPAGE_H

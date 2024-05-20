@@ -1,5 +1,4 @@
-#ifndef QTTUBEAPPLICATION_H
-#define QTTUBEAPPLICATION_H
+#pragma once
 #include "stores/credentialsstore.h"
 #include "stores/settingsstore.h"
 #include <QApplication>
@@ -18,5 +17,3 @@ private:
     CredentialsStore m_creds;
     SettingsStore m_settings;
 };
-
-#endif // QTTUBEAPPLICATION_H

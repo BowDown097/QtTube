@@ -1,5 +1,4 @@
-#ifndef TAKEOUTIMPORTWIZARD_H
-#define TAKEOUTIMPORTWIZARD_H
+#pragma once
 #include "shared/importfileselectpage.h"
 #include "ui/forms/settings/data-wizards/datawizard.h"
 #include "ui/forms/settings/data-wizards/intropage.h"
@@ -41,5 +40,3 @@ public:
 private slots:
     void verifyFile(const QString& fileName);
 };
-
-#endif // TAKEOUTIMPORTWIZARD_H

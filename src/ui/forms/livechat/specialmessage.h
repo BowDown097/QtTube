@@ -1,5 +1,4 @@
-#ifndef SPECIALMESSAGE_H
-#define SPECIALMESSAGE_H
+#pragma once
 #include <QJsonValue>
 #include <QWidget>
 
@@ -17,5 +16,3 @@ private:
     QVBoxLayout* layout;
     QLabel* subtext;
 };
-
-#endif // SPECIALMESSAGE_H

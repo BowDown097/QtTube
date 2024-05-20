@@ -1,5 +1,4 @@
-#ifndef LIVECHATWINDOW_H
-#define LIVECHATWINDOW_H
+#pragma once
 #include "ui/views/watchviewplayer.h"
 #include <QJsonArray>
 #include <QWidget>
@@ -60,5 +59,3 @@ private slots:
 signals:
     void getLiveChatFinished();
 };
-
-#endif // LIVECHATWINDOW_H

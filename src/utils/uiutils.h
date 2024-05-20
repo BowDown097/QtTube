@@ -1,5 +1,4 @@
-#ifndef UIUTILS_H
-#define UIUTILS_H
+#pragma once
 #include <initializer_list>
 #include <QWidget>
 
@@ -62,5 +61,3 @@ public:
 private:
     static VideoRenderer* constructVideoRenderer(QListWidget* list);
 };
-
-#endif // UIUTILS_H

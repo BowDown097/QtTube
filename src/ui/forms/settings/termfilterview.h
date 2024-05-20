@@ -1,5 +1,4 @@
-#ifndef TERMFILTERVIEW_H
-#define TERMFILTERVIEW_H
+#pragma once
 #include <QWidget>
 
 namespace Ui {
@@ -23,5 +22,3 @@ private slots:
     void registerInSettings(QListWidgetItem* item);
     void removeCurrentRow();
 };
-
-#endif // TERMFILTERVIEW_H

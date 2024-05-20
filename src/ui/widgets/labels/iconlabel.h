@@ -1,5 +1,4 @@
-#ifndef ICONLABEL_H
-#define ICONLABEL_H
+#pragma once
 #include <QLabel>
 
 class QHBoxLayout;
@@ -36,5 +35,3 @@ protected:
 private:
     QHBoxLayout* layout;
 };
-
-#endif // ICONLABEL_H

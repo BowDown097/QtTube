@@ -1,5 +1,4 @@
-#ifndef SUBSCRIBEWIDGET_H
-#define SUBSCRIBEWIDGET_H
+#pragma once
 #include "innertube/objects/channel/subscribebutton.h"
 #include "innertube/objects/viewmodels/subscribebuttonviewmodel.h"
 #include <QWidget>
@@ -23,5 +22,3 @@ private:
     NotificationBell* notificationBell;
     SubscribeLabel* subscribeLabel;
 };
-
-#endif // SUBSCRIBEWIDGET_H

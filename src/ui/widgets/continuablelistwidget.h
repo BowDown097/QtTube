@@ -1,5 +1,4 @@
-#ifndef CONTINUABLELISTWIDGET_H
-#define CONTINUABLELISTWIDGET_H
+#pragma once
 #include <QListWidget>
 
 class ContinuableListWidget : public QListWidget
@@ -21,5 +20,3 @@ private slots:
 signals:
     void continuationReady();
 };
-
-#endif // CONTINUABLELISTWIDGET_H

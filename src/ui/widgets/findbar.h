@@ -1,5 +1,4 @@
-#ifndef FINDBAR_H
-#define FINDBAR_H
+#pragma once
 #include <QWidget>
 
 class QHBoxLayout;
@@ -28,5 +27,3 @@ private slots:
     void jumpToLabel();
     void initializeSearch(const QString& searchText);
 };
-
-#endif // FINDBAR_H

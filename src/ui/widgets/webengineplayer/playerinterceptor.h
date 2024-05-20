@@ -1,5 +1,4 @@
-#ifndef PLAYERINTERCEPTOR_H
-#define PLAYERINTERCEPTOR_H
+#pragma once
 #include "innertube/itc-objects/innertubeauthstore.h"
 #include "innertube/responses/video/playerresponse.h"
 #include <QPointer>
@@ -19,5 +18,3 @@ private:
     InnertubeContext* m_context;
     InnertubeEndpoints::PlayerResponse m_playerResponse;
 };
-
-#endif // PLAYERINTERCEPTOR_H

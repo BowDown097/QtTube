@@ -1,5 +1,4 @@
-#ifndef CHANNELBADGELABEL_H
-#define CHANNELBADGELABEL_H
+#pragma once
 #include <QLabel>
 
 namespace InnertubeObjects { class MetadataBadge; }
@@ -17,5 +16,3 @@ protected:
 #endif
     void leaveEvent(QEvent*) override;
 };
-
-#endif // CHANNELBADGELABEL_H

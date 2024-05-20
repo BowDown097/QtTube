@@ -1,5 +1,4 @@
-#ifndef RICHITEMDELEGATE_H
-#define RICHITEMDELEGATE_H
+#pragma once
 #include <QStyledItemDelegate>
 
 class RichItemDelegate : public QStyledItemDelegate
@@ -12,5 +11,3 @@ protected:
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 };
-
-#endif // RICHITEMDELEGATE_H

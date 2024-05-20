@@ -1,5 +1,4 @@
-#ifndef BACKSTAGEPOSTRENDERER_H
-#define BACKSTAGEPOSTRENDERER_H
+#pragma once
 #include <QWidget>
 
 namespace InnertubeObjects
@@ -58,5 +57,3 @@ private slots:
 signals:
     void dynamicSizeChange(const QSize& newSize);
 };
-
-#endif // BACKSTAGEPOSTRENDERER_H

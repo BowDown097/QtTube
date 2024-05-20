@@ -1,5 +1,4 @@
-#ifndef CHANNELLABEL_H
-#define CHANNELLABEL_H
+#pragma once
 #include "tubelabel.h"
 
 namespace InnertubeObjects { class MetadataBadge; }
@@ -16,5 +15,3 @@ private:
     QHBoxLayout* layout;
     void reset();
 };
-
-#endif // CHANNELLABEL_H

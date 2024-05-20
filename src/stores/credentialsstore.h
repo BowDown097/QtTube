@@ -1,5 +1,4 @@
-#ifndef CREDENTIALSSTORE_H
-#define CREDENTIALSSTORE_H
+#pragma once
 #include "genericstore.h"
 #include <QObject>
 
@@ -38,5 +37,3 @@ public:
 private:
     QList<CredentialSet> m_credentials;
 };
-
-#endif // CREDENTIALSSTORE_H

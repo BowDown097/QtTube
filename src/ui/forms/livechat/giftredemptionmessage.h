@@ -1,5 +1,4 @@
-#ifndef GIFTREDEMPTIONMESSAGE_H
-#define GIFTREDEMPTIONMESSAGE_H
+#pragma once
 #include <QJsonValue>
 #include <QWidget>
 
@@ -15,5 +14,3 @@ private:
     QHBoxLayout* layout;
     QLabel* messageLabel;
 };
-
-#endif // GIFTREDEMPTIONMESSAGE_H

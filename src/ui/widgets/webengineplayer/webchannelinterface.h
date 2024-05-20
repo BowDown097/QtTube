@@ -1,5 +1,4 @@
-#ifndef WEBCHANNELINTERFACE_H
-#define WEBCHANNELINTERFACE_H
+#pragma once
 #include <QObject>
 
 class WebChannelInterface : public QObject
@@ -24,5 +23,3 @@ public slots:
 signals:
     void progressChanged(double progress, double previousProgress);
 };
-
-#endif // WEBCHANNELINTERFACE_H

@@ -1,5 +1,4 @@
-#ifndef TEXTMESSAGE_H
-#define TEXTMESSAGE_H
+#pragma once
 #include <QJsonValue>
 #include <QWidget>
 
@@ -24,5 +23,3 @@ private slots:
     void insertEmojiIntoMessage(const HttpReply& reply, const QString& placeholder);
     void setAuthorIcon(const HttpReply& reply);
 };
-
-#endif // TEXTMESSAGE_H

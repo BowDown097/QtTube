@@ -1,5 +1,4 @@
-#ifndef INTROPAGE_H
-#define INTROPAGE_H
+#pragma once
 #include <QWizardPage>
 
 class QCheckBox;
@@ -18,5 +17,3 @@ private:
     QLabel* info;
     QVBoxLayout* layout;
 };
-
-#endif // INTROPAGE_H

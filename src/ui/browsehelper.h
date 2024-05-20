@@ -1,5 +1,4 @@
-#ifndef BROWSEHELPER_H
-#define BROWSEHELPER_H
+#pragma once
 #include "innertube.h"
 #include "ui/widgets/continuablelistwidget.h"
 #include <mutex>
@@ -108,5 +107,3 @@ private:
         }
     };
 };
-
-#endif // BROWSEHELPER_H

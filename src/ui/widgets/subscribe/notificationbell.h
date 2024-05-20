@@ -1,5 +1,4 @@
-#ifndef NOTIFICATIONBELL_H
-#define NOTIFICATIONBELL_H
+#pragma once
 #include "innertube/objects/channel/notificationpreferencebutton.h"
 #include <QToolButton>
 
@@ -33,5 +32,3 @@ private:
 private slots:
     void updateNotificationState(PreferenceListState state);
 };
-
-#endif // NOTIFICATIONBELL_H

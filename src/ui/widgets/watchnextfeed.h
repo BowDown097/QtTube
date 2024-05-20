@@ -1,5 +1,4 @@
-#ifndef WATCHNEXTFEED_H
-#define WATCHNEXTFEED_H
+#pragma once
 #include <QTabWidget>
 
 namespace InnertubeEndpoints { class Next; }
@@ -23,5 +22,3 @@ private slots:
     void continueComments();
     void continueRecommended();
 };
-
-#endif // WATCHNEXTFEED_H

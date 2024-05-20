@@ -1,5 +1,4 @@
-#ifndef QTTUBE_SUBSCRIBEBUTTON_H
-#define QTTUBE_SUBSCRIBEBUTTON_H
+#pragma once
 #include "innertube/objects/channel/subscribebutton.h"
 #include "innertube/objects/viewmodels/subscribebuttonviewmodel.h"
 #include <QLabel>
@@ -32,5 +31,3 @@ private:
 
     void toggleSubscriptionStatus(const QString& styleSheet, const QString& newText);
 };
-
-#endif // QTTUBE_SUBSCRIBEBUTTON_H

@@ -1,5 +1,4 @@
-#ifndef EMOJIMENU_H
-#define EMOJIMENU_H
+#pragma once
 #include <QWidget>
 
 namespace Ui {
@@ -24,5 +23,3 @@ private:
     FlowLayout* layout;
     Ui::EmojiMenu* ui;
 };
-
-#endif // EMOJIMENU_H

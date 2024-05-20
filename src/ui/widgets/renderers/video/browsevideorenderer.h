@@ -1,5 +1,4 @@
-#ifndef BROWSEVIDEORENDERER_H
-#define BROWSEVIDEORENDERER_H
+#pragma once
 #include "videorenderer.h"
 
 class QHBoxLayout;
@@ -13,5 +12,3 @@ private:
     QHBoxLayout* hbox;
     QVBoxLayout* textVbox;
 };
-
-#endif // BROWSEVIDEORENDERER_H

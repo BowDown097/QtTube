@@ -1,5 +1,4 @@
-#ifndef VIDEORENDERER_H
-#define VIDEORENDERER_H
+#pragma once
 #include <QWidget>
 
 namespace InnertubeObjects
@@ -50,5 +49,3 @@ private slots:
     void showChannelContextMenu(const QPoint& pos);
     void showTitleContextMenu(const QPoint& pos);
 };
-
-#endif // VIDEORENDERER_H

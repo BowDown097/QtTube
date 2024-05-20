@@ -1,5 +1,4 @@
-#ifndef GRIDVIDEORENDERER_H
-#define GRIDVIDEORENDERER_H
+#pragma once
 #include "videorenderer.h"
 
 class QVBoxLayout;
@@ -11,5 +10,3 @@ public:
 private:
     QVBoxLayout* vbox;
 };
-
-#endif // GRIDVIDEORENDERER_H

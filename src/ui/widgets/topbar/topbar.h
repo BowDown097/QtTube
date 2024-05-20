@@ -1,5 +1,4 @@
-#ifndef TOPBAR_H
-#define TOPBAR_H
+#pragma once
 #include "searchbox.h"
 #include "topbarbell.h"
 #include "ui/widgets/labels/tubelabel.h"
@@ -38,5 +37,3 @@ private slots:
 signals:
     void signInStatusChanged();
 };
-
-#endif // TOPBAR_H
