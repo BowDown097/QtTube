@@ -34,12 +34,12 @@ OutFile "../@QTTUBE_APP_NAME@-Setup.exe"
 ;--------------------
 ; Version Info
 
-VIProductVersion "@QTTUBE_VERSION_NAME@"
-VIFileVersion "@QTTUBE_VERSION_NAME@"
+VIProductVersion "@QTTUBE_VERSION_NAME4@"
+VIFileVersion "@QTTUBE_VERSION_NAME4@"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "@QTTUBE_APP_NAME@"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "@QTTUBE_APP_DESC@ Installer"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "@QTTUBE_VERSION_NAME@"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "@QTTUBE_VERSION_NAME@"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "@QTTUBE_APP_DESC@"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "@QTTUBE_VERSION_NAME4@"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "@QTTUBE_VERSION_NAME4@"
 
 ;--------------------
 ; Installation steps
@@ -71,7 +71,7 @@ Section "@QTTUBE_APP_NAME@"
         WriteRegStr HKCU "${UNINST_KEY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
         WriteRegStr HKCU "${UNINST_KEY}" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
         WriteRegStr HKCU "${UNINST_KEY}" "InstallLocation" "$INSTDIR"
-        WriteRegStr HKCU "${UNINST_KEY}" "Version" "@QTTUBE_VERSION_NAME@"
+        WriteRegStr HKCU "${UNINST_KEY}" "Version" "@QTTUBE_VERSION_NAME4@"
         WriteRegStr HKCU "${UNINST_KEY}" "DisplayVersion" "@QTTUBE_VERSION_NAME@"
         WriteRegStr HKCU "${UNINST_KEY}" "VersionMajor" "@QTTUBE_VERSION_MAJOR@"
         WriteRegStr HKCU "${UNINST_KEY}" "VersionMinor" "@QTTUBE_VERSION_MINOR@"
