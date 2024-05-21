@@ -106,11 +106,11 @@ jobs:
         if: runner.os == 'Windows'
         run: cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_DIR }} --config ${{ env.BUILD_TYPE }}
       
-      - name: Package (Windows installer)
-        if: runner.os == 'Windows'
-        run: |
-          cd ${{ env.INSTALL_DIR }}
-          makensis -NOCD "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/win_install.nsi"
+      #- name: Package (Windows installer)
+        #if: runner.os == 'Windows'
+        #run: |
+          #cd ${{ env.INSTALL_DIR }}
+          #makensis -NOCD "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/win_install.nsi"
       
       - name: Package (tarball)
         if: runner.os == 'Linux'
@@ -143,12 +143,12 @@ jobs:
           name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
           path: ${{ env.INSTALL_DIR }}/**
           
-      - name: Upload artifact (installer)
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v3
-        with:
-          name: QtTube-${{ runner.os }}-Setup-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
-          path: QtTube-Setup.exe
+      #- name: Upload artifact (installer)
+        #if: runner.os == 'Windows'
+        #uses: actions/upload-artifact@v3
+        #with:
+          #name: QtTube-${{ runner.os }}-Setup-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
+          #path: QtTube-Setup.exe
           
       - name: Upload artifact (tarball)
         if: runner.os == 'Linux'
