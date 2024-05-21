@@ -21,19 +21,19 @@ jobs:
             name: Ubuntu
             qt_ver: 6
             qt_host: linux
-            qt_version: '6.6.0'
-            qt_modules: 'qt5compat qtserialport qtpositioning qtwebchannel qtwebengine'
+            qt_version: '6.7.0'
+            qt_modules: 'qtserialport qtpositioning qtwebchannel qtwebengine'
           - os: ubuntu-latest
             name: Ubuntu-Legacy
             qt_ver: 5
             qt_host: linux
             qt_version: '5.15.2'
             qt_modules: 'qtwebengine'
-          #- os: windows-2022
-            #qt_ver: 6
-            #qt_host: windows
-            #qt_version: '6.5.1'
-            #qt_modules: 'qt5compat qtserialport qtpositioning qtwebchannel qtwebengine'
+          - os: windows-2022
+            qt_ver: 6
+            qt_host: windows
+            qt_version: '6.7.0'
+            qt_modules: 'qtserialport qtpositioning qtwebchannel qtwebengine'
     
     runs-on: ${{ matrix.os }}
     
