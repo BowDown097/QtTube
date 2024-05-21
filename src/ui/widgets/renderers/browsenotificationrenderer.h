@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 
-namespace InnertubeObjects { class Notification; }
+namespace InnertubeObjects { struct Notification; }
 
 class HttpReply;
 class QHBoxLayout;

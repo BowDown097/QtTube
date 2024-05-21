@@ -2,7 +2,7 @@
 #include "genericstore.h"
 #include <QObject>
 
-namespace InnertubeObjects { class Reel; class Video; }
+namespace InnertubeObjects { struct Reel; struct Video; }
 
 class QSettings;
 

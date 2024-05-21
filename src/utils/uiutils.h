@@ -4,10 +4,10 @@
 
 namespace InnertubeObjects
 {
-class BackstagePost;
-class Channel;
-class Reel;
-class Video;
+struct BackstagePost;
+struct Channel;
+struct Reel;
+struct Video;
 }
 
 class QLabel;

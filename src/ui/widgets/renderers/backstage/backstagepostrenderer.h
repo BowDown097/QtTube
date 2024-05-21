@@ -3,10 +3,10 @@
 
 namespace InnertubeObjects
 {
-    class BackstageImage;
-    class BackstagePost;
-    class Poll;
-    class Video;
+    struct BackstageImage;
+    struct BackstagePost;
+    struct Poll;
+    struct Video;
 }
 
 class HttpReply;

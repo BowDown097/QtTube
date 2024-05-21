@@ -3,12 +3,12 @@
 
 namespace InnertubeObjects
 {
-class Reel;
-class ResponsiveImage;
-class Video;
+struct Reel;
+struct ResponsiveImage;
+struct Video;
 }
 
-namespace PreloadData { class WatchView; }
+namespace PreloadData { struct WatchView; }
 
 class ChannelLabel;
 class ElidedTubeLabel;

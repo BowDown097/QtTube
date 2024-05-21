@@ -3,11 +3,11 @@
 #include <QWebEngineScript>
 #include <QWidget>
 
-namespace InnertubeEndpoints { class PlayerResponse; }
+namespace InnertubeEndpoints { struct PlayerResponse; }
 
 class FullScreenWindow;
 class InnertubeAuthStore;
-class InnertubeContext;
+struct InnertubeContext;
 class PlayerInterceptor;
 class QWebEngineFullScreenRequest;
 class QWebEngineView;

@@ -5,7 +5,7 @@ class BackstagePollChoiceRenderer;
 class QLabel;
 class QVBoxLayout;
 
-namespace InnertubeObjects { class Poll; }
+namespace InnertubeObjects { struct Poll; }
 
 class BackstagePollRenderer : public QWidget
 {

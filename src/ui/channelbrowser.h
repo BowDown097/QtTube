@@ -1,7 +1,7 @@
 #pragma once
 #include <QListWidget>
 
-namespace InnertubeEndpoints { class ChannelResponse; }
+namespace InnertubeEndpoints { struct ChannelResponse; }
 
 class ChannelBrowser
 {

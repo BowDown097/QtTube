@@ -1,7 +1,7 @@
 #pragma once
 #include <QString>
 
-namespace InnertubeObjects { class InnertubeString; }
+namespace InnertubeObjects { struct InnertubeString; }
 
 namespace StringUtils
 {

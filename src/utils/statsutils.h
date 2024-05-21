@@ -1,10 +1,10 @@
 #pragma once
 
-namespace InnertubeEndpoints { class PlayerResponse; }
+namespace InnertubeEndpoints { struct PlayerResponse; }
 
 class Http;
 class InnertubeAuthStore;
-class InnertubeContext;
+struct InnertubeContext;
 
 namespace StatsUtils
 {

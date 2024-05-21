@@ -9,7 +9,7 @@
 class WebEnginePlayer;
 #endif
 
-namespace InnertubeEndpoints { class PlayerResponse; }
+namespace InnertubeEndpoints { struct PlayerResponse; }
 
 enum class PlayerScaleMode { Unset, NoScale, Scaled };
 

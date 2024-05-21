@@ -6,17 +6,17 @@ namespace InnertubeEndpoints
 {
 class Next;
 class Player;
-class UpdatedMetadataResponse;
+struct UpdatedMetadataResponse;
 }
 
 namespace InnertubeObjects
 {
-class DynamicText;
-class InnertubeString;
-class ToggleButtonViewModel;
+struct DynamicText;
+struct InnertubeString;
+struct ToggleButtonViewModel;
 }
 
-namespace PreloadData { class WatchView; }
+namespace PreloadData { struct WatchView; }
 namespace Ui { class WatchView; }
 
 class HttpReply;

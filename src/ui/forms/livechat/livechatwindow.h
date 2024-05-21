@@ -13,7 +13,7 @@ class GetLiveChat;
 class GetLiveChatReplay;
 }
 
-namespace InnertubeObjects { class LiveChat; }
+namespace InnertubeObjects { struct LiveChat; }
 
 class QJsonArray;
 class QTimer;

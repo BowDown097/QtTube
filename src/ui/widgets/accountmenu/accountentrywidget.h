@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 
-class CredentialSet;
+struct CredentialSet;
 class HttpReply;
 class QHBoxLayout;
 class QLabel;

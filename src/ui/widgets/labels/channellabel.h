@@ -1,7 +1,7 @@
 #pragma once
 #include "tubelabel.h"
 
-namespace InnertubeObjects { class MetadataBadge; }
+namespace InnertubeObjects { struct MetadataBadge; }
 class QHBoxLayout;
 
 class ChannelLabel : public QWidget

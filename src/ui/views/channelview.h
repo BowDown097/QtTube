@@ -1,14 +1,14 @@
 #pragma once
 #include <QWidget>
 
-namespace InnertubeEndpoints { class ChannelResponse; }
+namespace InnertubeEndpoints { struct ChannelResponse; }
 
 namespace InnertubeObjects
 {
-    class ChannelC4Header;
-    class ChannelPageHeader;
-    class EntityMutation;
-    class ResponsiveImage;
+    struct ChannelC4Header;
+    struct ChannelPageHeader;
+    struct EntityMutation;
+    struct ResponsiveImage;
 }
 
 class HttpReply;

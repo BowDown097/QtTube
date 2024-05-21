@@ -1,7 +1,7 @@
 #pragma once
 #include <QLabel>
 
-namespace InnertubeObjects { class MetadataBadge; }
+namespace InnertubeObjects { struct MetadataBadge; }
 
 class ChannelBadgeLabel : public QLabel
 {

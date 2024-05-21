@@ -1,7 +1,7 @@
 #pragma once
 #include "innertube/objects/responsiveimage.h"
 
-namespace InnertubeObjects { class MetadataBadge; }
+namespace InnertubeObjects { struct MetadataBadge; }
 
 namespace PreloadData
 {
