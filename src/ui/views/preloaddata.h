@@ -9,6 +9,7 @@ namespace PreloadData
     {
         std::optional<InnertubeObjects::ResponsiveImage> channelAvatar;
         QList<InnertubeObjects::MetadataBadge> channelBadges;
+        std::optional<QString> channelId;
         std::optional<QString> channelName;
         std::optional<QString> title;
     };

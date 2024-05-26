@@ -48,7 +48,6 @@ private slots:
     void processPlayer(const InnertubeEndpoints::Player& endpoint);
     void setChannelIcon(const HttpReply& reply);
     void setDislikes(const HttpReply& reply);
-    void showContextMenu(const QPoint& pos);
 signals:
     void loadFailed(const InnertubeException& ie);
     void navigateChannelRequested(const QString& channelId);

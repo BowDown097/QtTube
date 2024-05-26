@@ -39,13 +39,11 @@ private:
 
     void setThumbnail(const QString& url);
 private slots:
-    void copyChannelUrl();
     void copyDirectUrl();
     void copyVideoUrl();
     void elideTitle();
     void navigateChannel();
     void navigateVideo();
     void setDeArrowData(const HttpReply& reply, const QString& fallbackThumbUrl);
-    void showChannelContextMenu(const QPoint& pos);
     void showTitleContextMenu(const QPoint& pos);
 };

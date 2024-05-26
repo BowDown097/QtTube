@@ -9,6 +9,7 @@ namespace InnertubeObjects
     struct Video;
 }
 
+class ChannelLabel;
 class HttpReply;
 class IconLabel;
 class QHBoxLayout;
@@ -26,7 +27,7 @@ private:
     QHBoxLayout* actionButtons;
     TubeLabel* channelIconLabel;
     QString channelId;
-    TubeLabel* channelLabel;
+    ChannelLabel* channelLabel;
     QHBoxLayout* channelTimeLayout;
     QLabel* contentText;
     IconLabel* dislikeLabel;
@@ -45,13 +46,11 @@ private:
     void setPoll(const InnertubeObjects::Poll& poll);
     void setVideo(const InnertubeObjects::Video& video);
 private slots:
-    void copyChannelUrl();
     void copyPostUrl();
     void linkActivated(const QString& url);
     void navigateChannel();
     void setChannelIcon(const HttpReply& reply);
     void setImageLabelData(const HttpReply& reply, QLabel* imageLabel);
-    void showChannelContextMenu(const QPoint& pos);
     void showPublishedTimeContextMenu(const QPoint& pos);
     void toggleReadMore();
 signals:

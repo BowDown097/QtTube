@@ -1,12 +1,13 @@
 #include "browsechannelrenderer.h"
 #include "httpreply.h"
+#include "innertube/objects/channel/channel.h"
 #include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include "ui/views/viewcontroller.h"
+#include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
 #include <QBoxLayout>
-#include <QMenu>
 #include <QMessageBox>
 #include <QtNetwork/QtNetwork>
 
@@ -18,11 +19,9 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
       subscribeWidget(new SubscribeWidget(this)),
       textVbox(new QVBoxLayout),
       thumbLabel(new TubeLabel(this)),
-      titleLabel(new TubeLabel(this))
+      titleLabel(new ChannelLabel(this))
 {
-    titleLabel->setClickable(true, true);
-    titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::Bold));
+    titleLabel->text->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::Bold));
     textVbox->addWidget(titleLabel);
 
     textVbox->addWidget(metadataLabel);
@@ -31,21 +30,17 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
     UIUtils::setMaximumLines(descriptionLabel, 2);
     textVbox->addWidget(descriptionLabel);
 
+    subscribeWidget->layout->addStretch();
+    textVbox->addWidget(subscribeWidget);
+
     thumbLabel->setClickable(true, false);
     thumbLabel->setFixedSize(80, 80);
     hbox->addWidget(thumbLabel);
 
-    hbox->addLayout(textVbox, 1);
-    hbox->addWidget(subscribeWidget);
+    hbox->addLayout(textVbox);
 
     connect(thumbLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
-    connect(titleLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
-    connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &BrowseChannelRenderer::showContextMenu);
-}
-
-void BrowseChannelRenderer::copyChannelUrl()
-{
-    UIUtils::copyToClipboard("https://www.youtube.com/channel/" + channelId);
+    connect(titleLabel->text, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
 }
 
 void BrowseChannelRenderer::navigateChannel()
@@ -53,24 +48,26 @@ void BrowseChannelRenderer::navigateChannel()
     ViewController::loadChannel(channelId);
 }
 
-void BrowseChannelRenderer::setData(const QString& channelId, const QString& descriptionSnippet, const QString& name,
-                                    const InnertubeObjects::SubscribeButton& subButton, const QString& subCount, const QString& videoCount)
+void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
 {
-    this->channelId = channelId;
+    this->channelId = channel.channelId;
 
-    titleLabel->setText(name);
+    titleLabel->setInfo(channelId, channel.title.text, channel.ownerBadges);
 
-    if (descriptionSnippet.isEmpty())
+    if (channel.descriptionSnippet.text.isEmpty())
     {
         textVbox->removeWidget(descriptionLabel);
         descriptionLabel->deleteLater();
     }
     else
     {
-        descriptionLabel->setText(descriptionSnippet);
+        descriptionLabel->setText(channel.descriptionSnippet.text);
     }
 
-    subscribeWidget->setSubscribeButton(subButton);
+    QString subCount = channel.subscriberCountText.text;
+    QString videoCount = channel.videoCountText.text;
+
+    subscribeWidget->setSubscribeButton(channel.subscribeButton);
     subscribeWidget->setSubscriberCount(subCount.contains("subscribers") ? subCount : videoCount, channelId);
 
     if (qtTubeApp->settings().fullSubs)
@@ -93,8 +90,7 @@ void BrowseChannelRenderer::setData(const QString& channelId, const QString& des
             // in some cases, subCount is the channel handle, and other times it's actually the sub count.
             // thanks innertube! so ya, we have to check for that, otherwise subs show up twice.
             metadataLabel->setText(subCount.contains(" subscribers")
-                                   ? QStringLiteral("%1 • %2").arg(fullSubs, videoCount)
-                                   : QStringLiteral("%1 • %2").arg(subCount, fullSubs));
+                ? QStringLiteral("%1 • %2").arg(fullSubs, videoCount) : QStringLiteral("%1 • %2").arg(subCount, fullSubs));
         });
     }
     else
@@ -108,15 +104,4 @@ void BrowseChannelRenderer::setThumbnail(const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     thumbLabel->setPixmap(pixmap.scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-}
-
-void BrowseChannelRenderer::showContextMenu(const QPoint& pos)
-{
-    QMenu* menu = new QMenu(this);
-
-    QAction* copyUrlAction = new QAction("Copy channel page URL", this);
-    connect(copyUrlAction, &QAction::triggered, this, &BrowseChannelRenderer::copyChannelUrl);
-
-    menu->addAction(copyUrlAction);
-    menu->popup(titleLabel->mapToGlobal(pos));
 }

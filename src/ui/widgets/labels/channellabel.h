@@ -6,12 +6,18 @@ class QHBoxLayout;
 
 class ChannelLabel : public QWidget
 {
+    Q_OBJECT
 public:
     TubeLabel* text;
     explicit ChannelLabel(QWidget* parent = nullptr);
-    void setInfo(const QString& channelName, const QList<InnertubeObjects::MetadataBadge>& badges);
+    void setInfo(const QString& channelId, const QString& channelName, const QList<InnertubeObjects::MetadataBadge>& badges);
 private:
     QHBoxLayout* badgeLayout;
+    QString channelId;
     QHBoxLayout* layout;
     void reset();
+private slots:
+    void copyChannelUrl();
+    void filterThis();
+    void showContextMenu(const QPoint& pos);
 };

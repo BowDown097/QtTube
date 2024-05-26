@@ -88,7 +88,7 @@ void ChannelFilterTable::removeCurrentRow()
         return;
 
     int row = selModel->selectedRows().constFirst().row();
-    qtTubeApp->settings().filteredChannels.removeOne(ui->tableWidget->item(row, 0)->text());
+    qtTubeApp->settings().filteredChannels.removeAt(row);
     ui->tableWidget->removeRow(row);
 }
 

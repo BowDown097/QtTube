@@ -25,16 +25,10 @@ VideoRenderer::VideoRenderer(QWidget* parent)
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::Bold));
 
     connect(channelLabel->text, &TubeLabel::clicked, this, &VideoRenderer::navigateChannel);
-    connect(channelLabel->text, &TubeLabel::customContextMenuRequested, this, &VideoRenderer::showChannelContextMenu);
     connect(thumbnail, &VideoThumbnailWidget::clicked, this, &VideoRenderer::navigateVideo);
     connect(thumbnail, &VideoThumbnailWidget::thumbnailSet, this, &VideoRenderer::elideTitle);
     connect(titleLabel, &ElidedTubeLabel::clicked, this, &VideoRenderer::navigateVideo);
     connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &VideoRenderer::showTitleContextMenu);
-}
-
-void VideoRenderer::copyChannelUrl()
-{
-    UIUtils::copyToClipboard("https://www.youtube.com/channel/" + channelId);
 }
 
 void VideoRenderer::copyDirectUrl()
@@ -92,7 +86,7 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
     channelId = reel.owner.id;
     videoId = reel.videoId;
 
-    channelLabel->setInfo(reel.owner.name, reel.owner.badges);
+    channelLabel->setInfo(channelId, reel.owner.name, reel.owner.badges);
     metadataLabel->setText(reel.viewCountText.text);
 
     thumbnail->setLengthText("SHORTS");
@@ -106,6 +100,7 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
     watchPreloadData = new PreloadData::WatchView {
         .channelAvatar = reel.owner.icon,
         .channelBadges = reel.owner.badges,
+        .channelId = channelId,
         .channelName = reel.owner.name,
         .title = title
     };
@@ -123,7 +118,7 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
     };
     metadataList.removeAll({});
 
-    channelLabel->setInfo(video.owner.name, video.owner.badges);
+    channelLabel->setInfo(channelId, video.owner.name, video.owner.badges);
     metadataLabel->setText(metadataList.join(" • "));
 
     thumbnail->setLengthText(video.lengthText.text);
@@ -138,6 +133,7 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
     watchPreloadData = new PreloadData::WatchView {
         .channelAvatar = video.owner.icon,
         .channelBadges = video.owner.badges,
+        .channelId = channelId,
         .channelName = video.owner.name,
         .title = title
     };
@@ -196,17 +192,6 @@ void VideoRenderer::setThumbnailSize(const QSize& size)
         metadataLabel->setFixedWidth(size.width());
         titleLabel->setFixedWidth(size.width());
     }
-}
-
-void VideoRenderer::showChannelContextMenu(const QPoint& pos)
-{
-    QMenu* menu = new QMenu(this);
-
-    QAction* copyUrlAction = new QAction("Copy channel page URL", this);
-    connect(copyUrlAction, &QAction::triggered, this, &VideoRenderer::copyChannelUrl);
-
-    menu->addAction(copyUrlAction);
-    menu->popup(channelLabel->mapToGlobal(pos));
 }
 
 void VideoRenderer::showTitleContextMenu(const QPoint& pos)

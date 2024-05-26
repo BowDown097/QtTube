@@ -4,6 +4,7 @@
 #include "innertube/objects/backstage/backstagepost.h"
 #include "qttubeapplication.h"
 #include "ui/views/viewcontroller.h"
+#include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
@@ -18,7 +19,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     : QWidget(parent),
       actionButtons(new QHBoxLayout),
       channelIconLabel(new TubeLabel(this)),
-      channelLabel(new TubeLabel(this)),
+      channelLabel(new ChannelLabel(this)),
       channelTimeLayout(new QHBoxLayout),
       contentText(new QLabel(this)),
       dislikeLabel(new IconLabel("dislike")),
@@ -33,9 +34,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     channelIconLabel->setFixedSize(40, 40);
     layout->addWidget(channelIconLabel, 0, Qt::AlignTop);
 
-    channelLabel->setClickable(true, true);
-    channelLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-    channelLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 1, QFont::Bold));
+    channelLabel->text->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 1, QFont::Bold));
     channelTimeLayout->addWidget(channelLabel);
 
     publishedTimeLabel->setClickable(true, false);
@@ -61,17 +60,11 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     actionButtons->addStretch();
 
     connect(channelIconLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
-    connect(channelLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
-    connect(channelLabel, &TubeLabel::customContextMenuRequested, this, &BackstagePostRenderer::showChannelContextMenu);
+    connect(channelLabel->text, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
     connect(contentText, &QLabel::linkActivated, this, &BackstagePostRenderer::linkActivated);
     connect(publishedTimeLabel, &TubeLabel::customContextMenuRequested, this,
             &BackstagePostRenderer::showPublishedTimeContextMenu);
     connect(readMoreLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::toggleReadMore);
-}
-
-void BackstagePostRenderer::copyChannelUrl()
-{
-    UIUtils::copyToClipboard("https://www.youtube.com/channel/" + channelId);
 }
 
 void BackstagePostRenderer::copyPostUrl()
@@ -123,7 +116,7 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     showLessText = post.collapseButton.text.text;
     surface = post.surface;
 
-    channelLabel->setText(post.authorText.text);
+    channelLabel->setInfo(channelId, post.authorText.text, QList<InnertubeObjects::MetadataBadge>());
     contentText->setText(StringUtils::innertubeStringToRichText(post.contentText, false));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
                            ? post.voteCount.text
@@ -192,17 +185,6 @@ void BackstagePostRenderer::setVideo(const InnertubeObjects::Video& video)
     videoRenderer->setData(video);
     videoRenderer->setTargetElisionWidth(width() - 100);
     innerLayout->addWidget(videoRenderer);
-}
-
-void BackstagePostRenderer::showChannelContextMenu(const QPoint& pos)
-{
-    QMenu* menu = new QMenu(this);
-
-    QAction* copyUrlAction = new QAction("Copy channel page URL", this);
-    connect(copyUrlAction, &QAction::triggered, this, &BackstagePostRenderer::copyChannelUrl);
-
-    menu->addAction(copyUrlAction);
-    menu->popup(channelLabel->mapToGlobal(pos));
 }
 
 void BackstagePostRenderer::showPublishedTimeContextMenu(const QPoint& pos)

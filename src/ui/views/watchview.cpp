@@ -16,7 +16,6 @@
 #include <QBoxLayout>
 #include <QDesktopServices>
 #include <QJsonDocument>
-#include <QMenu>
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -53,7 +52,6 @@ WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchVie
     connect(player, &InnertubeReply<InnertubeEndpoints::Player>::exception, this, &WatchView::loadFailed);
 
     ui->player->play(videoId, progress);
-    connect(ui->channelLabel->text, &TubeLabel::customContextMenuRequested, this, &WatchView::showContextMenu);
     connect(ui->description, &TubeLabel::linkActivated, this, &WatchView::descriptionLinkActivated);
 }
 
@@ -155,7 +153,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     InnertubeEndpoints::NextResponse nextResp = endpoint.response;
     channelId = nextResp.results.results.secondaryInfo.owner.navigationEndpoint["browseEndpoint"]["browseId"].toString();
 
-    ui->channelLabel->setInfo(nextResp.results.results.secondaryInfo.owner.title.text,
+    ui->channelLabel->setInfo(channelId, nextResp.results.results.secondaryInfo.owner.title.text,
                               nextResp.results.results.secondaryInfo.owner.badges);
     connect(ui->channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannelRequested, this, channelId));
 
@@ -296,14 +294,11 @@ void WatchView::processPreloadData(PreloadData::WatchView* preload)
         HttpReply* reply = Http::instance().get(preload->channelAvatar->recommendedQuality(QSize(48, 48)).url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
-    if (preload->channelName.has_value())
-    {
-        ui->channelLabel->setInfo(preload->channelName.value(), preload->channelBadges);
-    }
+
+    if (preload->channelId.has_value() && preload->channelName.has_value())
+        ui->channelLabel->setInfo(preload->channelId.value(), preload->channelName.value(), preload->channelBadges);
     if (preload->title.has_value())
-    {
         ui->titleLabel->setText(preload->title.value());
-    }
 }
 
 void WatchView::resizeEvent(QResizeEvent* event)
@@ -362,17 +357,6 @@ void WatchView::setDislikes(const HttpReply& reply)
 #endif
 
     ui->dislikeLabel->setText(QLocale::system().toString(dislikes));
-}
-
-void WatchView::showContextMenu(const QPoint& pos)
-{
-    QMenu* menu = new QMenu(this);
-
-    QAction* copyUrlAction = new QAction("Copy channel page URL", this);
-    connect(copyUrlAction, &QAction::triggered, this, std::bind(&UIUtils::copyToClipboard, "https://www.youtube.com/channel/" + channelId));
-
-    menu->addAction(copyUrlAction);
-    menu->popup(ui->channelLabel->text->mapToGlobal(pos));
 }
 
 // most logic courtesy of https://github.com/Rehike/Rehike

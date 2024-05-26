@@ -67,8 +67,7 @@ void UIUtils::addChannelRendererToList(QListWidget* list, const InnertubeObjects
         return;
 
     BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
-    renderer->setData(channel.channelId, channel.descriptionSnippet.text, channel.title.text, channel.subscribeButton,
-                      channel.subscriberCountText.text, channel.videoCountText.text);
+    renderer->setData(channel);
     addWidgetToList(list, renderer);
 
     HttpReply* reply = Http::instance().get("https:" + channel.thumbnail.recommendedQuality(QSize(80, 80)).url);
