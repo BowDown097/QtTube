@@ -51,6 +51,7 @@ private slots:
     void chatModeIndexChanged(int index);
     void chatReplayTick(double progress, double previousProgress);
     void chatTick();
+    void insertEmoji(const QString& emoji);
     void processChatData(const InnertubeEndpoints::GetLiveChat& liveChat);
     void processChatReplayData(const InnertubeEndpoints::GetLiveChatReplay& replay,
                                double progress, double previousProgress, bool seeked);

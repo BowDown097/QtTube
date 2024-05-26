@@ -140,6 +140,14 @@ void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData, 
     }
 }
 
+void LiveChatWindow::insertEmoji(const QString& emoji)
+{
+    if (QString msg = ui->messageBox->text(); !msg.isEmpty() && ui->messageBox->cursorPosition() == msg.size())
+        ui->messageBox->insert(" " + emoji);
+    else
+        ui->messageBox->insert(emoji);
+}
+
 void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& liveChat)
 {
     // check if user can chat
@@ -239,9 +247,7 @@ void LiveChatWindow::showEmojiMenu()
 {
     EmojiMenu* emojiMenu = new EmojiMenu;
     emojiMenu->show();
-    connect(emojiMenu, &EmojiMenu::emojiClicked, this, [this](const QString& emoji) {
-        ui->messageBox->insert(" " + emoji);
-    });
+    connect(emojiMenu, &EmojiMenu::emojiClicked, this, &LiveChatWindow::insertEmoji);
 }
 
 void LiveChatWindow::updateChatReplay(double progress, double previousProgress)
