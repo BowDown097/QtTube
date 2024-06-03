@@ -1,7 +1,8 @@
 #pragma once
+#include "ui/widgets/clickablewidget.h"
 #include <QLabel>
 
-class TopBarBell : public QWidget
+class TopBarBell : public ClickableWidget<QWidget>
 {
     Q_OBJECT
 public:
@@ -11,14 +12,4 @@ public:
     explicit TopBarBell(QWidget* parent = nullptr);
     void updateCount(int unseenCount);
     void updatePixmap(bool hasNotif, const QPalette& pal);
-protected:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    void enterEvent(QEnterEvent*) override;
-#else
-    void enterEvent(QEvent*) override;
-#endif
-    void leaveEvent(QEvent*) override;
-    void mousePressEvent(QMouseEvent* event) override;
-signals:
-    void clicked();
 };

@@ -22,6 +22,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
       titleLabel(new ChannelLabel(this))
 {
     titleLabel->text->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::Bold));
+    titleLabel->addStretch();
     textVbox->addWidget(titleLabel);
 
     textVbox->addWidget(metadataLabel);

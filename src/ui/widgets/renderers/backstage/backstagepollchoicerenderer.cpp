@@ -2,7 +2,6 @@
 #include "innertube.h"
 #include <QBoxLayout>
 #include <QLabel>
-#include <QMouseEvent>
 #include <QProgressBar>
 
 constexpr const char* notSelectedStylesheet = "QProgressBar::chunk { background-color: rgba(255, 255, 255, 0.2) }";
@@ -12,6 +11,7 @@ BackstagePollChoiceRenderer::BackstagePollChoiceRenderer(QWidget* parent)
       m_percentageLabel(new QLabel(this)),
       m_progressBar(new QProgressBar(this))
 {
+    setClickable(true, false);
     m_choiceTextLabel->setMaximumWidth(width() - 100);
 
     m_progressBar->setFixedWidth(width());
@@ -22,35 +22,19 @@ BackstagePollChoiceRenderer::BackstagePollChoiceRenderer(QWidget* parent)
     m_innerLayout->addWidget(m_choiceTextLabel, 0, Qt::AlignLeft);
     m_innerLayout->addWidget(m_percentageLabel, 0, Qt::AlignRight);
     m_innerLayout->setContentsMargins(5, 0, 20, 0);
+
+    connect(this, &ClickableWidget<QWidget>::clicked, this, &BackstagePollChoiceRenderer::choose);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-void BackstagePollChoiceRenderer::enterEvent(QEnterEvent*)
-#else
-void BackstagePollChoiceRenderer::enterEvent(QEvent*)
-#endif
+void BackstagePollChoiceRenderer::choose()
 {
-    setCursor(QCursor(Qt::PointingHandCursor));
+    const QJsonValue endpoint = hasStyle() || value() == -1 ? m_data.selectServiceEndpoint : m_data.deselectServiceEndpoint;
+    InnerTube::instance()->get<InnertubeEndpoints::PerformCommentAction>(endpoint["performCommentActionEndpoint"]["action"].toString());
 }
 
 bool BackstagePollChoiceRenderer::hasStyle() const
 {
     return !m_progressBar->styleSheet().isEmpty();
-}
-
-void BackstagePollChoiceRenderer::leaveEvent(QEvent*)
-{
-    setCursor(QCursor());
-}
-
-void BackstagePollChoiceRenderer::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() != Qt::LeftButton)
-        return;
-
-    QJsonValue endpoint = hasStyle() || value() == -1 ? m_data.selectServiceEndpoint : m_data.deselectServiceEndpoint;
-    emit clicked();
-    InnerTube::instance()->get<InnertubeEndpoints::PerformCommentAction>(endpoint["performCommentActionEndpoint"]["action"].toString());
 }
 
 void BackstagePollChoiceRenderer::reset()

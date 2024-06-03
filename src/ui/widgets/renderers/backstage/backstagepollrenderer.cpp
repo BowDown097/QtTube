@@ -8,7 +8,7 @@
 
 BackstagePollRenderer::BackstagePollRenderer(QWidget* parent)
     : layout(new QVBoxLayout(this)),
-      voteCount(new QLabel(this))
+    voteCount(new QLabel(this))
 {
     voteCount->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 1));
     layout->addWidget(voteCount);

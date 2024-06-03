@@ -35,9 +35,10 @@ constexpr const char* unsubscribeStyle = R"(
     padding: 0 6px 1px 2.5px;
 )";
 
-SubscribeLabel::SubscribeLabel(QWidget* parent) : QLabel(parent)
+SubscribeLabel::SubscribeLabel(QWidget* parent) : ClickableWidget<QLabel>(true, false, parent)
 {
     setFixedSize(80, 24);
+    connect(this, &ClickableWidget<QLabel>::clicked, this, &SubscribeLabel::trySubscribe);
 }
 
 void SubscribeLabel::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
@@ -77,12 +78,12 @@ void SubscribeLabel::setSubscribeButton(const InnertubeObjects::SubscribeButtonV
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-void SubscribeLabel::enterEvent(QEnterEvent*)
+void SubscribeLabel::enterEvent(QEnterEvent* event)
 #else
-void SubscribeLabel::enterEvent(QEvent*)
+void SubscribeLabel::enterEvent(QEvent* event)
 #endif
 {
-    setCursor(QCursor(Qt::PointingHandCursor));
+    ClickableWidget<QLabel>::enterEvent(event);
     if (subscribed)
     {
         setStyleSheet(unsubscribeStyle);
@@ -94,9 +95,9 @@ void SubscribeLabel::enterEvent(QEvent*)
     }
 }
 
-void SubscribeLabel::leaveEvent(QEvent*)
+void SubscribeLabel::leaveEvent(QEvent* event)
 {
-    setCursor(QCursor());
+    ClickableWidget<QLabel>::leaveEvent(event);
     if (subscribed)
     {
         setStyleSheet(subscribedStyle);
@@ -108,7 +109,15 @@ void SubscribeLabel::leaveEvent(QEvent*)
     }
 }
 
-void SubscribeLabel::mousePressEvent(QMouseEvent*)
+void SubscribeLabel::toggleSubscriptionStatus(const QString& styleSheet, const QString& newText)
+{
+    setStyleSheet(styleSheet);
+    setText(newText);
+    subscribed = !subscribed;
+    emit subscribeStatusChanged(subscribed);
+}
+
+void SubscribeLabel::trySubscribe()
 {
     if (!InnerTube::instance()->hasAuthenticated())
     {
@@ -126,12 +135,4 @@ void SubscribeLabel::mousePressEvent(QMouseEvent*)
         toggleSubscriptionStatus(subscribedStyle, subscribedText);
         InnerTube::instance()->subscribe(subscribeEndpoint, true);
     }
-}
-
-void SubscribeLabel::toggleSubscriptionStatus(const QString& styleSheet, const QString& newText)
-{
-    setStyleSheet(styleSheet);
-    setText(newText);
-    subscribed = !subscribed;
-    emit subscribeStatusChanged(subscribed);
 }

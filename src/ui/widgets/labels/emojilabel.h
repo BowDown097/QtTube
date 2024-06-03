@@ -5,6 +5,7 @@ class HttpReply;
 
 class EmojiLabel : public TubeLabel
 {
+    Q_OBJECT
 public:
     EmojiLabel(const QStringList& shortcuts, const QStringList& searchTerms, const QString& image, QWidget* parent = nullptr);
     EmojiLabel(const QString& shortcut, const QString& image, QWidget* parent = nullptr)

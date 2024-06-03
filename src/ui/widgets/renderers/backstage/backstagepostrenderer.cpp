@@ -182,8 +182,8 @@ void BackstagePostRenderer::setVideo(const InnertubeObjects::Video& video)
         return;
 
     BrowseVideoRenderer* videoRenderer = new BrowseVideoRenderer(this);
+    videoRenderer->titleLabel->setMaximumWidth(width() - 100);
     videoRenderer->setData(video);
-    videoRenderer->setTargetElisionWidth(width() - 100);
     innerLayout->addWidget(videoRenderer);
 }
 

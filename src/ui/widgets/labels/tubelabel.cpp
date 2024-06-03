@@ -1,44 +1,70 @@
 #include "tubelabel.h"
 #include "innertube/objects/innertubestring.h"
-#include <QMouseEvent>
+#include <QTextLayout>
 
-TubeLabel::TubeLabel(QWidget* parent, Qt::WindowFlags f) : QLabel(parent, f)
+TubeLabel::TubeLabel(QWidget* parent) : ClickableWidget<QLabel>(parent)
 {
     setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
 }
 
-TubeLabel::TubeLabel(const InnertubeObjects::InnertubeString& itStr, QWidget* parent, Qt::WindowFlags f) : TubeLabel(parent, f)
+TubeLabel::TubeLabel(const InnertubeObjects::InnertubeString& text, QWidget* parent) : TubeLabel(parent)
 {
-    setText(itStr.text);
+    setText(text.text);
 }
 
-TubeLabel::TubeLabel(const QString& text, QWidget* parent, Qt::WindowFlags f) : TubeLabel(parent, f)
+TubeLabel::TubeLabel(const QString& text, QWidget* parent) : TubeLabel(parent)
 {
     setText(text);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-void TubeLabel::enterEvent(QEnterEvent*)
-#else
-void TubeLabel::enterEvent(QEvent*)
-#endif
+void TubeLabel::setText(const QString& text)
 {
-    if (clickable)
-        setCursor(QCursor(Qt::PointingHandCursor));
-    if (underline)
-        setStyleSheet("QLabel { text-decoration: underline; }");
-}
+    if (m_elideMode == Qt::ElideNone || text.isEmpty())
+    {
+        QLabel::setText(text);
+        return;
+    }
 
-void TubeLabel::leaveEvent(QEvent*)
-{
-    if (clickable)
-        setCursor(QCursor());
-    if (underline)
-        setStyleSheet(QString());
-}
+    QFontMetrics fm(font());
 
-void TubeLabel::mousePressEvent(QMouseEvent* event)
-{
-    if (clickable && event->button() == Qt::LeftButton)
-        emit clicked();
+    if (!wordWrap())
+    {
+        QLabel::setText(fm.horizontalAdvance(text) > maximumWidth()
+            ? fm.elidedText(text, m_elideMode, maximumWidth()) : text);
+        return;
+    }
+
+    int lineSpacing = fm.lineSpacing();
+    int textWidth = std::min(maximumWidth(), fm.horizontalAdvance(text));
+
+    QTextLayout textLayout(text, font());
+    textLayout.beginLayout();
+
+    QString outText;
+    int y{};
+
+    forever
+    {
+        QTextLine line = textLayout.createLine();
+        if (!line.isValid())
+            break;
+
+        line.setLineWidth(textWidth);
+        int nextLineY = y + lineSpacing;
+
+        if (maximumHeight() >= nextLineY + lineSpacing)
+        {
+            outText += QStringView(text.mid(line.textStart(), line.textLength()));
+            y = nextLineY;
+        }
+        else
+        {
+            outText += fm.elidedText(text.mid(line.textStart()), m_elideMode, line.width());
+            line = textLayout.createLine();
+            break;
+        }
+    }
+
+    textLayout.endLayout();
+    QLabel::setText(outText);
 }

@@ -1,7 +1,6 @@
 #include "videothumbnailwidget.h"
 #include "http.h"
 #include <QApplication>
-#include <QMouseEvent>
 #include <QProgressBar>
 
 constexpr const char* progressStyle = R"(
@@ -10,7 +9,7 @@ constexpr const char* progressStyle = R"(
 )";
 
 VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
-    : QLabel(parent), m_lengthLabel(new QLabel(this)), m_progressBar(new QProgressBar(this))
+    : ClickableWidget<QLabel>(true, false, parent), m_lengthLabel(new QLabel(this)), m_progressBar(new QProgressBar(this))
 {
     setMinimumSize(1, 1);
     setScaledContents(true);
@@ -24,30 +23,10 @@ VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
     m_progressBar->setStyleSheet(progressStyle);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-void VideoThumbnailWidget::enterEvent(QEnterEvent*)
-#else
-void VideoThumbnailWidget::enterEvent(QEvent*)
-#endif
-{
-    setCursor(QCursor(Qt::PointingHandCursor));
-}
-
-void VideoThumbnailWidget::leaveEvent(QEvent*)
-{
-    setCursor(QCursor());
-}
-
-void VideoThumbnailWidget::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton)
-        emit clicked();
-}
-
 void VideoThumbnailWidget::resizeEvent(QResizeEvent* event)
 {
-    m_lengthLabel->setVisible(m_lengthLabel->isHidden() && !m_lengthLabel->text().isEmpty());
-    m_progressBar->setVisible(m_progressBar->isHidden() && m_progressBar->value() > 0);
+    m_lengthLabel->setVisible(!m_lengthLabel->text().isEmpty());
+    m_progressBar->setVisible(m_progressBar->value() > 0);
 
     m_lengthLabel->move(event->size().width() - m_lengthLabel->width() - 3, event->size().height() - m_lengthLabel->height() - 3);
     m_progressBar->move(0, event->size().height() - 3);

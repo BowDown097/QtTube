@@ -7,7 +7,6 @@
 #include "ui/views/preloaddata.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
-#include "ui/widgets/labels/elidedtubelabel.h"
 #include "videothumbnailwidget.h"
 #include <QJsonDocument>
 #include <QMenu>
@@ -18,16 +17,18 @@ VideoRenderer::VideoRenderer(QWidget* parent)
       channelLabel(new ChannelLabel(this)),
       metadataLabel(new TubeLabel(this)),
       thumbnail(new VideoThumbnailWidget(this)),
-      titleLabel(new ElidedTubeLabel(this))
+      titleLabel(new TubeLabel(this))
 {
+    channelLabel->addStretch();
+
     titleLabel->setClickable(true, true);
     titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+    titleLabel->setElide(Qt::ElideRight);
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::Bold));
 
     connect(channelLabel->text, &TubeLabel::clicked, this, &VideoRenderer::navigateChannel);
     connect(thumbnail, &VideoThumbnailWidget::clicked, this, &VideoRenderer::navigateVideo);
-    connect(thumbnail, &VideoThumbnailWidget::thumbnailSet, this, &VideoRenderer::elideTitle);
-    connect(titleLabel, &ElidedTubeLabel::clicked, this, &VideoRenderer::navigateVideo);
+    connect(titleLabel, &TubeLabel::clicked, this, &VideoRenderer::navigateVideo);
     connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &VideoRenderer::showTitleContextMenu);
 }
 
@@ -63,12 +64,6 @@ void VideoRenderer::copyDirectUrl()
 void VideoRenderer::copyVideoUrl()
 {
     UIUtils::copyToClipboard("https://www.youtube.com/watch?v=" + videoId);
-}
-
-void VideoRenderer::elideTitle()
-{
-    if (targetElisionWidth > 0)
-        UIUtils::elide(titleLabel, targetElisionWidth);
 }
 
 void VideoRenderer::navigateChannel()
@@ -181,16 +176,6 @@ void VideoRenderer::setThumbnail(const QString& url)
     else
     {
         thumbnail->setUrl(url);
-    }
-}
-
-void VideoRenderer::setThumbnailSize(const QSize& size)
-{
-    thumbnail->setPreferredSize(size);
-    if (size.height() > 0)
-    {
-        metadataLabel->setFixedWidth(size.width());
-        titleLabel->setFixedWidth(size.width());
     }
 }
 

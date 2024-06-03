@@ -2,9 +2,9 @@
 #include <QMenu>
 #include <QMouseEvent>
 
-void ExtToolButton::mousePressEvent(QMouseEvent* event)
+void ExtToolButton::mouseReleaseEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::RightButton)
         showMenu();
-    QToolButton::mousePressEvent(event);
+    QToolButton::mouseReleaseEvent(event);
 }

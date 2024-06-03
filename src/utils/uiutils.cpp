@@ -147,12 +147,12 @@ VideoRenderer* UIUtils::constructVideoRenderer(QListWidget* list)
     VideoRenderer* renderer;
     if (list->flow() == QListWidget::LeftToRight)
     {
-        renderer = new GridVideoRenderer;
+        renderer = new GridVideoRenderer(list);
     }
     else
     {
-        renderer = new BrowseVideoRenderer;
-        renderer->setTargetElisionWidth(list->width() - 240);
+        renderer = new BrowseVideoRenderer(list);
+        renderer->titleLabel->setMaximumWidth(list->width() - 240);
     }
 
     return renderer;
@@ -165,14 +165,6 @@ void UIUtils::copyToClipboard(const QString& text)
 
     if (clipboard->supportsSelection())
         clipboard->setText(text, QClipboard::Selection);
-}
-
-void UIUtils::elide(QLabel* label, int targetWidth)
-{
-    QFontMetrics fm(label->font());
-    QString elidedText = fm.elidedText(label->text(), Qt::ElideRight, targetWidth);
-    label->setFixedWidth(targetWidth);
-    label->setText(elidedText);
 }
 
 QIcon UIUtils::iconThemed(const QString& name, const QPalette& pal)

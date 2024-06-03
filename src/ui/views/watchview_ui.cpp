@@ -187,6 +187,7 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
 
     channelLabel = new ChannelLabel(watchView);
     channelLabel->text->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+    channelLabel->addStretch();
     primaryInfoVbox->addWidget(channelLabel);
 
     subscribeWidget = new SubscribeWidget(watchView);

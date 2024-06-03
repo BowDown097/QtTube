@@ -21,6 +21,11 @@ ChannelLabel::ChannelLabel(QWidget* parent)
     connect(text, &TubeLabel::customContextMenuRequested, this, &ChannelLabel::showContextMenu);
 }
 
+void ChannelLabel::addStretch()
+{
+    layout->addStretch();
+}
+
 void ChannelLabel::copyChannelUrl()
 {
     UIUtils::copyToClipboard("https://www.youtube.com/channel/" + channelId);

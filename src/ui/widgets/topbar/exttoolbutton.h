@@ -7,5 +7,5 @@ class ExtToolButton : public QToolButton
 public:
     explicit ExtToolButton(QWidget* parent = nullptr) : QToolButton(parent) {}
 protected:
-    void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 };

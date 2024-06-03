@@ -1,6 +1,5 @@
 #include "gridvideorenderer.h"
 #include "ui/widgets/labels/channellabel.h"
-#include "ui/widgets/labels/elidedtubelabel.h"
 #include "utils/uiutils.h"
 #include "videothumbnailwidget.h"
 #include <QApplication>
@@ -8,9 +7,10 @@
 
 GridVideoRenderer::GridVideoRenderer(QWidget* parent) : VideoRenderer(parent), vbox(new QVBoxLayout(this))
 {
-    setThumbnailSize(QSize(205, 115));
+    thumbnail->setPreferredSize(QSize(205, 115));
 
     titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 1, QFont::Bold));
+    titleLabel->setMaximumWidth(205);
     titleLabel->setWordWrap(true);
     UIUtils::setMaximumLines(titleLabel, 2);
 
@@ -19,6 +19,7 @@ GridVideoRenderer::GridVideoRenderer(QWidget* parent) : VideoRenderer(parent), v
     UIUtils::setMaximumLines(channelLabel->text, 2);
 
     metadataLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 1));
+    metadataLabel->setMaximumWidth(205);
     metadataLabel->setWordWrap(true);
     UIUtils::setMaximumLines(metadataLabel, 2);
 

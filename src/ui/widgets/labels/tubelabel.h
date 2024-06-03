@@ -1,27 +1,18 @@
 #pragma once
+#include "ui/widgets/clickablewidget.h"
 #include <QLabel>
 
 namespace InnertubeObjects { struct InnertubeString; }
 
-class TubeLabel : public QLabel
+class TubeLabel : public ClickableWidget<QLabel>
 {
     Q_OBJECT
 public:
-    explicit TubeLabel(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    explicit TubeLabel(const InnertubeObjects::InnertubeString& itStr, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    explicit TubeLabel(const QString& text, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    void setClickable(bool clickable, bool underline) { this->clickable = clickable; this->underline = underline; }
-signals:
-    void clicked();
-protected:
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    void enterEvent(QEnterEvent*) override;
-#else
-    void enterEvent(QEvent*) override;
-#endif
-    void leaveEvent(QEvent*) override;
-    void mousePressEvent(QMouseEvent* event) override;
+    explicit TubeLabel(QWidget* parent = nullptr);
+    explicit TubeLabel(const InnertubeObjects::InnertubeString& text, QWidget* parent = nullptr);
+    explicit TubeLabel(const QString& text, QWidget* parent = nullptr);
+    void setElide(Qt::TextElideMode mode) { m_elideMode = mode; }
+    void setText(const QString& text);
 private:
-    bool clickable = false;
-    bool underline = false;
+    Qt::TextElideMode m_elideMode = Qt::ElideNone;
 };
