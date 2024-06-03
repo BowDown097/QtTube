@@ -4,7 +4,6 @@
 #include "mainwindow.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
-#include <QApplication>
 #include <QBoxLayout>
 
 AccountMenuWidget::AccountMenuWidget(QWidget* parent)
@@ -19,7 +18,7 @@ AccountMenuWidget::AccountMenuWidget(QWidget* parent)
       switchAccountsLabel(new IconLabel("switch-accounts", "Switch account", QMargins(), QSize(24, 24), this)),
       yourChannelLabel(new IconLabel("your-channel", "Your channel", QMargins(), QSize(24, 24), this))
 {
-    accountNameLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+    accountNameLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
     avatar->setFixedSize(64, 64);
     setAutoFillBackground(true);
 

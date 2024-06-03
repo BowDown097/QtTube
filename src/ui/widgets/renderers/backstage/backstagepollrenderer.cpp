@@ -1,7 +1,6 @@
 #include "backstagepollrenderer.h"
 #include "backstagepollchoicerenderer.h"
 #include "innertube/objects/backstage/poll/poll.h"
-#include <QApplication>
 #include <QBoxLayout>
 #include <QLabel>
 #include <QProgressBar>
@@ -10,7 +9,7 @@ BackstagePollRenderer::BackstagePollRenderer(QWidget* parent)
     : layout(new QVBoxLayout(this)),
     voteCount(new QLabel(this))
 {
-    voteCount->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 1));
+    voteCount->setFont(QFont(font().toString(), font().pointSize() - 1));
     layout->addWidget(voteCount);
 }
 

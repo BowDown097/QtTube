@@ -3,7 +3,6 @@
 #include "innertube/objects/innertubestring.h"
 #include "utils/httputils.h"
 #include "utils/uiutils.h"
-#include <QApplication>
 #include <QBoxLayout>
 #include <QLabel>
 
@@ -59,7 +58,7 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     authorLabel->setWordWrap(true);
     innerHeaderLayout->addWidget(authorLabel);
 
-    amountLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+    amountLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
     amountLabel->setWordWrap(true);
     innerHeaderLayout->addWidget(amountLabel);
 

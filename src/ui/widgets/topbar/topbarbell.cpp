@@ -1,6 +1,5 @@
 #include "topbarbell.h"
 #include "utils/uiutils.h"
-#include <QApplication>
 
 TopBarBell::TopBarBell(QWidget* parent)
     : ClickableWidget<QWidget>(true, false, parent), bell(new QLabel(this)), count(new QLabel(this))
@@ -18,12 +17,12 @@ void TopBarBell::updateCount(int unseenCount)
     if (unseenCount > 9)
     {
         count->move(18, 0);
-        count->setFont(QFont(qApp->font().toString(), 8));
+        count->setFont(QFont(font().toString(), 8));
     }
     else
     {
         count->move(20, 0);
-        count->setFont(QFont(qApp->font().toString(), 9));
+        count->setFont(QFont(font().toString(), 9));
     }
 
     count->adjustSize();

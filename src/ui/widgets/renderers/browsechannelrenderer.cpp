@@ -21,7 +21,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
       thumbLabel(new TubeLabel(this)),
       titleLabel(new ChannelLabel(this))
 {
-    titleLabel->text->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::Bold));
+    titleLabel->text->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
     titleLabel->addStretch();
     textVbox->addWidget(titleLabel);
 

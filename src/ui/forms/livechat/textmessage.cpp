@@ -2,7 +2,6 @@
 #include "http.h"
 #include "utils/httputils.h"
 #include "utils/uiutils.h"
-#include <QApplication>
 #include <QBoxLayout>
 #include <QJsonArray>
 #include <QLabel>
@@ -49,7 +48,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
         authorLabel->setStyleSheet("font-weight: bold");
     }
 
-    timestampLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
+    timestampLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
     if (renderer["timestampText"].isObject())
     {
         timestampLabel->setText(renderer["timestampText"]["simpleText"].toString());

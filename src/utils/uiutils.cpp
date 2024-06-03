@@ -57,7 +57,7 @@ void UIUtils::addBackstagePostToList(QListWidget* list, const InnertubeObjects::
 void UIUtils::addBoldLabelToList(QListWidget* list, const QString& text)
 {
     QLabel* label = new QLabel(text);
-    label->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+    label->setFont(QFont(label->font().toString(), -1, QFont::Bold));
     addWidgetToList(list, label);
 }
 
@@ -90,7 +90,7 @@ void UIUtils::addShelfTitleToList(QListWidget* list, const QJsonValue& shelf)
 void UIUtils::addShelfTitleToList(QListWidget* list, const QString& title)
 {
     TubeLabel* shelfLabel = new TubeLabel(title);
-    shelfLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2));
+    shelfLabel->setFont(QFont(shelfLabel->font().toString(), shelfLabel->font().pointSize() + 2));
     addWidgetToList(list, shelfLabel);
 }
 

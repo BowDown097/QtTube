@@ -24,7 +24,7 @@ VideoRenderer::VideoRenderer(QWidget* parent)
     titleLabel->setClickable(true, true);
     titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
     titleLabel->setElide(Qt::ElideRight);
-    titleLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 2, QFont::Bold));
+    titleLabel->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
 
     connect(channelLabel->text, &TubeLabel::clicked, this, &VideoRenderer::navigateChannel);
     connect(thumbnail, &VideoThumbnailWidget::clicked, this, &VideoRenderer::navigateVideo);

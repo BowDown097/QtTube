@@ -1,6 +1,5 @@
 #include "giftredemptionmessage.h"
 #include "innertube/objects/innertubestring.h"
-#include <QApplication>
 #include <QBoxLayout>
 #include <QLabel>
 
@@ -17,7 +16,7 @@ GiftRedemptionMessage::GiftRedemptionMessage(const QJsonValue& renderer, QWidget
     layout->addWidget(authorLabel);
 
     messageLabel->setFixedWidth(parent->width() - 40);
-    messageLabel->setFont(QFont(qApp->font().toString(), -1, -1, true));
+    messageLabel->setFont(QFont(font().toString(), -1, -1, true));
     messageLabel->setWordWrap(true);
     layout->addWidget(messageLabel);
 }

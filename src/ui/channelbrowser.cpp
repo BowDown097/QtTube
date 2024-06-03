@@ -216,7 +216,7 @@ void ChannelBrowser::setupMembership(QListWidget* widget, const QJsonValue& rend
         perkInfoHeader->setContentsMargins(0, 0, 0, 5);
 
         TubeLabel* tier = new TubeLabel(perks["expandableHeader"]["simpleText"].toString());
-        tier->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+        tier->setFont(QFont(tier->font().toString(), -1, QFont::Bold));
         perkInfoHeader->addWidget(tier);
 
         TubeLabel* showPerkInfo = new TubeLabel("Show perks info");
@@ -252,7 +252,7 @@ void ChannelBrowser::setupMembership(QListWidget* widget, const QJsonValue& rend
                     continue;
 
                 TubeLabel* titleLabel = new TubeLabel(InnertubeObjects::InnertubeString(perkRenderer["title"]));
-                titleLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+                titleLabel->setFont(QFont(titleLabel->font().toString(), -1, QFont::Bold));
                 perkInfo->addWidget(titleLabel);
 
                 if (perkRenderer["loyaltyBadges"].isObject())

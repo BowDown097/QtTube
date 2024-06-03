@@ -34,12 +34,12 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     channelIconLabel->setFixedSize(40, 40);
     layout->addWidget(channelIconLabel, 0, Qt::AlignTop);
 
-    channelLabel->text->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 1, QFont::Bold));
+    channelLabel->text->setFont(QFont(font().toString(), font().pointSize() - 1, QFont::Bold));
     channelTimeLayout->addWidget(channelLabel);
 
     publishedTimeLabel->setClickable(true, false);
     publishedTimeLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-    publishedTimeLabel->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
+    publishedTimeLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
     channelTimeLayout->addWidget(publishedTimeLabel);
     channelTimeLayout->addStretch();
     innerLayout->addLayout(channelTimeLayout);
@@ -50,7 +50,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     innerLayout->addWidget(contentText);
 
     readMoreLabel->setClickable(true, false);
-    readMoreLabel->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
+    readMoreLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
     innerLayout->addWidget(readMoreLabel);
     layout->addLayout(innerLayout);
 

@@ -1,6 +1,5 @@
 #include "videothumbnailwidget.h"
 #include "http.h"
-#include <QApplication>
 #include <QProgressBar>
 
 constexpr const char* progressStyle = R"(
@@ -15,7 +14,7 @@ VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
     setScaledContents(true);
 
     m_lengthLabel->hide();
-    m_lengthLabel->setFont(QFont(qApp->font().toString(), 9, QFont::Bold));
+    m_lengthLabel->setFont(QFont(font().toString(), 9, QFont::Bold));
     m_lengthLabel->setStyleSheet("background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0 1px");
 
     m_progressBar->hide();

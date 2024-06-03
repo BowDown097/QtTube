@@ -2,7 +2,6 @@
 #include "httpreply.h"
 #include "innertube/objects/notification/notification.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include <QApplication>
 #include <QBoxLayout>
 
 BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
@@ -28,7 +27,7 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
     hbox->addLayout(textVbox, 1);
     hbox->addWidget(thumbLabel);
 
-    sentTimeText->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
+    sentTimeText->setFont(QFont(font().toString(), font().pointSize() - 2));
 }
 
 void BrowseNotificationRenderer::setChannelIcon(const HttpReply& reply)

@@ -41,7 +41,7 @@ ChannelView::ChannelView(const QString& channelId)
 
     metaVbox->addWidget(channelName);
 
-    handleAndVideos->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() - 2));
+    handleAndVideos->setFont(QFont(font().toString(), font().pointSize() - 2));
     metaVbox->addWidget(handleAndVideos);
 
     metaHbox->addLayout(metaVbox);

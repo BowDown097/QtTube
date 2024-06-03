@@ -1,6 +1,5 @@
 #include "channelbadgelabel.h"
 #include "innertube/objects/channel/metadatabadge.h"
-#include <QApplication>
 
 constexpr const char* hoveredStylesheet = "QLabel { background: #4aa1df; border-radius: 1px; color: #ddd }";
 constexpr const char* normalStylesheet = "QLabel { background: #777; border-radius: 1px; color: #ddd }";
@@ -9,7 +8,7 @@ ChannelBadgeLabel::ChannelBadgeLabel(QWidget* parent) : QLabel(parent)
 {
     setAlignment(Qt::AlignCenter);
     setFixedSize(13, 10);
-    setFont(QFont(qApp->font().toString(), 8));
+    setFont(QFont(font().toString(), 8));
     setStyleSheet(normalStylesheet);
 }
 
