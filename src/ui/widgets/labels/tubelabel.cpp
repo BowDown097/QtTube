@@ -1,5 +1,6 @@
 #include "tubelabel.h"
 #include "innertube/objects/innertubestring.h"
+#include <QTextDocument>
 #include <QTextLayout>
 
 TubeLabel::TubeLabel(QWidget* parent) : ClickableWidget<QLabel>(parent)
