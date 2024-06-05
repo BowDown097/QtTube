@@ -21,10 +21,11 @@ VideoRenderer::VideoRenderer(QWidget* parent)
 {
     channelLabel->addStretch();
 
-    titleLabel->setClickable(true, true);
+    titleLabel->setClickable(true);
     titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-    titleLabel->setElide(Qt::ElideRight);
+    titleLabel->setElideMode(Qt::ElideRight);
     titleLabel->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
+    titleLabel->setUnderlineOnHover(true);
 
     connect(channelLabel->text, &TubeLabel::clicked, this, &VideoRenderer::navigateChannel);
     connect(thumbnail, &VideoThumbnailWidget::clicked, this, &VideoRenderer::navigateVideo);

@@ -35,8 +35,9 @@ constexpr const char* unsubscribeStyle = R"(
     padding: 0 6px 1px 2.5px;
 )";
 
-SubscribeLabel::SubscribeLabel(QWidget* parent) : ClickableWidget<QLabel>(true, false, parent)
+SubscribeLabel::SubscribeLabel(QWidget* parent) : ClickableWidget<QLabel>(parent)
 {
+    setClickable(true);
     setFixedSize(80, 24);
     connect(this, &ClickableWidget<QLabel>::clicked, this, &SubscribeLabel::trySubscribe);
 }

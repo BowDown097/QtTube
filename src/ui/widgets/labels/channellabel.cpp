@@ -9,8 +9,9 @@
 ChannelLabel::ChannelLabel(QWidget* parent)
     : QWidget(parent), text(new TubeLabel(this)), badgeLayout(new QHBoxLayout), layout(new QHBoxLayout(this))
 {
-    text->setClickable(true, true);
+    text->setClickable(true);
     text->setContextMenuPolicy(Qt::CustomContextMenu);
+    text->setUnderlineOnHover(true);
 
     layout->addWidget(text);
     layout->setContentsMargins(0, 0, 0, 0);

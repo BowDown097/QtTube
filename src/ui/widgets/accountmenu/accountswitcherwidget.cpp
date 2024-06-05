@@ -20,7 +20,7 @@ AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
     for (const CredentialSet& credSet : qtTubeApp->creds().credentials())
     {
         AccountEntryWidget* accountEntry = new AccountEntryWidget(credSet, this);
-        accountEntry->setClickable(credSet.channelId != activeLogin.channelId, false);
+        accountEntry->setClickable(credSet.channelId != activeLogin.channelId);
         connect(accountEntry, &AccountEntryWidget::clicked, this, std::bind(&AccountSwitcherWidget::switchAccount, this, credSet));
         layout->addWidget(accountEntry);
     }

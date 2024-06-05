@@ -29,7 +29,7 @@ private:
     QString channelId;
     ChannelLabel* channelLabel;
     QHBoxLayout* channelTimeLayout;
-    QLabel* contentText;
+    TubeLabel* contentText;
     IconLabel* dislikeLabel;
     QVBoxLayout* innerLayout;
     QHBoxLayout* layout;

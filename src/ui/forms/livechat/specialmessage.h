@@ -2,8 +2,8 @@
 #include <QJsonValue>
 #include <QWidget>
 
-class QLabel;
 class QVBoxLayout;
+class TubeLabel;
 
 class SpecialMessage : public QWidget
 {
@@ -12,7 +12,7 @@ public:
                    const QString& headerKey = "text", const QString& subtextKey = "subtext",
                    bool subtextItalic = true, const QString& background = "black");
 private:
-    QLabel* header;
+    TubeLabel* header;
     QVBoxLayout* layout;
-    QLabel* subtext;
+    TubeLabel* subtext;
 };

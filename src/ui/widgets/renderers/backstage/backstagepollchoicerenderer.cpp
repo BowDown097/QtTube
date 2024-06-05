@@ -11,7 +11,7 @@ BackstagePollChoiceRenderer::BackstagePollChoiceRenderer(QWidget* parent)
       m_percentageLabel(new QLabel(this)),
       m_progressBar(new QProgressBar(this))
 {
-    setClickable(true, false);
+    setClickable(true);
     m_choiceTextLabel->setMaximumWidth(width() - 100);
 
     m_progressBar->setFixedWidth(width());

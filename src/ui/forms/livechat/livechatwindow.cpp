@@ -17,7 +17,7 @@ LiveChatWindow::LiveChatWindow(QWidget* parent)
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
 
-    emojiMenuLabel->setClickable(true, false);
+    emojiMenuLabel->setClickable(true);
     emojiMenuLabel->setPixmap(UIUtils::pixmapThemed("emoji", true, QSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8)));
     ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
 

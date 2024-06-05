@@ -38,11 +38,11 @@ TopBar::TopBar(QWidget* parent)
     avatarButton->hide();
     avatarButton->move(673, 3);
     avatarButton->resize(30, 30);
-    avatarButton->setClickable(true, false);
+    avatarButton->setClickable(true);
 
     logo->move(10, 2);
     logo->resize(134, 30);
-    logo->setClickable(true, false);
+    logo->setClickable(true);
     logo->setPixmap(UIUtils::pixmapThemed("qttube-full", true, logo->size()));
     logo->setScaledContents(true);
 
@@ -51,7 +51,7 @@ TopBar::TopBar(QWidget* parent)
 
     settingsButton->move(673, 3);
     settingsButton->resize(30, 30);
-    settingsButton->setClickable(true, false);
+    settingsButton->setClickable(true);
     settingsButton->setPixmap(UIUtils::pixmapThemed("settings"));
     settingsButton->setScaledContents(true);
     connect(settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);

@@ -6,6 +6,7 @@ class HttpReply;
 class QHBoxLayout;
 class QLabel;
 class QVBoxLayout;
+class TubeLabel;
 
 class TextMessage : public QWidget
 {
@@ -13,12 +14,12 @@ public:
     TextMessage(const QJsonValue& renderer, QWidget* parent);
 private:
     QLabel* authorIcon;
-    QLabel* authorLabel;
+    TubeLabel* authorLabel;
     QVBoxLayout* contentLayout;
     QHBoxLayout* headerLayout;
     QHBoxLayout* layout;
-    QLabel* messageLabel;
-    QLabel* timestampLabel;
+    TubeLabel* messageLabel;
+    TubeLabel* timestampLabel;
 private slots:
     void insertEmojiIntoMessage(const HttpReply& reply, const QString& placeholder);
     void setAuthorIcon(const HttpReply& reply);

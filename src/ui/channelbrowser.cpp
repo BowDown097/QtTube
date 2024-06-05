@@ -49,7 +49,7 @@ void ChannelBrowser::setupAbout(QListWidget* widget, const QJsonValue& renderer)
         for (const InnertubeObjects::ChannelHeaderLink& link : metadata.primaryLinks)
         {
             TubeLabel* label = new TubeLabel(link.title);
-            label->setClickable(true, false);
+            label->setClickable(true);
             label->setStyleSheet("color: #167ac6");
             UIUtils::addWidgetToList(widget, label);
 
@@ -220,7 +220,7 @@ void ChannelBrowser::setupMembership(QListWidget* widget, const QJsonValue& rend
         perkInfoHeader->addWidget(tier);
 
         TubeLabel* showPerkInfo = new TubeLabel("Show perks info");
-        showPerkInfo->setClickable(true, false);
+        showPerkInfo->setClickable(true);
         showPerkInfo->setStyleSheet("color: #3ea6ff");
         perkInfoHeader->addWidget(showPerkInfo);
 

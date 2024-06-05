@@ -1,22 +1,22 @@
 #include "textmessage.h"
 #include "http.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include "utils/httputils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QJsonArray>
-#include <QLabel>
 
-constexpr const char* imgPlaceholder = "<img src='data:%1;base64,%2' width='20' height='20'>";
+#define IMG_PLACEHOLDER QStringLiteral("<img src='data:%1;base64,%2' width='20' height='20'>")
 
 TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     : QWidget(parent),
       authorIcon(new QLabel(this)),
-      authorLabel(new QLabel(renderer["authorName"]["simpleText"].toString(), this)),
+      authorLabel(new TubeLabel(renderer["authorName"]["simpleText"].toString(), this)),
       contentLayout(new QVBoxLayout),
       headerLayout(new QHBoxLayout),
       layout(new QHBoxLayout(this)),
-      messageLabel(new QLabel(this)),
-      timestampLabel(new QLabel(this))
+      messageLabel(new TubeLabel(this)),
+      timestampLabel(new TubeLabel(this))
 {
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
@@ -77,7 +77,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
         if (v2["emoji"].isObject())
         {
             QString url = v2["emoji"]["image"]["thumbnails"][0]["url"].toString();
-            QString placeholder = QString(imgPlaceholder)
+            QString placeholder = IMG_PLACEHOLDER
                 .arg(v2["emoji"]["shortcuts"][0].toString() + v2["emoji"]["searchTerms"][0].toString() + url);
             if (!messageLabel->text().contains(placeholder))
             {
@@ -97,7 +97,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
 
 void TextMessage::insertEmojiIntoMessage(const HttpReply& reply, const QString& placeholder)
 {
-    QString data = QString(imgPlaceholder).arg(reply.header("content-type"), reply.body().toBase64());
+    QString data = IMG_PLACEHOLDER.arg(reply.header("content-type"), reply.body().toBase64());
     messageLabel->setText(messageLabel->text().replace(placeholder, data));
 }
 

@@ -3,14 +3,14 @@
 #include <QWidget>
 
 class QHBoxLayout;
-class QLabel;
+class TubeLabel;
 
 class GiftRedemptionMessage : public QWidget
 {
 public:
     GiftRedemptionMessage(const QJsonValue& renderer, QWidget* parent);
 private:
-    QLabel* authorLabel;
+    TubeLabel* authorLabel;
     QHBoxLayout* layout;
-    QLabel* messageLabel;
+    TubeLabel* messageLabel;
 };

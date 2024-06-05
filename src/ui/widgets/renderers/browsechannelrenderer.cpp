@@ -34,7 +34,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
     subscribeWidget->layout->addStretch();
     textVbox->addWidget(subscribeWidget);
 
-    thumbLabel->setClickable(true, false);
+    thumbLabel->setClickable(true);
     thumbLabel->setFixedSize(80, 80);
     hbox->addWidget(thumbLabel);
 

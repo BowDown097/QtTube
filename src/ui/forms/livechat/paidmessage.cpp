@@ -1,45 +1,45 @@
 #include "paidmessage.h"
 #include "http.h"
 #include "innertube/objects/innertubestring.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include "utils/httputils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
-#include <QLabel>
 
-constexpr const char* headerStyle = R"(
+#define HEADER_STYLE QStringLiteral(R"(
     background: #%1;
     border-top: 1px solid transparent;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     color: #%2;
-)";
+)")
 
-constexpr const char* messageStyle = R"(
+#define MESSAGE_STYLE QStringLiteral(R"(
     background: #%1;
     border-bottom: 1px solid transparent;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
     color: #%2;
-)";
+)")
 
 PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     : QWidget(parent),
-      amountLabel(new QLabel(renderer["purchaseAmountText"]["simpleText"].toString(), this)),
+      amountLabel(new TubeLabel(renderer["purchaseAmountText"]["simpleText"].toString(), this)),
       authorIcon(new QLabel(this)),
-      authorLabel(new QLabel(renderer["authorName"]["simpleText"].toString(), this)),
+      authorLabel(new TubeLabel(renderer["authorName"]["simpleText"].toString(), this)),
       header(new QWidget(this)),
       headerLayout(new QHBoxLayout(header)),
       innerHeaderLayout(new QVBoxLayout),
       layout(new QVBoxLayout(this)),
-      messageLabel(new QLabel(this))
+      messageLabel(new TubeLabel(this))
 {
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
     header->setAutoFillBackground(true);
-    header->setStyleSheet(QString(headerStyle)
-                              .arg(QString::number(renderer["headerBackgroundColor"].toVariant().toLongLong(), 16),
-                                   QString::number(renderer["headerTextColor"].toVariant().toLongLong(), 16)));
+    header->setStyleSheet(HEADER_STYLE
+        .arg(QString::number(renderer["headerBackgroundColor"].toVariant().toLongLong(), 16),
+             QString::number(renderer["headerTextColor"].toVariant().toLongLong(), 16)));
     layout->addWidget(header);
 
     headerLayout->setContentsMargins(5, 0, 0, 0);
@@ -68,9 +68,9 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
 
     messageLabel->setAlignment(Qt::AlignCenter);
     messageLabel->setAutoFillBackground(true);
-    messageLabel->setStyleSheet(QString(messageStyle)
-                                    .arg(QString::number(renderer["bodyBackgroundColor"].toVariant().toLongLong(), 16),
-                                         QString::number(renderer["bodyTextColor"].toVariant().toLongLong(), 16)));
+    messageLabel->setStyleSheet(MESSAGE_STYLE
+        .arg(QString::number(renderer["bodyBackgroundColor"].toVariant().toLongLong(), 16),
+             QString::number(renderer["bodyTextColor"].toVariant().toLongLong(), 16)));
     messageLabel->setText(message.text);
     messageLabel->setWordWrap(true);
     layout->addWidget(messageLabel);

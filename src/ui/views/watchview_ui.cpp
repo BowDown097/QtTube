@@ -76,7 +76,7 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
 
     showMoreLabel = new TubeLabel(watchView);
     showMoreLabel->setAlignment(Qt::AlignCenter);
-    showMoreLabel->setClickable(true, false);
+    showMoreLabel->setClickable(true);
     showMoreLabel->setFixedWidth(player->size().width());
     showMoreLabel->setStyleSheet("border-top: 1px solid " + qApp->palette().text().color().name());
     showMoreLabel->setText("SHOW MORE");
@@ -178,7 +178,7 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
     primaryInfoHbox->setContentsMargins(0, 0, 0, 0);
 
     channelIcon = new TubeLabel(watchView);
-    channelIcon->setClickable(true, false);
+    channelIcon->setClickable(true);
     channelIcon->setMaximumSize(55, 48);
     channelIcon->setMinimumSize(55, 48);
     primaryInfoHbox->addWidget(channelIcon);

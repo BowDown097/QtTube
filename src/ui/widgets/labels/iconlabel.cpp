@@ -4,11 +4,9 @@
 #include <QMouseEvent>
 
 IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, const QSize& size, QWidget* parent)
-    : ClickableWidget<QWidget>(true, false, parent),
-      icon(new QLabel(this)),
-      textLabel(new QLabel(this)),
-      layout(new QHBoxLayout(this))
+    : ClickableWidget<QWidget>(parent), icon(new QLabel(this)), textLabel(new QLabel(this)), layout(new QHBoxLayout(this))
 {
+    setClickable(true);
     icon->setFixedSize(size);
     icon->setPixmap(UIUtils::pixmapThemed(iconId));
     icon->setScaledContents(true);

@@ -8,8 +8,9 @@ constexpr const char* progressStyle = R"(
 )";
 
 VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
-    : ClickableWidget<QLabel>(true, false, parent), m_lengthLabel(new QLabel(this)), m_progressBar(new QProgressBar(this))
+    : ClickableWidget<QLabel>(parent), m_lengthLabel(new QLabel(this)), m_progressBar(new QProgressBar(this))
 {
+    setClickable(true);
     setMinimumSize(1, 1);
     setScaledContents(true);
 

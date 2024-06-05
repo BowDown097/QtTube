@@ -1,24 +1,24 @@
 #include "specialmessage.h"
 #include "innertube/objects/innertubestring.h"
+#include "ui/widgets/labels/tubelabel.h"
 #include <QBoxLayout>
-#include <QLabel>
 
-constexpr const char* stylesheet = R"(
+#define STYLE QStringLiteral(R"(
     background: %1;
     border: 1px solid transparent;
     border-radius: 4px;
     color: white;
-)";
+)")
 
 SpecialMessage::SpecialMessage(const QJsonValue& renderer, QWidget* parent, const QString& headerKey,
                                const QString& subtextKey, bool subtextItalic, const QString& background)
     : QWidget(parent),
-      header(new QLabel(this)),
+      header(new TubeLabel(this)),
       layout(new QVBoxLayout(this)),
-      subtext(new QLabel(InnertubeObjects::InnertubeString(renderer[subtextKey]).text, this))
+      subtext(new TubeLabel(InnertubeObjects::InnertubeString(renderer[subtextKey]), this))
 {
     setAutoFillBackground(true);
-    setStyleSheet(QString(stylesheet).arg(background));
+    setStyleSheet(STYLE.arg(background));
     layout->setContentsMargins(0, 0, 0, 0);
 
     InnertubeObjects::InnertubeString headerString(renderer[headerKey]);

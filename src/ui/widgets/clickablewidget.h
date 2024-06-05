@@ -12,13 +12,18 @@ class ClickableWidget : public W
     W_OBJECT(ClickableWidget)
 public:
     explicit ClickableWidget(QWidget* parent = nullptr) : W(parent) {}
-    ClickableWidget(bool clickable, bool underline, QWidget* parent = nullptr)
-        : W(parent), m_clickable(clickable), m_underline(underline) {}
 
-    void setClickable(bool clickable, bool underline)
+    bool clickable() const { return m_clickable; }
+    void setClickable(bool clickable) { m_clickable = clickable; }
+
+    bool underlineOnHover() const { return m_underlineOnHover; }
+    void setUnderlineOnHover(bool underline) { m_underlineOnHover = underline; }
+
+    void makeUnderlined(bool underline)
     {
-        m_clickable = clickable;
-        m_underline = underline;
+        QFont newFont(W::font());
+        newFont.setUnderline(underline);
+        W::setFont(newFont);
     }
 
     void clicked() W_SIGNAL(clicked)
@@ -31,17 +36,17 @@ protected:
     {
         if (m_clickable)
             W::setCursor(QCursor(Qt::PointingHandCursor));
-        if (m_underline)
-            W::setStyleSheet("QLabel { text-decoration: underline; }");
+        if (m_underlineOnHover && !W::font().underline())
+            makeUnderlined(true);
         W::enterEvent(event);
     }
 
     void leaveEvent(QEvent* event) override
     {
         if (m_clickable)
-            W::setCursor(QCursor());
-        if (m_underline)
-            W::setStyleSheet(QString());
+            W::unsetCursor();
+        if (m_underlineOnHover && W::font().underline())
+            makeUnderlined(false);
         W::leaveEvent(event);
     }
 
@@ -53,7 +58,7 @@ protected:
     }
 private:
     bool m_clickable{};
-    bool m_underline{};
+    bool m_underlineOnHover{};
 };
 
 W_OBJECT_IMPL_INLINE(ClickableWidget<W>, template<WidgetType W>)

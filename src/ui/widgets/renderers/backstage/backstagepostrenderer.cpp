@@ -21,7 +21,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
       channelIconLabel(new TubeLabel(this)),
       channelLabel(new ChannelLabel(this)),
       channelTimeLayout(new QHBoxLayout),
-      contentText(new QLabel(this)),
+      contentText(new TubeLabel(this)),
       dislikeLabel(new IconLabel("dislike")),
       innerLayout(new QVBoxLayout),
       layout(new QHBoxLayout(this)),
@@ -30,14 +30,14 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
       readMoreLabel(new TubeLabel(this)),
       replyLabel(new IconLabel("live-chat"))
 {
-    channelIconLabel->setClickable(true, false);
+    channelIconLabel->setClickable(true);
     channelIconLabel->setFixedSize(40, 40);
     layout->addWidget(channelIconLabel, 0, Qt::AlignTop);
 
     channelLabel->text->setFont(QFont(font().toString(), font().pointSize() - 1, QFont::Bold));
     channelTimeLayout->addWidget(channelLabel);
 
-    publishedTimeLabel->setClickable(true, false);
+    publishedTimeLabel->setClickable(true);
     publishedTimeLabel->setContextMenuPolicy(Qt::CustomContextMenu);
     publishedTimeLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
     channelTimeLayout->addWidget(publishedTimeLabel);
@@ -49,7 +49,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     UIUtils::setMaximumLines(contentText, 3);
     innerLayout->addWidget(contentText);
 
-    readMoreLabel->setClickable(true, false);
+    readMoreLabel->setClickable(true);
     readMoreLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
     innerLayout->addWidget(readMoreLabel);
     layout->addLayout(innerLayout);
@@ -61,7 +61,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
 
     connect(channelIconLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
     connect(channelLabel->text, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
-    connect(contentText, &QLabel::linkActivated, this, &BackstagePostRenderer::linkActivated);
+    connect(contentText, &TubeLabel::linkActivated, this, &BackstagePostRenderer::linkActivated);
     connect(publishedTimeLabel, &TubeLabel::customContextMenuRequested, this,
             &BackstagePostRenderer::showPublishedTimeContextMenu);
     connect(readMoreLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::toggleReadMore);
