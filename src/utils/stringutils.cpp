@@ -16,7 +16,7 @@ namespace StringUtils
     {
         using namespace icu::number;
         static const LocalizedNumberFormatter formatter = NumberFormatter::withLocale(icu::Locale::getDefault())
-                                                              .notation(Notation::compactShort()).precision(Precision::maxFraction(1));
+            .notation(Notation::compactShort()).precision(Precision::maxFraction(1));
 
         icu::ErrorCode errorCode;
         FormattedNumber formatted = formatter.formatInt(num, errorCode);

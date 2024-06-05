@@ -2,7 +2,7 @@
 #include "innertube.h"
 #include <QMessageBox>
 
-constexpr const char* subscribeStyle = R"(
+constexpr QLatin1String SubscribeStylesheet(R"(
     background: red;
     border: solid 1px transparent;
     font-size: 12px;
@@ -10,8 +10,8 @@ constexpr const char* subscribeStyle = R"(
     border-radius: 2px;
     padding: 0 6px 1px 11px;
     color: #fefefe;
-)";
-constexpr const char* subscribeHoveredStyle = R"(
+)");
+constexpr QLatin1String SubscribeHoveredStylesheet(R"(
     background: #d90a17;
     border: solid 1px transparent;
     font-size: 12px;
@@ -19,21 +19,21 @@ constexpr const char* subscribeHoveredStyle = R"(
     border-radius: 2px;
     padding: 0 6px 1px 11px;
     color: #fefefe;
-)";
-constexpr const char* subscribedStyle = R"(
+)");
+constexpr QLatin1String SubscribedStylesheet(R"(
     border: 1px solid #555;
     font-size: 12px;
     line-height: 22px;
     border-radius: 2px;
     padding: 0 6px 1px 6px;
-)";
-constexpr const char* unsubscribeStyle = R"(
+)");
+constexpr QLatin1String UnsubscribeStylesheet(R"(
     border: 1px solid #555;
     font-size: 12px;
     line-height: 22px;
     border-radius: 2px;
     padding: 0 6px 1px 2.5px;
-)";
+)");
 
 SubscribeLabel::SubscribeLabel(QWidget* parent) : ClickableWidget<QLabel>(parent)
 {
@@ -55,7 +55,7 @@ void SubscribeLabel::setSubscribeButton(const InnertubeObjects::SubscribeButton&
     this->unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
     this->unsubscribeEndpoint = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
 
-    setStyleSheet(subscribed ? subscribedStyle : subscribeStyle);
+    setStyleSheet(subscribed ? SubscribedStylesheet : SubscribeStylesheet);
     setText(subscribed ? subscribedText : subscribeText);
 }
 
@@ -74,7 +74,7 @@ void SubscribeLabel::setSubscribeButton(const InnertubeObjects::SubscribeButtonV
     this->unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
     this->unsubscribeEndpoint = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
 
-    setStyleSheet(subscribed ? subscribedStyle : subscribeStyle);
+    setStyleSheet(subscribed ? SubscribedStylesheet : SubscribeStylesheet);
     setText(subscribed ? subscribedText : subscribeText);
 }
 
@@ -87,12 +87,12 @@ void SubscribeLabel::enterEvent(QEvent* event)
     ClickableWidget<QLabel>::enterEvent(event);
     if (subscribed)
     {
-        setStyleSheet(unsubscribeStyle);
+        setStyleSheet(UnsubscribeStylesheet);
         setText(unsubscribeText);
     }
     else
     {
-        setStyleSheet(subscribeHoveredStyle);
+        setStyleSheet(SubscribeHoveredStylesheet);
     }
 }
 
@@ -101,12 +101,12 @@ void SubscribeLabel::leaveEvent(QEvent* event)
     ClickableWidget<QLabel>::leaveEvent(event);
     if (subscribed)
     {
-        setStyleSheet(subscribedStyle);
+        setStyleSheet(SubscribedStylesheet);
         setText(subscribedText);
     }
     else
     {
-        setStyleSheet(subscribeStyle);
+        setStyleSheet(SubscribeStylesheet);
     }
 }
 
@@ -128,12 +128,12 @@ void SubscribeLabel::trySubscribe()
 
     if (subscribed && QMessageBox::question(nullptr, unsubscribeText, unsubscribeDialogText) == QMessageBox::StandardButton::Yes)
     {
-        toggleSubscriptionStatus(subscribeStyle, subscribeText);
+        toggleSubscriptionStatus(SubscribeStylesheet, subscribeText);
         InnerTube::instance()->subscribe(unsubscribeEndpoint, false);
     }
     else if (!subscribed)
     {
-        toggleSubscriptionStatus(subscribedStyle, subscribedText);
+        toggleSubscriptionStatus(SubscribedStylesheet, subscribedText);
         InnerTube::instance()->subscribe(subscribeEndpoint, true);
     }
 }

@@ -3,12 +3,12 @@
 #include "ui/widgets/labels/tubelabel.h"
 #include <QBoxLayout>
 
-#define STYLE QStringLiteral(R"(
+constexpr QLatin1String Stylesheet(R"(
     background: %1;
     border: 1px solid transparent;
     border-radius: 4px;
     color: white;
-)")
+)");
 
 SpecialMessage::SpecialMessage(const QJsonValue& renderer, QWidget* parent, const QString& headerKey,
                                const QString& subtextKey, bool subtextItalic, const QString& background)
@@ -18,7 +18,7 @@ SpecialMessage::SpecialMessage(const QJsonValue& renderer, QWidget* parent, cons
       subtext(new TubeLabel(InnertubeObjects::InnertubeString(renderer[subtextKey]), this))
 {
     setAutoFillBackground(true);
-    setStyleSheet(STYLE.arg(background));
+    setStyleSheet(Stylesheet.arg(background));
     layout->setContentsMargins(0, 0, 0, 0);
 
     InnertubeObjects::InnertubeString headerString(renderer[headerKey]);

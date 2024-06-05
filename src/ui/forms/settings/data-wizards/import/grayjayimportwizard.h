@@ -6,9 +6,6 @@
 
 class QProgressDialog;
 
-constexpr const char* introInfo = "This wizard will help you import data from Grayjay into QtTube.\n"
-                                  "Check the box(es) for the data you wish to import, then continue.";
-
 class GrayjayImportWizard : public DataWizard
 {
 public:
@@ -19,8 +16,7 @@ public:
 class GrayjayImportIntroPage : public IntroPage
 {
 public:
-    explicit GrayjayImportIntroPage(QWidget* parent = nullptr)
-        : IntroPage(introInfo, "grayjay.import.watch_history", parent) {}
+    explicit GrayjayImportIntroPage(QWidget* parent = nullptr);
     int nextId() const override;
 };
 

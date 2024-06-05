@@ -11,7 +11,7 @@
 #include <QScrollArea>
 #include <QScrollBar>
 
-constexpr const char* likeBarStyle = R"(
+constexpr QLatin1String LikeBarStylesheet(R"(
     QProgressBar {
         border-radius: 2px;
         background-color: #606060;
@@ -20,7 +20,7 @@ constexpr const char* likeBarStyle = R"(
     QProgressBar::chunk {
         background-color: #1879c6;
     }
-)";
+)");
 
 void WatchView_Ui::moveFeed(PlayerScaleMode scaleMode)
 {
@@ -148,7 +148,7 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
         likeBar = new QProgressBar(watchView);
         likeBar->hide();
         likeBar->setFixedSize(155, 2);
-        likeBar->setStyleSheet(likeBarStyle);
+        likeBar->setStyleSheet(LikeBarStylesheet);
         likeBarWrapper->addWidget(likeBar);
 
         menuVbox->addLayout(likeBarWrapper);

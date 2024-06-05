@@ -7,11 +7,10 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
-constexpr const char* dbSubtitle = "Select the newpipe.db file inside of the NewPipe data folder.";
-
-constexpr const char* introInfo = "This wizard will help you import data from NewPipe into QtTube.\n"
-                                  "Check the box(es) for the data you wish to import, then continue.\n"
-                                  "<b>This data specifically comes from the \"Export database\" feature.<b>";
+constexpr QLatin1String DbSubtitle("Select the newpipe.db file inside of the NewPipe data folder.");
+constexpr QLatin1String IntroInfo(R"(This wizard will help you import data from NewPipe into QtTube.
+Check the box(es) for the data you wish to import, then continue.
+<b>This data specifically comes from the "Export database" feature.<b>)");
 
 NewPipeImportWizard::NewPipeImportWizard(QWidget* parent)
     : DataWizard(Page_Conclusion, "NewPipe Import Wizard", parent)
@@ -22,13 +21,13 @@ NewPipeImportWizard::NewPipeImportWizard(QWidget* parent)
 }
 
 NewPipeImportIntroPage::NewPipeImportIntroPage(QWidget* parent)
-    : IntroPage(introInfo, "newpipe.import.watch_history", parent)
+    : IntroPage(IntroInfo, "newpipe.import.watch_history", parent)
 {
     registerField("newpipe.import.subs", subsCheckBox);
 }
 
 NewPipeImportDbPage::NewPipeImportDbPage(QWidget* parent)
-    : ImportFileSelectPage("Database", dbSubtitle, "newpipe.db", 0, parent)
+    : ImportFileSelectPage("Database", DbSubtitle, "newpipe.db", 0, parent)
 {
     connect(this, &ImportFileSelectPage::fileSelected, this, &NewPipeImportDbPage::verifyFile);
 }

@@ -6,7 +6,7 @@
 #include <QBoxLayout>
 #include <QJsonArray>
 
-#define IMG_PLACEHOLDER QStringLiteral("<img src='data:%1;base64,%2' width='20' height='20'>")
+constexpr QLatin1String ImgPlaceholder("<img src='data:%1;base64,%2' width='20' height='20'>");
 
 TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     : QWidget(parent),
@@ -77,7 +77,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
         if (v2["emoji"].isObject())
         {
             QString url = v2["emoji"]["image"]["thumbnails"][0]["url"].toString();
-            QString placeholder = IMG_PLACEHOLDER
+            QString placeholder = ImgPlaceholder
                 .arg(v2["emoji"]["shortcuts"][0].toString() + v2["emoji"]["searchTerms"][0].toString() + url);
             if (!messageLabel->text().contains(placeholder))
             {
@@ -97,7 +97,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
 
 void TextMessage::insertEmojiIntoMessage(const HttpReply& reply, const QString& placeholder)
 {
-    QString data = IMG_PLACEHOLDER.arg(reply.header("content-type"), reply.body().toBase64());
+    QString data = ImgPlaceholder.arg(reply.header("content-type"), reply.body().toBase64());
     messageLabel->setText(messageLabel->text().replace(placeholder, data));
 }
 

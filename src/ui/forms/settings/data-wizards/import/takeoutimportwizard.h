@@ -12,14 +12,8 @@ public:
 
 class TakeoutImportIntroPage : public IntroPage
 {
-    static constexpr const char* introInfo = "This wizard will help you import YouTube data from Google Takeout into QtTube.\n"
-                                             "Check the box(es) for the data you wish to import, then continue.\n"
-                                             "To get this data if you don't have it already, go to "
-                                             "<a href=\"https://takeout.google.com/takeout/custom/youtube\">this page</a>.\n"
-                                             "<b>Make sure to change the format for History from HTML to JSON!</b>";
 public:
-    explicit TakeoutImportIntroPage(QWidget* parent = nullptr)
-        : IntroPage(introInfo, "takeout.import.watch_history", parent) {}
+    explicit TakeoutImportIntroPage(QWidget* parent = nullptr);
     int nextId() const override;
 };
 

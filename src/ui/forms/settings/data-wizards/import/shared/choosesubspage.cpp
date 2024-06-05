@@ -1,11 +1,11 @@
 #include "choosesubspage.h"
 #include "innertube.h"
 
-constexpr const char* subtitle = "Check the channels you wish to subscribe to, then press Start.";
+constexpr QLatin1String Subtitle("Check the channels you wish to subscribe to, then press Start.");
 
 ChooseSubsPage::ChooseSubsPage(const QList<Entity>& subs, int conclusionPage, const QString& watchHistoryKey,
                                int watchHistoryPage, QWidget* parent)
-    : ChooseEntitiesPage(subs, "Choose Subscriptions", subtitle, "Subscribe", "Channel Name", parent),
+    : ChooseEntitiesPage(subs, "Choose Subscriptions", Subtitle, "Subscribe", "Channel Name", parent),
       conclusionPage(conclusionPage),
       watchHistoryKey(watchHistoryKey),
       watchHistoryPage(watchHistoryPage)

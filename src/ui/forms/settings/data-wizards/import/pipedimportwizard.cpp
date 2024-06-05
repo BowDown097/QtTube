@@ -9,8 +9,10 @@
 #include <QLineEdit>
 #include <QProgressDialog>
 
-constexpr const char* subsSubtitle = "Select the subscriptions.json file you got from Piped.";
-constexpr const char* watchHistorySubtitle = "Select the piped_history_XXX.json file you got from Piped.";
+constexpr QLatin1String IntroInfo(R"(This wizard will help you import subscriptions from Piped into QtTube.
+Check the box(es) for the data you wish to import, then continue.)");
+constexpr QLatin1String SubsSubtitle("Select the subscriptions.json file you got from Piped.");
+constexpr QLatin1String WatchHistorySubtitle("Select the piped_history_XXX.json file you got from Piped.");
 
 PipedImportWizard::PipedImportWizard(QWidget* parent)
     : DataWizard(Page_Conclusion, "Piped Import Wizard", parent)
@@ -21,13 +23,16 @@ PipedImportWizard::PipedImportWizard(QWidget* parent)
     setStartId(Page_Intro);
 }
 
+PipedImportIntroPage::PipedImportIntroPage(QWidget* parent)
+    : IntroPage(IntroInfo, "piped.import.watch_history", parent) {}
+
 int PipedImportIntroPage::nextId() const
 {
     return subsCheckBox->isChecked() ? PipedImportWizard::Page_Subs : PipedImportWizard::Page_WatchHistory;
 }
 
 PipedImportSubsPage::PipedImportSubsPage(QWidget* parent)
-    : ImportFileSelectPage("Subscriptions", subsSubtitle, "subscriptions.json",
+    : ImportFileSelectPage("Subscriptions", SubsSubtitle, "subscriptions.json",
                            PipedImportWizard::Page_ChooseSubs, parent)
 {
     connect(this, &ImportFileSelectPage::fileSelected, this, &PipedImportSubsPage::verifyFile);
@@ -66,7 +71,7 @@ void PipedImportSubsPage::verifyFile(const QString& fileName)
 }
 
 PipedImportWatchHistoryPage::PipedImportWatchHistoryPage(QWidget* parent)
-    : ImportFileSelectPage("Watch History", watchHistorySubtitle, "piped_history*.json",
+    : ImportFileSelectPage("Watch History", WatchHistorySubtitle, "piped_history*.json",
                            PipedImportWizard::Page_ChooseWatchHistory, parent),
       progressDialog(new QProgressDialog(this))
 {

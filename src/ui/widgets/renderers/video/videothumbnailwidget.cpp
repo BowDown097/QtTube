@@ -2,10 +2,11 @@
 #include "http.h"
 #include <QProgressBar>
 
-constexpr const char* progressStyle = R"(
+constexpr QLatin1String LengthStylesheet("background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0 1px");
+constexpr QLatin1String ProgressStylesheet(R"(
     QProgressBar { background-color: #717171; }
     QProgressBar::chunk { background-color: #f00; }
-)";
+)");
 
 VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
     : ClickableWidget<QLabel>(parent), m_lengthLabel(new QLabel(this)), m_progressBar(new QProgressBar(this))
@@ -16,11 +17,11 @@ VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
 
     m_lengthLabel->hide();
     m_lengthLabel->setFont(QFont(font().toString(), 9, QFont::Bold));
-    m_lengthLabel->setStyleSheet("background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0 1px");
+    m_lengthLabel->setStyleSheet(LengthStylesheet);
 
     m_progressBar->hide();
     m_progressBar->setFixedHeight(3);
-    m_progressBar->setStyleSheet(progressStyle);
+    m_progressBar->setStyleSheet(ProgressStylesheet);
 }
 
 void VideoThumbnailWidget::resizeEvent(QResizeEvent* event)

@@ -1,11 +1,11 @@
 #pragma once
 #include "basicinfopage.h"
 
-constexpr const char* info = "You have completed this wizard. Use the Subscriptions and/or History tab(s) to make sure "
-                             "everything was done successfully.";
+constexpr QLatin1String ConclusionInfo(R"(You have completed this wizard. Use the Subscriptions and/or
+History tab(s) to make sure everything was done successfully.)");
 
 class ConclusionPage : public BasicInfoPage
 {
 public:
-    explicit ConclusionPage(QWidget* parent = nullptr) : BasicInfoPage("Wizard Complete", info, parent) {}
+    explicit ConclusionPage(QWidget* parent = nullptr) : BasicInfoPage("Wizard Complete", ConclusionInfo, parent) {}
 };

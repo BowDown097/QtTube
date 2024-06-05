@@ -7,15 +7,19 @@
 #include <QJsonDocument>
 #include <QLineEdit>
 
-constexpr const char* subsSubtitle = "Select the subscriptions.csv file inside of the takeout folder.\n"
-                                     "It should be inside \"Takeout/YouTube and YouTube Music/subscriptions\".";
-
-constexpr const char* watchHistorySubtitle = "Select the watch-history.json file inside of the takeout folder.\n"
-                                             "It should be inside \"Takeout/YouTube and YouTube Music/history\".";
+constexpr QLatin1String IntroInfo(R"(This wizard will help you import YouTube data from Google Takeout into QtTube.
+Check the box(es) for the data you wish to import, then continue.
+To get this data if you don't have it already, go to
+<a href="https://takeout.google.com/takeout/custom/youtube">this page</a>.
+<b>Make sure to change the format for History from HTML to JSON!</b>)");
+constexpr QLatin1String SubsSubtitle(R"(Select the subscriptions.csv file inside of the takeout folder.
+It should be inside "Takeout/YouTube and YouTube Music/subscriptions".)");
+constexpr QLatin1String WatchHistorySubtitle(R"(Select the watch-history.json file inside of the takeout folder.
+It should be inside "Takeout/YouTube and YouTube Music/history".)");
 
 bool readCSVRow(QTextStream& in, QStringList& row)
 {
-    static const int delta[][5] = {
+    constexpr int delta[][5] = {
         //  ,    "   \n    ?  eof
         {   1,   2,  -1,   0,  -1  }, // 0: parsing (store char)
         {   1,   2,  -1,   0,  -1  }, // 1: parsing (store column)
@@ -74,14 +78,16 @@ TakeoutImportWizard::TakeoutImportWizard(QWidget* parent)
     setStartId(Page_Intro);
 }
 
+TakeoutImportIntroPage::TakeoutImportIntroPage(QWidget* parent)
+    : IntroPage(IntroInfo, "takeout.import.watch_history", parent) {}
+
 int TakeoutImportIntroPage::nextId() const
 {
     return subsCheckBox->isChecked() ? TakeoutImportWizard::Page_Subs : TakeoutImportWizard::Page_WatchHistory;
 }
 
 TakeoutImportSubsPage::TakeoutImportSubsPage(QWidget* parent)
-    : ImportFileSelectPage("Subscriptions", subsSubtitle, "subscriptions.csv",
-                           TakeoutImportWizard::Page_ChooseSubs, parent)
+    : ImportFileSelectPage("Subscriptions", SubsSubtitle, "subscriptions.csv", TakeoutImportWizard::Page_ChooseSubs, parent)
 {
     connect(this, &ImportFileSelectPage::fileSelected, this, &TakeoutImportSubsPage::verifyFile);
 }
@@ -116,7 +122,7 @@ void TakeoutImportSubsPage::verifyFile(const QString& fileName)
 }
 
 TakeoutImportWatchHistoryPage::TakeoutImportWatchHistoryPage(QWidget* parent)
-    : ImportFileSelectPage("Watch History", watchHistorySubtitle, "watch-history.json",
+    : ImportFileSelectPage("Watch History", WatchHistorySubtitle, "watch-history.json",
                            TakeoutImportWizard::Page_ChooseWatchHistory, parent)
 {
     connect(this, &ImportFileSelectPage::fileSelected, this, &TakeoutImportWatchHistoryPage::verifyFile);

@@ -15,10 +15,8 @@ public:
 
 class PipedImportIntroPage : public IntroPage
 {
-    static constexpr const char* introInfo = "This wizard will help you import subscriptions from Piped into QtTube.\n"
-                                             "Check the box(es) for the data you wish to import, then continue.";
 public:
-    explicit PipedImportIntroPage(QWidget* parent = nullptr) : IntroPage(introInfo, "piped.import.watch_history", parent) {}
+    explicit PipedImportIntroPage(QWidget* parent = nullptr);
     int nextId() const override;
 };
 

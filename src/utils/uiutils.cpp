@@ -18,7 +18,7 @@
 #include <QPainter>
 #include <QStyleFactory>
 
-constexpr const char* darkStylesheet = R"(
+constexpr QLatin1String DarkStylesheet(R"(
     QLineEdit {
         background: rgb(42,42,42);
         border: 1px solid rgb(30,30,30);
@@ -39,7 +39,7 @@ constexpr const char* darkStylesheet = R"(
         background: transparent;
         border: 1px solid rgb(30,30,30);
     }
-)";
+)");
 
 void UIUtils::addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post)
 {
@@ -231,10 +231,10 @@ void UIUtils::setAppStyle(const QString& styleName, bool dark)
         darkPalette.setColor(QPalette::HighlightedText, Qt::black);
         darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
         qApp->setPalette(darkPalette);
-        qApp->setStyleSheet(darkStylesheet);
+        qApp->setStyleSheet(DarkStylesheet);
         MainWindow::topbar()->updatePalette(darkPalette);
     }
-    else if (qApp->styleSheet() == darkStylesheet)
+    else if (qApp->styleSheet() == DarkStylesheet)
     {
         qApp->setPalette(qApp->style()->standardPalette());
         qApp->setStyleSheet(QString());

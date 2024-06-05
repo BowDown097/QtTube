@@ -7,7 +7,7 @@
 #include <QListWidget>
 #include <QPushButton>
 
-constexpr const char* selectedStyle = "background-color: yellow";
+constexpr QLatin1String SelectedStylesheet("background-color: yellow");
 
 FindBar::FindBar(QWidget* parent)
     : QWidget(parent),
@@ -42,8 +42,8 @@ FindBar::FindBar(QWidget* parent)
 void FindBar::clearLabels()
 {
     for (QLabel* label : matches)
-        if (label->styleSheet().contains(selectedStyle))
-            label->setStyleSheet(label->styleSheet().remove(selectedStyle));
+        if (label->styleSheet().contains(SelectedStylesheet))
+            label->setStyleSheet(label->styleSheet().remove(SelectedStylesheet));
 
     matches.clear();
     currentIndex = 0;
@@ -53,14 +53,14 @@ void FindBar::goToNext()
 {
     currentIndex++;
     jumpToLabel();
-    matches[currentIndex - 1]->setStyleSheet(matches[currentIndex - 1]->styleSheet().remove(selectedStyle));
+    matches[currentIndex - 1]->setStyleSheet(matches[currentIndex - 1]->styleSheet().remove(SelectedStylesheet));
 }
 
 void FindBar::goToPrevious()
 {
     currentIndex--;
     jumpToLabel();
-    matches[currentIndex + 1]->setStyleSheet(matches[currentIndex + 1]->styleSheet().remove(selectedStyle));
+    matches[currentIndex + 1]->setStyleSheet(matches[currentIndex + 1]->styleSheet().remove(SelectedStylesheet));
 }
 
 void FindBar::initializeSearch(const QString& searchText)
@@ -87,8 +87,8 @@ void FindBar::jumpToLabel()
         return;
     }
 
-    if (!matches[currentIndex]->styleSheet().contains(selectedStyle))
-        matches[currentIndex]->setStyleSheet(matches[currentIndex]->styleSheet() + selectedStyle);
+    if (!matches[currentIndex]->styleSheet().contains(SelectedStylesheet))
+        matches[currentIndex]->setStyleSheet(matches[currentIndex]->styleSheet() + SelectedStylesheet);
 
     matchesLabel->setText(matches.length() > 1
                               ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())

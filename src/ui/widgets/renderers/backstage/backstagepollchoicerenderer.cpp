@@ -4,7 +4,7 @@
 #include <QLabel>
 #include <QProgressBar>
 
-constexpr const char* notSelectedStylesheet = "QProgressBar::chunk { background-color: rgba(255, 255, 255, 0.2) }";
+constexpr QLatin1String NotSelectedStylesheet("QProgressBar::chunk { background-color: rgba(255, 255, 255, 0.2) }");
 
 BackstagePollChoiceRenderer::BackstagePollChoiceRenderer(QWidget* parent)
     : m_choiceTextLabel(new QLabel(this)),
@@ -53,7 +53,7 @@ void BackstagePollChoiceRenderer::setData(const InnertubeObjects::PollChoice& po
 void BackstagePollChoiceRenderer::setValue(double value, bool selected)
 {
     m_percentageLabel->setText(selected ? m_data.votePercentageIfSelected : m_data.votePercentageIfNotSelected);
-    m_progressBar->setStyleSheet(selected ? QString() : notSelectedStylesheet);
+    m_progressBar->setStyleSheet(selected ? QLatin1String() : NotSelectedStylesheet);
     m_progressBar->setValue(value);
 }
 

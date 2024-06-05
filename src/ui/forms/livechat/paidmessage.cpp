@@ -6,21 +6,21 @@
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 
-#define HEADER_STYLE QStringLiteral(R"(
+constexpr QLatin1String HeaderStylesheet(R"(
     background: #%1;
     border-top: 1px solid transparent;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     color: #%2;
-)")
+)");
 
-#define MESSAGE_STYLE QStringLiteral(R"(
+constexpr QLatin1String MessageStylesheet(R"(
     background: #%1;
     border-bottom: 1px solid transparent;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
     color: #%2;
-)")
+)");
 
 PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     : QWidget(parent),
@@ -37,7 +37,7 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     layout->setSpacing(0);
 
     header->setAutoFillBackground(true);
-    header->setStyleSheet(HEADER_STYLE
+    header->setStyleSheet(HeaderStylesheet
         .arg(QString::number(renderer["headerBackgroundColor"].toVariant().toLongLong(), 16),
              QString::number(renderer["headerTextColor"].toVariant().toLongLong(), 16)));
     layout->addWidget(header);
@@ -68,7 +68,7 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
 
     messageLabel->setAlignment(Qt::AlignCenter);
     messageLabel->setAutoFillBackground(true);
-    messageLabel->setStyleSheet(MESSAGE_STYLE
+    messageLabel->setStyleSheet(MessageStylesheet
         .arg(QString::number(renderer["bodyBackgroundColor"].toVariant().toLongLong(), 16),
              QString::number(renderer["bodyTextColor"].toVariant().toLongLong(), 16)));
     messageLabel->setText(message.text);

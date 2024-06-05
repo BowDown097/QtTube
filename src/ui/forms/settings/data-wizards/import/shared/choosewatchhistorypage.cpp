@@ -3,10 +3,10 @@
 #include "utils/statsutils.h"
 #include <QDebug>
 
-constexpr const char* subtitle = "Check the videos you wish to add to your watch history, then press Start.";
+constexpr QLatin1String Subtitle("Check the videos you wish to add to your watch history, then press Start.");
 
 ChooseWatchHistoryPage::ChooseWatchHistoryPage(const QList<Entity>& videos, int conclusionPage, QWidget* parent)
-    : ChooseEntitiesPage(videos, "Choose Videos", subtitle, "Add", "Video", parent),
+    : ChooseEntitiesPage(videos, "Choose Videos", Subtitle, "Add", "Video", parent),
       conclusionPage(conclusionPage)
 {
     connect(this, &ChooseEntitiesPage::foundEntity, this, &ChooseWatchHistoryPage::addToWatchHistoryInThread);

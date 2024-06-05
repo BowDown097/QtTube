@@ -9,8 +9,10 @@
 #include <QLineEdit>
 #include <QProgressDialog>
 
-constexpr const char* subsSubtitle = "Select the Subscriptions file inside of the \"stores\" folder in the export folder.";
-constexpr const char* watchHistorySubtitle = "Select the History file inside of the \"stores\" folder in the export folder.";
+constexpr QLatin1String IntroInfo(R"(This wizard will help you import data from Grayjay into QtTube.
+Check the box(es) for the data you wish to import, then continue.)");
+constexpr QLatin1String SubsSubtitle("Select the Subscriptions file inside of the \"stores\" folder in the export folder.");
+constexpr QLatin1String WatchHistorySubtitle("Select the History file inside of the \"stores\" folder in the export folder.");
 
 GrayjayImportWizard::GrayjayImportWizard(QWidget* parent)
     : DataWizard(Page_Conclusion, "Grayjay Import Wizard", parent)
@@ -21,13 +23,16 @@ GrayjayImportWizard::GrayjayImportWizard(QWidget* parent)
     setStartId(Page_Intro);
 }
 
+GrayjayImportIntroPage::GrayjayImportIntroPage(QWidget* parent)
+    : IntroPage(IntroInfo, "grayjay.import.watch_history", parent) {}
+
 int GrayjayImportIntroPage::nextId() const
 {
     return subsCheckBox->isChecked() ? GrayjayImportWizard::Page_Subs : GrayjayImportWizard::Page_WatchHistory;
 }
 
 GrayjayImportSubsPage::GrayjayImportSubsPage(QWidget* parent)
-    : ImportFileSelectPage("Subscriptions", subsSubtitle, "Subscriptions", GrayjayImportWizard::Page_ChooseSubs, parent),
+    : ImportFileSelectPage("Subscriptions", SubsSubtitle, "Subscriptions", GrayjayImportWizard::Page_ChooseSubs, parent),
       progressDialog(new QProgressDialog(this))
 {
     progressDialog->cancel(); // just prevents from showing automatically
@@ -107,7 +112,7 @@ void GrayjayImportSubsPage::verifyFile(const QString& fileName)
 }
 
 GrayjayImportWatchHistoryPage::GrayjayImportWatchHistoryPage(QWidget* parent)
-    : ImportFileSelectPage("Watch History", watchHistorySubtitle, "History",
+    : ImportFileSelectPage("Watch History", WatchHistorySubtitle, "History",
                            GrayjayImportWizard::Page_ChooseWatchHistory, parent)
 {
     connect(this, &ImportFileSelectPage::fileSelected, this, &GrayjayImportWatchHistoryPage::verifyFile);

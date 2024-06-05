@@ -3,7 +3,7 @@
 #include "utils/uiutils.h"
 #include <QMenu>
 
-constexpr const char* stylesheet = R"(
+constexpr QLatin1String Stylesheet(R"(
     QToolButton {
         border: 1px solid #555;
         border-radius: 2px;
@@ -14,7 +14,7 @@ constexpr const char* stylesheet = R"(
     QToolButton::menu-indicator {
         image: none;
     }
-)";
+)");
 
 NotificationBell::NotificationBell(QWidget* parent)
     : QToolButton(parent),
@@ -24,7 +24,7 @@ NotificationBell::NotificationBell(QWidget* parent)
       personalizedAction(new QAction("Personalized", this))
 {
     setFixedSize(24, 24);
-    setStyleSheet(stylesheet);
+    setStyleSheet(Stylesheet);
     connect(this, &QToolButton::triggered, this, &QToolButton::setDefaultAction);
 
     connect(allAction, &QAction::triggered, this,

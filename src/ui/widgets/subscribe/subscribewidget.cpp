@@ -6,14 +6,14 @@
 #include <QHBoxLayout>
 #include <QtNetwork/QtNetwork>
 
-constexpr const char* subscribersCountStyle = R"(
+constexpr QLatin1String SubscribersCountStylesheet(R"(
     border: 1px solid #555;
     font-size: 11px;
     line-height: 24px;
     padding: 0 6px 0 4.5px;
     border-radius: 2px;
     text-align: center;
-)";
+)");
 
 SubscribeWidget::SubscribeWidget(QWidget* parent)
     : QWidget(parent),
@@ -32,7 +32,7 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
     layout->addWidget(notificationBell);
 
     subscribersCountLabel->setFixedHeight(24);
-    subscribersCountLabel->setStyleSheet(subscribersCountStyle);
+    subscribersCountLabel->setStyleSheet(SubscribersCountStylesheet);
     layout->addWidget(subscribersCountLabel);
 
     connect(subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
