@@ -2,7 +2,6 @@
 #include "innertube/itc-objects/innertubeauthstore.h"
 #include "innertube/responses/video/playerresponse.h"
 #include <QPointer>
-#include <QWebEngineUrlRequestInterceptor>
 
 class PlayerInterceptor : public QWebEngineUrlRequestInterceptor
 {
