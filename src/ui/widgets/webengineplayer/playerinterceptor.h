@@ -2,6 +2,9 @@
 #include "innertube/itc-objects/innertubeauthstore.h"
 #include "innertube/responses/video/playerresponse.h"
 #include <QPointer>
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+#include <QWebEngineUrlRequestInterceptor>
+#endif
 
 class PlayerInterceptor : public QWebEngineUrlRequestInterceptor
 {
