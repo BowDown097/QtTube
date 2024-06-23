@@ -35,8 +35,8 @@ public:
     QString emojize(QString s, bool escape = true);
     QJsonArray produceRichText(QString s);
 
-    QList<UnicodeEmoji> unicodeEmojis() const { return m_unicodeEmojis; }
-    QList<YouTubeEmoji> youtubeEmojis() const { return m_youtubeEmojis; }
+    const QList<UnicodeEmoji>& unicodeEmojis() const { return m_unicodeEmojis; }
+    const QList<YouTubeEmoji>& youtubeEmojis() const { return m_youtubeEmojis; }
 private:
     static inline ytemoji* m_instance;
     static inline std::once_flag m_onceFlag;

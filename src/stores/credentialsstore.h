@@ -27,7 +27,7 @@ public:
     explicit CredentialsStore(QObject* parent = nullptr) : GenericStore("store.ini") {}
 
     CredentialSet activeLogin() const;
-    QList<CredentialSet> credentials() const { return m_credentials; }
+    const QList<CredentialSet>& credentials() const { return m_credentials; }
 
     void initialize() override;
     void save() override;

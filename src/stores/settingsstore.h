@@ -23,35 +23,35 @@ public:
     Q_ENUM(PlayerQuality)
 
     QString appStyle;
-    bool blockAds;
-    bool condensedCounts;
-    bool darkTheme;
-    bool deArrow;
-    bool deArrowThumbs;
-    bool deArrowTitles;
-    bool disable60Fps;
-    bool disablePlayerInfoPanels;
-    int filterLength;
-    bool filterLengthEnabled;
+    bool blockAds{};
+    bool condensedCounts{};
+    bool darkTheme{};
+    bool deArrow{};
+    bool deArrowThumbs{};
+    bool deArrowTitles{};
+    bool disable60Fps{};
+    bool disablePlayerInfoPanels{};
+    int filterLength{};
+    bool filterLengthEnabled{};
     QStringList filteredChannels;
     QStringList filteredTerms;
-    bool fullSubs;
-    bool h264Only;
-    bool hideShorts;
-    bool hideStreams;
-    bool imageCaching;
-    bool playbackTracking;
-    bool preferLists;
-    PlayerQuality preferredQuality;
-    int preferredVolume;
-    bool qualityFromPlayer;
-    bool restoreAnnotations;
-    bool returnDislikes;
-    bool showSBToasts;
+    bool fullSubs{};
+    bool h264Only{};
+    bool hideShorts{};
+    bool hideStreams{};
+    bool imageCaching{};
+    bool playbackTracking{};
+    bool preferLists{};
+    PlayerQuality preferredQuality{};
+    int preferredVolume{};
+    bool qualityFromPlayer{};
+    bool restoreAnnotations{};
+    bool returnDislikes{};
+    bool showSBToasts{};
     QStringList sponsorBlockCategories;
-    bool vaapi;
-    bool volumeFromPlayer;
-    bool watchtimeTracking;
+    bool vaapi{};
+    bool volumeFromPlayer{};
+    bool watchtimeTracking{};
 
     explicit SettingsStore(QObject* parent = nullptr) : GenericStore("settings.ini") {}
 

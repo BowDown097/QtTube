@@ -5,11 +5,10 @@
 #include <QJsonObject>
 
 ytemoji::UnicodeEmoji::UnicodeEmoji(const QJsonValue& emojiJson)
+    : emojiId(emojiJson["emojiId"].toString()),
+      image(emojiJson["image"]["thumbnails"][0]["url"].toString()),
+      supportsSkinTone(emojiJson["supportsSkinTone"].toBool())
 {
-    emojiId = emojiJson["emojiId"].toString();
-    image = emojiJson["image"]["thumbnails"][0]["url"].toString();
-    supportsSkinTone = emojiJson["supportsSkinTone"].toBool();
-
     const QJsonArray searchTermsJson = emojiJson["searchTerms"].toArray();
     for (const QJsonValue& searchTerm : searchTermsJson)
         searchTerms.append(searchTerm.toString());

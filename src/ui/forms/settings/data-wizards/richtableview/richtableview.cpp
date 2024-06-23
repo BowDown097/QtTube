@@ -10,9 +10,9 @@ QString RichTableView::anchorAt(const QPoint& point) const
         return QString();
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    RichItemDelegate* delegate = qobject_cast<RichItemDelegate*>(itemDelegateForIndex(index));
+    const RichItemDelegate* delegate = qobject_cast<RichItemDelegate*>(itemDelegateForIndex(index));
 #else
-    RichItemDelegate* delegate = qobject_cast<RichItemDelegate*>(itemDelegate(index));
+    const RichItemDelegate* delegate = qobject_cast<RichItemDelegate*>(itemDelegate(index));
 #endif
 
     if (!delegate)
