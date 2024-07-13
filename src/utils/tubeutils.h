@@ -1,4 +1,5 @@
 #pragma once
+#include <QString>
 
 namespace InnertubeEndpoints { struct PlayerResponse; }
 
@@ -6,8 +7,10 @@ class Http;
 class InnertubeAuthStore;
 struct InnertubeContext;
 
-namespace StatsUtils
+namespace TubeUtils
 {
+    QString generateCpn();
+    QString getUcidFromUrl(const QString& url);
     void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp);
     void reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position);
     void setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore);

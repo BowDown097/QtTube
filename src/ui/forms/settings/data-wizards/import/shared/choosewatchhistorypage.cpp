@@ -1,6 +1,6 @@
 #include "choosewatchhistorypage.h"
 #include "innertube.h"
-#include "utils/statsutils.h"
+#include "utils/tubeutils.h"
 #include <QDebug>
 
 constexpr QLatin1String Subtitle("Check the videos you wish to add to your watch history, then press Start.");
@@ -20,7 +20,7 @@ void ChooseWatchHistoryPage::addToWatchHistoryInThread(const Entity& video)
             try
             {
                 auto player = InnerTube::instance()->getBlocking<InnertubeEndpoints::Player>(video.id);
-                StatsUtils::reportPlayback(player.response);
+                TubeUtils::reportPlayback(player.response);
                 // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
                 QThread::sleep(1);
             }

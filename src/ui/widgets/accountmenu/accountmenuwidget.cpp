@@ -4,6 +4,7 @@
 #include "mainwindow.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
+#include "utils/tubeutils.h"
 #include <QBoxLayout>
 
 AccountMenuWidget::AccountMenuWidget(QWidget* parent)
@@ -47,7 +48,7 @@ void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoi
     HttpReply* avatarReply = Http::instance().get(QUrl(endpoint.response.header.accountPhoto.recommendedQuality(avatar->size()).url));
     connect(avatarReply, &HttpReply::finished, this, &AccountMenuWidget::setAvatar);
 
-    QString channelId = endpoint.response.header.manageAccountEndpoint["browseEndpoint"]["browseId"].toString();
+    QString channelId = TubeUtils::getUcidFromUrl("https://www.youtube.com/" + endpoint.response.header.channelHandle);
     connect(yourChannelLabel, &IconLabel::clicked, this, std::bind(&AccountMenuWidget::gotoChannel, this, channelId));
 
     adjustSize();

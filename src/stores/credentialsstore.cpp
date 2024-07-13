@@ -2,6 +2,7 @@
 #include "innertube.h"
 #include "mainwindow.h"
 #include "protobuf/protobufcompiler.h"
+#include "utils/tubeutils.h"
 #include <QMessageBox>
 #include <QSettings>
 
@@ -68,7 +69,7 @@ void CredentialsStore::save()
 
 void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data)
 {
-    QString channelId = data.response.header.manageAccountEndpoint["browseEndpoint"]["browseId"].toString();
+    QString channelId = TubeUtils::getUcidFromUrl("https://www.youtube.com/" + data.response.header.channelHandle);
     if (channelId.isEmpty())
     {
         QMessageBox::critical(nullptr, "Invalid Login Credentials", "Your login credentials are invalid. They may have expired. You will be logged out, then try logging in again.");

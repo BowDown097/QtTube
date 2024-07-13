@@ -4,7 +4,7 @@
 #ifdef QTTUBE_USE_MPV
 #include "lib/media/mpv/mediampv.h"
 #include "stores/settingsstore.h"
-#include "utils/statsutils.h"
+#include "utils/tubeutils.h"
 #include <QMessageBox>
 #else
 #include "ui/widgets/webengineplayer/webengineplayer.h"
@@ -80,14 +80,14 @@ void WatchViewPlayer::startTracking(const InnertubeEndpoints::PlayerResponse& pl
 {
 #ifdef QTTUBE_USE_MPV
     if (SettingsStore::instance()->playbackTracking)
-        StatsUtils::reportPlayback(playerResp);
+        TubeUtils::reportPlayback(playerResp);
 
     if (SettingsStore::instance()->watchtimeTracking)
     {
         watchtimeTimer = new QTimer(this);
         watchtimeTimer->setInterval(5000);
         watchtimeTimer->start();
-        connect(watchtimeTimer, &QTimer::timeout, this, std::bind(&StatsUtils::reportWatchtime, playerResp, media->position()));
+        connect(watchtimeTimer, &QTimer::timeout, this, std::bind(&TubeUtils::reportWatchtime, playerResp, media->position()));
     }
 #else
     wePlayer->setPlayerResponse(playerResp);

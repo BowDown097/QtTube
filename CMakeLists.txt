@@ -150,8 +150,8 @@ set(SOURCE_FILES
     src/ui/widgets/topbar/topbarbell.cpp
     src/utils/httputils.cpp
     src/utils/osutils.cpp
-    src/utils/statsutils.cpp
     src/utils/stringutils.cpp
+    src/utils/tubeutils.cpp
     src/utils/uiutils.cpp
     res/resources.qrc
 )
@@ -229,8 +229,8 @@ set(HEADERS
     src/ui/widgets/topbar/topbarbell.h
     src/utils/httputils.h
     src/utils/osutils.h
-    src/utils/statsutils.h
     src/utils/stringutils.h
+    src/utils/tubeutils.h
     src/utils/uiutils.h
 )
 

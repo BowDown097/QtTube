@@ -1,7 +1,7 @@
 #include "playerinterceptor.h"
 #include "http.h"
 #include "qttubeapplication.h"
-#include "utils/statsutils.h"
+#include "utils/tubeutils.h"
 #include <QUrlQuery>
 
 void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
@@ -78,7 +78,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
 
         Http http;
         http.setMaxRetries(0);
-        StatsUtils::setNeededHeaders(http, m_context, m_authStore);
+        TubeUtils::setNeededHeaders(http, m_context, m_authStore);
         http.get(outWatchtimeUrl);
     }
     else if (url.path() == "/api/stats/playback")
@@ -133,7 +133,7 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
 
         Http http;
         http.setMaxRetries(0);
-        StatsUtils::setNeededHeaders(http, m_context, m_authStore);
+        TubeUtils::setNeededHeaders(http, m_context, m_authStore);
         http.get(outPlaybackUrl);
     }
 }

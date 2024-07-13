@@ -1,19 +1,44 @@
-#include "statsutils.h"
+#include "tubeutils.h"
 #include "http.h"
 #include "innertube.h"
 #include <QRandomGenerator>
 #include <QUrlQuery>
 
-namespace StatsUtils
+namespace TubeUtils
 {
-    QString getCpn()
+    QString generateCpn()
     {
         QString out;
         out.reserve(16);
         constexpr std::string_view chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < out.capacity(); i++)
             out += chars[QRandomGenerator::global()->bounded((int)chars.size())];
         return out;
+    }
+
+    QString getUcidFromUrl(const QString& url)
+    {
+        QString ucid;
+
+        try
+        {
+            auto reply = InnerTube::instance()->getBlocking<InnertubeEndpoints::ResolveUrl>(url);
+            ucid = reply.endpoint["browseEndpoint"]["browseId"].toString();
+
+            // check for an edge case where a classic channel URL is returned instead of the UCID
+            if (ucid.isEmpty() && reply.endpoint["urlEndpoint"]["url"].isString())
+            {
+                QString classicUrl = reply.endpoint["urlEndpoint"]["url"].toString();
+                auto reply2 = InnerTube::instance()->getBlocking<InnertubeEndpoints::ResolveUrl>(classicUrl);
+                ucid = reply.endpoint["browseEndpoint"]["browseId"].toString();
+            }
+        }
+        catch (const InnertubeException& ex)
+        {
+            qDebug() << ex.message();
+        }
+
+        return ucid;
     }
 
     void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp)
@@ -28,7 +53,7 @@ namespace StatsUtils
         {
             { "ns", "yt" },
             { "el", "detailpage" },
-            { "cpn", getCpn() },
+            { "cpn", generateCpn() },
             { "ver", "2" },
             { "fmt", "243" },
             { "fs", "0" },
@@ -86,7 +111,7 @@ namespace StatsUtils
         {
             { "ns", "yt" },
             { "el", "detailpage" },
-            { "cpn", getCpn() },
+            { "cpn", generateCpn() },
             { "ver", "2" },
             { "fmt", "243" },
             { "fs", "0" },
