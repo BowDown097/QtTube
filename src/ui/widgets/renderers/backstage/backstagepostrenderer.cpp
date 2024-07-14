@@ -105,6 +105,7 @@ void BackstagePostRenderer::setChannelIcon(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
+    pixmap = pixmap.scaled(channelIconLabel->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     channelIconLabel->setPixmap(UIUtils::pixmapRounded(pixmap, 20, 20));
 }
 

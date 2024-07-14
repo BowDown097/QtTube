@@ -184,7 +184,7 @@ QPixmap UIUtils::pixmapRounded(const QPixmap& pixmap, double xRadius, double yRa
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(QBrush(pixmap));
     painter.setPen(Qt::NoPen);
-    painter.drawRoundedRect(pixmap.rect(), 15, 15);
+    painter.drawRoundedRect(pixmap.rect(), xRadius, yRadius);
     painter.end();
 
     return rounded;
