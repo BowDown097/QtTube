@@ -206,7 +206,7 @@ If you provided credentials, please check them, refer back to the previous linke
 
 void TopBar::updateNotificationCount(int value)
 {
-    if (!std::signbit(value)) // if value is non-negative (default value is -1)
+    if (value >= 0) // if value is non-negative (default value is -1)
     {
         notificationBell->updatePixmap(value > 0, palette());
         notificationBell->updateCount(value);
