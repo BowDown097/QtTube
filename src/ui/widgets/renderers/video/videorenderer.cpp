@@ -40,18 +40,19 @@ void VideoRenderer::copyDirectUrl()
         QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
     });
     connect(reply, &InnertubeReply<InnertubeEndpoints::Player>::finished, this, [this](const InnertubeEndpoints::Player& endpoint) {
-        if (endpoint.response.videoDetails.isLive || endpoint.response.videoDetails.isLiveContent)
+        const InnertubeObjects::StreamingData& streamingData = endpoint.response.streamingData;
+        const InnertubeObjects::PlayerVideoDetails videoDetails = endpoint.response.videoDetails;
+        if (videoDetails.isLive || videoDetails.isLiveContent)
         {
-            UIUtils::copyToClipboard(endpoint.response.streamingData.hlsManifestUrl);
+            UIUtils::copyToClipboard(streamingData.hlsManifestUrl);
         }
         else
         {
-            QList<InnertubeObjects::StreamingFormat>::const_iterator best = std::ranges::max_element(
-                endpoint.response.streamingData.formats,
-                [](const auto& a, const auto& b) { return a.bitrate < b.bitrate; }
-            );
+            auto best = std::ranges::max_element(streamingData.formats, [](const auto& a, const auto& b) {
+                return a.bitrate < b.bitrate;
+            });
 
-            if (best == endpoint.response.streamingData.formats.end())
+            if (best == streamingData.formats.end())
             {
                 QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
                 return;
@@ -86,8 +87,8 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
     metadataLabel->setText(reel.viewCountText.text);
 
     thumbnail->setLengthText("SHORTS");
-    if (!reel.image.isEmpty())
-        setThumbnail(reel.image.recommendedQuality(thumbnail->preferredSize()).url);
+    if (auto recThumbnail = reel.image.recommendedQuality(thumbnail->preferredSize()); recThumbnail.has_value())
+        setThumbnail(recThumbnail->get().url);
 
     QString title = QString(reel.headline).replace("\r\n", " ");
     titleLabel->setText(title);
@@ -119,8 +120,8 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
 
     thumbnail->setLengthText(video.lengthText.text);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
-    if (!video.thumbnail.isEmpty())
-        setThumbnail(video.thumbnail.recommendedQuality(thumbnail->preferredSize()).url);
+    if (auto recThumbnail = video.thumbnail.recommendedQuality(thumbnail->preferredSize()); recThumbnail.has_value())
+        setThumbnail(recThumbnail->get().url);
 
     QString title = QString(video.title.text).replace("\r\n", " ");
     titleLabel->setText(title);

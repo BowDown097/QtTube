@@ -124,6 +124,14 @@ void TopBar::scaleAppropriately()
     }
 }
 
+void TopBar::setAvatar(const HttpReply& reply)
+{
+    QPixmap pixmap;
+    pixmap.loadFromData(reply.body());
+    pixmap = pixmap.scaled(avatarButton->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    avatarButton->setPixmap(UIUtils::pixmapRounded(pixmap, 15, 15));
+}
+
 void TopBar::setUpAvatarButton()
 {
     scaleAppropriately();
@@ -131,27 +139,20 @@ void TopBar::setUpAvatarButton()
     connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
     {
         qtTubeApp->creds().updateAccount(endpoint);
-        if (endpoint.response.header.accountPhoto.isEmpty())
-            return;
-
-        HttpReply* photoReply = Http::instance().get(QUrl(endpoint.response.header.accountPhoto.recommendedQuality(avatarButton->size()).url));
-        connect(photoReply, &HttpReply::finished, this, [this](const HttpReply& reply)
+        if (auto recAvatar = endpoint.response.header.accountPhoto.recommendedQuality(avatarButton->size()); recAvatar.has_value())
         {
-            QPixmap pixmap;
-            pixmap.loadFromData(reply.body());
-            pixmap = pixmap.scaled(avatarButton->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-            avatarButton->setPixmap(UIUtils::pixmapRounded(pixmap, 15, 15));
-        });
+            HttpReply* photoReply = Http::instance().get(recAvatar->get().url);
+            connect(photoReply, &HttpReply::finished, this, &TopBar::setAvatar);
+        }
     });
 }
 
 void TopBar::setUpNotifications()
 {
     scaleAppropriately();
+    notificationBell->setVisible(InnerTube::instance()->hasAuthenticated());
     if (InnerTube::instance()->hasAuthenticated())
         updateNotificationCount();
-    else
-        notificationBell->hide();
 }
 
 void TopBar::showSettings()
@@ -203,15 +204,22 @@ If you provided credentials, please check them, refer back to the previous linke
 #endif
 }
 
-void TopBar::updateNotificationCount()
+void TopBar::updateNotificationCount(int value)
 {
-    auto reply = InnerTube::instance()->get<InnertubeEndpoints::UnseenCount>();
-    connect(reply, &InnertubeReply<InnertubeEndpoints::UnseenCount>::finished, this, [this](const InnertubeEndpoints::UnseenCount& endpoint)
+    if (!std::signbit(value)) // if value is non-negative (default value is -1)
     {
-        notificationBell->show();
-        notificationBell->updatePixmap(endpoint.unseenCount > 0, palette());
-        notificationBell->updateCount(endpoint.unseenCount);
-    });
+        notificationBell->updatePixmap(value > 0, palette());
+        notificationBell->updateCount(value);
+    }
+    else
+    {
+        auto reply = InnerTube::instance()->get<InnertubeEndpoints::UnseenCount>();
+        connect(reply, &InnertubeReply<InnertubeEndpoints::UnseenCount>::finished, this, [this](const InnertubeEndpoints::UnseenCount& endpoint)
+        {
+            notificationBell->updatePixmap(endpoint.unseenCount > 0, palette());
+            notificationBell->updateCount(endpoint.unseenCount);
+        });
+    }
 }
 
 void TopBar::updatePalette(const QPalette& palette)

@@ -120,15 +120,15 @@ void ChannelView::prepareAvatarAndBanner(const InnertubeObjects::ResponsiveImage
     MainWindow::topbar()->setAlwaysShow(banner.isEmpty());
     MainWindow::topbar()->setVisible(banner.isEmpty());
 
-    if (!avatar.isEmpty())
+    if (auto recAvatar = avatar.recommendedQuality(QSize(48, 48)); recAvatar.has_value())
     {
-        HttpReply* iconReply = Http::instance().get(avatar.recommendedQuality(QSize(48, 48)).url);
+        HttpReply* iconReply = Http::instance().get(recAvatar->get().url);
         connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
     }
 
-    if (!banner.isEmpty())
+    if (auto bestBanner = banner.bestQuality(); bestBanner.has_value())
     {
-        HttpReply* bannerReply = Http::instance().get(banner.bestQuality().url);
+        HttpReply* bannerReply = Http::instance().get(bestBanner->get().url);
         connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
     }
 }

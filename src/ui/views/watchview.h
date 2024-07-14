@@ -40,7 +40,7 @@ private:
 
     void processPreloadData(PreloadData::WatchView* preload);
     InnertubeObjects::InnertubeString unattributeDescription(const InnertubeObjects::DynamicText& attributedDescription);
-    void updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp);
+    void updateMetadata(const QString& videoId);
 private slots:
     void descriptionLinkActivated(const QString& url);
     void likeOrDislike(bool like, const InnertubeObjects::ToggleButtonViewModel& toggleButton);

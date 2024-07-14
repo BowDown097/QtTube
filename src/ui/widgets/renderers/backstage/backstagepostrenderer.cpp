@@ -119,15 +119,17 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     channelLabel->setInfo(channelId, post.authorText.text, QList<InnertubeObjects::MetadataBadge>());
     contentText->setText(StringUtils::innertubeStringToRichText(post.contentText, false));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
-                           ? post.voteCount.text
-                           : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
+        ? post.voteCount.text : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
     publishedTimeLabel->setText(post.publishedTimeText.text);
     readMoreLabel->setText(readMoreText);
     readMoreLabel->setVisible(contentText->heightForWidth(width() - channelIconLabel->width()) > contentText->maximumHeight());
     replyLabel->setText(post.actionButtons.replyButton.text.text);
 
-    HttpReply* reply = Http::instance().get("https:" + post.authorThumbnail.recommendedQuality(channelIconLabel->size()).url);
-    connect(reply, &HttpReply::finished, this, &BackstagePostRenderer::setChannelIcon);
+    if (auto recAvatar = post.authorThumbnail.recommendedQuality(channelIconLabel->size()); recAvatar.has_value())
+    {
+        HttpReply* reply = Http::instance().get("https:" + recAvatar->get().url);
+        connect(reply, &HttpReply::finished, this, &BackstagePostRenderer::setChannelIcon);
+    }
 
     if (auto image = std::get_if<InnertubeObjects::BackstageImage>(&post.backstageAttachment))
         setImage(*image);
@@ -145,19 +147,20 @@ void BackstagePostRenderer::setImage(const InnertubeObjects::BackstageImage& ima
     QLabel* imageLabel = new QLabel(this);
     imageLabel->setMaximumWidth(width());
     imageLabel->setScaledContents(true);
-
     if (surface != "BACKSTAGE_SURFACE_TYPE_STREAM")
         imageLabel->setMaximumHeight(420);
-
     innerLayout->addWidget(imageLabel);
 
-    // absolutely filthy workaround for layout fucking up when there's no content
+    // workaround for layout fucking up when there's no content
     if (contentText->text().isEmpty())
         contentText->setText(" ");
 
-    HttpReply* reply = Http::instance().get(image.image.recommendedQuality(size()).url);
-    connect(reply, &HttpReply::finished, this,
-            std::bind(&BackstagePostRenderer::setImageLabelData, this, std::placeholders::_1, imageLabel));
+    if (auto recImage = image.image.recommendedQuality(size()); recImage.has_value())
+    {
+        HttpReply* reply = Http::instance().get(recImage->get().url);
+        connect(reply, &HttpReply::finished, this,
+                std::bind(&BackstagePostRenderer::setImageLabelData, this, std::placeholders::_1, imageLabel));
+    }
 }
 
 void BackstagePostRenderer::setImageLabelData(const HttpReply& reply, QLabel* imageLabel)

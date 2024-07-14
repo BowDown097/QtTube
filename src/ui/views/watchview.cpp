@@ -131,9 +131,8 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButtonVie
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count + 1));
 
-        QJsonValue likeEndpoint = toggleButton.defaultButtonViewModel.onTap["serialCommand"]["commands"][1]
-                                                                           ["innertubeCommand"]["likeEndpoint"];
-        InnerTube::instance()->like(likeEndpoint, like);
+        QJsonValue command = toggleButton.defaultButtonViewModel.onTap["serialCommand"]["commands"][1]["innertubeCommand"];
+        InnerTube::instance()->like(command["likeEndpoint"], like);
     }
     else
     {
@@ -142,30 +141,29 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButtonVie
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count - 1));
 
-        QJsonValue likeEndpoint = toggleButton.toggledButtonViewModel.onTap["serialCommand"]["commands"][1]
-                                                                           ["innertubeCommand"]["likeEndpoint"];
-        InnerTube::instance()->like(likeEndpoint, like);
+        QJsonValue command = toggleButton.toggledButtonViewModel.onTap["serialCommand"]["commands"][1]["innertubeCommand"];
+        InnerTube::instance()->like(command["likeEndpoint"], like);
     }
 }
 
 void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 {
-    InnertubeEndpoints::NextResponse nextResp = endpoint.response;
+    const InnertubeEndpoints::NextResponse& nextResp = endpoint.response;
+    const InnertubeObjects::VideoPrimaryInfo& primaryInfo = nextResp.results.results.primaryInfo;
+    const InnertubeObjects::VideoSecondaryInfo& secondaryInfo = nextResp.results.results.secondaryInfo;
     channelId = nextResp.results.results.secondaryInfo.owner.navigationEndpoint["browseEndpoint"]["browseId"].toString();
 
-    ui->channelLabel->setInfo(channelId, nextResp.results.results.secondaryInfo.owner.title.text,
-                              nextResp.results.results.secondaryInfo.owner.badges);
+    ui->channelLabel->setInfo(channelId, secondaryInfo.owner.title.text, secondaryInfo.owner.badges);
     connect(ui->channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannelRequested, this, channelId));
 
-    ui->subscribeWidget->setSubscribeButton(nextResp.results.results.secondaryInfo.subscribeButton);
-    ui->subscribeWidget->setSubscriberCount(nextResp.results.results.secondaryInfo.owner.subscriberCountText.text,
-                                            nextResp.results.results.secondaryInfo.subscribeButton.channelId);
+    ui->subscribeWidget->setSubscribeButton(secondaryInfo.subscribeButton);
+    ui->subscribeWidget->setSubscriberCount(secondaryInfo.owner.subscriberCountText.text, secondaryInfo.subscribeButton.channelId);
     ui->subscribeWidget->subscribersCountLabel->show();
-    ui->viewCount->setText(qtTubeApp->settings().condensedCounts && !nextResp.results.results.primaryInfo.viewCount.isLive
-                               ? nextResp.results.results.primaryInfo.viewCount.extraShortViewCount.text + " views"
-                               : nextResp.results.results.primaryInfo.viewCount.viewCount.text);
+    ui->viewCount->setText(qtTubeApp->settings().condensedCounts && !primaryInfo.viewCount.isLive
+                               ? primaryInfo.viewCount.extraShortViewCount.text + " views"
+                               : primaryInfo.viewCount.viewCount.text);
 
-    for (const InnertubeObjects::MenuFlexibleItem& fi : nextResp.results.results.primaryInfo.videoActions.flexibleItems)
+    for (const InnertubeObjects::MenuFlexibleItem& fi : primaryInfo.videoActions.flexibleItems)
     {
         // these will never be implemented
         if (fi.topLevelButton.iconName == "CONTENT_CUT" || fi.topLevelButton.iconName == "MONEY_HEART")
@@ -201,12 +199,12 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     ui->topLevelButtons->addStretch();
 
-    InnertubeObjects::LikeDislikeViewModel likeDislikeViewModel = nextResp.results.results.primaryInfo.videoActions
-                                                                      .segmentedLikeDislikeButtonViewModel;
+    const InnertubeObjects::LikeDislikeViewModel& likeDislikeViewModel = primaryInfo.videoActions.segmentedLikeDislikeButtonViewModel;
 
     ui->likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
     ui->topLevelButtons->addWidget(ui->likeLabel);
-    connect(ui->likeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, true, likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel));
+    connect(ui->likeLabel, &IconLabel::clicked, this,
+            std::bind(&WatchView::likeOrDislike, this, true, likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel));
     if (likeDislikeViewModel.likeButtonViewModel.likeStatus == "LIKE")
     {
         ui->likeLabel->setIcon("like-toggled");
@@ -215,20 +213,21 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     ui->dislikeLabel = new IconLabel("dislike");
     ui->topLevelButtons->addWidget(ui->dislikeLabel);
-    connect(ui->dislikeLabel, &IconLabel::clicked, this, std::bind(&WatchView::likeOrDislike, this, false, likeDislikeViewModel.dislikeButtonViewModel.toggleButtonViewModel));
+    connect(ui->dislikeLabel, &IconLabel::clicked, this,
+            std::bind(&WatchView::likeOrDislike, this, false, likeDislikeViewModel.dislikeButtonViewModel.toggleButtonViewModel));
     if (likeDislikeViewModel.likeButtonViewModel.likeStatus == "DISLIKE")
     {
         ui->dislikeLabel->setIcon("dislike-toggled");
         ui->dislikeLabel->setStyleSheet("color: #167ac6");
     }
 
-    if (!nextResp.results.results.secondaryInfo.owner.thumbnail.isEmpty())
+    if (auto recThumbnail = secondaryInfo.owner.thumbnail.recommendedQuality(QSize(48, 48)); recThumbnail.has_value())
     {
-        HttpReply* reply = Http::instance().get(nextResp.results.results.secondaryInfo.owner.thumbnail.recommendedQuality(QSize(48, 48)).url);
+        HttpReply* reply = Http::instance().get(recThumbnail->get().url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
 
-    InnertubeObjects::ButtonViewModel likeViewModel = likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel.defaultButtonViewModel;
+    const InnertubeObjects::ButtonViewModel& likeViewModel = likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel.defaultButtonViewModel;
     ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
                                ? likeViewModel.title : StringUtils::extractDigits(likeViewModel.accessibilityText));
 
@@ -243,14 +242,13 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     }
 
     // Add "Published on" before date of normal videos to replicate Hitchhiker style and add super title after the date
-    QString dateText = nextResp.results.results.primaryInfo.dateText.text;
+    QString dateText = primaryInfo.dateText.text;
     if (!dateText.startsWith("Premier") && !dateText.startsWith("St") && !dateText.startsWith("Sched"))
         dateText.prepend("Published on ");
     if (nextResp.results.results.primaryInfo.superTitleLink.has_value())
         dateText += " | " + StringUtils::innertubeStringToRichText(nextResp.results.results.primaryInfo.superTitleLink.value(), true);
 
     ui->date->setText(dateText);
-
     ui->description->setText(StringUtils::innertubeStringToRichText(unattributeDescription(nextResp.results.results.secondaryInfo.attributedDescription), false));
     ui->description->setVisible(!ui->description->text().isEmpty());
     ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumHeight());
@@ -259,7 +257,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
 void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 {
-    InnertubeEndpoints::PlayerResponse playerResp = endpoint.response;
+    const InnertubeEndpoints::PlayerResponse& playerResp = endpoint.response;
     ui->player->startTracking(playerResp);
     ui->titleLabel->setText(playerResp.videoDetails.title);
 
@@ -270,29 +268,20 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
     {
         metadataUpdateTimer = new QTimer(this);
         metadataUpdateTimer->setInterval(60000);
-        connect(metadataUpdateTimer, &QTimer::timeout, this, [playerResp, this]
-        {
-            try
-            {
-                auto updatedMetadata = InnerTube::instance()->getBlocking<InnertubeEndpoints::UpdatedMetadata>(playerResp.videoDetails.videoId);
-                updateMetadata(updatedMetadata.response);
-            }
-            catch (const InnertubeException& ie)
-            {
-                qDebug() << ie.message() << "Stream/premiere could have ended - killing update timer.";
-                metadataUpdateTimer->deleteLater();
-            }
-        });
+        connect(metadataUpdateTimer, &QTimer::timeout, this, std::bind(&WatchView::updateMetadata, this, playerResp.videoDetails.videoId));
         metadataUpdateTimer->start();
     }
 }
 
 void WatchView::processPreloadData(PreloadData::WatchView* preload)
 {
-    if (preload->channelAvatar.has_value() && !preload->channelAvatar->isEmpty())
+    if (preload->channelAvatar.has_value())
     {
-        HttpReply* reply = Http::instance().get(preload->channelAvatar->recommendedQuality(QSize(48, 48)).url);
-        connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
+        if (auto recAvatar = preload->channelAvatar->recommendedQuality(QSize(48, 48)); recAvatar.has_value())
+        {
+            HttpReply* reply = Http::instance().get(recAvatar->get().url);
+            connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
+        }
     }
 
     if (preload->channelId.has_value() && preload->channelName.has_value())
@@ -362,7 +351,7 @@ void WatchView::setDislikes(const HttpReply& reply)
 // most logic courtesy of https://github.com/Rehike/Rehike
 InnertubeObjects::InnertubeString WatchView::unattributeDescription(const InnertubeObjects::DynamicText& attributedDescription)
 {
-    QString content = attributedDescription.content;
+    const QString& content = attributedDescription.content;
     if (!attributedDescription.commandRuns.isArray())
         return InnertubeObjects::InnertubeString(content);
 
@@ -375,8 +364,7 @@ InnertubeObjects::InnertubeString WatchView::unattributeDescription(const Innert
         int length = commandRun["length"].toInt();
         int startIndex = commandRun["startIndex"].toInt();
 
-        QString beforeText = content.mid(start, startIndex - start);
-        if (!beforeText.isEmpty())
+        if (QString beforeText = content.mid(start, startIndex - start); !beforeText.isEmpty())
             out.runs.append(InnertubeObjects::InnertubeRun(beforeText));
 
         QString linkText = content.mid(startIndex, length);
@@ -385,28 +373,38 @@ InnertubeObjects::InnertubeString WatchView::unattributeDescription(const Innert
         start = startIndex + length;
     }
 
-    QString lastText = content.mid(start);
-    if (!lastText.isEmpty())
+    if (QString lastText = content.mid(start); !lastText.isEmpty())
         out.runs.append(InnertubeObjects::InnertubeRun(lastText));
 
     return out;
 }
 
-void WatchView::updateMetadata(const InnertubeEndpoints::UpdatedMetadataResponse& resp)
+void WatchView::updateMetadata(const QString& videoId)
 {
-    if (size_t superTitleIndex = ui->date->text().indexOf(" | "); superTitleIndex != -1)
-        ui->date->setText(resp.dateText + ui->date->text().mid(superTitleIndex));
-    else
-        ui->date->setText(resp.dateText);
-
-    ui->description->setText(StringUtils::innertubeStringToRichText(resp.description, false));
-    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts ? resp.likeCountEntity.likeCountIfIndifferent : resp.likeCountEntity.expandedLikeCountIfIndifferent);
-    ui->titleLabel->setText(resp.title.text);
-    ui->viewCount->setText(resp.viewCount.viewCount.text);
-
-    if (qtTubeApp->settings().returnDislikes)
+    try
     {
-        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + resp.videoId);
-        connect(reply, &HttpReply::finished, this, &WatchView::setDislikes);
+        auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::UpdatedMetadata>(videoId);
+        if (size_t superTitleIndex = ui->date->text().indexOf(" | "); superTitleIndex != -1)
+            ui->date->setText(endpoint.response.dateText + ui->date->text().mid(superTitleIndex));
+        else
+            ui->date->setText(endpoint.response.dateText);
+
+        ui->description->setText(StringUtils::innertubeStringToRichText(endpoint.response.description, false));
+        ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
+                                   ? endpoint.response.likeCountEntity.likeCountIfIndifferent
+                                   : endpoint.response.likeCountEntity.expandedLikeCountIfIndifferent);
+        ui->titleLabel->setText(endpoint.response.title.text);
+        ui->viewCount->setText(endpoint.response.viewCount.viewCount.text);
+
+        if (qtTubeApp->settings().returnDislikes)
+        {
+            HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + videoId);
+            connect(reply, &HttpReply::finished, this, &WatchView::setDislikes);
+        }
+    }
+    catch (const InnertubeException& ie)
+    {
+        qDebug() << ie.message() << "Stream/premiere could have ended - killing update timer.";
+        metadataUpdateTimer->deleteLater();
     }
 }

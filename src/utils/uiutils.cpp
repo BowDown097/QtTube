@@ -70,8 +70,11 @@ void UIUtils::addChannelRendererToList(QListWidget* list, const InnertubeObjects
     renderer->setData(channel);
     addWidgetToList(list, renderer);
 
-    HttpReply* reply = Http::instance().get("https:" + channel.thumbnail.recommendedQuality(QSize(80, 80)).url);
-    QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
+    if (auto recAvatar = channel.thumbnail.recommendedQuality(QSize(80, 80)); recAvatar.has_value())
+    {
+        HttpReply* reply = Http::instance().get("https:" + recAvatar->get().url);
+        QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
+    }
 }
 
 void UIUtils::addSeparatorToList(QListWidget* list)

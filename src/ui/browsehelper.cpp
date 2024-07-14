@@ -87,7 +87,7 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
     connect(reply, &InnertubeReply<GetNotificationMenu>::finished, this, [this, widget](const GetNotificationMenu& endpoint) {
         setupNotificationList(endpoint.response.notifications, widget);
         widget->continuationToken = endpoint.continuationToken;
-        MainWindow::topbar()->updateNotificationCount();
+        MainWindow::topbar()->updateNotificationCount(0);
     });
 }
 

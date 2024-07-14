@@ -42,13 +42,17 @@ AccountMenuWidget::AccountMenuWidget(QWidget* parent)
 
 void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoint)
 {
-    accountNameLabel->setText(endpoint.response.header.accountName);
-    handleLabel->setText(endpoint.response.header.channelHandle);
+    const InnertubeObjects::ActiveAccountHeader& header = endpoint.response.header;
+    accountNameLabel->setText(header.accountName);
+    handleLabel->setText(header.channelHandle);
 
-    HttpReply* avatarReply = Http::instance().get(QUrl(endpoint.response.header.accountPhoto.recommendedQuality(avatar->size()).url));
-    connect(avatarReply, &HttpReply::finished, this, &AccountMenuWidget::setAvatar);
+    if (auto recAvatar = header.accountPhoto.recommendedQuality(avatar->size()); recAvatar.has_value())
+    {
+        HttpReply* avatarReply = Http::instance().get(QUrl(recAvatar->get().url));
+        connect(avatarReply, &HttpReply::finished, this, &AccountMenuWidget::setAvatar);
+    }
 
-    QString channelId = TubeUtils::getUcidFromUrl("https://www.youtube.com/" + endpoint.response.header.channelHandle);
+    QString channelId = TubeUtils::getUcidFromUrl("https://www.youtube.com/" + header.channelHandle);
     connect(yourChannelLabel, &IconLabel::clicked, this, std::bind(&AccountMenuWidget::gotoChannel, this, channelId));
 
     adjustSize();

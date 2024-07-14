@@ -77,7 +77,8 @@ void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data
         return;
     }
 
-    QString avatarUrl = data.response.header.accountPhoto.bestQuality().url;
+    auto bestPhoto = data.response.header.accountPhoto.bestQuality();
+    QString avatarUrl = bestPhoto.has_value() ? bestPhoto->get().url : QString();
     QString username = data.response.header.accountName;
 
     if (auto active = std::ranges::find_if(m_credentials, [](const CredentialSet& cs) { return cs.active; });
