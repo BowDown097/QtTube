@@ -1,5 +1,6 @@
 #include "continuablelistwidget.h"
 #include "innertube.h"
+#include "qttubeapplication.h"
 #include <QScrollBar>
 #include <QWheelEvent>
 
@@ -12,10 +13,31 @@ ContinuableListWidget::ContinuableListWidget(QWidget* parent) : QListWidget(pare
 void ContinuableListWidget::scrollValueChanged(int value)
 {
     if (count() > 0 && value >= verticalScrollBar()->maximum() - continuationThreshold &&
-        !continuationToken.isEmpty() && !continuationRunning &&
+        !continuationToken.isEmpty() && !populating &&
         !InnerTube::instance()->context()->client.visitorData.isEmpty())
     {
         emit continuationReady();
+    }
+}
+
+void ContinuableListWidget::toggleListGridLayout()
+{
+    bool preferLists = qtTubeApp->settings().preferLists;
+    if (preferLists && flow() == QListWidget::LeftToRight)
+    {
+        setFlow(QListWidget::TopToBottom);
+        setResizeMode(QListWidget::Fixed);
+        setSpacing(0);
+        setStyleSheet(QString());
+        setWrapping(false);
+    }
+    else if (!preferLists && flow() == QListWidget::TopToBottom)
+    {
+        setFlow(QListWidget::LeftToRight);
+        setResizeMode(QListWidget::Adjust);
+        setSpacing(3);
+        setStyleSheet("QListWidget::item { background: transparent; }");
+        setWrapping(true);
     }
 }
 

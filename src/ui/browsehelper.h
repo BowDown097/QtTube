@@ -18,14 +18,14 @@ public:
     void browseHome(ContinuableListWidget* widget);
     void browseNotificationMenu(ContinuableListWidget* widget);
     void browseSubscriptions(ContinuableListWidget* widget);
-    void browseTrending(QListWidget* widget);
+    void browseTrending(ContinuableListWidget* widget);
     void search(ContinuableListWidget* widget, const QString& query,
                 int dateF = -1, int typeF = -1, int durF = -1, int featF = -1, int sort = -1);
 
     template<EndpointWithData E>
     void continuation(ContinuableListWidget* widget, const QString& data = "", int threshold = 10)
     {
-        widget->continuationRunning = true;
+        widget->setPopulatingFlag(true);
 
         try
         {
@@ -51,10 +51,10 @@ public:
             QMessageBox::critical(nullptr, "Failed to get continuation browsing info", ie.message());
         }
 
-        widget->continuationRunning = false;
+        widget->setPopulatingFlag(false);
     }
 private slots:
-    void browseFailed(const InnertubeException& ie, const QString& title);
+    void browseFailed(const InnertubeException& ie, const QString& title, ContinuableListWidget* widget = nullptr);
 private:
     static inline BrowseHelper* m_instance;
     static inline std::once_flag m_onceFlag;

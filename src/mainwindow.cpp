@@ -104,14 +104,14 @@ void MainWindow::browse()
     switch (ui->tabWidget->currentIndex())
     {
     case 0:
-        trySwitchGridStatus(ui->homeWidget);
+        ui->homeWidget->toggleListGridLayout();
         BrowseHelper::instance()->browseHome(ui->homeWidget);
         break;
     case 1:
         BrowseHelper::instance()->browseTrending(ui->trendingWidget);
         break;
     case 2:
-        trySwitchGridStatus(ui->subscriptionsWidget);
+        ui->subscriptionsWidget->toggleListGridLayout();
         BrowseHelper::instance()->browseSubscriptions(ui->subscriptionsWidget);
         break;
     case 3:
@@ -131,7 +131,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     if ((ctrlPressed && event->key() == Qt::Key_F) || (findbar->isVisible() && event->key() == Qt::Key_Escape))
         findbar->setReveal(findbar->isHidden());
 
-    QWidget::keyPressEvent(event);
+    QMainWindow::keyPressEvent(event);
 }
 
 void MainWindow::performFilteredSearch()
@@ -149,6 +149,10 @@ void MainWindow::reloadCurrentTab()
 {
     if (ui->centralwidget->currentIndex() != 0 || !ui->tabWidget->isTabEnabled(ui->tabWidget->currentIndex()))
         return;
+
+    if (QWidget* widget = ui->tabWidget->widget(ui->tabWidget->currentIndex()))
+        if (ContinuableListWidget* list = widget->findChild<ContinuableListWidget*>(); list->isPopulating())
+            return;
 
     if (ui->tabWidget->currentIndex() <= 3)
         browse();
@@ -168,6 +172,8 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 
     if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>("accountController"))
         accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
+
+    QMainWindow::resizeEvent(event);
 }
 
 void MainWindow::returnFromSearch()
@@ -396,27 +402,6 @@ void MainWindow::tryRestoreData()
     qtTubeApp->creds().populateAuthStore(qtTubeApp->creds().activeLogin());
     if (InnerTube::instance()->hasAuthenticated())
         m_topbar->postSignInSetup(false);
-}
-
-void MainWindow::trySwitchGridStatus(QListWidget* listWidget)
-{
-    bool preferLists = qtTubeApp->settings().preferLists;
-    if (preferLists && listWidget->flow() == QListWidget::LeftToRight)
-    {
-        listWidget->setFlow(QListWidget::TopToBottom);
-        listWidget->setResizeMode(QListWidget::Fixed);
-        listWidget->setSpacing(0);
-        listWidget->setStyleSheet(QString());
-        listWidget->setWrapping(false);
-    }
-    else if (!preferLists && listWidget->flow() == QListWidget::TopToBottom)
-    {
-        listWidget->setFlow(QListWidget::LeftToRight);
-        listWidget->setResizeMode(QListWidget::Adjust);
-        listWidget->setSpacing(3);
-        listWidget->setStyleSheet("QListWidget::item { background: transparent; }");
-        listWidget->setWrapping(true);
-    }
 }
 
 MainWindow::~MainWindow()
