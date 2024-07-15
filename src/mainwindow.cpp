@@ -206,60 +206,66 @@ void MainWindow::search(const QString& query, SearchBox::SearchType searchType)
 
 void MainWindow::searchByLink(const QString& link)
 {
-    QString extractedId;
-
-    static QRegularExpression urlRegex("^https?://[^\\s/$.?#].[^\\s]*$");
-    QRegularExpressionMatch urlMatch = urlRegex.match(link);
-
-    if (urlMatch.hasMatch())
+    static QRegularExpression videoRegex("(?:v=|vi=|v/|vi/|shorts/|youtu.be/)([a-zA-Z0-9_-]{11})");
+    if (link.startsWith("UC")) // channel IDs always start with "UC"
     {
-        QUrl url(link);
-        QString host = url.host().replace("www.", "");
+        ViewController::loadChannel(link);
+        return;
+    }
+    else if (QRegularExpressionMatch videoMatch = videoRegex.match(link); videoMatch.lastCapturedIndex() >= 1)
+    {
+        ViewController::loadVideo(videoMatch.captured(1));
+        return;
+    }
 
-        if (host != "youtube.com" && host != "youtu.be")
+    // this hits all kinds of stuff, but we're going to specifically filter for channels and videos.
+    // doesn't have to be an exact URL either, so just giving a handle and stuff like that should still work
+    using UrlEndpoint = InnertubeEndpoints::ResolveUrl;
+    using UrlReply = InnertubeReply<UrlEndpoint>;
+    auto reply = InnerTube::instance()->get<UrlEndpoint>(link);
+    connect(reply, &UrlReply::exception, this, [this, link](const InnertubeException& ex) {
+        // plain video IDs throw 404 sadly, so we're gonna shoot for video ID if that happens
+        if (ex.message().contains("Error 404"))
         {
-            QMessageBox::critical(this, "Invalid URL", "URL needs to have https:// in front and the host must be youtube.com or youtu.be.");
-            return;
+            static QRegularExpression videoIdRegex("[a-zA-Z0-9_-]{11}");
+            if (QRegularExpressionMatch videoIdMatch = videoIdRegex.match(link); videoIdMatch.hasMatch())
+                ViewController::loadVideo(videoIdMatch.captured());
+            else
+                QMessageBox::warning(this, "Nothing Found!", "Could not find anything from your input.");
         }
-
-        if (url.path().startsWith("/@"))
+        // nothing valid should reach this point, so error
+        else
         {
-            QMessageBox::critical(this, "Not supported", "Channel handles cannot be directly searched yet. You should get a result through normally searching, though.");
-            return;
+            QMessageBox::critical(this, "Error", ex.message());
         }
-
-        if (url.path() == "/watch")
+    });
+    connect(reply, &UrlReply::finished, this, [this](const UrlEndpoint& endpoint) {
+        QString webPageType = endpoint.endpoint["commandMetadata"]["webCommandMetadata"]["webPageType"].toString();
+        if (webPageType == "WEB_PAGE_TYPE_CHANNEL")
         {
-            extractedId = QUrlQuery(url).queryItemValue("v");
+            ViewController::loadChannel(endpoint.endpoint["browseEndpoint"]["browseId"].toString());
         }
-        else if (url.path().startsWith("/channel/"))
+        else if (webPageType == "WEB_PAGE_TYPE_WATCH")
         {
-            extractedId = url.path().replace("/channel/", "");
-            if (!extractedId.startsWith("UC"))
-            {
-                QMessageBox::critical(this, "Invalid channel ID", "An invalid channel ID was entered. Channel IDs should start with \"UC\".");
-                return;
-            }
+            ViewController::loadVideo(endpoint.endpoint["watchEndpoint"]["videoId"].toString());
         }
         else
         {
-            extractedId = url.path().mid(1);
+            // check for an edge case where a classic channel URL is returned instead of the UCID
+            if (QString classicUrl = endpoint.endpoint["urlEndpoint"]["url"].toString(); !classicUrl.isEmpty())
+            {
+                auto reply2 = InnerTube::instance()->get<UrlEndpoint>(classicUrl);
+                connect(reply2, &UrlReply::finished, this, [](const UrlEndpoint& endpoint2) {
+                    if (endpoint2.endpoint["commandMetadata"]["webCommandMetadata"]["webPageType"].toString() == "WEB_PAGE_TYPE_CHANNEL")
+                        ViewController::loadChannel(endpoint2.endpoint["browseEndpoint"]["browseId"].toString());
+                });
+            }
+            else
+            {
+                QMessageBox::warning(this, "Nothing Found!", "Could not find anything from your input.");
+            }
         }
-    }
-    else if (link.startsWith("@"))
-    {
-        QMessageBox::critical(this, "Not supported", "Channel handles cannot be directly searched yet. You should get a result through normally searching, though.");
-        return;
-    }
-    else
-    {
-        extractedId = link;
-    }
-
-    if (extractedId.startsWith("UC")) // channel IDs always start with "UC"
-        ViewController::loadChannel(extractedId);
-    else // well, hope it's a video
-        ViewController::loadVideo(extractedId);
+    });
 }
 
 void MainWindow::searchByQuery(const QString& query)
