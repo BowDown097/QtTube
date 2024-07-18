@@ -189,14 +189,14 @@ void SettingsForm::saveSettings()
     store.hideShorts = ui->hideShorts->isChecked();
     store.hideStreams = ui->hideStreams->isChecked();
     // sponsorblock
-    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "filler", ui->blockFiller);
-    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "interaction", ui->blockInteraction);
-    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "intro", ui->blockIntro);
-    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "music_offtopic", ui->blockNonMusic);
-    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "outro", ui->blockOutro);
-    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "preview", ui->blockPreview);
-    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
-    tryAddSponsorBlockCategory(store.sponsorBlockCategories, "sponsor", ui->blockSponsor);
+    handleSponsorCategory(store.sponsorBlockCategories, "filler", ui->blockFiller);
+    handleSponsorCategory(store.sponsorBlockCategories, "interaction", ui->blockInteraction);
+    handleSponsorCategory(store.sponsorBlockCategories, "intro", ui->blockIntro);
+    handleSponsorCategory(store.sponsorBlockCategories, "music_offtopic", ui->blockNonMusic);
+    handleSponsorCategory(store.sponsorBlockCategories, "outro", ui->blockOutro);
+    handleSponsorCategory(store.sponsorBlockCategories, "preview", ui->blockPreview);
+    handleSponsorCategory(store.sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
+    handleSponsorCategory(store.sponsorBlockCategories, "sponsor", ui->blockSponsor);
     store.showSBToasts = ui->showSBToasts->isChecked();
     // dearrow
     store.deArrow = ui->deArrow->isChecked();
@@ -230,11 +230,13 @@ void SettingsForm::toggleDeArrowSettings(bool checked)
     ui->deArrowTitles->setEnabled(checked);
 }
 
-void SettingsForm::tryAddSponsorBlockCategory(QStringList& sponsorBlockCategories, const QString& category,
-                                              QCheckBox* checkBox)
+void SettingsForm::handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox)
 {
-    if (checkBox->isChecked() && !sponsorBlockCategories.contains(category))
-        sponsorBlockCategories.append(category);
+    int categoryIndex = categories.indexOf(category);
+    if (checkBox->isChecked() && categoryIndex == -1)
+        categories.append(category);
+    else if (!checkBox->isChecked() && categoryIndex != -1)
+        categories.removeAt(categoryIndex);
 }
 
 SettingsForm::~SettingsForm()

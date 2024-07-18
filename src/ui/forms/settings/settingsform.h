@@ -15,7 +15,7 @@ public:
     ~SettingsForm();
 private:
     Ui::SettingsForm* ui;
-    void tryAddSponsorBlockCategory(QStringList& sponsorBlockCategories, const QString& category, QCheckBox* checkBox);
+    void handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox);
 private slots:
     void clearCache();
     //void openExportWizard();
