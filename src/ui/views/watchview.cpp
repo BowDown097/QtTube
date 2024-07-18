@@ -228,8 +228,9 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     }
 
     const InnertubeObjects::ButtonViewModel& likeViewModel = likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel.defaultButtonViewModel;
+    ui->likeLabel->setProperty("fullCount", StringUtils::extractDigits(likeViewModel.accessibilityText));
     ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
-                               ? likeViewModel.title : StringUtils::extractDigits(likeViewModel.accessibilityText));
+        ? likeViewModel.title : ui->likeLabel->property("fullCount").toString());
 
     if (qtTubeApp->settings().returnDislikes)
     {
@@ -327,7 +328,7 @@ void WatchView::setDislikes(const HttpReply& reply)
 
     QJsonDocument doc = QJsonDocument::fromJson(reply.body());
     qint64 dislikes = doc["dislikes"].toVariant().toLongLong();
-    qint64 likes = QLocale::system().toLongLong(ui->likeLabel->text());
+    qint64 likes = QLocale::system().toLongLong(ui->likeLabel->property("fullCount").toString());
 
     if (likes != 0)
     {
