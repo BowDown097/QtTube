@@ -13,16 +13,20 @@
 #include <QStandardPaths>
 #include <QStyleFactory>
 
+constexpr QLatin1String DescriptionTemplate(R"(
+%1<br>
+<a href=\"%2\">%2</a><br>
+Version: %3<br>
+Commit: %4 (%5)<br>
+Build date: %6
+)");
+
 SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::SettingsForm)
 {
     ui->setupUi(this);
 
-    ui->description->setText(QStringLiteral("%1<br>"
-                                            "<a href=\"%2\">%2</a><br>"
-                                            "Version: %3<br>"
-                                            "Commit: %4 (%5)<br>"
-                                            "Build date: %6")
-                                 .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
+    ui->description->setText(DescriptionTemplate
+        .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
     ui->qttubeLogo->setPixmap(UIUtils::pixmapThemed("qttube-full", true, ui->qttubeLogo->size()));
 
     ui->takeoutRadio->setProperty("id", 1);
@@ -32,6 +36,8 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
 
 #ifndef Q_OS_LINUX
     ui->vaapi->hide();
+#else
+    ui->vaapi->setVisible(qApp->platformName() != "wayland");
 #endif
 
     SettingsStore& store = qtTubeApp->settings();
@@ -86,13 +92,13 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
     connect(ui->deArrow, &QCheckBox::toggled, this, &SettingsForm::toggleDeArrowSettings);
     //connect(ui->exportButton, &QPushButton::clicked, this, &SettingsForm::openExportWizard);
-    connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool checked) { ui->filterLength->setEnabled(checked); });
+    connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool c) { ui->filterLength->setEnabled(c); });
     connect(ui->importButton, &QPushButton::clicked, this, &SettingsForm::openImportWizard);
-    connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool checked) { ui->preferredQuality->setEnabled(!checked); });
+    connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredQuality->setEnabled(!c); });
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
     connect(ui->showFilteredChannels, &QPushButton::clicked, this, &SettingsForm::showChannelFilterTable);
     connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
-    connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool checked) { ui->preferredVolume->setEnabled(!checked); });
+    connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
 }
 
 void SettingsForm::clearCache()
@@ -108,28 +114,37 @@ void SettingsForm::clearCache()
     QMessageBox::information(this, "Cleared", "Cache directory cleared successfully.");
 }
 
+void SettingsForm::handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox)
+{
+    int categoryIndex = categories.indexOf(category);
+    if (checkBox->isChecked() && categoryIndex == -1)
+        categories.append(category);
+    else if (!checkBox->isChecked() && categoryIndex != -1)
+        categories.removeAt(categoryIndex);
+}
+
 /*
 void SettingsForm::openExportWizard()
 {
     const QList<QRadioButton*> radios = ui->groupBox->findChildren<QRadioButton*>();
-    QRadioButton* selectedRadio = *std::ranges::find_if(radios, [](QRadioButton* radio) {
-        return radio->isChecked();
-    });
-
-    switch (selectedRadio->property("id").toInt())
+    if (auto it = std::ranges::find_if(radios, [](QRadioButton* r) { return r->isChecked(); }); it != radios.end())
     {
-    case 1:
-        TakeoutExportWizard().exec();
-        break;
-    case 2:
-        PipedExportWizard().exec();
-        break;
-    case 3:
-        GrayjayExportWizard().exec();
-        break;
-    case 4:
-        NewPipeExportWizard().exec();
-        break;
+        QRadioButton* selectedRadio = *it;
+        switch (selectedRadio->property("id").toInt())
+        {
+        case 1:
+            TakeoutExportWizard().exec();
+            break;
+        case 2:
+            PipedExportWizard().exec();
+            break;
+        case 3:
+            GrayjayExportWizard().exec();
+            break;
+        case 4:
+            NewPipeExportWizard().exec();
+            break;
+        }
     }
 }
 */
@@ -137,24 +152,24 @@ void SettingsForm::openExportWizard()
 void SettingsForm::openImportWizard()
 {
     const QList<QRadioButton*> radios = ui->groupBox->findChildren<QRadioButton*>();
-    QRadioButton* selectedRadio = *std::ranges::find_if(radios, [](QRadioButton* radio) {
-        return radio->isChecked();
-    });
-
-    switch (selectedRadio->property("id").toInt())
+    if (auto it = std::ranges::find_if(radios, [](QRadioButton* r) { return r->isChecked(); }); it != radios.end())
     {
-    case 1:
-        TakeoutImportWizard().exec();
-        break;
-    case 2:
-        PipedImportWizard().exec();
-        break;
-    case 3:
-        GrayjayImportWizard().exec();
-        break;
-    case 4:
-        NewPipeImportWizard().exec();
-        break;
+        QRadioButton* selectedRadio = *it;
+        switch (selectedRadio->property("id").toInt())
+        {
+        case 1:
+            TakeoutImportWizard().exec();
+            break;
+        case 2:
+            PipedImportWizard().exec();
+            break;
+        case 3:
+            GrayjayImportWizard().exec();
+            break;
+        case 4:
+            NewPipeImportWizard().exec();
+            break;
+        }
     }
 }
 
@@ -228,15 +243,6 @@ void SettingsForm::toggleDeArrowSettings(bool checked)
 {
     ui->deArrowThumbs->setEnabled(checked);
     ui->deArrowTitles->setEnabled(checked);
-}
-
-void SettingsForm::handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox)
-{
-    int categoryIndex = categories.indexOf(category);
-    if (checkBox->isChecked() && categoryIndex == -1)
-        categories.append(category);
-    else if (!checkBox->isChecked() && categoryIndex != -1)
-        categories.removeAt(categoryIndex);
 }
 
 SettingsForm::~SettingsForm()
