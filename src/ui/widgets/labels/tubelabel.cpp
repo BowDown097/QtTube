@@ -1,5 +1,6 @@
 #include "tubelabel.h"
 #include "innertube/objects/innertubestring.h"
+#include <QTextBlock>
 #include <QTextDocument>
 #include <QTextLayout>
 
@@ -19,19 +20,17 @@ TubeLabel::TubeLabel(const QString& text, QWidget* parent) : TubeLabel(parent)
     setText(text);
 }
 
-QRect TubeLabel::alignedRect(const QRect& rect) const
+QRect TubeLabel::alignedRect(QRect rect) const
 {
-    QRect out = rect;
-
     static QRegularExpression alignCenterStyleRegex(R"(text-align:\s*center)");
     static QRegularExpression alignRightStyleRegex(R"(text-align:\s*right)");
 
     if (alignment() & Qt::AlignHCenter || alignCenterStyleRegex.match(styleSheet()).hasMatch())
-        out.moveLeft((width() - out.width()) / 2);
+        rect.moveLeft((width() - rect.width()) / 2);
     else if (alignment() & Qt::AlignRight || alignRightStyleRegex.match(styleSheet()).hasMatch())
-        out.moveLeft(width() - out.width());
+        rect.moveLeft(width() - rect.width());
 
-    return out;
+    return rect;
 }
 
 QRect TubeLabel::boundingRect() const
@@ -45,70 +44,42 @@ QRect TubeLabel::boundingRect() const
 QRect TubeLabel::boundingRectOfLineAt(const QPoint& point) const
 {
     auto it = std::ranges::find_if(m_lineRects, [this, point](const QRect& r) { return alignedRect(r).contains(point); });
-    if (it != m_lineRects.end())
-        return *it;
-    else
-        return QRect();
+    return it != m_lineRects.end() ? *it : QRect();
 }
 
 void TubeLabel::calculateAndSetLineRects()
 {
     m_lineRects.clear();
 
-    QString plainText;
+    QTextOption opt;
+    opt.setWrapMode(wordWrap() ? QTextOption::WordWrap : QTextOption::NoWrap);
+
+    QTextDocument doc;
+    doc.setDefaultFont(font());
+    doc.setDefaultTextOption(opt);
+    doc.setDocumentMargin(0);
+
     if (textFormat() == Qt::RichText || (textFormat() == Qt::AutoText && Qt::mightBeRichText(text())))
-    {
-        QTextDocument doc;
         doc.setHtml(text());
-        plainText = doc.toPlainText();
-    }
     else
+        doc.setPlainText(text());
+
+    doc.setTextWidth(m_hasFixedWidth ? width() : maximumWidth());
+    doc.documentLayout(); // why do i have to call this for it to actually lay out bruh
+
+    int y = 0;
+    for (QTextBlock block = doc.firstBlock(); block.isValid(); block = block.next())
     {
-        plainText = text();
-    }
-
-    QFontMetrics fm(font());
-    if (!wordWrap())
-    {
-        m_lineRects.append(QRect(0, 0, fm.horizontalAdvance(plainText), fm.height()));
-        return;
-    }
-
-    int y{};
-    QList<QTextLayout*> textLayouts;
-
-    QStringList lines = plainText.split('\n');
-    for (const QString& lineText : lines)
-    {
-        QTextLayout* textLayout = new QTextLayout(lineText, font());
-        textLayout->beginLayout();
-
-        forever
+        if (QTextLayout* layout = block.layout())
         {
-            QTextLine line = textLayout->createLine();
-            if (!line.isValid())
-                break;
-            line.setLineWidth(m_hasFixedWidth ? width() : maximumWidth());
-            line.setPosition(QPointF(0, y));
-            y += lineText.isEmpty() ? fm.height() : line.height();
-        }
-
-        textLayout->endLayout();
-        textLayouts.append(textLayout);
-    }
-
-    int currentLineHeight{};
-    for (QTextLayout* textLayout : textLayouts)
-    {
-        for (int i = 0; i < textLayout->lineCount(); ++i)
-        {
-            QTextLine line = textLayout->lineAt(i);
-            m_lineRects.append(QRect(0, currentLineHeight, line.naturalTextWidth(), line.height()));
-            currentLineHeight += line.height();
+            for (int i = 0; i < layout->lineCount(); ++i)
+            {
+                QTextLine line = layout->lineAt(i);
+                m_lineRects.append(QRect(0, y, line.naturalTextWidth(), line.height()));
+                y += line.height();
+            }
         }
     }
-
-    qDeleteAll(textLayouts);
 }
 
 // enterEvent in ClickableWidget superseded by mouseMoveEvent

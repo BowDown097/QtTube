@@ -21,7 +21,7 @@ public:
     void setFixedWidth(int width);
     void setText(const QString& text);
 
-    QRect alignedRect(const QRect& rect) const;
+    QRect alignedRect(QRect rect) const;
     QRect boundingRect() const;
     QRect boundingRectOfLineAt(const QPoint& point) const;
     Qt::TextElideMode elideMode() const { return m_elideMode; }
