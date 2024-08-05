@@ -37,6 +37,7 @@ public:
     QStringList filteredTerms;
     bool fullSubs{};
     bool h264Only{};
+    bool hideSearchShelves{};
     bool hideShorts{};
     bool hideStreams{};
     bool imageCaching{};

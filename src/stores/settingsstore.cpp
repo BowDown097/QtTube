@@ -37,6 +37,7 @@ void SettingsStore::initialize()
     // filtering
     filterLength = settings.value("filtering/filterLength", 0).toInt();
     filterLengthEnabled = settings.value("filtering/filterLengthEnabled", false).toBool();
+    hideSearchShelves = settings.value("filtering/hideSearchShelves", true).toBool();
     hideShorts = settings.value("filtering/hideShorts", false).toBool();
     hideStreams = settings.value("filtering/hideStreams", false).toBool();
     readIntoStringList(settings, filteredChannels, "filtering/filteredChannels", "id");
@@ -92,6 +93,7 @@ void SettingsStore::save()
     // filtering
     settings.setValue("filtering/filterLength", filterLength);
     settings.setValue("filtering/filterLengthEnabled", filterLengthEnabled);
+    settings.setValue("filtering/hideSearchShelves", hideSearchShelves);
     settings.setValue("filtering/hideShorts", hideShorts);
     settings.setValue("filtering/hideStreams", hideStreams);
     writeStringList(settings, filteredChannels, "filtering/filteredChannels", "id");

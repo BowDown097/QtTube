@@ -3,9 +3,10 @@
 #include "http.h"
 #include "mainwindow.h"
 #include "protobuf/protobufcompiler.h"
+#include "qttubeapplication.h"
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "utils/uiutils.h"
-#include <QApplication>
+#include <ranges>
 
 using namespace InnertubeEndpoints;
 using namespace std::placeholders;
@@ -152,8 +153,7 @@ void BrowseHelper::search(ContinuableListWidget* widget, const QString& query,
         std::bind(&BrowseHelper::browseFailed, this, _1, "search", widget));
     connect(reply, &InnertubeReply<Search>::finished, this, [this, widget](const Search& endpoint) {
         widget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(endpoint.response.estimatedResults)));
-        setupChannelList(endpoint.response.channels, widget);
-        setupVideoList(endpoint.response.videos, widget);
+        setupSearch(endpoint.response, widget);
         widget->continuationToken = endpoint.continuationToken;
         widget->setPopulatingFlag(false);
     });
@@ -194,6 +194,55 @@ void BrowseHelper::setupNotificationList(const QList<InnertubeObjects::Notificat
         connect(thumbReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setThumbnail);
 
         QCoreApplication::processEvents();
+    }
+}
+
+void BrowseHelper::setupSearch(const InnertubeEndpoints::SearchResponse& response, QListWidget* widget)
+{
+    for (const auto& item : response.contents)
+    {
+        if (const InnertubeObjects::Channel* channel = std::get_if<InnertubeObjects::Channel>(&item))
+        {
+            UIUtils::addChannelRendererToList(widget, *channel);
+            QCoreApplication::processEvents();
+        }
+        else if (const InnertubeObjects::ReelShelf* reelShelf = std::get_if<InnertubeObjects::ReelShelf>(&item))
+        {
+            if (qtTubeApp->settings().hideSearchShelves || qtTubeApp->settings().hideShorts)
+                continue;
+
+            UIUtils::addSeparatorToList(widget);
+            UIUtils::addShelfTitleToList(widget, reelShelf->title.text);
+
+            for (const InnertubeObjects::Reel& reel : reelShelf->items)
+            {
+                UIUtils::addVideoRendererToList(widget, reel);
+                QCoreApplication::processEvents();
+            }
+
+            UIUtils::addSeparatorToList(widget);
+        }
+        else if (const InnertubeObjects::VerticalVideoShelf* shelf = std::get_if<InnertubeObjects::VerticalVideoShelf>(&item))
+        {
+            if (qtTubeApp->settings().hideSearchShelves)
+                continue;
+
+            UIUtils::addSeparatorToList(widget);
+            UIUtils::addShelfTitleToList(widget, shelf->title.text);
+
+            for (const InnertubeObjects::Video& video : shelf->content.items | std::views::take(shelf->content.collapsedItemCount))
+            {
+                UIUtils::addVideoRendererToList(widget, video);
+                QCoreApplication::processEvents();
+            }
+
+            UIUtils::addSeparatorToList(widget);
+        }
+        else if (const InnertubeObjects::Video* video = std::get_if<InnertubeObjects::Video>(&item))
+        {
+            UIUtils::addVideoRendererToList(widget, *video);
+            QCoreApplication::processEvents();
+        }
     }
 }
 

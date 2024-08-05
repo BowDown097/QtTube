@@ -71,6 +71,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->filterLength->setEnabled(store.filterLengthEnabled);
     ui->filterLength->setValue(store.filterLength);
     ui->filterLengthCheck->setChecked(store.filterLengthEnabled);
+    ui->hideSearchShelves->setChecked(store.hideSearchShelves);
     ui->hideShorts->setChecked(store.hideShorts);
     ui->hideStreams->setChecked(store.hideStreams);
     // sponsorblock
@@ -201,6 +202,7 @@ void SettingsForm::saveSettings()
     // filtering
     store.filterLength = ui->filterLength->value();
     store.filterLengthEnabled = ui->filterLengthCheck->isChecked();
+    store.hideSearchShelves = ui->hideSearchShelves->isChecked();
     store.hideShorts = ui->hideShorts->isChecked();
     store.hideStreams = ui->hideStreams->isChecked();
     // sponsorblock

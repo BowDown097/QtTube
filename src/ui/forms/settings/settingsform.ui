@@ -177,7 +177,7 @@
              <item>
               <spacer name="horizontalSpacer_7">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -337,7 +337,7 @@
              <item>
               <spacer name="horizontalSpacer_2">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -431,7 +431,7 @@
              <item>
               <spacer name="horizontalSpacer">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -479,7 +479,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>462</width>
             <height>82</height>
            </rect>
           </property>
@@ -568,7 +568,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>163</height>
+            <height>199</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -608,6 +608,16 @@
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="hideSearchShelves">
+             <property name="toolTip">
+              <string>YouTube's search is filled with &quot;shelves&quot; that contain mostly content that is entirely irrelevant to your search. Thus, it is recommended to enable this setting for a better search experience. THE BEHAVIOR OF THIS SETTING WILL CHANGE: Currently, it extends to the Shorts shelf because it is unfinished and laid out very poorly and thus this is setting is enabled by default. Both of these will be changed.</string>
+             </property>
+             <property name="text">
+              <string>Filter search shelves</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <property name="spacing">
               <number>6</number>
@@ -642,7 +652,7 @@
              <item>
               <spacer name="horizontalSpacer_3">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -673,7 +683,7 @@
              <item>
               <spacer name="horizontalSpacer_4">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -721,7 +731,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>462</width>
             <height>215</height>
            </rect>
           </property>
@@ -753,7 +763,7 @@
               <string>Data Sources</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
              <layout class="QGridLayout" name="gridLayout_2">
               <item row="1" column="0">
@@ -793,7 +803,7 @@
            <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -863,7 +873,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>462</width>
             <height>227</height>
            </rect>
           </property>
@@ -895,7 +905,7 @@
               <string>Block:</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
              <layout class="QGridLayout" name="gridLayout_3">
               <item row="0" column="0">
@@ -995,7 +1005,7 @@
              <item>
               <spacer name="horizontalSpacer_6">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -1018,7 +1028,7 @@
              <item>
               <spacer name="horizontalSpacer_5">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -1066,7 +1076,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>462</width>
             <height>118</height>
            </rect>
           </property>
@@ -1167,10 +1177,10 @@
         <string>TextLabel</string>
        </property>
        <property name="textFormat">
-        <enum>Qt::RichText</enum>
+        <enum>Qt::TextFormat::RichText</enum>
        </property>
        <property name="alignment">
-        <set>Qt::AlignHCenter|Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
        </property>
        <property name="openExternalLinks">
         <bool>true</bool>

@@ -31,18 +31,11 @@ public:
         {
             E newData = browseRequest<E>(widget->continuationToken, data);
             if constexpr (std::is_same_v<E, InnertubeEndpoints::Search>)
-            {
-                setupChannelList(newData.response.channels, widget);
-                setupVideoList(newData.response.videos, widget);
-            }
+                setupSearch(newData.response, widget);
             else if constexpr (std::is_same_v<E, InnertubeEndpoints::GetNotificationMenu>)
-            {
                 setupNotificationList(newData.response.notifications, widget);
-            }
             else
-            {
                 setupVideoList(newData.response.videos, widget);
-            }
 
             widget->continuationToken = newData.continuationToken;
         }
@@ -70,6 +63,7 @@ private:
 
     void setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget);
     void setupNotificationList(const QList<InnertubeObjects::Notification>& notifications, QListWidget* widget);
+    void setupSearch(const InnertubeEndpoints::SearchResponse& response, QListWidget* widget);
     void setupVideoList(const QList<InnertubeObjects::Video>& videos, QListWidget* widget);
 
     const QMap<int, QString> featureMap = {
