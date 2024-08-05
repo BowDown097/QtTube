@@ -87,8 +87,8 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
     metadataLabel->setText(reel.viewCountText.text);
 
     thumbnail->setLengthText("SHORTS");
-    thumbnail->setPreferredSize(QSize(105, 186));
-    if (auto recThumbnail = reel.thumbnail.recommendedQuality(thumbnail->preferredSize()); recThumbnail.has_value())
+    thumbnail->setFixedSize(105, 186);
+    if (auto recThumbnail = reel.thumbnail.recommendedQuality(thumbnail->size()); recThumbnail.has_value())
         setThumbnail(recThumbnail->get().url);
 
     QString title = QString(reel.headline).replace("\r\n", " ");
@@ -119,7 +119,7 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
 
     thumbnail->setLengthText(video.lengthText.text);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
-    if (auto recThumbnail = video.thumbnail.recommendedQuality(thumbnail->preferredSize()); recThumbnail.has_value())
+    if (auto recThumbnail = video.thumbnail.recommendedQuality(thumbnail->size()); recThumbnail.has_value())
         setThumbnail(recThumbnail->get().url);
 
     QString title = QString(video.title.text).replace("\r\n", " ");

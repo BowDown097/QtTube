@@ -6,7 +6,7 @@
 BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent)
     : VideoRenderer(parent), hbox(new QHBoxLayout(this)), textVbox(new QVBoxLayout)
 {
-    thumbnail->setPreferredSize(QSize(240, 0));
+    thumbnail->setFixedSize(178, 100);
     textVbox->addWidget(titleLabel);
     textVbox->addWidget(channelLabel);
     textVbox->addWidget(metadataLabel);

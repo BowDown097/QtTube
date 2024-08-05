@@ -6,7 +6,7 @@
 
 GridVideoRenderer::GridVideoRenderer(QWidget* parent) : VideoRenderer(parent), vbox(new QVBoxLayout(this))
 {
-    thumbnail->setPreferredSize(QSize(205, 115));
+    thumbnail->setFixedSize(205, 115);
 
     titleLabel->setFont(QFont(font().toString(), font().pointSize() + 1, QFont::Bold));
     titleLabel->setMaximumWidth(205);

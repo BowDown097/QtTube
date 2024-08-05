@@ -42,20 +42,9 @@ void VideoThumbnailWidget::setData(const HttpReply& reply)
 
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    setPixmap(pixmap.scaled(
-        m_preferredSize.height() == 0 ? QSize(m_preferredSize.width(), height()) : m_preferredSize,
-        Qt::KeepAspectRatio,
-        Qt::SmoothTransformation)
-    );
 
+    setPixmap(pixmap.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     emit thumbnailSet();
-}
-
-void VideoThumbnailWidget::setPreferredSize(const QSize& size)
-{
-    m_preferredSize = size;
-    if (size.height() > 0)
-        setFixedSize(size);
 }
 
 void VideoThumbnailWidget::setProgress(int progress, int length)

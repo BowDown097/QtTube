@@ -51,7 +51,7 @@ void WatchNextFeed::setData(const InnertubeEndpoints::Next& endpoint)
     for (const InnertubeObjects::Video& recommendedVideo : endpoint.response.results.secondaryResults.feed)
     {
         BrowseVideoRenderer* renderer = new BrowseVideoRenderer(recommended);
-        renderer->thumbnail->setPreferredSize(QSize(168, 94));
+        renderer->thumbnail->setFixedSize(167, 94);
         renderer->titleLabel->setMaximumWidth(recommended->width() - 220);
         renderer->titleLabel->setWordWrap(true);
         UIUtils::setMaximumLines(renderer->titleLabel, 2);
