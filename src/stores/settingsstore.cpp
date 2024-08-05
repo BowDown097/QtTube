@@ -112,7 +112,7 @@ bool SettingsStore::strHasFilteredTerm(const QString& str) const
 
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::Reel& reel) const
 {
-    return channelIsFiltered(reel.owner.id) || strHasFilteredTerm(reel.headline);
+    return strHasFilteredTerm(reel.headline);
 }
 
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::Video& video) const

@@ -338,15 +338,8 @@ void ChannelBrowser::setupShorts(QListWidget* widget, const QJsonValue& renderer
 
     const QJsonArray contents = renderer["content"]["richGridRenderer"]["contents"].toArray();
     for (const QJsonValue& v : contents)
-    {
-        if (!v["richItemRenderer"].isObject())
-            continue;
-
-        InnertubeObjects::Reel reel(v["richItemRenderer"]["content"]["reelItemRenderer"]);
-        reel.owner.id = resp.metadata.externalId;
-        reel.owner.name = resp.metadata.title;
-        UIUtils::addVideoRendererToList(widget, reel);
-    }
+        if (const QJsonValue richItem = v["richItemRenderer"]; richItem.isObject())
+            UIUtils::addVideoRendererToList(widget, InnertubeObjects::Reel(richItem["content"]["reelItemRenderer"]));
 
     if (widget->count() == 0)
         widget->addItem("This channel has no shorts.");

@@ -20,6 +20,7 @@ VideoRenderer::VideoRenderer(QWidget* parent)
       titleLabel(new TubeLabel(this))
 {
     channelLabel->addStretch();
+    channelLabel->hide();
 
     titleLabel->setClickable(true);
     titleLabel->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -75,32 +76,29 @@ void VideoRenderer::navigateChannel()
 
 void VideoRenderer::navigateVideo()
 {
-    ViewController::loadVideo(videoId, progress, watchPreloadData);
+    ViewController::loadVideo(videoId, progress, watchPreloadData.get());
 }
 
 void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
 {
-    channelId = reel.owner.id;
     videoId = reel.videoId;
 
-    channelLabel->setInfo(channelId, reel.owner.name, reel.owner.badges);
+    channelLabel->deleteLater(); // no owner info, we're just gonna yeet this out of existence
     metadataLabel->setText(reel.viewCountText.text);
 
     thumbnail->setLengthText("SHORTS");
-    if (auto recThumbnail = reel.image.recommendedQuality(thumbnail->preferredSize()); recThumbnail.has_value())
+    thumbnail->setPreferredSize(QSize(105, 186));
+    if (auto recThumbnail = reel.thumbnail.recommendedQuality(thumbnail->preferredSize()); recThumbnail.has_value())
         setThumbnail(recThumbnail->get().url);
 
     QString title = QString(reel.headline).replace("\r\n", " ");
     titleLabel->setText(title);
     titleLabel->setToolTip(title);
 
-    watchPreloadData = new PreloadData::WatchView {
-        .channelAvatar = reel.owner.icon,
-        .channelBadges = reel.owner.badges,
+    watchPreloadData.reset(new PreloadData::WatchView {
         .channelId = channelId,
-        .channelName = reel.owner.name,
         .title = title
-    };
+    });
 }
 
 void VideoRenderer::setData(const InnertubeObjects::Video& video)
@@ -115,6 +113,7 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
     };
     metadataList.removeAll({});
 
+    channelLabel->show();
     channelLabel->setInfo(channelId, video.owner.name, video.owner.badges);
     metadataLabel->setText(metadataList.join(" • "));
 
@@ -127,13 +126,13 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
     titleLabel->setText(title);
     titleLabel->setToolTip(title);
 
-    watchPreloadData = new PreloadData::WatchView {
+    watchPreloadData.reset(new PreloadData::WatchView {
         .channelAvatar = video.owner.icon,
         .channelBadges = video.owner.badges,
         .channelId = channelId,
         .channelName = video.owner.name,
         .title = title
-    };
+    });
 }
 
 void VideoRenderer::setDeArrowData(const HttpReply& reply, const QString& thumbFallbackUrl)

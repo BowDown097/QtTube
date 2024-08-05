@@ -1,14 +1,12 @@
 #pragma once
+#include "ui/views/preloaddata.h"
 #include <QWidget>
 
 namespace InnertubeObjects
 {
 struct Reel;
-struct ResponsiveImage;
 struct Video;
 }
-
-namespace PreloadData { struct WatchView; }
 
 class ChannelLabel;
 class HttpReply;
@@ -31,7 +29,7 @@ private:
     QString channelId;
     int progress = 0;
     QString videoId;
-    PreloadData::WatchView* watchPreloadData{};
+    std::unique_ptr<PreloadData::WatchView> watchPreloadData;
 
     void setThumbnail(const QString& url);
 private slots:
