@@ -2,6 +2,7 @@
 #include "http.h"
 #include "innertube/objects/backstage/backstagepost.h"
 #include "innertube/objects/channel/channel.h"
+#include "innertube/objects/notification/notification.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
 #include "mainwindow.h"
@@ -9,6 +10,7 @@
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/backstage/backstagepostrenderer.h"
 #include "ui/widgets/renderers/browsechannelrenderer.h"
+#include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/gridvideorenderer.h"
 #include <QClipboard>
@@ -77,6 +79,23 @@ void UIUtils::addChannelRendererToList(QListWidget* list, const InnertubeObjects
     }
 }
 
+void UIUtils::addNotificationToList(QListWidget* list, const InnertubeObjects::Notification& notification)
+{
+    BrowseNotificationRenderer* renderer = new BrowseNotificationRenderer;
+    renderer->setData(notification);
+    addWidgetToList(list, renderer);
+
+    if (auto recAvatar = notification.channelIcon.recommendedQuality(QSize(48, 48)); recAvatar.has_value())
+    {
+        HttpReply* iconReply = Http::instance().get(recAvatar->get().url);
+        QObject::connect(iconReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setChannelIcon);
+    }
+
+    // notification.videoThumbnail returns images with black bars, so we're going to use mqdefault instead
+    HttpReply* thumbReply = Http::instance().get("https://i.ytimg.com/vi/" + notification.videoId + "/mqdefault.jpg");
+    QObject::connect(thumbReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setThumbnail);
+}
+
 void UIUtils::addSeparatorToList(QListWidget* list)
 {
     QFrame* line = new QFrame;
@@ -92,6 +111,9 @@ void UIUtils::addShelfTitleToList(QListWidget* list, const QJsonValue& shelf)
 
 void UIUtils::addShelfTitleToList(QListWidget* list, const QString& title)
 {
+    if (title.isEmpty())
+        return;
+
     TubeLabel* shelfLabel = new TubeLabel(title);
     shelfLabel->setFont(QFont(shelfLabel->font().toString(), shelfLabel->font().pointSize() + 2));
     addWidgetToList(list, shelfLabel);

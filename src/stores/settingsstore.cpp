@@ -120,9 +120,9 @@ bool SettingsStore::videoIsFiltered(const InnertubeObjects::Reel& reel) const
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::Video& video) const
 {
     return channelIsFiltered(video.owner.id) || strHasFilteredTerm(video.title.text) ||
-           (filterLengthEnabled && !video.isLive && QTime(0, 0).secsTo(video.length()) <= filterLength) ||
+           (filterLengthEnabled && !video.isLive() && QTime(0, 0).secsTo(video.length()) <= filterLength) ||
            (hideShorts && video.isReel()) ||
-           (hideStreams && video.isLive);
+           (hideStreams && video.isLive());
 }
 
 void SettingsStore::writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key)

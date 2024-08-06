@@ -12,7 +12,7 @@ class BrowseNotificationRenderer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit BrowseNotificationRenderer(QWidget* parent);
+    explicit BrowseNotificationRenderer(QWidget* parent = nullptr);
     void setData(const InnertubeObjects::Notification& notification);
 public slots:
     void setChannelIcon(const HttpReply& reply);

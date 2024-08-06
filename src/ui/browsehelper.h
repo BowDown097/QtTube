@@ -1,5 +1,6 @@
 #pragma once
 #include "innertube.h"
+#include "utils/uiutils.h"
 #include "ui/widgets/continuablelistwidget.h"
 #include <mutex>
 #include <QMessageBox>
@@ -31,11 +32,11 @@ public:
         {
             E newData = browseRequest<E>(widget->continuationToken, data);
             if constexpr (std::is_same_v<E, InnertubeEndpoints::Search>)
-                setupSearch(newData.response, widget);
+                setupSearch(widget, newData.response);
             else if constexpr (std::is_same_v<E, InnertubeEndpoints::GetNotificationMenu>)
-                setupNotificationList(newData.response.notifications, widget);
+                UIUtils::addRangeToList(widget, newData.response.notifications);
             else
-                setupVideoList(newData.response.videos, widget);
+                UIUtils::addRangeToList(widget, newData.response.videos);
 
             widget->continuationToken = newData.continuationToken;
         }
@@ -61,10 +62,9 @@ private:
             return InnerTube::instance()->getBlocking<E>(data, continuationToken);
     }
 
-    void setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget);
-    void setupNotificationList(const QList<InnertubeObjects::Notification>& notifications, QListWidget* widget);
-    void setupSearch(const InnertubeEndpoints::SearchResponse& response, QListWidget* widget);
-    void setupVideoList(const QList<InnertubeObjects::Video>& videos, QListWidget* widget);
+    void removeTrailingSeparator(QListWidget* list);
+    void setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response);
+    void setupTrending(QListWidget* widget, const InnertubeEndpoints::TrendingResponse& response);
 
     const QMap<int, QString> featureMap = {
         { 0, "isLive" },

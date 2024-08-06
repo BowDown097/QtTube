@@ -1,6 +1,6 @@
 #pragma once
 #include "innertube/objects/channel/metadatabadge.h"
-#include "innertube/objects/responsiveimage.h"
+#include "innertube/objects/images/responsiveimage.h"
 
 namespace PreloadData
 {

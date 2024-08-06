@@ -1,11 +1,13 @@
 #pragma once
 #include <initializer_list>
+#include <QCoreApplication>
 #include <QWidget>
 
 namespace InnertubeObjects
 {
 struct BackstagePost;
 struct Channel;
+struct Notification;
 struct Reel;
 struct Video;
 }
@@ -25,6 +27,7 @@ public:
     static void addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post);
     static void addBoldLabelToList(QListWidget* list, const QString& text);
     static void addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel);
+    static void addNotificationToList(QListWidget* list, const InnertubeObjects::Notification& notification);
     static void addSeparatorToList(QListWidget* list);
     static void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
     static void addShelfTitleToList(QListWidget* list, const QString& title);
@@ -43,6 +46,23 @@ public:
     static void setMaximumLines(QWidget* widget, int lines);
     static void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
     static void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);
+
+    static void addRangeToList(QListWidget* list, std::ranges::range auto&& range)
+    {
+        for (auto it = std::ranges::begin(range); it != std::ranges::end(range); ++it)
+        {
+            using RangeValue = std::ranges::range_value_t<decltype(range)>;
+            if constexpr (std::same_as<RangeValue, InnertubeObjects::BackstagePost>)
+                addBackstagePostToList(list, *it);
+            else if constexpr (std::same_as<RangeValue, InnertubeObjects::Channel>)
+                addChannelRendererToList(list, *it);
+            else if constexpr (std::same_as<RangeValue, InnertubeObjects::Notification>)
+                addNotificationToList(list, *it);
+            else if constexpr (std::same_as<RangeValue, InnertubeObjects::Reel> || std::same_as<RangeValue, InnertubeObjects::Video>)
+                addVideoRendererToList(list, *it);
+            QCoreApplication::processEvents();
+        }
+    }
 
     template<typename T>
     static T findParent(QWidget* widget)

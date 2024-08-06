@@ -14,7 +14,7 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
       thumbLabel(new TubeLabel(this))
 {
     channelIcon->setFixedSize(48, 48);
-    thumbLabel->setFixedHeight(72);
+    thumbLabel->setFixedSize(128, 72);
 
     shortMessage->setWordWrap(true);
 
@@ -51,5 +51,5 @@ void BrowseNotificationRenderer::setThumbnail(const HttpReply& reply)
         return;
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    thumbLabel->setPixmap(pixmap.scaledToWidth(128, Qt::SmoothTransformation));
+    thumbLabel->setPixmap(pixmap.scaled(128, 72, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }

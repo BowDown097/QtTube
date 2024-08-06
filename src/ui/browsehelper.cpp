@@ -1,11 +1,8 @@
 #include "browsehelper.h"
 #include "channelbrowser.h"
-#include "http.h"
 #include "mainwindow.h"
 #include "protobuf/protobufcompiler.h"
 #include "qttubeapplication.h"
-#include "ui/widgets/renderers/browsenotificationrenderer.h"
-#include "utils/uiutils.h"
 #include <ranges>
 
 using namespace InnertubeEndpoints;
@@ -68,7 +65,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
     connect(reply, &InnertubeReply<BrowseHistory>::exception, this,
         std::bind(&BrowseHelper::browseFailed, this, _1, "history", widget));
     connect(reply, &InnertubeReply<BrowseHistory>::finished, this, [this, widget](const BrowseHistory& endpoint) {
-        setupVideoList(endpoint.response.videos, widget);
+        UIUtils::addRangeToList(widget, endpoint.response.videos);
         widget->continuationToken = endpoint.continuationToken;
         widget->setPopulatingFlag(false);
     });
@@ -81,7 +78,7 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
     connect(reply, &InnertubeReply<BrowseHome>::exception, this,
         std::bind(&BrowseHelper::browseFailed, this, _1, "home", widget));
     connect(reply, &InnertubeReply<BrowseHome>::finished, this, [this, widget](const BrowseHome& endpoint) {
-        setupVideoList(endpoint.response.videos, widget);
+        UIUtils::addRangeToList(widget, endpoint.response.videos);
         widget->continuationToken = endpoint.continuationToken;
         widget->setPopulatingFlag(false);
     });
@@ -94,7 +91,7 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
     connect(reply, &InnertubeReply<GetNotificationMenu>::exception, this,
         std::bind(&BrowseHelper::browseFailed, this, _1, "notification", widget));
     connect(reply, &InnertubeReply<GetNotificationMenu>::finished, this, [this, widget](const GetNotificationMenu& endpoint) {
-        setupNotificationList(endpoint.response.notifications, widget);
+        UIUtils::addRangeToList(widget, endpoint.response.notifications);
         widget->continuationToken = endpoint.continuationToken;
         MainWindow::topbar()->updateNotificationCount(0);
         widget->setPopulatingFlag(false);
@@ -114,7 +111,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
     connect(reply, &InnertubeReply<BrowseSubscriptions>::exception, this,
         std::bind(&BrowseHelper::browseFailed, this, _1, "subscriptions", widget));
     connect(reply, &InnertubeReply<BrowseSubscriptions>::finished, this, [this, widget](const BrowseSubscriptions& endpoint) {
-        setupVideoList(endpoint.response.videos, widget);
+        UIUtils::addRangeToList(widget, endpoint.response.videos);
         widget->continuationToken = endpoint.continuationToken;
         widget->setPopulatingFlag(false);
     });
@@ -127,7 +124,7 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
     connect(reply, &InnertubeReply<BrowseTrending>::exception, this,
         std::bind(&BrowseHelper::browseFailed, this, _1, "trending", widget));
     connect(reply, &InnertubeReply<BrowseTrending>::finished, this, [this, widget](const BrowseTrending& endpoint) {
-        setupVideoList(endpoint.response.videos, widget);
+        setupTrending(widget, endpoint.response);
         widget->setPopulatingFlag(false);
     });
 }
@@ -153,7 +150,7 @@ void BrowseHelper::search(ContinuableListWidget* widget, const QString& query,
         std::bind(&BrowseHelper::browseFailed, this, _1, "search", widget));
     connect(reply, &InnertubeReply<Search>::finished, this, [this, widget](const Search& endpoint) {
         widget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(endpoint.response.estimatedResults)));
-        setupSearch(endpoint.response, widget);
+        setupSearch(widget, endpoint.response);
         widget->continuationToken = endpoint.continuationToken;
         widget->setPopulatingFlag(false);
     });
@@ -170,34 +167,15 @@ void BrowseHelper::browseFailed(const InnertubeException& ie, const QString& tit
         qWarning().nospace() << "Failed to get " << title << " data: " << ie.message();
 }
 
-void BrowseHelper::setupChannelList(const QList<InnertubeObjects::Channel>& channels, QListWidget* widget)
+void BrowseHelper::removeTrailingSeparator(QListWidget* list)
 {
-    for (const InnertubeObjects::Channel& channel : channels)
-    {
-        UIUtils::addChannelRendererToList(widget, channel);
-        QCoreApplication::processEvents();
-    }
+    if (QListWidgetItem* item = list->item(list->count()))
+        if (QWidget* itemWidget = list->itemWidget(item))
+            if (qobject_cast<QFrame*>(itemWidget))
+                itemWidget->deleteLater();
 }
 
-void BrowseHelper::setupNotificationList(const QList<InnertubeObjects::Notification>& notifications, QListWidget* widget)
-{
-    for (const InnertubeObjects::Notification& n : notifications)
-    {
-        BrowseNotificationRenderer* renderer = new BrowseNotificationRenderer(widget);
-        renderer->setData(n);
-        UIUtils::addWidgetToList(widget, renderer);
-
-        HttpReply* iconReply = Http::instance().get(n.channelIcon.url);
-        connect(iconReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setChannelIcon);
-
-        HttpReply* thumbReply = Http::instance().get("https://i.ytimg.com/vi/" + n.videoId + "/mqdefault.jpg");
-        connect(thumbReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setThumbnail);
-
-        QCoreApplication::processEvents();
-    }
-}
-
-void BrowseHelper::setupSearch(const InnertubeEndpoints::SearchResponse& response, QListWidget* widget)
+void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response)
 {
     for (const auto& item : response.contents)
     {
@@ -211,15 +189,10 @@ void BrowseHelper::setupSearch(const InnertubeEndpoints::SearchResponse& respons
             if (qtTubeApp->settings().hideSearchShelves || qtTubeApp->settings().hideShorts)
                 continue;
 
+            // TODO: make reel shelf widget, and replace this code for that
             UIUtils::addSeparatorToList(widget);
             UIUtils::addShelfTitleToList(widget, reelShelf->title.text);
-
-            for (const InnertubeObjects::Reel& reel : reelShelf->items)
-            {
-                UIUtils::addVideoRendererToList(widget, reel);
-                QCoreApplication::processEvents();
-            }
-
+            UIUtils::addRangeToList(widget, reelShelf->items);
             UIUtils::addSeparatorToList(widget);
         }
         else if (const InnertubeObjects::VerticalVideoShelf* shelf = std::get_if<InnertubeObjects::VerticalVideoShelf>(&item))
@@ -227,15 +200,10 @@ void BrowseHelper::setupSearch(const InnertubeEndpoints::SearchResponse& respons
             if (qtTubeApp->settings().hideSearchShelves)
                 continue;
 
+            // TODO: make expandable list widget, and replace this code for that
             UIUtils::addSeparatorToList(widget);
             UIUtils::addShelfTitleToList(widget, shelf->title.text);
-
-            for (const InnertubeObjects::Video& video : shelf->content.items | std::views::take(shelf->content.collapsedItemCount))
-            {
-                UIUtils::addVideoRendererToList(widget, video);
-                QCoreApplication::processEvents();
-            }
-
+            UIUtils::addRangeToList(widget, shelf->content.items | std::views::take(shelf->content.collapsedItemCount));
             UIUtils::addSeparatorToList(widget);
         }
         else if (const InnertubeObjects::Video* video = std::get_if<InnertubeObjects::Video>(&item))
@@ -246,18 +214,33 @@ void BrowseHelper::setupSearch(const InnertubeEndpoints::SearchResponse& respons
     }
 }
 
-void BrowseHelper::setupVideoList(const QList<InnertubeObjects::Video>& videos, QListWidget* widget)
+void BrowseHelper::setupTrending(QListWidget* widget, const InnertubeEndpoints::TrendingResponse& response)
 {
-    QString lastShelf;
-    for (const InnertubeObjects::Video& video : videos)
+    for (const auto& item : response.contents)
     {
-        if (!video.shelf.text.isEmpty() && video.shelf.text != lastShelf)
+        // see above TODO comments
+        if (const InnertubeObjects::HorizontalVideoShelf* hvs = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
         {
-            UIUtils::addShelfTitleToList(widget, video.shelf.text);
-            lastShelf = video.shelf.text;
+            UIUtils::addShelfTitleToList(widget, hvs->title.text);
+            UIUtils::addRangeToList(widget, hvs->content.items);
+            UIUtils::addSeparatorToList(widget);
+        }
+        else if (const InnertubeObjects::ReelShelf* rs = std::get_if<InnertubeObjects::ReelShelf>(&item))
+        {
+            if (qtTubeApp->settings().hideShorts)
+                continue;
+
+            UIUtils::addShelfTitleToList(widget, rs->title.text);
+            UIUtils::addRangeToList(widget, rs->items);
+            UIUtils::addSeparatorToList(widget);
+        }
+        else if (const InnertubeObjects::StandardVideoShelf* svs = std::get_if<InnertubeObjects::StandardVideoShelf>(&item))
+        {
+            UIUtils::addShelfTitleToList(widget, svs->title.text);
+            UIUtils::addRangeToList(widget, svs->content);
+            UIUtils::addSeparatorToList(widget);
         }
 
-        UIUtils::addVideoRendererToList(widget, video);
-        QCoreApplication::processEvents();
+        removeTrailingSeparator(widget);
     }
 }
