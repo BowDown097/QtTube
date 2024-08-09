@@ -21,7 +21,7 @@ jobs:
             name: Ubuntu
             qt_ver: 6
             qt_host: linux
-            qt_version: '6.7.0'
+            qt_version: '6.7.2'
             qt_modules: 'qtserialport qtpositioning qtwebchannel qtwebengine'
           - os: ubuntu-latest
             name: Ubuntu-Legacy
@@ -32,7 +32,7 @@ jobs:
           - os: windows-2022
             qt_ver: 6
             qt_host: windows
-            qt_version: '6.7.0'
+            qt_version: '6.7.2'
             qt_modules: 'qtserialport qtpositioning qtwebchannel qtwebengine'
     
     runs-on: ${{ matrix.os }}
@@ -45,15 +45,9 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-
-      - name: Set up GCC
-        if: runner.os == 'Linux'
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: 12
           
       - name: Set up MSVC
         if: runner.os == 'Windows'
@@ -80,7 +74,7 @@ jobs:
           sudo apt-get -y install libxss-dev libfuse2 libxcb-cursor0
       
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: ${{ matrix.qt_version }}
           host: ${{ matrix.qt_host }}
@@ -138,28 +132,28 @@ jobs:
       
       - name: Upload artifact (zip)
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
           path: ${{ env.INSTALL_DIR }}/**
           
       #- name: Upload artifact (installer)
         #if: runner.os == 'Windows'
-        #uses: actions/upload-artifact@v3
+        #uses: actions/upload-artifact@v4
         #with:
           #name: QtTube-${{ runner.os }}-Setup-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
           #path: QtTube-Setup.exe
           
       - name: Upload artifact (tarball)
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
           path: QtTube.tar.gz
       
       - name: Upload artifact (AppImage)
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage
           path: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage
