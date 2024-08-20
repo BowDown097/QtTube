@@ -94,11 +94,15 @@ void ChannelView::loadChannel(const QString& channelId)
         QGridLayout* grid = new QGridLayout(tab);
         grid->setContentsMargins(0, 0, 0, 0);
 
-        QListWidget* list = new QListWidget(tab);
+        ContinuableListWidget* list = new ContinuableListWidget(tab);
         list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         list->verticalScrollBar()->setSingleStep(25);
         grid->addWidget(list, 0, 0, 1, 1);
+
+        connect(list, &ContinuableListWidget::continuationReady, this, [this, list] {
+            BrowseHelper::instance()->continuation<InnertubeEndpoints::BrowseChannel>(list, this->channelId);
+        });
 
         channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
     }
@@ -106,10 +110,11 @@ void ChannelView::loadChannel(const QString& channelId)
 
 void ChannelView::loadTab(const InnertubeEndpoints::ChannelResponse& response, int index)
 {
-    for (QListWidget* l : channelTabs->findChildren<QListWidget*>())
+    const QList<ContinuableListWidget*> tabs = channelTabs->findChildren<ContinuableListWidget*>();
+    for (ContinuableListWidget* l : tabs)
         l->clear();
 
-    QListWidget* list = channelTabs->widget(index)->findChild<QListWidget*>();
+    ContinuableListWidget* list = channelTabs->widget(index)->findChild<ContinuableListWidget*>();
     BrowseHelper::instance()->browseChannel(list, index, response);
 }
 

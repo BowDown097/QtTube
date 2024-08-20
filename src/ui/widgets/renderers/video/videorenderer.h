@@ -23,7 +23,7 @@ public:
     TubeLabel* titleLabel;
 
     explicit VideoRenderer(QWidget* parent = nullptr);
-    void setData(const InnertubeObjects::Reel& reel);
+    void setData(const InnertubeObjects::Reel& reel, bool isInGrid = false);
     void setData(const InnertubeObjects::Video& video);
 private:
     QString channelId;

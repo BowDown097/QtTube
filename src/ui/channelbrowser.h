@@ -1,18 +1,14 @@
 #pragma once
-#include <QListWidget>
+#include "ui/widgets/continuablelistwidget.h"
 
-namespace InnertubeEndpoints { struct ChannelResponse; }
-
-class ChannelBrowser
+namespace ChannelBrowser
 {
-public:
-    static void setupAbout(QListWidget* widget, const QJsonValue& renderer);
-    static void setupChannels(QListWidget* widget, const QJsonValue& renderer);
-    static void setupCommunity(QListWidget* widget, const QJsonValue& renderer);
-    static void setupHome(QListWidget* widget, const QJsonValue& renderer, const InnertubeEndpoints::ChannelResponse& resp);
-    static void setupLive(QListWidget* widget, const QJsonValue& renderer, const InnertubeEndpoints::ChannelResponse& resp);
-    static void setupMembership(QListWidget* widget, const QJsonValue& renderer);
-    static void setupShorts(QListWidget* widget, const QJsonValue& renderer, const InnertubeEndpoints::ChannelResponse& resp);
-    static void setupUnimplemented(QListWidget* widget);
-    static void setupVideos(QListWidget* widget, const QJsonValue& renderer, const InnertubeEndpoints::ChannelResponse& resp);
+    void continuation(ContinuableListWidget* widget, const QJsonValue& contents);
+    void setupCommunity(ContinuableListWidget* widget, const QJsonValue& renderer);
+    void setupHome(ContinuableListWidget* widget, const QJsonValue& renderer);
+    void setupLive(ContinuableListWidget* widget, const QJsonValue& renderer);
+    void setupMembership(ContinuableListWidget* widget, const QJsonValue& renderer);
+    void setupShorts(ContinuableListWidget* widget, const QJsonValue& renderer);
+    void setupUnimplemented(ContinuableListWidget* widget);
+    void setupVideos(ContinuableListWidget* widget, const QJsonValue& renderer);
 };

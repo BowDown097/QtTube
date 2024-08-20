@@ -79,7 +79,7 @@ void VideoRenderer::navigateVideo()
     ViewController::loadVideo(videoId, progress, watchPreloadData.get());
 }
 
-void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
+void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid)
 {
     videoId = reel.videoId;
 
@@ -87,7 +87,12 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel)
     metadataLabel->setText(reel.viewCountText.text);
 
     thumbnail->setLengthText("SHORTS");
-    thumbnail->setFixedSize(105, 186);
+
+    if (isInGrid)
+        thumbnail->setFixedSize(210, 372);
+    else
+        thumbnail->setFixedSize(105, 186);
+
     if (auto recThumbnail = reel.thumbnail.recommendedQuality(thumbnail->size()); recThumbnail.has_value())
         setThumbnail(recThumbnail->get().url);
 
@@ -107,15 +112,18 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
     progress = video.navigationEndpoint["watchEndpoint"]["startTimeSeconds"].toInt();
     videoId = video.videoId;
 
-    QStringList metadataList {
-        video.publishedTimeText.text,
-        qtTubeApp->settings().condensedCounts ? video.shortViewCountText.text : video.viewCountText.text
-    };
+    QStringList metadataList;
+    metadataList.reserve(2);
+    metadataList.append(video.publishedTimeText.text);
+    metadataList.append(qtTubeApp->settings().condensedCounts ? video.shortViewCountText.text : video.viewCountText.text);
     metadataList.removeAll({});
-
-    channelLabel->show();
-    channelLabel->setInfo(channelId, video.owner.name, video.owner.badges);
     metadataLabel->setText(metadataList.join(" • "));
+
+    if (!video.owner.id.isEmpty())
+    {
+        channelLabel->show();
+        channelLabel->setInfo(channelId, video.owner.name, video.owner.badges);
+    }
 
     thumbnail->setLengthText(video.lengthText.text);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));

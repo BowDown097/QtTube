@@ -3,9 +3,9 @@
 #include "innertube/objects/video/video.h"
 #include <QSettings>
 
-bool SettingsStore::channelIsFiltered(const QString& channelId) const
+bool SettingsStore::channelIsFiltered(const QString& id) const
 {
-    return std::ranges::any_of(filteredChannels, [&channelId](const QString& c) { return c.startsWith(channelId); });
+    return !id.isEmpty() && std::ranges::any_of(filteredChannels, [&id](const QString& c) { return c.startsWith(id); });
 }
 
 void SettingsStore::initialize()

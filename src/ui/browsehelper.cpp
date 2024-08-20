@@ -14,7 +14,7 @@ BrowseHelper* BrowseHelper::instance()
     return m_instance;
 }
 
-void BrowseHelper::browseChannel(QListWidget* widget, int index, const InnertubeEndpoints::ChannelResponse& resp)
+void BrowseHelper::browseChannel(ContinuableListWidget* widget, int index, const InnertubeEndpoints::ChannelResponse& resp)
 {
     QJsonValue tabRenderer = resp.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
     if (!tabRenderer["selected"].toBool())
@@ -26,23 +26,19 @@ void BrowseHelper::browseChannel(QListWidget* widget, int index, const Innertube
 
     try
     {
-        QString title = tabRenderer["title"].toString();
-        if (title == "Home")
-            ChannelBrowser::setupHome(widget, tabRenderer, resp);
-        else if (title == "Videos")
-            ChannelBrowser::setupVideos(widget, tabRenderer, resp);
-        else if (title == "Shorts")
-            ChannelBrowser::setupShorts(widget, tabRenderer, resp);
-        else if (title == "Live")
-            ChannelBrowser::setupLive(widget, tabRenderer, resp);
-        else if (title == "Membership")
+        QString commandUrl = tabRenderer["endpoint"]["commandMetadata"]["webCommandMetadata"]["url"].toString();
+        if (commandUrl.endsWith("/featured"))
+            ChannelBrowser::setupHome(widget, tabRenderer);
+        else if (commandUrl.endsWith("/videos"))
+            ChannelBrowser::setupVideos(widget, tabRenderer);
+        else if (commandUrl.endsWith("/shorts"))
+            ChannelBrowser::setupShorts(widget, tabRenderer);
+        else if (commandUrl.endsWith("/streams"))
+            ChannelBrowser::setupLive(widget, tabRenderer);
+        else if (commandUrl.endsWith("/membership"))
             ChannelBrowser::setupMembership(widget, tabRenderer);
-        else if (title == "Community")
+        else if (commandUrl.endsWith("/community"))
             ChannelBrowser::setupCommunity(widget, tabRenderer);
-        else if (title == "Channels")
-            ChannelBrowser::setupChannels(widget, tabRenderer);
-        else if (title == "About")
-            ChannelBrowser::setupAbout(widget, tabRenderer);
         else
             ChannelBrowser::setupUnimplemented(widget);
     }
@@ -127,6 +123,11 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
         setupTrending(widget, endpoint.response);
         widget->setPopulatingFlag(false);
     });
+}
+
+void BrowseHelper::continueChannel(ContinuableListWidget* widget, const QJsonValue& contents)
+{
+    ChannelBrowser::continuation(widget, contents);
 }
 
 void BrowseHelper::search(ContinuableListWidget* widget, const QString& query,

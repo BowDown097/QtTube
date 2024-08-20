@@ -125,7 +125,7 @@ void UIUtils::addVideoRendererToList(QListWidget* list, const InnertubeObjects::
         return;
 
     VideoRenderer* renderer = constructVideoRenderer(list);
-    renderer->setData(reel);
+    renderer->setData(reel, list->flow() == QListWidget::LeftToRight);
     addWidgetToList(list, renderer);
 }
 

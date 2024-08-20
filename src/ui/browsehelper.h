@@ -14,18 +14,22 @@ public:
     static BrowseHelper* instance();
     explicit BrowseHelper(QObject* parent = nullptr) : QObject(parent) {}
 
-    void browseChannel(QListWidget* widget, int index, const InnertubeEndpoints::ChannelResponse& resp);
+    void browseChannel(ContinuableListWidget* widget, int index, const InnertubeEndpoints::ChannelResponse& resp);
     void browseHistory(ContinuableListWidget* widget, const QString& query = "");
     void browseHome(ContinuableListWidget* widget);
     void browseNotificationMenu(ContinuableListWidget* widget);
     void browseSubscriptions(ContinuableListWidget* widget);
     void browseTrending(ContinuableListWidget* widget);
+    void continueChannel(ContinuableListWidget* widget, const QJsonValue& contents);
     void search(ContinuableListWidget* widget, const QString& query,
                 int dateF = -1, int typeF = -1, int durF = -1, int featF = -1, int sort = -1);
 
     template<EndpointWithData E>
     void continuation(ContinuableListWidget* widget, const QString& data = "", int threshold = 10)
     {
+        if (widget->continuationToken.isEmpty())
+            return;
+
         widget->setPopulatingFlag(true);
 
         try
@@ -35,10 +39,14 @@ public:
                 setupSearch(widget, newData.response);
             else if constexpr (std::is_same_v<E, InnertubeEndpoints::GetNotificationMenu>)
                 UIUtils::addRangeToList(widget, newData.response.notifications);
+            else if constexpr (std::is_same_v<E, InnertubeEndpoints::BrowseChannel>)
+                continueChannel(widget, newData.response.contents);
             else
                 UIUtils::addRangeToList(widget, newData.response.videos);
 
-            widget->continuationToken = newData.continuationToken;
+            // continuationToken is added by ChannelBrowser::continuation() for channels
+            if constexpr (!std::is_same_v<E, InnertubeEndpoints::BrowseChannel>)
+                widget->continuationToken = newData.continuationToken;
         }
         catch (const InnertubeException& ie)
         {

@@ -56,7 +56,7 @@ public:
 
     explicit SettingsStore(QObject* parent = nullptr) : GenericStore("settings.ini") {}
 
-    bool channelIsFiltered(const QString& channelId) const;
+    bool channelIsFiltered(const QString& id) const;
     bool strHasFilteredTerm(const QString& str) const;
     bool videoIsFiltered(const InnertubeObjects::Reel& reel) const;
     bool videoIsFiltered(const InnertubeObjects::Video& video) const;
