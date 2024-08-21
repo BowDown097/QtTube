@@ -93,7 +93,6 @@ void WatchView::descriptionLinkActivated(const QString& url)
 void WatchView::hotLoadVideo(const QString& videoId, int progress, PreloadData::WatchView* preload)
 {
     ui->feed->reset();
-    ui->player->stopTracking();
     ui->scrollArea->horizontalScrollBar()->setValue(0);
     ui->scrollArea->verticalScrollBar()->setValue(0);
 
@@ -301,7 +300,7 @@ void WatchView::resizeEvent(QResizeEvent* event)
 
     int width = ui->player->size().width();
     ui->description->setFixedWidth(width);
-    ui->feed->setMaximumWidth(ui->player->scaleMode() == PlayerScaleMode::Scaled
+    ui->feed->setMaximumWidth(ui->player->scaleMode() == WatchViewPlayer::ScaleMode::Scaled
                                   ? event->size().width() - width - ui->primaryLayout->spacing() : QWIDGETSIZE_MAX);
     ui->menuWrapper->setFixedWidth(width);
     ui->primaryInfoWrapper->setFixedWidth(width);

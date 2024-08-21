@@ -1,11 +1,10 @@
 #pragma once
-#include <QObject>
+#include "watchviewplayer.h"
 
 QT_BEGIN_NAMESPACE
 
 class ChannelLabel;
 class IconLabel;
-enum class PlayerScaleMode;
 class QFrame;
 class QHBoxLayout;
 class QProgressBar;
@@ -15,7 +14,6 @@ class QVBoxLayout;
 class SubscribeWidget;
 class TubeLabel;
 class WatchNextFeed;
-class WatchViewPlayer;
 
 class WatchView_Ui : public QObject
 {
@@ -60,7 +58,7 @@ private:
 public slots:
     void toggleShowMore();
 private slots:
-    void moveFeed(PlayerScaleMode scaleMode);
+    void moveFeed(WatchViewPlayer::ScaleMode scaleMode);
     void scrollValueChanged(int value);
 };
 

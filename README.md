@@ -11,11 +11,9 @@ Outside of that, you will need to build the program yourself - [instructions are
 
 # Used Libraries
 - [AnnotationsRestored](https://github.com/isaackd/AnnotationsRestored)
-- [emojicpp](https://github.com/99x/emojicpp)
 - [h264ify](https://github.com/erkserkserks/h264ify)
 - [http](https://github.com/flaviotordini/http)
 - [innertube-qt](https://github.com/BowDown097/innertube-qt)
-- [media](https://github.com/flaviotordini/media)
 - [QWebEngineYtPlayer](https://github.com/keshavbhatt/QWebengineYtPlayer)
 - [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
 - [SponsorBlock](https://github.com/ajayyy/SponsorBlock)

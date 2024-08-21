@@ -22,16 +22,16 @@ constexpr QLatin1String LikeBarStylesheet(R"(
     }
 )");
 
-void WatchView_Ui::moveFeed(PlayerScaleMode scaleMode)
+void WatchView_Ui::moveFeed(WatchViewPlayer::ScaleMode scaleMode)
 {
-    feed->currentList()->verticalScrollBar()->setEnabled(scaleMode == PlayerScaleMode::Scaled);
-    if (scaleMode == PlayerScaleMode::NoScale)
+    feed->currentList()->verticalScrollBar()->setEnabled(scaleMode == WatchViewPlayer::ScaleMode::Scaled);
+    if (scaleMode == WatchViewPlayer::ScaleMode::NoScale)
     {
         primaryLayout->removeWidget(feed);
         frameLayout->addWidget(feed);
         feed->setMinimumHeight(500);
     }
-    else if (scaleMode == PlayerScaleMode::Scaled)
+    else if (scaleMode == WatchViewPlayer::ScaleMode::Scaled)
     {
         frameLayout->removeWidget(feed);
         primaryLayout->addWidget(feed);
@@ -87,13 +87,13 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
 void WatchView_Ui::setupFeed(QWidget* watchView)
 {
     feed = new WatchNextFeed(watchView);
-    if (player->scaleMode() == PlayerScaleMode::NoScale)
+    if (player->scaleMode() == WatchViewPlayer::ScaleMode::NoScale)
     {
         frameLayout->addWidget(feed);
         feed->currentList()->verticalScrollBar()->setEnabled(false);
         feed->setMinimumHeight(500);
     }
-    else if (player->scaleMode() == PlayerScaleMode::Scaled)
+    else if (player->scaleMode() == WatchViewPlayer::ScaleMode::Scaled)
     {
         primaryLayout->addWidget(feed);
         feed->setMaximumWidth(MainWindow::size().width() - player->size().width() - primaryLayout->spacing());
@@ -210,7 +210,7 @@ void WatchView_Ui::setupTitle(QWidget* watchView)
 
 void WatchView_Ui::scrollValueChanged(int value)
 {
-    if (player->scaleMode() == PlayerScaleMode::Scaled)
+    if (player->scaleMode() == WatchViewPlayer::ScaleMode::Scaled)
         return;
 
     QScrollBar* feedScrollBar = feed->currentList()->verticalScrollBar();

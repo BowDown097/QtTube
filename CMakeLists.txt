@@ -38,7 +38,6 @@ endif()
 # Compilation options
 option(QTTUBE_ENABLE_ASAN "Enable AddressSanitizer to detect memory errors in debug builds." OFF)
 option(QTTUBE_EXTERNAL_OPENSSL "Grab OpenSSL externally when building if it's not installed on Windows." ON)
-option(QTTUBE_USE_MPV "Use MPV for the video player." OFF)
 
 # Address sanitizer
 if(CMAKE_BUILD_TYPE MATCHES "Debug" AND QTTUBE_ENABLE_ASAN)
@@ -55,18 +54,10 @@ endif()
 # Qt packages
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 set(QTTUBE_QT_VERSION_MAJOR ${QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QT_VERSION_MAJOR}")
-find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Network Sql Widgets)
+find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Network Sql WebEngineWidgets Widgets)
 
-if(QTTUBE_QT_VERSION_MAJOR EQUAL 5)
-    if(UNIX AND NOT APPLE)
-        find_package(Qt5 OPTIONAL_COMPONENTS OpenGL WebEngineWidgets X11Extras)
-    else()
-        find_package(Qt5 OPTIONAL_COMPONENTS OpenGL WebEngineWidgets)
-    endif()
-elseif(QTTUBE_QT_VERSION_MAJOR EQUAL 6)
-    find_package(Qt6 OPTIONAL_COMPONENTS OpenGLWidgets WebEngineWidgets)
-else()
-    message(FATAL_ERROR "Qt version ${QTTUBE_QT_VERSION_MAJOR} is not supported")
+if(QTTUBE_QT_VERSION_MAJOR EQUAL 5 AND (UNIX AND NOT APPLE))
+    find_package(Qt5 OPTIONAL_COMPONENTS X11Extras)
 endif()
 
 # macOS bundle settings
@@ -148,6 +139,11 @@ set(SOURCE_FILES
     src/ui/widgets/topbar/searchbox.cpp
     src/ui/widgets/topbar/topbar.cpp
     src/ui/widgets/topbar/topbarbell.cpp
+    src/ui/widgets/webengineplayer/fullscreennotification.cpp
+    src/ui/widgets/webengineplayer/fullscreenwindow.cpp
+    src/ui/widgets/webengineplayer/playerinterceptor.cpp
+    src/ui/widgets/webengineplayer/webchannelinterface.cpp
+    src/ui/widgets/webengineplayer/webengineplayer.cpp
     src/utils/httputils.cpp
     src/utils/osutils.cpp
     src/utils/stringutils.cpp
@@ -227,6 +223,11 @@ set(HEADERS
     src/ui/widgets/topbar/searchbox.h
     src/ui/widgets/topbar/topbar.h
     src/ui/widgets/topbar/topbarbell.h
+    src/ui/widgets/webengineplayer/fullscreennotification.h
+    src/ui/widgets/webengineplayer/fullscreenwindow.h
+    src/ui/widgets/webengineplayer/playerinterceptor.h
+    src/ui/widgets/webengineplayer/webchannelinterface.h
+    src/ui/widgets/webengineplayer/webengineplayer.h
     src/utils/httputils.h
     src/utils/osutils.h
     src/utils/stringutils.h
@@ -272,13 +273,9 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     QTTUBE_VERSION_NAME="${QTTUBE_VERSION_NAME}"
 )
 
-if(QTTUBE_USE_MPV)
-    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_USE_MPV)
-endif()
-
 # Include directories, libraries
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE innertube-qt Qt::Network Qt::Sql Qt::Widgets)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE innertube-qt Qt::Network Qt::Sql Qt::WebEngineWidgets Qt::Widgets)
 
 ## Optional
 find_package(ICU COMPONENTS i18n uc)
@@ -286,34 +283,6 @@ if(ICU_FOUND)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_ICU)
     target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ICU_INCLUDE_DIRS})
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${ICU_LIBRARIES})
-endif()
-
-if(QTTUBE_USE_MPV)
-    target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-        lib/media/media.h
-        lib/media/mpv/mediampv.cpp lib/media/mpv/mediampv.h
-        lib/media/mpv/mpvwidget.cpp lib/media/mpv/mpvwidget.h
-        lib/media/mpv/qthelper.hpp
-    )
-
-    if(QTTUBE_QT_VERSION_MAJOR EQUAL 6)
-        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::OpenGLWidgets)
-    else()
-        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::OpenGL)
-    endif()
-
-    include(${CMAKE_SOURCE_DIR}/cmake/FindLibMPV.cmake)
-    target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LIBMPV_INCLUDE_DIR})
-    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LIBMPV_LIBRARY})
-else()
-    target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-        src/ui/widgets/webengineplayer/fullscreennotification.cpp src/ui/widgets/webengineplayer/fullscreennotification.h
-        src/ui/widgets/webengineplayer/fullscreenwindow.cpp src/ui/widgets/webengineplayer/fullscreenwindow.h
-        src/ui/widgets/webengineplayer/playerinterceptor.cpp src/ui/widgets/webengineplayer/playerinterceptor.h
-        src/ui/widgets/webengineplayer/webchannelinterface.cpp src/ui/widgets/webengineplayer/webchannelinterface.h
-        src/ui/widgets/webengineplayer/webengineplayer.cpp src/ui/widgets/webengineplayer/webengineplayer.h
-    )
-    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::WebEngineWidgets)
 endif()
 
 ## Platform-specific

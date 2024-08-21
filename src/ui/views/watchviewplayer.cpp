@@ -1,39 +1,19 @@
 #include "watchviewplayer.h"
 #include "innertube.h"
-
-#ifdef QTTUBE_USE_MPV
-#include "lib/media/mpv/mediampv.h"
-#include "stores/settingsstore.h"
-#include "utils/tubeutils.h"
-#include <QMessageBox>
-#else
 #include "ui/widgets/webengineplayer/webengineplayer.h"
-#endif
 
 WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QObject(watchView)
 {
-#ifdef QTTUBE_USE_MPV
-    media = new MediaMPV(watchView);
-    media->init();
-    media->setVolume(SettingsStore::instance()->preferredVolume);
-
-    connect(media, &Media::error, this, [](const QString& message) { qWarning() << "Media error:" << message; });
-    connect(media, &Media::stateChanged, this, &WatchViewPlayer::mediaStateChanged);
-    connect(media, &Media::volumeChanged, this, &WatchViewPlayer::volumeChanged);
-#else
-    wePlayer = new WebEnginePlayer(watchView);
-    wePlayer->setAuthStore(InnerTube::instance()->authStore());
-    wePlayer->setContext(InnerTube::instance()->context());
-
-    connect(wePlayer, &WebEnginePlayer::progressChanged, this, &WatchViewPlayer::progressChanged);
-#endif
-
+    m_player = new WebEnginePlayer(watchView);
+    m_player->setAuthStore(InnerTube::instance()->authStore());
+    m_player->setContext(InnerTube::instance()->context());
+    connect(m_player, &WebEnginePlayer::progressChanged, this, &WatchViewPlayer::progressChanged);
     calcAndSetSize(maxSize);
 }
 
 void WatchViewPlayer::calcAndSetSize(const QSize& maxSize)
 {
-    PlayerScaleMode currentScaleMode = m_scaleMode;
+    WatchViewPlayer::ScaleMode currentScaleMode = m_scaleMode;
     int playerWidth = maxSize.width();
     int playerHeight = playerWidth * 9/16;
     int maxHeightBeforeScale = maxSize.height() - 150;
@@ -42,86 +22,36 @@ void WatchViewPlayer::calcAndSetSize(const QSize& maxSize)
     {
         playerWidth = std::min(maxHeightBeforeScale * 16/9, maxSize.width() - 500);
         playerHeight = playerWidth * 9/16;
-        m_scaleMode = PlayerScaleMode::Scaled;
+        m_scaleMode = WatchViewPlayer::ScaleMode::Scaled;
     }
     else
     {
-        m_scaleMode = PlayerScaleMode::NoScale;
+        m_scaleMode = WatchViewPlayer::ScaleMode::NoScale;
     }
 
     if (m_scaleMode != currentScaleMode)
         emit scaleModeChanged(m_scaleMode);
 
-    QSize sz(playerWidth, playerHeight);
-    m_size = sz;
-    widget()->setFixedSize(sz);
+    m_size = QSize(playerWidth, playerHeight);
+    m_player->setFixedSize(m_size);
 }
 
 void WatchViewPlayer::play(const QString& videoId, int progress)
 {
-#ifdef QTTUBE_USE_MPV
-    media->play("https://www.youtube.com/watch?v=" + videoId);
-    media->seek(progress);
-#else
-    wePlayer->play(videoId, progress);
-#endif
+    m_player->play(videoId, progress);
 }
 
 void WatchViewPlayer::seek(int progress)
 {
-#ifdef QTTUBE_USE_MPV
-    media->seek(progress);
-#else
-    wePlayer->seek(progress);
-#endif
+    m_player->seek(progress);
 }
 
 void WatchViewPlayer::startTracking(const InnertubeEndpoints::PlayerResponse& playerResp)
 {
-#ifdef QTTUBE_USE_MPV
-    if (SettingsStore::instance()->playbackTracking)
-        TubeUtils::reportPlayback(playerResp);
-
-    if (SettingsStore::instance()->watchtimeTracking)
-    {
-        watchtimeTimer = new QTimer(this);
-        watchtimeTimer->setInterval(5000);
-        watchtimeTimer->start();
-        connect(watchtimeTimer, &QTimer::timeout, this, std::bind(&TubeUtils::reportWatchtime, playerResp, media->position()));
-    }
-#else
-    wePlayer->setPlayerResponse(playerResp);
-#endif
-}
-
-void WatchViewPlayer::stopTracking()
-{
-#ifdef QTTUBE_USE_MPV
-    if (watchtimeTimer)
-        watchtimeTimer->deleteLater();
-#endif
+    m_player->setPlayerResponse(playerResp);
 }
 
 QWidget* WatchViewPlayer::widget()
 {
-#ifdef QTTUBE_USE_MPV
-    return media->videoWidget();
-#else
-    return wePlayer;
-#endif
+    return m_player;
 }
-
-#ifdef QTTUBE_USE_MPV
-void WatchViewPlayer::mediaStateChanged(Media::State state)
-{
-    if (state == Media::ErrorState)
-        QMessageBox::critical(nullptr, "Media error", media->errorString());
-}
-
-void WatchViewPlayer::volumeChanged(double volume)
-{
-    Q_UNUSED(volume);
-    if (media->volumeMuted())
-        media->setVolumeMuted(false);
-}
-#endif
