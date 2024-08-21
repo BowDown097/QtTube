@@ -43,7 +43,7 @@ async function initialSBSetup() {
     for (const segment of segments) {
         const bar = document.createElement("li");
         bar.classList.add("previewbar");
-        bar.innerHTML = "&nbsp;";
+        bar.innerText = "&nbsp;";
         bar.setAttribute("sponsorblock-category", segment.category);
 
         bar.style.backgroundColor = barTypes[segment.category].color;
