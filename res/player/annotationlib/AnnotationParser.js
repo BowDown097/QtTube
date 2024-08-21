@@ -59,7 +59,11 @@ class AnnotationParser {
         return e
     }
     xmlToDom(t) {
-        return (new DOMParser).parseFromString(t, "application/xml")
+        // needed to fix "This document requires 'TrustedHTML' assignment"
+        const escapeHTMLPolicy = trustedTypes.createPolicy("forceInner", {
+            createHTML: (string) => string
+        });
+        return (new DOMParser).parseFromString(escapeHTMLPolicy.createHTML(t), "application/xml")
     }
     getAnnotationsFromXml(t) {
         return this.xmlToDom(t).getElementsByTagName("annotation")

@@ -1,34 +1,47 @@
-const annotationsEndpoint = "https://sperg.rodeo/qttube_annotations";
+const annotationsEndpoint = "https://storage.googleapis.com/biggest_bucket/annotations";
 const annotationParser = new AnnotationParser();
 let renderer;
 
 function addAnnotationSwitch(el) {
     const annoSwitchPar = document.createElement("div");
     annoSwitchPar.className = "ytp-menuitem";
-    annoSwitchPar.innerHTML = `
-    <div class="ytp-menuitem-icon"></div>
-    <div class="ytp-menuitem-label">Classic annotations</div>
-    <div class="ytp-menuitem-content">
-        <div class="ytp-menuitem-toggle-checkbox">
-        <input type="checkbox" id="annotation-sneaky-switch" aria-hidden="true" style="position: absolute; left: -100vw;">
-        </div>
-    </div>
-    `;
-    annoSwitchPar.setAttribute("role", "menuitemcheckbox");
-    annoSwitchPar.setAttribute("aria-checked", "true");
-    annoSwitchPar.setAttribute("tabindex", "0");
-
+    annoSwitchPar.ariaChecked = true;
+    annoSwitchPar.role = "menuitemcheckbox";
+    annoSwitchPar.tabIndex = 0;
     el.prepend(annoSwitchPar);
 
-    // a visually-hidden input checkbox (annoSneakySwitch) is used to store the state of annotation visibility.
-	// the same thing could be done with some craftier JS but checkboxes are very certain and difficult to screw up */
+    const icon = document.createElement("div");
+    icon.className = "ytp-menuitem-icon";
+    annoSwitchPar.appendChild(icon);
 
-	const annoSneakySwitch = document.querySelector("#annotation-sneaky-switch");
-	annoSneakySwitch.checked = true;
+    const label = document.createElement("div");
+    label.className = "ytp-menuitem-label";
+    label.innerText = "Classic annotations";
+    annoSwitchPar.appendChild(label);
+
+    const content = document.createElement("div");
+    content.className = "ytp-menuitem-content";
+    annoSwitchPar.appendChild(content);
+
+    const toggle = document.createElement("div");
+    toggle.className = "ytp-menuitem-toggle-checkbox";
+    content.appendChild(toggle);
+
+    // a visually-hidden input checkbox (sneakySwitch) is used to store the state of annotation visibility.
+	// the same thing could be done with some craftier JS but checkboxes are very certain and difficult to screw up
+
+    const sneakySwitch = document.createElement("input");
+    sneakySwitch.id = "annotation-sneaky-switch";
+    sneakySwitch.type = "checkbox";
+    sneakySwitch.ariaHidden = true;
+    sneakySwitch.checked = true;
+    sneakySwitch.style = "position: absolute; left: -100vw";
+    toggle.appendChild(sneakySwitch);
+
 	annoSwitchPar.addEventListener("click", () => {
-		annoSneakySwitch.click();
+		sneakySwitch.click();
 
-		if (annoSneakySwitch.checked) {
+		if (sneakySwitch.checked) {
 			annoSwitchPar.setAttribute("aria-checked", "true");
 			renderer.annotationsContainer.style.display = "block";
 		}
@@ -60,7 +73,9 @@ function getVideoPath(videoId) {
         annotationFileDirectory = "-/ar-";
     }
 
-    return `${annotationsEndpoint}?videoId=${videoId}`;
+    // base URL has no Access-Control-Allow-Origin header, so we need to run it through a CORS proxy
+    const baseUrl = `${annotationsEndpoint}/${annotationFileDirectory}/${videoId.substring(0, 3)}/${videoId}.xml.gz`;
+    return "https://corsproxy.io/?" + encodeURIComponent(baseUrl);
 }
 
 function handleAnnotations(videoId) {
