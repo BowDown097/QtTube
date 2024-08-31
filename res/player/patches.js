@@ -9,7 +9,7 @@ waitForElement("#movie_player .ytp-error").then(function() {
     const ageGateReasons = [ "confirm your age", "age-restricted", "inappropriate" ];
     const ageGateStatuses = [ "AGE_VERIFICATION_REQUIRED", "AGE_CHECK_REQUIRED" ];
     const isAgeGated = Object.hasOwn(playability, "desktopLegacyAgeGateReason") ||
-        ageGateReasons.some(r => playability.reason.includes(r)) ||
+        ageGateReasons.some(r => playability.reason?.includes(r)) ||
         ageGateStatuses.some(s => playability.status == s);
 
     let clientData = {};
@@ -18,7 +18,7 @@ waitForElement("#movie_player .ytp-error").then(function() {
             clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
             clientVersion: "2.0"
         };
-    } else if (playability.status == "UNPLAYABLE") {
+    } else { // this will (hopefully) resolve any other potential problem
         clientData = {
             clientName: "IOS",
             clientVersion: "19.29.1",
@@ -28,8 +28,6 @@ waitForElement("#movie_player .ytp-error").then(function() {
             osName: "iPhone",
             osVersion: "17.5.1.21F90"
         };
-    } else {
-        return;
     }
 
     Object.assign(ytcfg.data_.INNERTUBE_CONTEXT.client, clientData);
