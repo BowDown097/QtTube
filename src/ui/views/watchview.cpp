@@ -35,8 +35,11 @@ WatchView::~WatchView()
 WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchView* preload, QWidget* parent)
     : QWidget(parent), ui(new Ui::WatchView)
 {
-    MainWindow::topbar()->hide();
-    MainWindow::topbar()->setAlwaysShow(false);
+    if (qtTubeApp->settings().autoHideTopBar)
+    {
+        MainWindow::topbar()->hide();
+        MainWindow::topbar()->setAlwaysShow(false);
+    }
 
     ui->setupUi(this);
 

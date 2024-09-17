@@ -112,8 +112,12 @@ void WatchView_Ui::setupFrame(QWidget* watchView)
     connect(scrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this, &WatchView_Ui::scrollValueChanged);
 
     primaryLayout = new QHBoxLayout(watchView);
-    primaryLayout->setContentsMargins(0, 0, 0, 0);
     primaryLayout->setSpacing(5);
+
+    if (qtTubeApp->settings().autoHideTopBar)
+        primaryLayout->setContentsMargins(0, 0, 0, 0);
+    else
+        primaryLayout->setContentsMargins(0, MainWindow::topbar()->height(), 0, 0);
 
     frame = new QFrame(scrollArea);
     frameLayout = new QVBoxLayout;

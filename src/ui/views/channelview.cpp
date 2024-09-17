@@ -1,9 +1,9 @@
 #include "channelview.h"
 #include "http.h"
 #include "mainwindow.h"
+#include "qttubeapplication.h"
 #include "ui/browsehelper.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
-#include <QApplication>
 #include <QBoxLayout>
 #include <QScrollBar>
 
@@ -28,9 +28,13 @@ ChannelView::ChannelView(const QString& channelId)
       subscribeWidget(new SubscribeWidget(this))
 {
     metaHbox->setContentsMargins(0, 0, 0, 0);
-    pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->setSpacing(0);
     pageLayout->addWidget(channelBanner);
+
+    if (qtTubeApp->settings().autoHideTopBar)
+        pageLayout->setContentsMargins(0, 0, 0, 0);
+    else
+        pageLayout->setContentsMargins(0, MainWindow::topbar()->height(), 0, 0);
 
     channelHeaderContainer->setFixedHeight(63);
     channelHeaderContainer->setAutoFillBackground(true);
@@ -121,9 +125,16 @@ void ChannelView::loadTab(const InnertubeEndpoints::ChannelResponse& response, i
 void ChannelView::prepareAvatarAndBanner(const InnertubeObjects::ResponsiveImage& avatar,
                                          const InnertubeObjects::ResponsiveImage& banner)
 {
-    channelBanner->setFixedHeight(banner.isEmpty() ? 40 : 129);
-    MainWindow::topbar()->setAlwaysShow(banner.isEmpty());
-    MainWindow::topbar()->setVisible(banner.isEmpty());
+    if (!banner.isEmpty())
+        channelBanner->setFixedHeight(129);
+    else if (qtTubeApp->settings().autoHideTopBar)
+        channelBanner->setFixedHeight(MainWindow::topbar()->height() + 20);
+
+    if (qtTubeApp->settings().autoHideTopBar)
+    {
+        MainWindow::topbar()->setAlwaysShow(banner.isEmpty());
+        MainWindow::topbar()->setVisible(banner.isEmpty());
+    }
 
     if (auto recAvatar = avatar.recommendedQuality(QSize(48, 48)); recAvatar.has_value())
     {

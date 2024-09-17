@@ -46,6 +46,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->appStyle->setCurrentIndex(ui->appStyle->findText(store.appStyle));
     ui->darkTheme->setChecked(store.darkTheme);
     // general
+    ui->autoHideTopBar->setChecked(store.autoHideTopBar);
     ui->condensedCounts->setChecked(store.condensedCounts);
     ui->fullSubs->setChecked(store.fullSubs);
     ui->imageCaching->setChecked(store.imageCaching);
@@ -179,6 +180,7 @@ void SettingsForm::saveSettings()
     SettingsStore& store = qtTubeApp->settings();
     // general
     store.appStyle = ui->appStyle->currentText();
+    store.autoHideTopBar = ui->autoHideTopBar->isChecked();
     store.condensedCounts = ui->condensedCounts->isChecked();
     store.darkTheme = ui->darkTheme->isChecked();
     store.fullSubs = ui->fullSubs->isChecked();

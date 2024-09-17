@@ -14,6 +14,7 @@ void SettingsStore::initialize()
 
     // general
     appStyle = settings.value("appStyle", "Default").toString();
+    autoHideTopBar = settings.value("autoHideTopBar", true).toBool();
     condensedCounts = settings.value("condensedCounts", false).toBool();
     darkTheme = settings.value("darkTheme", false).toBool();
     fullSubs = settings.value("fullSubs", false).toBool();
@@ -70,6 +71,7 @@ void SettingsStore::save()
 
     // general
     settings.setValue("appStyle", appStyle);
+    settings.setValue("autoHideTopBar", autoHideTopBar);
     settings.setValue("condensedCounts", condensedCounts);
     settings.setValue("darkTheme", darkTheme);
     settings.setValue("fullSubs", fullSubs);

@@ -23,6 +23,7 @@ public:
     Q_ENUM(PlayerQuality)
 
     QString appStyle;
+    bool autoHideTopBar{};
     bool blockAds{};
     bool condensedCounts{};
     bool darkTheme{};

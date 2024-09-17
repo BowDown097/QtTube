@@ -64,9 +64,8 @@ TopBar::TopBar(QWidget* parent)
 
 void TopBar::handleMouseEvent(QMouseEvent* event)
 {
-    bool interferingWithTab = false;
-    QWidget* widgetAtPoint = qApp->widgetAt(QCursor::pos());
-    if (widgetAtPoint)
+    bool interferingWithTab{};
+    if (QWidget* widgetAtPoint = qApp->widgetAt(QCursor::pos()))
         interferingWithTab = strncmp(widgetAtPoint->metaObject()->className(), "QTab", 4) == 0;
 
     // QTab part is to prevent interference with watch view feed
