@@ -5,6 +5,7 @@
 #include "data-wizards/import/newpipeimportwizard.h"
 #include "data-wizards/import/pipedimportwizard.h"
 #include "data-wizards/import/takeoutimportwizard.h"
+#include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "termfilterview.h"
 #include "utils/uiutils.h"
@@ -178,6 +179,11 @@ void SettingsForm::openImportWizard()
 void SettingsForm::saveSettings()
 {
     SettingsStore& store = qtTubeApp->settings();
+
+    // force show top bar if auto hiding has been turned off
+    if (store.autoHideTopBar && !ui->autoHideTopBar->isChecked())
+        MainWindow::topbar()->show();
+
     // general
     store.appStyle = ui->appStyle->currentText();
     store.autoHideTopBar = ui->autoHideTopBar->isChecked();
