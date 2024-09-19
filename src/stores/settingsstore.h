@@ -10,7 +10,6 @@ class SettingsStore : public GenericStore
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool blockAds MEMBER blockAds NOTIFY blockAdsChanged)
     Q_PROPERTY(bool disablePlayerInfoPanels MEMBER disablePlayerInfoPanels NOTIFY disablePlayerInfoPanelsChanged)
     Q_PROPERTY(SettingsStore::PlayerQuality preferredQuality MEMBER preferredQuality NOTIFY preferredQualityChanged)
     Q_PROPERTY(int preferredVolume MEMBER preferredVolume NOTIFY preferredVolumeChanged)
@@ -68,7 +67,6 @@ private:
     void readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key);
     void writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key);
 signals:
-    void blockAdsChanged(bool);
     void disablePlayerInfoPanelsChanged(bool);
     void preferredQualityChanged(SettingsStore::PlayerQuality);
     void preferredVolumeChanged(int);

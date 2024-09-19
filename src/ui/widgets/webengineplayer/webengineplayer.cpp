@@ -87,11 +87,12 @@ void WebEnginePlayer::play(const QString& vId, int progress)
 {
     // h264 settings must be passed as a parameter because
     // the video format is determined before QWebChannel loads
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2&h264Only=%3&no60Fps=%4")
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2&h264Only=%3&no60Fps=%4&adblock=%5")
                           .arg(vId)
                           .arg(progress)
                           .arg(qtTubeApp->settings().h264Only)
-                          .arg(qtTubeApp->settings().disable60Fps)));
+                          .arg(qtTubeApp->settings().disable60Fps)
+                          .arg(qtTubeApp->settings().blockAds)));
 }
 
 void WebEnginePlayer::setAuthStore(InnertubeAuthStore* authStore)

@@ -8,21 +8,22 @@ waitForElement("#movie_player").then(function(p) {
     p.seekTo(params.get("t"));
 });
 
+// adblock
+if (params.get("adblock") === "1") {
+    JSON.parseOG = JSON.parse;
+    JSON.parse = function(obj) {
+        obj = JSON.parseOG(obj);
+        if (obj?.adPlacements)
+            obj.adPlacements = [];
+        if (obj?.playerAds)
+            obj.playerAds = [];
+        return obj;
+    };
+}
+
 // apply settings
 new QWebChannel(qt.webChannelTransport, async function(channel) {
     const settings = channel.objects.settings;
-
-    if (settings.blockAds) {
-        JSON.parseOG = JSON.parse;
-        JSON.parse = function(obj) {
-            obj = JSON.parseOG(obj);
-            if (obj?.adPlacements)
-                obj.adPlacements = [];
-            if (obj?.playerAds)
-                obj.playerAds = [];
-            return obj;
-        };
-    }
 
     if (settings.sponsorBlockCategories?.length)
         await sponsorBlock(settings.sponsorBlockCategories);
