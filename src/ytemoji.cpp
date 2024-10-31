@@ -40,7 +40,7 @@ ytemoji::ytemoji()
 
 QString ytemoji::emojize(QString s, bool escape)
 {
-    for (const UnicodeEmoji& emoji : m_unicodeEmojis)
+    for (const UnicodeEmoji& emoji : std::as_const(m_unicodeEmojis))
         for (const QString& shortcut : emoji.shortcuts)
             s.replace(shortcut, emoji.emojiId);
     return s;

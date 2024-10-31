@@ -4,7 +4,8 @@
 #include "subscribelabel.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include <QHBoxLayout>
-#include <QtNetwork/QtNetwork>
+#include <QJsonDocument>
+#include <QNetworkReply>
 
 constexpr QLatin1String SubscribersCountStylesheet(R"(
     border: 1px solid #555;

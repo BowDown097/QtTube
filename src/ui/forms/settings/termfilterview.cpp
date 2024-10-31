@@ -3,6 +3,8 @@
 #include "qttubeapplication.h"
 #include <QMessageBox>
 
+TermFilterView::~TermFilterView() { delete ui; }
+
 TermFilterView::TermFilterView(QWidget *parent) : QWidget(parent), ui(new Ui::TermFilterView)
 {
     ui->setupUi(this);
@@ -54,9 +56,4 @@ void TermFilterView::removeCurrentRow()
     QListWidgetItem* item = ui->listWidget->item(row);
     qtTubeApp->settings().filteredTerms.removeOne(item->text());
     delete item;
-}
-
-TermFilterView::~TermFilterView()
-{
-    delete ui;
 }

@@ -6,17 +6,18 @@
 #include <QMessageBox>
 #include <QSettings>
 
-CredentialSet CredentialsStore::activeLogin() const
+const CredentialSet* CredentialsStore::activeLogin() const
 {
     auto it = std::ranges::find_if(m_credentials, [](const CredentialSet& cs) { return cs.active; });
-    return it != m_credentials.end() ? *it : CredentialSet();
+    return it != m_credentials.end() ? &(*it) : nullptr;
 }
 
 void CredentialsStore::initialize()
 {
     QSettings settings(configPath(), QSettings::IniFormat);
+    const QStringList childGroups = settings.childGroups();
 
-    for (const QString& group : settings.childGroups())
+    for (const QString& group : childGroups)
     {
         settings.beginGroup(group);
         m_credentials.append(CredentialSet
@@ -51,7 +52,7 @@ void CredentialsStore::populateAuthStore(const CredentialSet& credSet)
 void CredentialsStore::save()
 {
     QSettings settings(configPath(), QSettings::IniFormat);
-    for (const CredentialSet& credSet : m_credentials)
+    for (const CredentialSet& credSet : std::as_const(m_credentials))
     {
         settings.beginGroup(credSet.channelId);
         settings.setValue("active", credSet.active);
@@ -77,8 +78,8 @@ void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data
         return;
     }
 
-    auto bestPhoto = data.response.header.accountPhoto.bestQuality();
-    QString avatarUrl = bestPhoto.has_value() ? bestPhoto->get().url : QString();
+    const InnertubeObjects::GenericThumbnail* bestPhoto = data.response.header.accountPhoto.bestQuality();
+    QString avatarUrl = bestPhoto ? bestPhoto->url : QString();
     QString username = data.response.header.accountName;
 
     if (auto active = std::ranges::find_if(m_credentials, [](const CredentialSet& cs) { return cs.active; });

@@ -6,7 +6,6 @@
 #include <ranges>
 
 using namespace InnertubeEndpoints;
-using namespace std::placeholders;
 
 BrowseHelper* BrowseHelper::instance()
 {
@@ -44,7 +43,7 @@ void BrowseHelper::browseChannel(ContinuableListWidget* widget, int index, const
     }
     catch (const InnertubeException& ie)
     {
-        browseFailed(ie, "channel tab");
+        browseFailed("channel tab", nullptr, ie);
     }
 }
 
@@ -59,7 +58,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<BrowseHistory>(query);
     connect(reply, &InnertubeReply<BrowseHistory>::exception, this,
-        std::bind(&BrowseHelper::browseFailed, this, _1, "history", widget));
+        std::bind_front(&BrowseHelper::browseFailed, this, "history", widget));
     connect(reply, &InnertubeReply<BrowseHistory>::finished, this, [this, widget](const BrowseHistory& endpoint) {
         UIUtils::addRangeToList(widget, endpoint.response.videos);
         widget->continuationToken = endpoint.continuationToken;
@@ -72,7 +71,7 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<BrowseHome>();
     connect(reply, &InnertubeReply<BrowseHome>::exception, this,
-        std::bind(&BrowseHelper::browseFailed, this, _1, "home", widget));
+        std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
     connect(reply, &InnertubeReply<BrowseHome>::finished, this, [this, widget](const BrowseHome& endpoint) {
         UIUtils::addRangeToList(widget, endpoint.response.videos);
         widget->continuationToken = endpoint.continuationToken;
@@ -85,7 +84,7 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
     connect(reply, &InnertubeReply<GetNotificationMenu>::exception, this,
-        std::bind(&BrowseHelper::browseFailed, this, _1, "notification", widget));
+        std::bind_front(&BrowseHelper::browseFailed, this, "notification", widget));
     connect(reply, &InnertubeReply<GetNotificationMenu>::finished, this, [this, widget](const GetNotificationMenu& endpoint) {
         UIUtils::addRangeToList(widget, endpoint.response.notifications);
         widget->continuationToken = endpoint.continuationToken;
@@ -105,7 +104,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<BrowseSubscriptions>();
     connect(reply, &InnertubeReply<BrowseSubscriptions>::exception, this,
-        std::bind(&BrowseHelper::browseFailed, this, _1, "subscriptions", widget));
+        std::bind_front(&BrowseHelper::browseFailed, this, "subscriptions", widget));
     connect(reply, &InnertubeReply<BrowseSubscriptions>::finished, this, [this, widget](const BrowseSubscriptions& endpoint) {
         UIUtils::addRangeToList(widget, endpoint.response.videos);
         widget->continuationToken = endpoint.continuationToken;
@@ -118,7 +117,7 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<BrowseTrending>();
     connect(reply, &InnertubeReply<BrowseTrending>::exception, this,
-        std::bind(&BrowseHelper::browseFailed, this, _1, "trending", widget));
+        std::bind_front(&BrowseHelper::browseFailed, this, "trending", widget));
     connect(reply, &InnertubeReply<BrowseTrending>::finished, this, [this, widget](const BrowseTrending& endpoint) {
         setupTrending(widget, endpoint.response);
         widget->setPopulatingFlag(false);
@@ -143,12 +142,12 @@ void BrowseHelper::search(ContinuableListWidget* widget, const QString& query,
     if (!filter.isEmpty()) params.insert("filter", filter);
 
     if (!params.isEmpty())
-        compiledParams = QByteArray::fromHex(ProtobufCompiler::compile(params, searchMsgFields)).toBase64().toPercentEncoding();
+        compiledParams = ProtobufCompiler::compileEncoded(params, searchMsgFields);
 
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<Search>(query, "", compiledParams);
     connect(reply, &InnertubeReply<Search>::exception, this,
-        std::bind(&BrowseHelper::browseFailed, this, _1, "search", widget));
+        std::bind_front(&BrowseHelper::browseFailed, this, "search", widget));
     connect(reply, &InnertubeReply<Search>::finished, this, [this, widget](const Search& endpoint) {
         widget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(endpoint.response.estimatedResults)));
         setupSearch(widget, endpoint.response);
@@ -157,7 +156,7 @@ void BrowseHelper::search(ContinuableListWidget* widget, const QString& query,
     });
 }
 
-void BrowseHelper::browseFailed(const InnertubeException& ie, const QString& title, ContinuableListWidget* widget)
+void BrowseHelper::browseFailed(const QString& title, ContinuableListWidget* widget, const InnertubeException& ie)
 {
     if (widget)
         widget->setPopulatingFlag(false);
@@ -178,7 +177,7 @@ void BrowseHelper::removeTrailingSeparator(QListWidget* list)
 
 void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response)
 {
-    for (const auto& item : response.contents)
+    for (const InnertubeEndpoints::SearchResponseItem& item : response.contents)
     {
         if (const InnertubeObjects::Channel* channel = std::get_if<InnertubeObjects::Channel>(&item))
         {
@@ -217,7 +216,7 @@ void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::Se
 
 void BrowseHelper::setupTrending(QListWidget* widget, const InnertubeEndpoints::TrendingResponse& response)
 {
-    for (const auto& item : response.contents)
+    for (const InnertubeEndpoints::TrendingResponseItem& item : response.contents)
     {
         // see above TODO comments
         if (const InnertubeObjects::HorizontalVideoShelf* hvs = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))

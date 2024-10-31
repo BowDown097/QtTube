@@ -39,6 +39,7 @@ private:
     QList<Entity> videos;
 private slots:
     void tickProgress();
+    void tryWatch(const QString& videoId);
     void verifyFile(const QString& fileName);
 signals:
     void progress();

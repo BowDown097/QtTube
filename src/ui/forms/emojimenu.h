@@ -15,11 +15,11 @@ class EmojiMenu : public QWidget
 public:
     explicit EmojiMenu(QWidget *parent = nullptr);
     ~EmojiMenu();
+private:
+    FlowLayout* layout;
+    Ui::EmojiMenu* ui;
 private slots:
     void filterEmojis();
 signals:
     void emojiClicked(const QString& emoji);
-private:
-    FlowLayout* layout;
-    Ui::EmojiMenu* ui;
 };

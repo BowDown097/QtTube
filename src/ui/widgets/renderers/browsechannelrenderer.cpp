@@ -8,8 +8,9 @@
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
 #include <QBoxLayout>
+#include <QJsonDocument>
 #include <QMessageBox>
-#include <QtNetwork/QtNetwork>
+#include <QNetworkReply>
 
 BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
     : QWidget(parent),
@@ -65,8 +66,8 @@ void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
         descriptionLabel->setText(channel.descriptionSnippet.text);
     }
 
-    QString subCount = channel.subscriberCountText.text;
-    QString videoCount = channel.videoCountText.text;
+    const QString& subCount = channel.subscriberCountText.text;
+    const QString& videoCount = channel.videoCountText.text;
 
     subscribeWidget->setSubscribeButton(channel.subscribeButton);
     subscribeWidget->setSubscriberCount(subCount.contains("subscribers") ? subCount : videoCount, channelId);

@@ -22,6 +22,8 @@ Commit: %4 (%5)<br>
 Build date: %6
 )");
 
+SettingsForm::~SettingsForm() { delete ui; }
+
 SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::SettingsForm)
 {
     ui->setupUi(this);
@@ -253,9 +255,4 @@ void SettingsForm::toggleDeArrowSettings(bool checked)
 {
     ui->deArrowThumbs->setEnabled(checked);
     ui->deArrowTitles->setEnabled(checked);
-}
-
-SettingsForm::~SettingsForm()
-{
-    delete ui;
 }

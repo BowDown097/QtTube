@@ -43,7 +43,7 @@ namespace StringUtils
         if (reserve)
             out.reserve(str.size());
 
-        for (const QChar& c : str)
+        for (QChar c : str)
             if (c.isDigit())
                 out.append(c);
 

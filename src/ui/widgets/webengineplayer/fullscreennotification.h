@@ -8,8 +8,8 @@ public:
     explicit FullScreenNotification(QWidget* parent = nullptr);
 protected:
     void showEvent(QShowEvent* event) override;
+private:
+    bool m_previouslyVisible{};
 signals:
     void shown();
-private:
-    bool m_previouslyVisible;
 };

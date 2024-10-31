@@ -65,23 +65,26 @@ void NotificationBell::leaveEvent(QEvent*)
 // i couldn't find one that wouldn't require even more voodoo unfortunately :(
 void NotificationBell::fromListViewModel(const QJsonValue& listViewModel)
 {
-    int currentState{};
+    constexpr int MaxStateValue = 2;
+    PreferenceListState currentState = PreferenceListState::Personalized;
     const QJsonArray listItems = listViewModel["listItems"].toArray();
-    for (int i = 0; i < listItems.size(); i++)
+
+    for (int i = 0; i < std::min<qsizetype>(listItems.size(), MaxStateValue + 1); i++)
     {
         const QJsonValue viewModel = listItems[i]["listItemViewModel"];
         if (viewModel["isSelected"].toBool())
-            currentState = i;
+            currentState = static_cast<PreferenceListState>(i);
         serviceParams.append(viewModel["rendererContext"]["commandContext"]["onTap"]["innertubeCommand"]
                                       ["modifyChannelNotificationPreferenceEndpoint"]["params"].toString());
     }
 
-    setVisualNotificationState(static_cast<PreferenceListState>(currentState));
+    setVisualNotificationState(currentState);
 }
 
 void NotificationBell::fromNotificationPreferenceButton(const InnertubeObjects::NotificationPreferenceButton& npb)
 {
-    setVisualNotificationState(static_cast<PreferenceButtonState>(npb.getCurrentState().stateId));
+    if (const InnertubeObjects::NotificationState* currentState = npb.getCurrentState())
+        setVisualNotificationState(static_cast<PreferenceButtonState>(currentState->stateId));
     for (const InnertubeObjects::MenuServiceItem& msi : npb.popup.items)
         serviceParams.append(msi.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString());
 }

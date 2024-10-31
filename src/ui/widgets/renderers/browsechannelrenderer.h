@@ -16,10 +16,6 @@ class BrowseChannelRenderer : public QWidget
 public:
     explicit BrowseChannelRenderer(QWidget* parent = nullptr);
     void setData(const InnertubeObjects::Channel& channel);
-public slots:
-    void setThumbnail(const HttpReply& reply);
-private slots:
-    void navigateChannel();
 private:
     QString channelId;
     TubeLabel* descriptionLabel;
@@ -29,4 +25,8 @@ private:
     QVBoxLayout* textVbox;
     TubeLabel* thumbLabel;
     ChannelLabel* titleLabel;
+public slots:
+    void setThumbnail(const HttpReply& reply);
+private slots:
+    void navigateChannel();
 };

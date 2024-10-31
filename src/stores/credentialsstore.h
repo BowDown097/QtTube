@@ -4,7 +4,7 @@
 
 struct CredentialSet
 {
-    bool active = false;
+    bool active{};
     QString apisid;
     QString avatarUrl;
     QString channelId;
@@ -15,7 +15,8 @@ struct CredentialSet
     QString username;
     QString visitorInfo;
 
-    friend bool operator==(const CredentialSet& lhs, const CredentialSet& rhs) { return lhs.channelId == rhs.channelId; }
+    friend bool operator==(const CredentialSet& lhs, const CredentialSet& rhs)
+    { return lhs.channelId == rhs.channelId; }
 };
 
 namespace InnertubeEndpoints { class AccountMenu; }
@@ -26,7 +27,7 @@ class CredentialsStore : public GenericStore
 public:
     explicit CredentialsStore(QObject* parent = nullptr) : GenericStore("store.ini") {}
 
-    CredentialSet activeLogin() const;
+    const CredentialSet* activeLogin() const;
     const QList<CredentialSet>& credentials() const { return m_credentials; }
 
     void initialize() override;

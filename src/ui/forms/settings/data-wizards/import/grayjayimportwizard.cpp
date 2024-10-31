@@ -59,6 +59,29 @@ void GrayjayImportSubsPage::tickProgress()
     ));
 }
 
+void GrayjayImportSubsPage::trySub(const QString& channelId)
+{
+    if (!progressDialog->wasCanceled())
+    {
+        try
+        {
+            auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId);
+            if (auto c4 = std::get_if<InnertubeObjects::ChannelC4Header>(&endpoint.response.header))
+                subs.append(Entity(channelId, c4->title));
+            else if (auto page = std::get_if<InnertubeObjects::ChannelPageHeader>(&endpoint.response.header))
+                subs.append(Entity(channelId, page->title.text.content));
+            // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
+            QThread::sleep(1);
+        }
+        catch (const InnertubeException& ie)
+        {
+            qWarning() << ie.message();
+        }
+    }
+
+    emit progress();
+}
+
 void GrayjayImportSubsPage::verifyFile(const QString& fileName)
 {
     QFile json(fileName);
@@ -87,27 +110,7 @@ void GrayjayImportSubsPage::verifyFile(const QString& fileName)
     for (const QJsonValue& entry : subsJson)
     {
         QString id = entry.toString().remove("https://www.youtube.com/channel/");
-        threadPool->start([this, id] {
-            if (!progressDialog->wasCanceled())
-            {
-                try
-                {
-                    auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(id);
-                    if (auto c4 = std::get_if<InnertubeObjects::ChannelC4Header>(&endpoint.response.header))
-                        subs.append(Entity(id, c4->title));
-                    else if (auto page = std::get_if<InnertubeObjects::ChannelPageHeader>(&endpoint.response.header))
-                        subs.append(Entity(id, page->title.text.content));
-                    // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
-                    QThread::sleep(1);
-                }
-                catch (const InnertubeException& ie)
-                {
-                    qWarning() << ie.message();
-                }
-            }
-
-            emit progress();
-        });
+        threadPool->start(std::bind(&GrayjayImportSubsPage::trySub, this, id));
     }
 }
 

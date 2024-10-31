@@ -1,8 +1,7 @@
 #pragma once
 #include <QWizard>
 
-class DataWizard : public QWizard
+struct DataWizard : QWizard
 {
-public:
     DataWizard(int conclusionId, const QString& title, QWidget* parent = nullptr);
 };

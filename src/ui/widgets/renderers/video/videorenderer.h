@@ -37,6 +37,6 @@ private slots:
     void copyVideoUrl();
     void navigateChannel();
     void navigateVideo();
-    void setDeArrowData(const HttpReply& reply, const QString& fallbackThumbUrl);
+    void setDeArrowData(const QString& fallbackThumbUrl, const HttpReply& reply);
     void showTitleContextMenu(const QPoint& pos);
 };

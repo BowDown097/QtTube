@@ -13,7 +13,7 @@ BackstagePollRenderer::BackstagePollRenderer(QWidget* parent)
     layout->addWidget(voteCount);
 }
 
-QList<BackstagePollChoiceRenderer*> BackstagePollRenderer::choiceRenderers() const
+QList<BackstagePollChoiceRenderer*> BackstagePollRenderer::choices() const
 {
     QList<BackstagePollChoiceRenderer*> list;
     list.reserve(layout->count());
@@ -27,31 +27,25 @@ QList<BackstagePollChoiceRenderer*> BackstagePollRenderer::choiceRenderers() con
 
 void BackstagePollRenderer::pollChoiceClicked()
 {
+    const QList<BackstagePollChoiceRenderer*> pollChoices = choices();
     BackstagePollChoiceRenderer* senderChoice = qobject_cast<BackstagePollChoiceRenderer*>(sender());
+
     if (senderChoice->hasStyle())
     {
-        for (BackstagePollChoiceRenderer* pollChoiceRenderer : choiceRenderers())
-        {
+        for (BackstagePollChoiceRenderer* pollChoiceRenderer : pollChoices)
             if (!pollChoiceRenderer->hasStyle())
-            {
                 pollChoiceRenderer->setValue(pollChoiceRenderer->voteRatioIfNotSelected() * 100, false);
-            }
-        }
     }
     else if (senderChoice->value() != -1)
     {
-        for (BackstagePollChoiceRenderer* pollChoiceRenderer : choiceRenderers())
-        {
+        for (BackstagePollChoiceRenderer* pollChoiceRenderer : pollChoices)
             pollChoiceRenderer->reset();
-        }
         return;
     }
     else
     {
-        for (BackstagePollChoiceRenderer* pollChoiceRenderer : choiceRenderers())
-        {
+        for (BackstagePollChoiceRenderer* pollChoiceRenderer : pollChoices)
             pollChoiceRenderer->setValue(pollChoiceRenderer->voteRatioIfNotSelected() * 100, false);
-        }
     }
 
     senderChoice->setValue(senderChoice->voteRatioIfSelected() * 100, true);

@@ -19,35 +19,34 @@ class QListWidgetItem;
 class QTabWidget;
 class VideoRenderer;
 
-class UIUtils
+namespace UIUtils
 {
-public:
-    static inline QString defaultStyle;
+    extern QString g_defaultStyle;
 
-    static void addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post);
-    static void addBoldLabelToList(QListWidget* list, const QString& text);
-    static void addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel);
-    static void addNotificationToList(QListWidget* list, const InnertubeObjects::Notification& notification);
-    static void addSeparatorToList(QListWidget* list);
-    static void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
-    static void addShelfTitleToList(QListWidget* list, const QString& title);
-    static void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel);
-    static void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video);
-    static QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
-    static void addWrappedLabelToList(QListWidget* list, const QString& text);
-    static void clearLayout(QLayout* layout);
-    static void copyToClipboard(const QString& text);
-    static QIcon iconThemed(const QString& name, const QPalette& pal = QPalette());
-    static QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius);
-    static QPixmap pixmapThemed(const QString& name, bool fromQIcon = false, const QSize& size = QSize(), const QPalette& pal = QPalette());
-    static bool preferDark(const QPalette& pal = QPalette());
-    static QString resolveThemedIconName(const QString& name, const QPalette& pal = QPalette());
-    static void setAppStyle(const QString& styleName, bool dark);
-    static void setMaximumLines(QWidget* widget, int lines);
-    static void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
-    static void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);
+    void addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post);
+    void addBoldLabelToList(QListWidget* list, const QString& text);
+    void addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel);
+    void addNotificationToList(QListWidget* list, const InnertubeObjects::Notification& notification);
+    void addSeparatorToList(QListWidget* list);
+    void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
+    void addShelfTitleToList(QListWidget* list, const QString& title);
+    void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel);
+    void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video);
+    QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
+    void addWrappedLabelToList(QListWidget* list, const QString& text);
+    void clearLayout(QLayout* layout);
+    void copyToClipboard(const QString& text);
+    QIcon iconThemed(const QString& name, const QPalette& pal = QPalette());
+    QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius);
+    QPixmap pixmapThemed(const QString& name, bool fromQIcon = false, const QSize& size = QSize(), const QPalette& pal = QPalette());
+    bool preferDark(const QPalette& pal = QPalette());
+    QString resolveThemedIconName(const QString& name, const QPalette& pal = QPalette());
+    void setAppStyle(const QString& styleName, bool dark);
+    void setMaximumLines(QWidget* widget, int lines);
+    void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
+    void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);
 
-    static void addRangeToList(QListWidget* list, std::ranges::range auto&& range)
+    void addRangeToList(QListWidget* list, std::ranges::range auto&& range)
     {
         for (auto it = std::ranges::begin(range); it != std::ranges::end(range); ++it)
         {
@@ -65,7 +64,7 @@ public:
     }
 
     template<typename T>
-    static T findParent(QWidget* widget)
+    T findParent(QWidget* widget)
     {
         QWidget* parentWidget = widget->parentWidget();
         while (parentWidget)
@@ -77,6 +76,4 @@ public:
 
         return nullptr;
     }
-private:
-    static VideoRenderer* constructVideoRenderer(QListWidget* list);
 };

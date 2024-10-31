@@ -21,13 +21,8 @@ public:
     void setAuthStore(InnertubeAuthStore* authStore);
     void setContext(InnertubeContext* context);
     void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp);
-public slots:
-    void play(const QString& vId, int progress);
-    void seek(int progress);
-private slots:
-    void fullScreenRequested(QWebEngineFullScreenRequest request);
 private:
-    QScopedPointer<FullScreenWindow> m_fullScreenWindow;
+    std::unique_ptr<FullScreenWindow> m_fullScreenWindow;
     PlayerInterceptor* m_interceptor;
     WebChannelInterface* m_interface;
     QWebEngineView* m_view;
@@ -35,6 +30,11 @@ private:
     QString getFileContents(const QString& path);
     void loadScriptFile(const QString& path, QWebEngineScript::InjectionPoint injectionPoint);
     void loadScriptString(const QString& data, QWebEngineScript::InjectionPoint injectionPoint);
+public slots:
+    void play(const QString& vId, int progress);
+    void seek(int progress);
+private slots:
+    void fullScreenRequested(QWebEngineFullScreenRequest request);
 signals:
     void progressChanged(double progress, double previousProgress);
 };

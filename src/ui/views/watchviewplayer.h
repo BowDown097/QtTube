@@ -18,7 +18,7 @@ public:
     void startTracking(const InnertubeEndpoints::PlayerResponse& playerResp);
     QWidget* widget();
 
-    const QSize& size() const { return m_size; }
+    QSize size() const { return m_size; }
     ScaleMode scaleMode() const { return m_scaleMode; }
 private:
     WebEnginePlayer* m_player;

@@ -95,13 +95,13 @@ void LiveChatWindow::chatReplayTick(double progress, double previousProgress)
         ui->listWidget->clear();
         auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChatReplay>(seekContinuation, playerOffsetMs);
         connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChatReplay>::finished, this,
-                std::bind(&LiveChatWindow::processChatReplayData, this, std::placeholders::_1, progress, previousProgress, true));
+                std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, true));
     }
     else if (progress < firstChatItemOffset || progress > lastChatItemOffset)
     {
         auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChatReplay>(currentContinuation, playerOffsetMs);
         connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChatReplay>::finished, this,
-                std::bind(&LiveChatWindow::processChatReplayData, this, std::placeholders::_1, progress, previousProgress, false));
+                std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, false));
     }
     else
     {
@@ -129,9 +129,7 @@ void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData, 
         ui->chatModeSwitcher->hide();
         ui->messageBox->hide();
         ui->sendButton->hide();
-
-        using namespace std::placeholders;
-        connect(player, &WatchViewPlayer::progressChanged, this, std::bind(&LiveChatWindow::chatReplayTick, this, _1, _2));
+        connect(player, &WatchViewPlayer::progressChanged, this, std::bind_front(&LiveChatWindow::chatReplayTick, this));
     }
     else
     {
@@ -192,8 +190,8 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
     processingEnd();
 }
 
-void LiveChatWindow::processChatReplayData(const InnertubeEndpoints::GetLiveChatReplay& replay,
-                                           double progress, double previousProgress, bool seeked)
+void LiveChatWindow::processChatReplayData(double progress, double previousProgress, bool seeked,
+                                           const InnertubeEndpoints::GetLiveChatReplay& replay)
 {
     replayActions = replay.liveChatContinuation["actions"].toArray();
     addNewChatReplayItems(progress, previousProgress, seeked);
@@ -214,13 +212,8 @@ void LiveChatWindow::processChatReplayData(const InnertubeEndpoints::GetLiveChat
 void LiveChatWindow::processingEnd()
 {
     if (ui->listWidget->count() > 250)
-    {
         for (int i = 0; i < ui->listWidget->count() - 250; i++)
-        {
-            QListWidgetItem* item = ui->listWidget->takeItem(i);
-            delete item;
-        }
-    }
+            delete ui->listWidget->takeItem(i);
 
     ui->listWidget->scrollToBottom();
     populating = false;

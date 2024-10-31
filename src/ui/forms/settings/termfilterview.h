@@ -13,10 +13,9 @@ class TermFilterView : public QWidget
 public:
     explicit TermFilterView(QWidget* parent = nullptr);
     ~TermFilterView();
-
     void populateFromSettings();
 private:
-    Ui::TermFilterView *ui;
+    Ui::TermFilterView* ui;
 private slots:
     void addNewRow();
     void registerInSettings(QListWidgetItem* item);

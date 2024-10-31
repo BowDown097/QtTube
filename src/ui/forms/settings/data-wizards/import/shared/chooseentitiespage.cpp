@@ -55,7 +55,7 @@ ChooseEntitiesPage::~ChooseEntitiesPage()
 void ChooseEntitiesPage::initializePage()
 {
     EntitySelectTableModel* tableModel = new EntitySelectTableModel(checkHeader, nameHeader, this);
-    for (const Entity& entity : entities)
+    for (const Entity& entity : std::as_const(entities))
         tableModel->append(entity);
     table->setModel(tableModel);
 }

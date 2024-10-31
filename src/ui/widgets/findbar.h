@@ -9,13 +9,12 @@ class QPushButton;
 class FindBar : public QWidget
 {
 public:
-    int currentIndex;
-    QList<QLabel*> matches;
-
     explicit FindBar(QWidget* parent);
     void setReveal(bool reveal);
 private:
+    int currentIndex{};
     QHBoxLayout* hbox;
+    QList<QLabel*> matches;
     QLabel* matchesLabel;
     QPushButton* nextButton;
     QPushButton* previousButton;

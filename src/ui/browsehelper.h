@@ -56,7 +56,7 @@ public:
         widget->setPopulatingFlag(false);
     }
 private slots:
-    void browseFailed(const InnertubeException& ie, const QString& title, ContinuableListWidget* widget = nullptr);
+    void browseFailed(const QString& title, ContinuableListWidget* widget, const InnertubeException& ie);
 private:
     static inline BrowseHelper* m_instance;
     static inline std::once_flag m_onceFlag;

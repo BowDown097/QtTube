@@ -96,6 +96,34 @@ void PipedImportWatchHistoryPage::tickProgress()
     ));
 }
 
+void PipedImportWatchHistoryPage::tryWatch(const QString& videoId)
+{
+    if (!progressDialog->wasCanceled())
+    {
+        try
+        {
+            auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::Player>(videoId);
+            QString name = QStringLiteral("<a href=\"%1\">%2</a> by <a href=\"%3\">%4</a>").arg(
+                "https://www.youtube.com/watch?v=" + videoId,
+                endpoint.response.videoDetails.title,
+                "https://www.youtube.com/channel/" + endpoint.response.videoDetails.channelId,
+                endpoint.response.videoDetails.author
+            );
+
+            videos.append(Entity(videoId, name));
+
+            // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
+            QThread::sleep(1);
+        }
+        catch (const InnertubeException& ie)
+        {
+            qWarning() << ie.message();
+        }
+    }
+
+    emit progress();
+}
+
 void PipedImportWatchHistoryPage::verifyFile(const QString& fileName)
 {
     QFile json(fileName);
@@ -124,31 +152,6 @@ void PipedImportWatchHistoryPage::verifyFile(const QString& fileName)
     for (const QJsonValue& entry : videosJson)
     {
         QString id = entry.toString().remove("https://youtube.com/watch?v=");
-        threadPool->start([this, id] {
-            if (!progressDialog->wasCanceled())
-            {
-                try
-                {
-                    auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::Player>(id);
-                    QString name = QStringLiteral("<a href=\"%1\">%2</a> by <a href=\"%3\">%4</a>").arg(
-                        "https://www.youtube.com/watch?v=" + id,
-                        endpoint.response.videoDetails.title,
-                        "https://www.youtube.com/channel/" + endpoint.response.videoDetails.channelId,
-                        endpoint.response.videoDetails.author
-                    );
-
-                    videos.append(Entity(id, name));
-
-                    // prevent rate limit (apparently it exists but i didn't hit it.. better safe than sorry)
-                    QThread::sleep(1);
-                }
-                catch (const InnertubeException& ie)
-                {
-                    qWarning() << ie.message();
-                }
-            }
-
-            emit progress();
-        });
+        threadPool->start(std::bind(&PipedImportWatchHistoryPage::tryWatch, this, id));
     }
 }

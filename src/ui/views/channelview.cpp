@@ -84,8 +84,7 @@ void ChannelView::loadChannel(const QString& channelId)
     else if (auto page = std::get_if<InnertubeObjects::ChannelPageHeader>(&response.header))
         prepareHeader(*page, response.mutations);
 
-    connect(channelTabs, &QTabWidget::currentChanged, this,
-            std::bind(&ChannelView::loadTab, this, response, std::placeholders::_1));
+    connect(channelTabs, &QTabWidget::currentChanged, this, std::bind_front(&ChannelView::loadTab, this, response));
 
     const QJsonArray tabs = response.contents["twoColumnBrowseResultsRenderer"]["tabs"].toArray();
     for (const QJsonValue& v : tabs)
@@ -136,15 +135,15 @@ void ChannelView::prepareAvatarAndBanner(const InnertubeObjects::ResponsiveImage
         MainWindow::topbar()->setVisible(banner.isEmpty());
     }
 
-    if (auto recAvatar = avatar.recommendedQuality(QSize(48, 48)); recAvatar.has_value())
+    if (const InnertubeObjects::GenericThumbnail* recAvatar = avatar.recommendedQuality(QSize(48, 48)))
     {
-        HttpReply* iconReply = Http::instance().get(recAvatar->get().url);
+        HttpReply* iconReply = Http::instance().get(recAvatar->url);
         connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
     }
 
-    if (auto bestBanner = banner.bestQuality(); bestBanner.has_value())
+    if (const InnertubeObjects::GenericThumbnail* bestBanner = banner.bestQuality())
     {
-        HttpReply* bannerReply = Http::instance().get(bestBanner->get().url);
+        HttpReply* bannerReply = Http::instance().get(bestBanner->url);
         connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
     }
 }

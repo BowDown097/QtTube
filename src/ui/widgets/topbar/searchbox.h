@@ -13,8 +13,6 @@ public:
     enum class SearchType { ByQuery, ByLink };
     explicit SearchBox(QWidget* parent = nullptr);
     void updatePalette(const QPalette& pal);
-signals:
-    void searchRequested(const QString& query, SearchBox::SearchType searchType);
 private:
     QHBoxLayout* layout;
     ExtToolButton* searchButton;
@@ -22,4 +20,6 @@ private:
     QAction* searchTypeActionLink;
     QAction* searchTypeActionQuery;
     ExtMenu* searchTypeMenu;
+signals:
+    void searchRequested(const QString& query, SearchBox::SearchType searchType);
 };

@@ -4,6 +4,8 @@
 #include "ui/widgets/labels/emojilabel.h"
 #include "ytemoji.h"
 
+EmojiMenu::~EmojiMenu() { delete ui; }
+
 EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -31,27 +33,23 @@ EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
     }
 }
 
-EmojiMenu::~EmojiMenu()
-{
-    delete ui;
-}
-
 void EmojiMenu::filterEmojis()
 {
+    const QList<EmojiLabel*> emojis = ui->scrollAreaContents->findChildren<EmojiLabel*>();
     const QString searchText = ui->emojiSearch->text();
+
     if (!searchText.isEmpty())
     {
-        for (EmojiLabel* label : ui->scrollAreaContents->findChildren<EmojiLabel*>())
+        for (EmojiLabel* label : emojis)
         {
-            const QStringList searchTerms = label->searchTerms();
-            label->setVisible(std::ranges::any_of(searchTerms, [label, &searchText](const QString& searchTerm) {
+            label->setVisible(std::ranges::any_of(label->searchTerms(), [label, &searchText](const QString& searchTerm) {
                 return searchTerm.contains(searchText);
             }));
         }
     }
     else
     {
-        for (EmojiLabel* label : ui->scrollAreaContents->findChildren<EmojiLabel*>())
+        for (EmojiLabel* label : emojis)
             label->setVisible(true);
     }
 }

@@ -65,7 +65,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     qtTubeApp->creds().initialize();
     qtTubeApp->settings().initialize();
 
-    UIUtils::defaultStyle = qApp->style()->objectName();
+    UIUtils::g_defaultStyle = qApp->style()->objectName();
     UIUtils::setAppStyle(qtTubeApp->settings().appStyle, qtTubeApp->settings().darkTheme);
 
 #ifdef Q_OS_LINUX
@@ -399,9 +399,12 @@ void MainWindow::showNotifications()
 
 void MainWindow::tryRestoreData()
 {
-    qtTubeApp->creds().populateAuthStore(qtTubeApp->creds().activeLogin());
-    if (InnerTube::instance()->hasAuthenticated())
-        m_topbar->postSignInSetup(false);
+    if (const CredentialSet* activeLogin = qtTubeApp->creds().activeLogin())
+    {
+        qtTubeApp->creds().populateAuthStore(*activeLogin);
+        if (InnerTube::instance()->hasAuthenticated())
+            m_topbar->postSignInSetup(false);
+    }
 }
 
 MainWindow::~MainWindow()

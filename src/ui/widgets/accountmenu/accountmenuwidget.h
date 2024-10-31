@@ -14,8 +14,6 @@ class AccountMenuWidget : public QWidget
     Q_OBJECT
 public:
     explicit AccountMenuWidget(QWidget* parent = nullptr);
-public slots:
-    void initialize(const InnertubeEndpoints::AccountMenu& endpoint);
 private:
     QVBoxLayout* accountLayout;
     QLabel* accountNameLabel;
@@ -26,6 +24,8 @@ private:
     IconLabel* signOutLabel;
     IconLabel* switchAccountsLabel;
     IconLabel* yourChannelLabel;
+public slots:
+    void initialize(const InnertubeEndpoints::AccountMenu& endpoint);
 private slots:
     void gotoChannel(const QString& channelId);
     void setAvatar(const HttpReply& reply);

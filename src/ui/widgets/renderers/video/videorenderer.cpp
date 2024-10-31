@@ -93,8 +93,8 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid)
     else
         thumbnail->setFixedSize(105, 186);
 
-    if (auto recThumbnail = reel.thumbnail.recommendedQuality(thumbnail->size()); recThumbnail.has_value())
-        setThumbnail(recThumbnail->get().url);
+    if (const InnertubeObjects::GenericThumbnail* recThumbnail = reel.thumbnail.recommendedQuality(thumbnail->size()))
+        setThumbnail(recThumbnail->url);
 
     QString title = QString(reel.headline).replace("\r\n", " ");
     titleLabel->setText(title);
@@ -127,8 +127,8 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
 
     thumbnail->setLengthText(video.lengthText.text);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
-    if (auto recThumbnail = video.thumbnail.recommendedQuality(thumbnail->size()); recThumbnail.has_value())
-        setThumbnail(recThumbnail->get().url);
+    if (const InnertubeObjects::GenericThumbnail* recThumbnail = video.thumbnail.recommendedQuality(thumbnail->size()))
+        setThumbnail(recThumbnail->url);
 
     QString title = QString(video.title.text).replace("\r\n", " ");
     titleLabel->setText(title);
@@ -143,7 +143,7 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
     });
 }
 
-void VideoRenderer::setDeArrowData(const HttpReply& reply, const QString& thumbFallbackUrl)
+void VideoRenderer::setDeArrowData(const QString& thumbFallbackUrl, const HttpReply& reply)
 {
     if (!reply.isSuccessful())
     {
@@ -180,7 +180,7 @@ void VideoRenderer::setThumbnail(const QString& url)
     if (qtTubeApp->settings().deArrow)
     {
         HttpReply* arrowReply = Http::instance().get("https://sponsor.ajay.app/api/branding?videoID=" + videoId);
-        connect(arrowReply, &HttpReply::finished, this, std::bind(&VideoRenderer::setDeArrowData, this, std::placeholders::_1, url));
+        connect(arrowReply, &HttpReply::finished, this, std::bind_front(&VideoRenderer::setDeArrowData, this, url));
     }
     else
     {

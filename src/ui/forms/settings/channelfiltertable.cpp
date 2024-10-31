@@ -4,6 +4,8 @@
 #include "qttubeapplication.h"
 #include <QMessageBox>
 
+ChannelFilterTable::~ChannelFilterTable() { delete ui; }
+
 ChannelFilterTable::ChannelFilterTable(QWidget* parent) : QWidget(parent), ui(new Ui::ChannelFilterTable)
 {
     ui->setupUi(this);
@@ -105,9 +107,4 @@ void ChannelFilterTable::validateItemInput(QTableWidgetItem* item)
     }
 
     processChannelEntry(InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(item->text()), item);
-}
-
-ChannelFilterTable::~ChannelFilterTable()
-{
-    delete ui;
 }

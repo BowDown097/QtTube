@@ -50,7 +50,7 @@ private slots:
     void linkActivated(const QString& url);
     void navigateChannel();
     void setChannelIcon(const HttpReply& reply);
-    void setImageLabelData(const HttpReply& reply, QLabel* imageLabel);
+    void setImageLabelData(QLabel* imageLabel, const HttpReply& reply);
     void showPublishedTimeContextMenu(const QPoint& pos);
     void toggleReadMore();
 signals:

@@ -10,9 +10,11 @@ namespace TubeUtils
     {
         QString out;
         out.reserve(16);
-        constexpr std::string_view chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+        constexpr QLatin1String chars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
         for (int i = 0; i < out.capacity(); i++)
-            out += chars[QRandomGenerator::global()->bounded((int)chars.size())];
+            out += chars[QRandomGenerator::global()->bounded(chars.size())];
+
         return out;
     }
 

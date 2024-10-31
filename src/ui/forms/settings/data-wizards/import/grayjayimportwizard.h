@@ -6,16 +6,14 @@
 
 class QProgressDialog;
 
-class GrayjayImportWizard : public DataWizard
+struct GrayjayImportWizard : DataWizard
 {
-public:
     enum { Page_Intro, Page_Subs, Page_ChooseSubs, Page_WatchHistory, Page_ChooseWatchHistory, Page_Conclusion };
     explicit GrayjayImportWizard(QWidget* parent = nullptr);
 };
 
-class GrayjayImportIntroPage : public IntroPage
+struct GrayjayImportIntroPage : IntroPage
 {
-public:
     explicit GrayjayImportIntroPage(QWidget* parent = nullptr);
     int nextId() const override;
 };
@@ -30,6 +28,7 @@ private:
     QList<Entity> subs;
 private slots:
     void tickProgress();
+    void trySub(const QString& channelId);
     void verifyFile(const QString& fileName);
 signals:
     void progress();

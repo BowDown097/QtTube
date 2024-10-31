@@ -7,7 +7,10 @@
 #include <QPushButton>
 
 AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
-    : QWidget(parent), addAccountButton(new QPushButton(this)), backButton(new QPushButton(this)), layout(new QVBoxLayout(this))
+    : QWidget(parent),
+      addAccountButton(new QPushButton(this)),
+      backButton(new QPushButton(this)),
+      layout(new QVBoxLayout(this))
 {
     addAccountButton->setText("Add account");
     backButton->setText("Back");
@@ -16,12 +19,19 @@ AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
 
     layout->addWidget(backButton);
 
-    CredentialSet activeLogin = qtTubeApp->creds().activeLogin();
+    const CredentialSet* activeLogin = qtTubeApp->creds().activeLogin();
+    if (!activeLogin)
+    {
+        qWarning() << "AccountSwitcherWidget brought up with no active login. This shouldn't be possible.";
+        return;
+    }
+
     for (const CredentialSet& credSet : qtTubeApp->creds().credentials())
     {
         AccountEntryWidget* accountEntry = new AccountEntryWidget(credSet, this);
-        accountEntry->setClickable(credSet.channelId != activeLogin.channelId);
-        connect(accountEntry, &AccountEntryWidget::clicked, this, std::bind(&AccountSwitcherWidget::switchAccount, this, credSet));
+        accountEntry->setClickable(credSet.channelId != activeLogin->channelId);
+        connect(accountEntry, &AccountEntryWidget::clicked, this,
+                std::bind(&AccountSwitcherWidget::switchAccount, this, credSet));
         layout->addWidget(accountEntry);
     }
 

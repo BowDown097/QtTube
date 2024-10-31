@@ -17,8 +17,8 @@ public:
     ~ChannelFilterTable();
     void populateFromSettings();
 private:
-    bool populating;
-    Ui::ChannelFilterTable *ui;
+    bool populating{};
+    Ui::ChannelFilterTable* ui;
     void processChannelEntry(const InnertubeEndpoints::BrowseChannel& channel, QTableWidgetItem* item);
 private slots:
     void addNewRow();

@@ -126,9 +126,9 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     readMoreLabel->setVisible(contentText->heightForWidth(width() - channelIconLabel->width()) > contentText->maximumHeight());
     replyLabel->setText(post.actionButtons.replyButton.text.text);
 
-    if (auto recAvatar = post.authorThumbnail.recommendedQuality(channelIconLabel->size()); recAvatar.has_value())
+    if (const InnertubeObjects::GenericThumbnail* recAvatar = post.authorThumbnail.recommendedQuality(channelIconLabel->size()))
     {
-        HttpReply* reply = Http::instance().get("https:" + recAvatar->get().url);
+        HttpReply* reply = Http::instance().get("https:" + recAvatar->url);
         connect(reply, &HttpReply::finished, this, &BackstagePostRenderer::setChannelIcon);
     }
 
@@ -156,15 +156,15 @@ void BackstagePostRenderer::setImage(const InnertubeObjects::BackstageImage& ima
     if (contentText->text().isEmpty())
         contentText->setText(" ");
 
-    if (auto recImage = image.image.recommendedQuality(size()); recImage.has_value())
+    if (const InnertubeObjects::GenericThumbnail* recImage = image.image.recommendedQuality(size()))
     {
-        HttpReply* reply = Http::instance().get(recImage->get().url);
+        HttpReply* reply = Http::instance().get(recImage->url);
         connect(reply, &HttpReply::finished, this,
-                std::bind(&BackstagePostRenderer::setImageLabelData, this, std::placeholders::_1, imageLabel));
+                std::bind_front(&BackstagePostRenderer::setImageLabelData, this, imageLabel));
     }
 }
 
-void BackstagePostRenderer::setImageLabelData(const HttpReply& reply, QLabel* imageLabel)
+void BackstagePostRenderer::setImageLabelData(QLabel* imageLabel, const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());

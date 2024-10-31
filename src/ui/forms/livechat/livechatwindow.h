@@ -53,8 +53,8 @@ private slots:
     void chatTick();
     void insertEmoji(const QString& emoji);
     void processChatData(const InnertubeEndpoints::GetLiveChat& liveChat);
-    void processChatReplayData(const InnertubeEndpoints::GetLiveChatReplay& replay,
-                               double progress, double previousProgress, bool seeked);
+    void processChatReplayData(double progress, double previousProgress, bool seeked,
+                               const InnertubeEndpoints::GetLiveChatReplay& replay);
     void sendMessage();
     void showEmojiMenu();
 signals:

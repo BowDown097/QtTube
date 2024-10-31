@@ -67,8 +67,6 @@ void TopBar::handleMouseEvent(QMouseEvent* event)
     bool interferingWithTab{};
     if (QWidget* widgetAtPoint = qApp->widgetAt(QCursor::pos()))
         interferingWithTab = strncmp(widgetAtPoint->metaObject()->className(), "QTab", 4) == 0;
-
-    // QTab part is to prevent interference with watch view feed
     if (alwaysShow || animation->state() == QAbstractAnimation::Running || interferingWithTab)
         return;
 
@@ -138,9 +136,10 @@ void TopBar::setUpAvatarButton()
     connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
     {
         qtTubeApp->creds().updateAccount(endpoint);
-        if (auto recAvatar = endpoint.response.header.accountPhoto.recommendedQuality(avatarButton->size()); recAvatar.has_value())
+        if (const InnertubeObjects::GenericThumbnail* recAvatar =
+            endpoint.response.header.accountPhoto.recommendedQuality(avatarButton->size()))
         {
-            HttpReply* photoReply = Http::instance().get(recAvatar->get().url);
+            HttpReply* photoReply = Http::instance().get(recAvatar->url);
             connect(photoReply, &HttpReply::finished, this, &TopBar::setAvatar);
         }
     });

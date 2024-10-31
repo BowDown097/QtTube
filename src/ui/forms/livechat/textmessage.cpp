@@ -83,7 +83,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
             {
                 HttpReply* emojiReply = HttpUtils::cachedInstance().get(url);
                 connect(emojiReply, &HttpReply::finished, this,
-                        std::bind(&TextMessage::insertEmojiIntoMessage, this, std::placeholders::_1, placeholder));
+                    std::bind_front(&TextMessage::insertEmojiIntoMessage, this, placeholder));
             }
 
             messageLabel->setText(messageLabel->text() + placeholder);
@@ -95,7 +95,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     }
 }
 
-void TextMessage::insertEmojiIntoMessage(const HttpReply& reply, const QString& placeholder)
+void TextMessage::insertEmojiIntoMessage(const QString& placeholder, const HttpReply& reply)
 {
     QString data = ImgPlaceholder.arg(reply.header("content-type"), reply.body().toBase64());
     messageLabel->setText(messageLabel->text().replace(placeholder, data));

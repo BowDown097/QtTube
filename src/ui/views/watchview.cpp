@@ -24,7 +24,6 @@
 
 WatchView::~WatchView()
 {
-    delete ui;
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
     OSUtils::toggleIdleSleep(false);
 
@@ -223,9 +222,9 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         ui->dislikeLabel->setStyleSheet("color: #167ac6");
     }
 
-    if (auto recThumbnail = secondaryInfo.owner.thumbnail.recommendedQuality(QSize(48, 48)); recThumbnail.has_value())
+    if (const InnertubeObjects::GenericThumbnail* recThumbnail = secondaryInfo.owner.thumbnail.recommendedQuality(QSize(48, 48)))
     {
-        HttpReply* reply = Http::instance().get(recThumbnail->get().url);
+        HttpReply* reply = Http::instance().get(recThumbnail->url);
         connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
     }
 
@@ -280,9 +279,9 @@ void WatchView::processPreloadData(PreloadData::WatchView* preload)
 {
     if (preload->channelAvatar.has_value())
     {
-        if (auto recAvatar = preload->channelAvatar->recommendedQuality(QSize(48, 48)); recAvatar.has_value())
+        if (const InnertubeObjects::GenericThumbnail* recAvatar = preload->channelAvatar->recommendedQuality(QSize(48, 48)))
         {
-            HttpReply* reply = Http::instance().get(recAvatar->get().url);
+            HttpReply* reply = Http::instance().get(recAvatar->url);
             connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
         }
     }
@@ -304,7 +303,7 @@ void WatchView::resizeEvent(QResizeEvent* event)
     int width = ui->player->size().width();
     ui->description->setFixedWidth(width);
     ui->feed->setMaximumWidth(ui->player->scaleMode() == WatchViewPlayer::ScaleMode::Scaled
-                                  ? event->size().width() - width - ui->primaryLayout->spacing() : QWIDGETSIZE_MAX);
+        ? event->size().width() - width - ui->primaryLayout->spacing() : QWIDGETSIZE_MAX);
     ui->menuWrapper->setFixedWidth(width);
     ui->primaryInfoWrapper->setFixedWidth(width);
     ui->scrollArea->setMaximumWidth(width);

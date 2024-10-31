@@ -28,7 +28,6 @@ void RichTableView::mouseMoveEvent(QMouseEvent* event)
     QString anchor = anchorAt(event->pos());
     if (anchor != mousePressAnchor)
         mousePressAnchor.clear();
-
     if (anchor == lastHoveredAnchor)
         return;
 

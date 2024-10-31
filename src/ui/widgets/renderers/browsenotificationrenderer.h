@@ -14,9 +14,6 @@ class BrowseNotificationRenderer : public QWidget
 public:
     explicit BrowseNotificationRenderer(QWidget* parent = nullptr);
     void setData(const InnertubeObjects::Notification& notification);
-public slots:
-    void setChannelIcon(const HttpReply& reply);
-    void setThumbnail(const HttpReply& reply);
 private:
     TubeLabel* channelIcon;
     QHBoxLayout* hbox;
@@ -24,4 +21,7 @@ private:
     TubeLabel* shortMessage;
     QVBoxLayout* textVbox;
     TubeLabel* thumbLabel;
+public slots:
+    void setChannelIcon(const HttpReply& reply);
+    void setThumbnail(const HttpReply& reply);
 };

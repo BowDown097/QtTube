@@ -46,9 +46,9 @@ void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoi
     accountNameLabel->setText(header.accountName);
     handleLabel->setText(header.channelHandle);
 
-    if (auto recAvatar = header.accountPhoto.recommendedQuality(avatar->size()); recAvatar.has_value())
+    if (const InnertubeObjects::GenericThumbnail* recAvatar = header.accountPhoto.recommendedQuality(avatar->size()))
     {
-        HttpReply* avatarReply = Http::instance().get(QUrl(recAvatar->get().url));
+        HttpReply* avatarReply = Http::instance().get(QUrl(recAvatar->url));
         connect(avatarReply, &HttpReply::finished, this, &AccountMenuWidget::setAvatar);
     }
 
