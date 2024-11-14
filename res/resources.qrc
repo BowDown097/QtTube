@@ -85,6 +85,9 @@
         <file>player/integration.js</file>
     </qresource>
     <qresource>
+        <file>player/interceptors.js</file>
+    </qresource>
+    <qresource>
         <file>player/patches.js</file>
     </qresource>
     <qresource>

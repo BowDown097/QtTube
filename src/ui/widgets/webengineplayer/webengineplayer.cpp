@@ -6,6 +6,7 @@
 #include <QBoxLayout>
 #include <QFile>
 #include <QWebChannel>
+#include <QWebEngineCookieStore>
 #include <QWebEngineProfile>
 #include <QWebEngineScriptCollection>
 #include <QWebEngineSettings>
@@ -21,9 +22,9 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
 
     QWebChannel* channel = new QWebChannel(m_view->page());
-    m_view->page()->setWebChannel(channel);
     channel->registerObject("interface", m_interface);
     channel->registerObject("settings", &qtTubeApp->settings());
+    m_view->page()->setWebChannel(channel);
 
     loadScriptFile(":/qtwebchannel/qwebchannel.js", QWebEngineScript::DocumentCreation);
     loadScriptFile(":/player/annotationlib/AnnotationParser.js", QWebEngineScript::DocumentReady);
@@ -32,6 +33,7 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     loadScriptFile(":/player/global.js", QWebEngineScript::DocumentCreation);
     loadScriptFile(":/player/h264ify.js", QWebEngineScript::DocumentReady);
     loadScriptFile(":/player/integration.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/player/interceptors.js", QWebEngineScript::DocumentCreation);
     loadScriptFile(":/player/sponsorblock.js", QWebEngineScript::DocumentReady);
 
     QString annotationStylesData = getFileContents(":/player/annotationlib/AnnotationRenderer.css");
@@ -96,7 +98,26 @@ void WebEnginePlayer::play(const QString& vId, int progress)
 }
 
 void WebEnginePlayer::setAuthStore(InnertubeAuthStore* authStore)
-{ m_interceptor->setAuthStore(authStore); }
+{
+    m_interceptor->setAuthStore(authStore);
+    if (!authStore->populated())
+        return;
+
+    // add cookies from auth store to the video page.
+    // these are required should the user wish to watch an age restricted video,
+    // as the last surviving age restriction bypass was patched on 10/21/2024.
+    const QStringList cookiePairs = authStore->toCookieString().split(';', Qt::SkipEmptyParts);
+    QWebEngineCookieStore* cookieStore = m_view->page()->profile()->cookieStore();
+
+    for (const QString& cookiePair : cookiePairs)
+    {
+        QStringList parts = cookiePair.split('=');
+        QNetworkCookie cookie(parts[0].toUtf8(), parts[1].toUtf8());
+        cookie.setDomain("www.youtube.com");
+        cookie.setPath("/");
+        cookieStore->setCookie(cookie);
+    }
+}
 
 void WebEnginePlayer::setContext(InnertubeContext* context)
 { m_interceptor->setContext(context); }

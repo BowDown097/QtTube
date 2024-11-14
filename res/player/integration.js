@@ -9,17 +9,8 @@ waitForElement("#movie_player").then(function(p) {
 });
 
 // adblock
-if (params.get("adblock") === "1") {
-    JSON.parseOG = JSON.parse;
-    JSON.parse = function(obj) {
-        obj = JSON.parseOG(obj);
-        if (obj?.adPlacements)
-            obj.adPlacements = [];
-        if (obj?.playerAds)
-            obj.playerAds = [];
-        return obj;
-    };
-}
+if (params.get("adblock") === "1")
+    createAdblockInterceptor();
 
 // apply settings
 new QWebChannel(qt.webChannelTransport, async function(channel) {
@@ -44,7 +35,7 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         addStyle(".ytp-info-panel-preview { display: none; }");
 
     waitForElement("#movie_player").then(function(p) {
-        // emit progress change when time text changes (every ~1 second)
+        // emit progress change every second
         var previousProgress = 0;
         p.addEventListener("onVideoProgress", progress => {
             if (Math.abs(progress - previousProgress) < 1)
