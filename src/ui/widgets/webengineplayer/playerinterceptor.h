@@ -20,7 +20,5 @@ private:
     InnertubeContext* m_context{};
     InnertubeEndpoints::PlayerResponse m_playerResponse;
 
-    void doWatchtime(QWebEngineUrlRequestInfo& info);
-    void doPlayback(QWebEngineUrlRequestInfo& info);
     bool isTrackingUrl(const QUrl& url);
 };

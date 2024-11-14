@@ -1,7 +1,5 @@
 #include "playerinterceptor.h"
 #include "qttubeapplication.h"
-#include "utils/tubeutils.h"
-#include <QUrlQuery>
 
 void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
 {
@@ -19,23 +17,9 @@ void PlayerInterceptor::interceptRequest(QWebEngineUrlRequestInfo& info)
     }
 
     if (url.path() == "/api/stats/watchtime")
-        doWatchtime(info);
+        info.block(!qtTubeApp->settings().watchtimeTracking);
     else if (url.path() == "/api/stats/playback")
-        doPlayback(info);
-}
-
-void PlayerInterceptor::doWatchtime(QWebEngineUrlRequestInfo& info)
-{
-    info.block(true);
-    if (qtTubeApp->settings().watchtimeTracking)
-        TubeUtils::reportWatchtime(m_playerResponse, QUrlQuery(info.requestUrl()).queryItemValue("st").toLongLong());
-}
-
-void PlayerInterceptor::doPlayback(QWebEngineUrlRequestInfo& info)
-{
-    info.block(true);
-    if (qtTubeApp->settings().playbackTracking)
-        TubeUtils::reportPlayback(m_playerResponse);
+        info.block(!qtTubeApp->settings().playbackTracking);
 }
 
 bool PlayerInterceptor::isTrackingUrl(const QUrl& url)

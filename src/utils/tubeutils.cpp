@@ -98,68 +98,6 @@ namespace TubeUtils
         http.get(outPlaybackUrl);
     }
 
-    void reportWatchtime(const InnertubeEndpoints::PlayerResponse& playerResp, long long position)
-    {
-        InnertubeClient itc = InnerTube::instance()->context()->client;
-
-        QUrlQuery watchtimeQuery(QUrl(playerResp.playbackTracking.videostatsWatchtimeUrl));
-        QUrl outWatchtimeUrl("https://www.youtube.com/api/stats/watchtime");
-        QUrlQuery outWatchtimeQuery;
-
-        QString rt = QString::number(QRandomGenerator::global()->bounded(191) + 10);
-        QString posStr = QString::number(position);
-
-        QList<QPair<QString, QString>> map =
-        {
-            { "ns", "yt" },
-            { "el", "detailpage" },
-            { "cpn", generateCpn() },
-            { "ver", "2" },
-            { "fmt", "243" },
-            { "fs", "0" },
-            { "rt", rt },
-            { "euri", "" },
-            { "lact", QString::number(QRandomGenerator::global()->bounded(7001) + 1000) },
-            { "cl", watchtimeQuery.queryItemValue("cl") },
-            { "state", "playing" },
-            { "volume", "100" },
-            { "subscribed", watchtimeQuery.queryItemValue("subscribed") },
-            { "cbr", itc.browserName },
-            { "cbrver", itc.browserVersion },
-            { "c", QString::number(static_cast<int>(itc.clientType)) },
-            { "cver", itc.clientVersion },
-            { "cplayer", "UNIPLAYER" },
-            { "cos", itc.osName },
-            { "cosver", itc.osVersion },
-            { "cplatform", itc.platform },
-            { "hl", itc.hl + "_" + itc.gl },
-            { "cr", itc.gl },
-            { "uga", watchtimeQuery.queryItemValue("uga") },
-            { "len", watchtimeQuery.queryItemValue("len") },
-            { "afmt", "251" },
-            { "idpj", "-1" },
-            { "ldpj", "-10" },
-            { "rti", rt },
-            { "st", posStr },
-            { "et", posStr },
-            { "muted", "0" },
-            { "docid", watchtimeQuery.queryItemValue("docid") },
-            { "ei", watchtimeQuery.queryItemValue("ei") },
-            { "plid", watchtimeQuery.queryItemValue("plid") },
-            { "sdetail", watchtimeQuery.queryItemValue("sdetail") },
-            { "of", watchtimeQuery.queryItemValue("of") },
-            { "vm", watchtimeQuery.queryItemValue("vm") }
-        };
-
-        outWatchtimeQuery.setQueryItems(map);
-        outWatchtimeUrl.setQuery(outWatchtimeQuery);
-
-        Http http;
-        http.setMaxRetries(0);
-        setNeededHeaders(http, InnerTube::instance()->context(), InnerTube::instance()->authStore());
-        http.get(outWatchtimeUrl);
-    }
-
     void setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore)
     {
         if (authStore->populated())
