@@ -8,8 +8,10 @@
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "termfilterview.h"
+#include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QDir>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QStandardPaths>
 #include <QStyleFactory>
@@ -59,6 +61,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->blockAds->setChecked(store.blockAds);
     ui->disable60Fps->setChecked(store.disable60Fps);
     ui->disablePlayerInfoPanels->setChecked(store.disablePlayerInfoPanels);
+    ui->externalPlayerEdit->setText(store.externalPlayerPath);
     ui->h264Only->setChecked(store.h264Only);
     ui->preferredQuality->setEnabled(!store.qualityFromPlayer);
     ui->preferredQuality->setCurrentIndex(static_cast<int>(store.preferredQuality));
@@ -68,6 +71,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->restoreAnnotations->setChecked(store.restoreAnnotations);
     ui->vaapi->setChecked(store.vaapi);
     ui->volumeFromPlayer->setChecked(store.volumeFromPlayer);
+    toggleWebPlayerSettings(store.externalPlayerPath.isEmpty());
     // privacy
     ui->playbackTracking->setChecked(store.playbackTracking);
     ui->watchtimeTracking->setChecked(store.watchtimeTracking);
@@ -97,6 +101,8 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
     connect(ui->deArrow, &QCheckBox::toggled, this, &SettingsForm::toggleDeArrowSettings);
     //connect(ui->exportButton, &QPushButton::clicked, this, &SettingsForm::openExportWizard);
+    connect(ui->externalPlayerButton, &QPushButton::clicked, this, &SettingsForm::selectExternalPlayer);
+    connect(ui->externalPlayerEdit, &QLineEdit::textEdited, this, &SettingsForm::checkExternalPlayer);
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool c) { ui->filterLength->setEnabled(c); });
     connect(ui->importButton, &QPushButton::clicked, this, &SettingsForm::openImportWizard);
     connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredQuality->setEnabled(!c); });
@@ -106,12 +112,25 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
 }
 
+void SettingsForm::checkExternalPlayer(const QString& text)
+{
+    if (text.isEmpty())
+        toggleWebPlayerSettings(true);
+    if (!text.contains("%U"))
+        return;
+
+    if (QString playerPath = StringUtils::extractPath(text); QFile::exists(playerPath))
+        toggleWebPlayerSettings(false);
+    else
+        QMessageBox::warning(this, "Invalid path", "Player path is invalid.");
+}
+
 void SettingsForm::clearCache()
 {
     QDir directory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/http/");
     if (!directory.exists() || directory.isEmpty())
     {
-        QMessageBox::critical(this, "No cache directory", "No cache directory exists.");
+        QMessageBox::warning(this, "No cache directory", "No cache directory exists.");
         return;
     }
 
@@ -199,6 +218,7 @@ void SettingsForm::saveSettings()
     store.blockAds = ui->blockAds->isChecked();
     store.disable60Fps = ui->disable60Fps->isChecked();
     store.disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
+    store.externalPlayerPath = ui->externalPlayerEdit->text();
     store.h264Only = ui->h264Only->isChecked();
     store.preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
     store.preferredVolume = ui->preferredVolume->value();
@@ -237,6 +257,25 @@ void SettingsForm::saveSettings()
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
 }
 
+void SettingsForm::selectExternalPlayer()
+{
+#if defined(Q_OS_MACOS)
+    QString dir = "/Applications";
+#elif defined(Q_OS_UNIX)
+    QString dir = "/usr/bin";
+#elif defined(Q_OS_WIN)
+    QString dir = "C:\\Program Files";
+#else
+    QString dir;
+#endif
+
+    if (QString playerPath = QFileDialog::getOpenFileName(this, QString(), dir); !playerPath.isNull())
+    {
+        ui->externalPlayerEdit->setText(playerPath + " %U");
+        toggleWebPlayerSettings(false);
+    }
+}
+
 void SettingsForm::showChannelFilterTable()
 {
     ChannelFilterTable* ft = new ChannelFilterTable;
@@ -255,4 +294,18 @@ void SettingsForm::toggleDeArrowSettings(bool checked)
 {
     ui->deArrowThumbs->setEnabled(checked);
     ui->deArrowTitles->setEnabled(checked);
+}
+
+void SettingsForm::toggleWebPlayerSettings(bool checked)
+{
+    ui->blockAds->setEnabled(checked);
+    ui->disable60Fps->setEnabled(checked);
+    ui->disablePlayerInfoPanels->setEnabled(checked);
+    ui->h264Only->setEnabled(checked);
+    ui->preferredQuality->setEnabled(checked);
+    ui->preferredQualityLabel->setEnabled(checked);
+    ui->preferredVolume->setEnabled(checked);
+    ui->preferredVolumeLabel->setEnabled(checked);
+    ui->restoreAnnotations->setEnabled(checked);
+    ui->vaapi->setEnabled(checked);
 }

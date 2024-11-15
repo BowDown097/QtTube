@@ -230,7 +230,7 @@
             <x>0</x>
             <y>0</y>
             <width>462</width>
-            <height>307</height>
+            <height>411</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -255,6 +255,77 @@
            <property name="bottomMargin">
             <number>10</number>
            </property>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_15">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_9">
+               <property name="spacing">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>5</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="externalPlayerLabel">
+                 <property name="text">
+                  <string>External player</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="externalPlayerEdit">
+                 <property name="placeholderText">
+                  <string>/usr/bin/mpv %U</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="externalPlayerButton">
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <item>
+                <spacer name="horizontalSpacer_8">
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Policy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QLabel" name="externalPlayerHint">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>%U is substituted with the video URL, %P is substituted with progress in seconds. Player must have youtube-dl/yt-dlp integration.</string>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
            <item>
             <widget class="QCheckBox" name="blockAds">
              <property name="toolTip">
@@ -480,7 +551,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>215</width>
             <height>82</height>
            </rect>
           </property>
@@ -562,7 +633,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>265</width>
             <height>199</height>
            </rect>
           </property>
@@ -726,7 +797,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>300</width>
             <height>215</height>
            </rect>
           </property>
@@ -868,7 +939,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>364</width>
             <height>227</height>
            </rect>
           </property>
@@ -1071,7 +1142,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>222</width>
             <height>118</height>
            </rect>
           </property>

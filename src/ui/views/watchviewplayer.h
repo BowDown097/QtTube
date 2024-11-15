@@ -21,7 +21,7 @@ public:
     QSize size() const { return m_size; }
     ScaleMode scaleMode() const { return m_scaleMode; }
 private:
-    WebEnginePlayer* m_player;
+    WebEnginePlayer* m_player{};
     ScaleMode m_scaleMode;
     QSize m_size;
 signals:

@@ -74,7 +74,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     if (qtTubeApp->settings().vaapi && qApp->platformName() != "wayland")
     {
         qputenv("LIBVA_DRI3_DISABLE", "1"); // fixes issue on some older GPUs
-        qputenv("QTWEBENGINE_CHROMIUM_FLAGS", qgetenv("QTWEBENGINE_CHROMIUM_FLAGS") + " --enable-features=VaapiVideoDecoder --disable-features=UseChromeOSDirectVideoDecoder");
+        qputenv("QTWEBENGINE_CHROMIUM_FLAGS", qgetenv("QTWEBENGINE_CHROMIUM_FLAGS") + " --enable-features=VaapiVideoDecoder --enable-features=VaapiIgnoreDriverChecks --disable-features=UseChromeOSDirectVideoDecoder");
     }
 #endif
 

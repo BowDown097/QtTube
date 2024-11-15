@@ -31,6 +31,7 @@ public:
     bool deArrowTitles{};
     bool disable60Fps{};
     bool disablePlayerInfoPanels{};
+    QString externalPlayerPath;
     int filterLength{};
     bool filterLengthEnabled{};
     QStringList filteredChannels;

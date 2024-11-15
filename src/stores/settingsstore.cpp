@@ -25,6 +25,7 @@ void SettingsStore::initialize()
     blockAds = settings.value("player/blockAds", true).toBool();
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
     disablePlayerInfoPanels = settings.value("player/disableInfoPanels", false).toBool();
+    externalPlayerPath = settings.value("player/externalPlayerPath").toString();
     h264Only = settings.value("player/h264Only", false).toBool();
     preferredQuality = settings.value("player/preferredQuality", 0).value<PlayerQuality>();
     preferredVolume = settings.value("player/preferredVolume", 100).toInt();
@@ -82,6 +83,7 @@ void SettingsStore::save()
     settings.setValue("player/blockAds", blockAds);
     settings.setValue("player/disable60Fps", disable60Fps);
     settings.setValue("player/disableInfoPanels", disablePlayerInfoPanels);
+    settings.setValue("player/externalPlayerPath", externalPlayerPath);
     settings.setValue("player/h264Only", h264Only);
     settings.setValue("player/preferredQuality", static_cast<int>(preferredQuality));
     settings.setValue("player/preferredVolume", preferredVolume);

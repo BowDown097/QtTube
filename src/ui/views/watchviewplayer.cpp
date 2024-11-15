@@ -1,13 +1,21 @@
 #include "watchviewplayer.h"
 #include "innertube.h"
+#include "qttubeapplication.h"
 #include "ui/widgets/webengineplayer/webengineplayer.h"
+#include <QLabel>
+#include <QMessageBox>
+#include <QProcess>
 
 WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QObject(watchView)
 {
-    m_player = new WebEnginePlayer(watchView);
-    m_player->setAuthStore(InnerTube::instance()->authStore());
-    m_player->setContext(InnerTube::instance()->context());
-    connect(m_player, &WebEnginePlayer::progressChanged, this, &WatchViewPlayer::progressChanged);
+    if (qtTubeApp->settings().externalPlayerPath.isEmpty())
+    {
+        m_player = new WebEnginePlayer(watchView);
+        m_player->setAuthStore(InnerTube::instance()->authStore());
+        m_player->setContext(InnerTube::instance()->context());
+        connect(m_player, &WebEnginePlayer::progressChanged, this, &WatchViewPlayer::progressChanged);
+    }
+
     calcAndSetSize(maxSize);
 }
 
@@ -33,22 +41,39 @@ void WatchViewPlayer::calcAndSetSize(const QSize& maxSize)
         emit scaleModeChanged(m_scaleMode);
 
     m_size = QSize(playerWidth, playerHeight);
-    m_player->setFixedSize(m_size);
+
+    if (m_player)
+        m_player->setFixedSize(m_size);
 }
 
 void WatchViewPlayer::play(const QString& videoId, int progress)
 {
-    m_player->play(videoId, progress);
+    if (QString playerPath = qtTubeApp->settings().externalPlayerPath; !playerPath.isEmpty())
+    {
+        // using splitCommand + start instead of startCommand for Qt 5.15 support
+        QProcess* process = new QProcess(this);
+        QStringList args = process->splitCommand(playerPath
+            .replace("%U", "https://www.youtube.com/watch?v=" + videoId)
+            .replace("%P", QString::number(progress)));
+        const QString program = args.takeFirst();
+        process->start(program, args);
+    }
+    else
+    {
+        m_player->play(videoId, progress);
+    }
 }
 
 void WatchViewPlayer::seek(int progress)
 {
-    m_player->seek(progress);
+    if (m_player)
+        m_player->seek(progress);
 }
 
 void WatchViewPlayer::startTracking(const InnertubeEndpoints::PlayerResponse& playerResp)
 {
-    m_player->setPlayerResponse(playerResp);
+    if (m_player)
+        m_player->setPlayerResponse(playerResp);
 }
 
 QWidget* WatchViewPlayer::widget()

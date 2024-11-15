@@ -51,6 +51,24 @@ namespace StringUtils
         return useLocale ? QLocale::system().toString(out.toLongLong()) : out;
     }
 
+    QString extractPath(const QString& str)
+    {
+        QString out;
+        quint8 quoteCount{};
+
+        for (QChar c : str)
+        {
+            if (c == '"' || c == '\'')
+                ++quoteCount;
+            else if (c.isSpace() && quoteCount != 1)
+                break;
+            else
+                out += c;
+        }
+
+        return out;
+    }
+
     QString innertubeStringToRichText(const InnertubeObjects::InnertubeString& istr, bool useLinkText)
     {
         QString out;
