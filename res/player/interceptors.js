@@ -6,6 +6,8 @@ function createAdblockInterceptor() {
             obj.adPlacements = [];
         if (obj?.playerAds)
             obj.playerAds = [];
+        if (obj?.adSlots)
+            obj.adSlots = [];
         return obj;
     };
 }
