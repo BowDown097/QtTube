@@ -14,13 +14,8 @@ waitForElement("#movie_player .ytp-error").then(function() {
 
     // this bypasses blocks on music videos and stuff like that. also probably helpful with login
     Object.assign(ytcfg.data_.INNERTUBE_CONTEXT.client, {
-        clientName: "IOS",
-        clientVersion: "19.34.2",
-        deviceMake: "Apple",
-        deviceModel: "iPhone16,2",
-        userAgent: "com.google.ios.youtube/19.34.2 (iPhone16,2; U; CPU iOS 17_6 like Mac OS X;)",
-        osName: "iPhone",
-        osVersion: "17.6.1.21G93"
+        clientName: "TVHTML5",
+        clientVersion: "7.20240724.13.00",
     });
 
     if (isAgeGated)
