@@ -194,7 +194,11 @@ void TubeLabel::setText(const QString& text)
 
         if (maximumHeight() >= nextLineY + fm.lineSpacing())
         {
+        #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
             outText += QStringView(text.mid(line.textStart(), line.textLength()));
+        #else
+            outText += text.midRef(line.textStart(), line.textLength());
+        #endif
             y = nextLineY;
         }
         else
