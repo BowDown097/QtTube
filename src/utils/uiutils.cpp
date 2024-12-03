@@ -161,7 +161,7 @@ namespace UIUtils
 
     QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget)
     {
-        QListWidgetItem* item = new QListWidgetItem(list);
+        QListWidgetItem* item = new QListWidgetItem;
         item->setSizeHint(widget->sizeHint());
         list->addItem(item);
         list->setItemWidget(item, widget);
