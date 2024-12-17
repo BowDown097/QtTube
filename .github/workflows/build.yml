@@ -79,7 +79,7 @@ jobs:
         run: |
           sudo add-apt-repository universe
           sudo apt-get -y update
-          sudo apt-get -y install libxss-dev libfuse2 libxcb-cursor0
+          sudo apt-get -y install libxss-dev libfuse2 libxcb-cursor0 libnss3
       
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
