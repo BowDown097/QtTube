@@ -67,7 +67,7 @@ namespace UIUtils
         addWidgetToList(list, label);
     }
 
-    void addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel)
+    void addChannelToList(QListWidget* list, const InnertubeObjects::Channel& channel)
     {
         if (qtTubeApp->settings().channelIsFiltered(channel.channelId))
             return;
@@ -139,7 +139,17 @@ namespace UIUtils
         return renderer;
     }
 
-    void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel)
+    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup)
+    {
+        if (qtTubeApp->settings().videoIsFiltered(lockup))
+            return;
+
+        VideoRenderer* renderer = constructVideoRenderer(list);
+        renderer->setData(lockup);
+        addWidgetToList(list, renderer);
+    }
+
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel)
     {
         if (qtTubeApp->settings().videoIsFiltered(reel))
             return;
@@ -149,7 +159,7 @@ namespace UIUtils
         addWidgetToList(list, renderer);
     }
 
-    void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video)
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video)
     {
         if (qtTubeApp->settings().videoIsFiltered(video))
             return;

@@ -164,21 +164,21 @@ void ChannelView::prepareHeader(const InnertubeObjects::ChannelC4Header& c4Heade
 void ChannelView::prepareHeader(const InnertubeObjects::ChannelPageHeader& pageHeader,
                                 const QList<InnertubeObjects::EntityMutation>& mutations)
 {
-    QString channelHandle = pageHeader.metadata.metadataRows.value(0).value(0);
-    QString subCount = pageHeader.metadata.metadataRows.value(1).value(0);
-    QString videosCount = pageHeader.metadata.metadataRows.value(1).value(1);
+    QString channelHandle = pageHeader.metadata.metadataRows.value(0).value(0).content;
+    QString subCount = pageHeader.metadata.metadataRows.value(1).value(0).content;
+    QString videosCount = pageHeader.metadata.metadataRows.value(1).value(1).content;
 
     channelName->setText(pageHeader.title.text.content);
     handleAndVideos->setText(channelHandle + ' ' + pageHeader.metadata.delimiter + ' ' + videosCount);
     subscribeWidget->setSubscriberCount(subCount, channelId);
 
-    if (pageHeader.subscribeButton)
-        subscribeWidget->setSubscribeButton(pageHeader.subscribeButton.value(), pageHeader.subscribeButton->isSubscribed(mutations));
+    if (const InnertubeObjects::SubscribeButtonViewModel* subscribeButton = pageHeader.findSubscribeButton())
+        subscribeWidget->setSubscribeButton(*subscribeButton, subscribeButton->isSubscribed(mutations));
 
     if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
         mainWindow->setWindowTitle(pageHeader.title.text.content + " - " + QTTUBE_APP_NAME);
 
-    prepareAvatarAndBanner(pageHeader.avatar, pageHeader.banner);
+    prepareAvatarAndBanner(pageHeader.image.avatar.image, pageHeader.banner.image);
 }
 
 void ChannelView::setBanner(const HttpReply& reply)

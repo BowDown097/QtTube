@@ -5,7 +5,6 @@
 #include <mutex>
 #include <QMessageBox>
 #include <QScrollBar>
-#include <type_traits>
 
 class BrowseHelper : public QObject
 {
@@ -35,17 +34,19 @@ public:
         try
         {
             E newData = browseRequest<E>(widget->continuationToken, data);
-            if constexpr (std::is_same_v<E, InnertubeEndpoints::Search>)
+            if constexpr (std::same_as<E, InnertubeEndpoints::Search>)
                 setupSearch(widget, newData.response);
-            else if constexpr (std::is_same_v<E, InnertubeEndpoints::GetNotificationMenu>)
+            else if constexpr (std::same_as<E, InnertubeEndpoints::GetNotificationMenu>)
                 UIUtils::addRangeToList(widget, newData.response.notifications);
-            else if constexpr (std::is_same_v<E, InnertubeEndpoints::BrowseChannel>)
+            else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseChannel>)
                 continueChannel(widget, newData.response.contents);
+            else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseHome>)
+                UIUtils::addRangeToList(widget, newData.response.contents);
             else
                 UIUtils::addRangeToList(widget, newData.response.videos);
 
             // continuationToken is added by ChannelBrowser::continuation() for channels
-            if constexpr (!std::is_same_v<E, InnertubeEndpoints::BrowseChannel>)
+            if constexpr (!std::same_as<E, InnertubeEndpoints::BrowseChannel>)
                 widget->continuationToken = newData.continuationToken;
         }
         catch (const InnertubeException& ie)

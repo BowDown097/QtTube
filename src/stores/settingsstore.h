@@ -2,7 +2,7 @@
 #include "genericstore.h"
 #include <QObject>
 
-namespace InnertubeObjects { struct Reel; struct Video; }
+namespace InnertubeObjects { struct LockupViewModel; struct Reel; struct Video; }
 
 class QSettings;
 
@@ -59,6 +59,7 @@ public:
 
     bool channelIsFiltered(const QString& id) const;
     bool strHasFilteredTerm(const QString& str) const;
+    bool videoIsFiltered(const InnertubeObjects::LockupViewModel& lookup) const;
     bool videoIsFiltered(const InnertubeObjects::Reel& reel) const;
     bool videoIsFiltered(const InnertubeObjects::Video& video) const;
 

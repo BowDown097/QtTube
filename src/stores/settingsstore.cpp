@@ -1,6 +1,7 @@
 #include "settingsstore.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
+#include "innertube/objects/viewmodels/lockupviewmodel.h"
 #include <QSettings>
 
 bool SettingsStore::channelIsFiltered(const QString& id) const
@@ -114,6 +115,16 @@ void SettingsStore::save()
 bool SettingsStore::strHasFilteredTerm(const QString& str) const
 {
     return std::ranges::any_of(filteredTerms, [&str](const QString& t) { return str.contains(t, Qt::CaseInsensitive); });
+}
+
+bool SettingsStore::videoIsFiltered(const InnertubeObjects::LockupViewModel& lockup) const
+{
+    if (std::optional<InnertubeObjects::VideoOwner> owner = lockup.owner(); channelIsFiltered(owner->id))
+        return true;
+
+    return strHasFilteredTerm(lockup.metadata.title) ||
+           (filterLengthEnabled && !lockup.isLive() && QTime(0, 0).secsTo(lockup.length()) <= filterLength) ||
+           (hideStreams && lockup.isLive());
 }
 
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::Reel& reel) const

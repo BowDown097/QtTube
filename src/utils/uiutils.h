@@ -7,6 +7,8 @@ namespace InnertubeObjects
 {
 struct BackstagePost;
 struct Channel;
+struct InnertubeString;
+struct LockupViewModel;
 struct Notification;
 struct Reel;
 struct Video;
@@ -17,48 +19,75 @@ class QLayout;
 class QListWidget;
 class QListWidgetItem;
 class QTabWidget;
-class VideoRenderer;
 
 namespace UIUtils
 {
+    namespace detail
+    {
+        template<typename...>
+        struct is_variant : std::false_type {};
+
+        template<typename... Types>
+        struct is_variant<std::variant<Types...>> : std::true_type{};
+
+        template<typename T>
+        inline constexpr bool is_variant_v = is_variant<T>::value;
+
+        template<class T, class... U>
+        inline constexpr bool is_any_v = std::disjunction_v<std::is_same<T, U>...>;
+    }
+
     extern QString g_defaultStyle;
 
     void addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post);
     void addBoldLabelToList(QListWidget* list, const QString& text);
-    void addChannelRendererToList(QListWidget* list, const InnertubeObjects::Channel& channel);
+    void addChannelToList(QListWidget* list, const InnertubeObjects::Channel& channel);
     void addNotificationToList(QListWidget* list, const InnertubeObjects::Notification& notification);
     void addSeparatorToList(QListWidget* list);
     void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
     void addShelfTitleToList(QListWidget* list, const QString& title);
-    void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Reel& reel);
-    void addVideoRendererToList(QListWidget* list, const InnertubeObjects::Video& video);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video);
     QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
     void addWrappedLabelToList(QListWidget* list, const QString& text);
     void clearLayout(QLayout* layout);
     void copyToClipboard(const QString& text);
-    QIcon iconThemed(const QString& name, const QPalette& pal = QPalette());
+    QIcon iconThemed(const QString& name, const QPalette& pal = {});
     QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius);
-    QPixmap pixmapThemed(const QString& name, bool fromQIcon = false, const QSize& size = QSize(), const QPalette& pal = QPalette());
-    bool preferDark(const QPalette& pal = QPalette());
-    QString resolveThemedIconName(const QString& name, const QPalette& pal = QPalette());
+    QPixmap pixmapThemed(const QString& name, bool fromQIcon = false,
+                         const QSize& size = {}, const QPalette& pal = {});
+    bool preferDark(const QPalette& pal = {});
+    QString resolveThemedIconName(const QString& name, const QPalette& pal = {});
     void setAppStyle(const QString& styleName, bool dark);
     void setMaximumLines(QWidget* widget, int lines);
     void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
     void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);
 
+    template<typename T>
+    void addItemToList(QListWidget* list, const T& item)
+    {
+        namespace ITO = InnertubeObjects;
+        if constexpr (std::same_as<T, ITO::BackstagePost>)
+            addBackstagePostToList(list, item);
+        else if constexpr (std::same_as<T, ITO::Channel>)
+            addChannelToList(list, item);
+        else if constexpr (std::same_as<T, ITO::Notification>)
+            addNotificationToList(list, item);
+        else if constexpr (std::same_as<T, ITO::InnertubeString>)
+            addShelfTitleToList(list, item.text);
+        else if constexpr (detail::is_any_v<T, ITO::LockupViewModel, ITO::Reel, ITO::Video>)
+            addVideoToList(list, item);
+    }
+
     void addRangeToList(QListWidget* list, std::ranges::range auto&& range)
     {
         for (auto it = std::ranges::begin(range); it != std::ranges::end(range); ++it)
         {
-            using RangeValue = std::ranges::range_value_t<decltype(range)>;
-            if constexpr (std::same_as<RangeValue, InnertubeObjects::BackstagePost>)
-                addBackstagePostToList(list, *it);
-            else if constexpr (std::same_as<RangeValue, InnertubeObjects::Channel>)
-                addChannelRendererToList(list, *it);
-            else if constexpr (std::same_as<RangeValue, InnertubeObjects::Notification>)
-                addNotificationToList(list, *it);
-            else if constexpr (std::same_as<RangeValue, InnertubeObjects::Reel> || std::same_as<RangeValue, InnertubeObjects::Video>)
-                addVideoRendererToList(list, *it);
+            if constexpr (detail::is_variant_v<std::ranges::range_value_t<decltype(range)>>)
+                std::visit([&](auto&& item) { addItemToList(list, item); }, *it);
+            else
+                addItemToList(list, *it);
             QCoreApplication::processEvents();
         }
     }

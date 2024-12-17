@@ -73,7 +73,7 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
     connect(reply, &InnertubeReply<BrowseHome>::exception, this,
         std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
     connect(reply, &InnertubeReply<BrowseHome>::finished, this, [this, widget](const BrowseHome& endpoint) {
-        UIUtils::addRangeToList(widget, endpoint.response.videos);
+        UIUtils::addRangeToList(widget, endpoint.response.contents);
         widget->continuationToken = endpoint.continuationToken;
         widget->setPopulatingFlag(false);
     });
@@ -181,7 +181,7 @@ void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::Se
     {
         if (const InnertubeObjects::Channel* channel = std::get_if<InnertubeObjects::Channel>(&item))
         {
-            UIUtils::addChannelRendererToList(widget, *channel);
+            UIUtils::addChannelToList(widget, *channel);
             QCoreApplication::processEvents();
         }
         else if (const InnertubeObjects::ReelShelf* reelShelf = std::get_if<InnertubeObjects::ReelShelf>(&item))
@@ -208,7 +208,7 @@ void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::Se
         }
         else if (const InnertubeObjects::Video* video = std::get_if<InnertubeObjects::Video>(&item))
         {
-            UIUtils::addVideoRendererToList(widget, *video);
+            UIUtils::addVideoToList(widget, *video);
             QCoreApplication::processEvents();
         }
     }

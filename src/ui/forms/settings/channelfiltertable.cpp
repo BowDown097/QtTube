@@ -54,9 +54,15 @@ void ChannelFilterTable::processChannelEntry(const InnertubeEndpoints::BrowseCha
 
     QString channelHandle;
     if (auto c4 = std::get_if<InnertubeObjects::ChannelC4Header>(&channel.response.header))
+    {
         channelHandle = c4->channelHandleText.text;
+    }
     else if (auto page = std::get_if<InnertubeObjects::ChannelPageHeader>(&channel.response.header))
-        channelHandle = page->metadata.metadataRows[0][0];
+    {
+        const QList<QList<InnertubeObjects::DynamicText>>& metadataRows = page->metadata.metadataRows;
+        if (!metadataRows.empty() && !metadataRows[0].empty())
+            channelHandle = metadataRows[0][0].content;
+    }
 
     if (channelHandle.isEmpty())
     {

@@ -22,9 +22,9 @@ namespace ChannelBrowser
                 const QJsonObject content = richItem["content"].toObject();
                 QJsonObject::const_iterator it = content.begin();
                 if (it.key() == "gridVideoRenderer" || it.key() == "videoRenderer")
-                    UIUtils::addVideoRendererToList(widget, InnertubeObjects::Video(it.value()));
+                    UIUtils::addVideoToList(widget, InnertubeObjects::Video(it.value()));
                 else if (it.key() == "reelItemRenderer")
-                    UIUtils::addVideoRendererToList(widget, InnertubeObjects::Reel(it.value()));
+                    UIUtils::addVideoToList(widget, InnertubeObjects::Reel(it.value()));
             }
             else if (const QJsonValue post = item["backstagePostThreadRenderer"]["post"]; post.isObject())
             {
@@ -78,9 +78,9 @@ namespace ChannelBrowser
                     const QJsonObject obj = v3.toObject();
                     QJsonObject::const_iterator it = obj.begin();
                     if (it.key() == "channelRenderer" || it.key() == "gridChannelRenderer")
-                        UIUtils::addChannelRendererToList(widget, InnertubeObjects::Channel(it.value()));
+                        UIUtils::addChannelToList(widget, InnertubeObjects::Channel(it.value()));
                     else if (it.key() == "gridVideoRenderer" || it.key() == "videoRenderer")
-                        UIUtils::addVideoRendererToList(widget, InnertubeObjects::Video(it.value()));
+                        UIUtils::addVideoToList(widget, InnertubeObjects::Video(it.value()));
                     // no QCoreApplication::processEvents(). breaks the banner for some reason :(
                     // this should be investigated and hopefully fixed at some point later
                 }
@@ -101,7 +101,7 @@ namespace ChannelBrowser
         for (const QJsonValue& v : contents)
         {
             if (const QJsonValue video = v["richItemRenderer"]["content"]["videoRenderer"]; video.isObject())
-                UIUtils::addVideoRendererToList(widget, InnertubeObjects::Video(video));
+                UIUtils::addVideoToList(widget, InnertubeObjects::Video(video));
             else if (const QJsonValue continuation = v["continuationItemRenderer"]; continuation.isObject())
                 widget->continuationToken = continuation["continuationEndpoint"]["continuationCommand"]["token"].toString();
             QCoreApplication::processEvents();
@@ -247,7 +247,7 @@ namespace ChannelBrowser
         for (const QJsonValue& v : itemSectionContents)
         {
             if (const QJsonValue videoRenderer = v["videoRenderer"]; videoRenderer.isObject())
-                UIUtils::addVideoRendererToList(widget, InnertubeObjects::Video(videoRenderer));
+                UIUtils::addVideoToList(widget, InnertubeObjects::Video(videoRenderer));
             else if (const QJsonValue continuation = v["continuationItemRenderer"]; continuation.isObject())
                 widget->continuationToken = continuation["continuationEndpoint"]["continuationCommand"]["token"].toString();
             QCoreApplication::processEvents();
@@ -267,7 +267,7 @@ namespace ChannelBrowser
         for (const QJsonValue& v : contents)
         {
             if (const QJsonValue reel = v["richItemRenderer"]["content"]["reelItemRenderer"]; reel.isObject())
-                UIUtils::addVideoRendererToList(widget, InnertubeObjects::Reel(reel));
+                UIUtils::addVideoToList(widget, InnertubeObjects::Reel(reel));
             else if (const QJsonValue continuation = v["continuationItemRenderer"]; continuation.isObject())
                 widget->continuationToken = continuation["continuationEndpoint"]["continuationCommand"]["token"].toString();
             QCoreApplication::processEvents();
@@ -290,7 +290,7 @@ namespace ChannelBrowser
         for (const QJsonValue& v : contents)
         {
             if (const QJsonValue video = v["richItemRenderer"]["content"]["videoRenderer"]; video.isObject())
-                UIUtils::addVideoRendererToList(widget, InnertubeObjects::Video(video));
+                UIUtils::addVideoToList(widget, InnertubeObjects::Video(video));
             else if (const QJsonValue continuation = v["continuationItemRenderer"]; continuation.isObject())
                 widget->continuationToken = continuation["continuationEndpoint"]["continuationCommand"]["token"].toString();
             QCoreApplication::processEvents();

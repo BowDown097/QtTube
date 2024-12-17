@@ -79,6 +79,44 @@ void VideoRenderer::navigateVideo()
     ViewController::loadVideo(videoId, progress, watchPreloadData.get());
 }
 
+void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup)
+{
+    progress = lockup.rendererContext["commandContext"]["onTap"]["innertubeCommand"]
+                                     ["watchEndpoint"]["startTimeSeconds"].toInt();
+    videoId = lockup.contentId;
+    watchPreloadData = std::make_unique<PreloadData::WatchView>();
+
+    if (lockup.metadata.metadata.metadataRows.size() > 1)
+    {
+        QStringList metadataList;
+        metadataList.reserve(2);
+        for (const InnertubeObjects::DynamicText& part : lockup.metadata.metadata.metadataRows[1])
+            metadataList.append(part.content);
+        metadataLabel->setText(metadataList.join(lockup.metadata.metadata.delimiter));
+    }
+
+    if (std::optional<InnertubeObjects::VideoOwner> owner = lockup.owner())
+    {
+        channelId = owner->id;
+        watchPreloadData->channelAvatar = owner->icon;
+        watchPreloadData->channelId = owner->id;
+        watchPreloadData->channelName = owner->name;
+
+        channelLabel->show();
+        channelLabel->setInfo(channelId, owner->name, {});
+    }
+
+    thumbnail->setLengthText(lockup.lengthText());
+    thumbnail->setProgress(progress, QTime(0, 0).secsTo(lockup.length()));
+    if (const InnertubeObjects::GenericThumbnail* thumb = lockup.contentImage.image.recommendedQuality(thumbnail->size()))
+        setThumbnail(thumb->url);
+
+    QString title = QString(lockup.metadata.title).replace("\r\n", " ");
+    watchPreloadData->title = title;
+    titleLabel->setText(title);
+    titleLabel->setToolTip(title);
+}
+
 void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid)
 {
     videoId = reel.videoId;
@@ -93,8 +131,8 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid)
     else
         thumbnail->setFixedSize(105, 186);
 
-    if (const InnertubeObjects::GenericThumbnail* recThumbnail = reel.thumbnail.recommendedQuality(thumbnail->size()))
-        setThumbnail(recThumbnail->url);
+    if (const InnertubeObjects::GenericThumbnail* thumb = reel.thumbnail.recommendedQuality(thumbnail->size()))
+        setThumbnail(thumb->url);
 
     QString title = QString(reel.headline).replace("\r\n", " ");
     titleLabel->setText(title);
@@ -127,8 +165,8 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
 
     thumbnail->setLengthText(video.lengthText.text);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
-    if (const InnertubeObjects::GenericThumbnail* recThumbnail = video.thumbnail.recommendedQuality(thumbnail->size()))
-        setThumbnail(recThumbnail->url);
+    if (const InnertubeObjects::GenericThumbnail* thumb = video.thumbnail.recommendedQuality(thumbnail->size()))
+        setThumbnail(thumb->url);
 
     QString title = QString(video.title.text).replace("\r\n", " ");
     titleLabel->setText(title);
