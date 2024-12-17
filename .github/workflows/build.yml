@@ -79,7 +79,7 @@ jobs:
         run: |
           sudo add-apt-repository universe
           sudo apt-get -y update
-          sudo apt-get -y install libxss-dev libfuse2 libxcb-cursor0 libnss3
+          sudo apt-get -y install libxss-dev libfuse2 libxcb-cursor0
       
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -132,7 +132,7 @@ jobs:
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
           cp /usr/lib/x86_64-linux-gnu/libcrypto.so.${{ matrix.ssl_version }} ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           cp /usr/lib/x86_64-linux-gnu/libssl.so.${{ matrix.ssl_version }} ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-          cp /usr/lib/x86_64-linux-gnu/nss/* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+          [[ ${{matrix.qt_ver}} -ne 6 ]] && cp /usr/lib/x86_64-linux-gnu/nss/* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           export V8_SNAPSHOT_FILE="/home/runner/work/QtTube/Qt/${{ matrix.qt_version }}/gcc_64/resources/v8_context_snapshot.bin"
           [[ -e $V8_SNAPSHOT_FILE ]] && cp $V8_SNAPSHOT_FILE ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib"
