@@ -2,6 +2,7 @@
 #include <initializer_list>
 #include <QCoreApplication>
 #include <QWidget>
+#include <variant>
 
 namespace InnertubeObjects
 {
