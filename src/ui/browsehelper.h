@@ -41,7 +41,7 @@ public:
             else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseChannel>)
                 continueChannel(widget, newData.response.contents);
             else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseHome>)
-                UIUtils::addRangeToList(widget, newData.response.contents);
+                setupHome(widget, newData.response);
             else
                 UIUtils::addRangeToList(widget, newData.response.videos);
 
@@ -72,6 +72,7 @@ private:
     }
 
     void removeTrailingSeparator(QListWidget* list);
+    void setupHome(QListWidget* widget, const InnertubeEndpoints::HomeResponse& response);
     void setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response);
     void setupTrending(QListWidget* widget, const InnertubeEndpoints::TrendingResponse& response);
 

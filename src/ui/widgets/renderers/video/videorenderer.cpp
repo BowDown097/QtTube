@@ -79,7 +79,7 @@ void VideoRenderer::navigateVideo()
     ViewController::loadVideo(videoId, progress, watchPreloadData.get());
 }
 
-void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup)
+void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData)
 {
     progress = lockup.rendererContext["commandContext"]["onTap"]["innertubeCommand"]
                                      ["watchEndpoint"]["startTimeSeconds"].toInt();
@@ -108,8 +108,11 @@ void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup)
 
     thumbnail->setLengthText(lockup.lengthText());
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(lockup.length()));
-    if (const InnertubeObjects::GenericThumbnail* thumb = lockup.contentImage.image.recommendedQuality(thumbnail->size()))
-        setThumbnail(thumb->url);
+
+    if (useThumbnailFromData && !lockup.contentImage.image.isEmpty())
+        setThumbnail(lockup.contentImage.image.recommendedQuality(thumbnail->size())->url);
+    else
+        setThumbnail("https://img.youtube.com/vi/" + lockup.contentId + "/mqdefault.jpg");
 
     QString title = QString(lockup.metadata.title).replace("\r\n", " ");
     watchPreloadData->title = title;
@@ -117,7 +120,7 @@ void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup)
     titleLabel->setToolTip(title);
 }
 
-void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid)
+void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid, bool useThumbnailFromData)
 {
     videoId = reel.videoId;
 
@@ -131,8 +134,10 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid)
     else
         thumbnail->setFixedSize(105, 186);
 
-    if (const InnertubeObjects::GenericThumbnail* thumb = reel.thumbnail.recommendedQuality(thumbnail->size()))
-        setThumbnail(thumb->url);
+    if (useThumbnailFromData && !reel.thumbnail.isEmpty())
+        setThumbnail(reel.thumbnail.recommendedQuality(thumbnail->size())->url);
+    else
+        setThumbnail("https://img.youtube.com/vi/" + reel.videoId + "/mqdefault.jpg");
 
     QString title = QString(reel.headline).replace("\r\n", " ");
     titleLabel->setText(title);
@@ -144,7 +149,7 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid)
     });
 }
 
-void VideoRenderer::setData(const InnertubeObjects::Video& video)
+void VideoRenderer::setData(const InnertubeObjects::Video& video, bool useThumbnailFromData)
 {
     channelId = video.owner.id;
     progress = video.navigationEndpoint["watchEndpoint"]["startTimeSeconds"].toInt();
@@ -165,8 +170,11 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video)
 
     thumbnail->setLengthText(video.lengthText.text);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
-    if (const InnertubeObjects::GenericThumbnail* thumb = video.thumbnail.recommendedQuality(thumbnail->size()))
-        setThumbnail(thumb->url);
+
+    if (useThumbnailFromData && !video.thumbnail.isEmpty())
+        setThumbnail(video.thumbnail.recommendedQuality(thumbnail->size())->url);
+    else
+        setThumbnail("https://img.youtube.com/vi/" + video.videoId + "/mqdefault.jpg");
 
     QString title = QString(video.title.text).replace("\r\n", " ");
     titleLabel->setText(title);

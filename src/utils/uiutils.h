@@ -47,9 +47,9 @@ namespace UIUtils
     void addSeparatorToList(QListWidget* list);
     void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
     void addShelfTitleToList(QListWidget* list, const QString& title);
-    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup);
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel);
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData = true);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel, bool useThumbnailFromData = true);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video, bool useThumbnailFromData = true);
     QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
     void addWrappedLabelToList(QListWidget* list, const QString& text);
     void clearLayout(QLayout* layout);

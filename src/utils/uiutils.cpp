@@ -105,7 +105,15 @@ namespace UIUtils
         QFrame* line = new QFrame;
         line->setFrameShape(QFrame::HLine);
         line->setFrameShadow(QFrame::Sunken);
-        addWidgetToList(list, line);
+
+        QSize hint = line->sizeHint();
+        if (list->flow() == QListWidget::LeftToRight)
+            hint.setWidth(QWIDGETSIZE_MAX);
+
+        QListWidgetItem* item = new QListWidgetItem;
+        item->setSizeHint(hint);
+        list->addItem(item);
+        list->setItemWidget(item, line);
     }
 
     void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf)
@@ -120,7 +128,16 @@ namespace UIUtils
 
         TubeLabel* shelfLabel = new TubeLabel(title);
         shelfLabel->setFont(QFont(shelfLabel->font().toString(), shelfLabel->font().pointSize() + 2));
-        addWidgetToList(list, shelfLabel);
+
+
+        QSize hint = shelfLabel->sizeHint();
+        if (list->flow() == QListWidget::LeftToRight)
+            hint.setWidth(QWIDGETSIZE_MAX);
+
+        QListWidgetItem* item = new QListWidgetItem;
+        item->setSizeHint(hint);
+        list->addItem(item);
+        list->setItemWidget(item, shelfLabel);
     }
 
     VideoRenderer* constructVideoRenderer(QListWidget* list)
@@ -139,33 +156,33 @@ namespace UIUtils
         return renderer;
     }
 
-    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup)
+    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData)
     {
         if (qtTubeApp->settings().videoIsFiltered(lockup))
             return;
 
         VideoRenderer* renderer = constructVideoRenderer(list);
-        renderer->setData(lockup);
+        renderer->setData(lockup, useThumbnailFromData);
         addWidgetToList(list, renderer);
     }
 
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel)
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel, bool useThumbnailFromData)
     {
         if (qtTubeApp->settings().videoIsFiltered(reel))
             return;
 
         VideoRenderer* renderer = constructVideoRenderer(list);
-        renderer->setData(reel, list->flow() == QListWidget::LeftToRight);
+        renderer->setData(reel, list->flow() == QListWidget::LeftToRight, useThumbnailFromData);
         addWidgetToList(list, renderer);
     }
 
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video)
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video, bool useThumbnailFromData)
     {
         if (qtTubeApp->settings().videoIsFiltered(video))
             return;
 
         VideoRenderer* renderer = constructVideoRenderer(list);
-        renderer->setData(video);
+        renderer->setData(video, useThumbnailFromData);
         addWidgetToList(list, renderer);
     }
 

@@ -24,9 +24,9 @@ public:
     TubeLabel* titleLabel;
 
     explicit VideoRenderer(QWidget* parent = nullptr);
-    void setData(const InnertubeObjects::LockupViewModel& lockup);
-    void setData(const InnertubeObjects::Reel& reel, bool isInGrid = false);
-    void setData(const InnertubeObjects::Video& video);
+    void setData(const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData = true);
+    void setData(const InnertubeObjects::Reel& reel, bool isInGrid = false, bool useThumbnailFromData = true);
+    void setData(const InnertubeObjects::Video& video, bool useThumbnailFromData = true);
 private:
     QString channelId;
     int progress = 0;

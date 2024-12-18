@@ -69,14 +69,49 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
 void BrowseHelper::browseHome(ContinuableListWidget* widget)
 {
     widget->setPopulatingFlag(true);
-    auto reply = InnerTube::instance()->get<BrowseHome>();
-    connect(reply, &InnertubeReply<BrowseHome>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
-    connect(reply, &InnertubeReply<BrowseHome>::finished, this, [this, widget](const BrowseHome& endpoint) {
-        UIUtils::addRangeToList(widget, endpoint.response.contents);
-        widget->continuationToken = endpoint.continuationToken;
-        widget->setPopulatingFlag(false);
-    });
+
+    // most clients will not serve you a home page unless if you are logged in or have searched for videos.
+    // i don't like this. thankfully, there's a few clients that do still:
+    // ANDROID_TESTSUITE, ANDROID_VR, IOS_UNPLUGGED, TVAPPLE, and TVHTML5
+    // IOS_UNPLUGGED is the only one that works with tryCreate currently, so it will be used.
+    if (InnerTube::instance()->hasAuthenticated())
+    {
+        auto reply = InnerTube::instance()->get<BrowseHome>();
+        connect(reply, &InnertubeReply<BrowseHome>::exception, this,
+            std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
+        connect(reply, &InnertubeReply<BrowseHome>::finished, this, [this, widget](const BrowseHome& endpoint) {
+            setupHome(widget, endpoint.response);
+            widget->continuationToken = endpoint.continuationToken;
+            widget->setPopulatingFlag(false);
+        });
+    }
+    else
+    {
+        auto reply = InnerTube::instance()->getRaw<BrowseHome>({
+            { "context", QJsonObject {
+                { "client", QJsonObject {
+                    { "clientName", static_cast<int>(InnertubeClient::ClientType::IOS_UNPLUGGED) },
+                    { "clientVersion", InnertubeClient::getLatestVersion(InnertubeClient::ClientType::IOS_UNPLUGGED) }
+                }}
+            }}
+        });
+
+        connect(reply, &InnertubeReply<BrowseHome>::exception, this,
+            std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
+        connect(reply, &InnertubeReply<BrowseHome>::finishedRaw, this, [this, widget](const QJsonValue& data) {
+            if (const auto endpoint = InnerTube::instance()->tryCreate<BrowseHome>(data))
+            {
+                setupHome(widget, endpoint->response);
+                widget->continuationToken = endpoint->continuationToken;
+            }
+            else
+            {
+                browseFailed("home", widget, endpoint.error());
+            }
+
+            widget->setPopulatingFlag(false);
+        });
+    }
 }
 
 void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
@@ -175,38 +210,83 @@ void BrowseHelper::removeTrailingSeparator(QListWidget* list)
                 itemWidget->deleteLater();
 }
 
+// TODO: make reel shelf widget, and expandable list widget, replace applicable code
+
+void BrowseHelper::setupHome(QListWidget* widget, const InnertubeEndpoints::HomeResponse& response)
+{
+    // non-authenticated users will be under the IOS_UNPLUGGED client,
+    // which serves thumbnails in an odd aspect ratio.
+    bool useThumbnailFromData = InnerTube::instance()->hasAuthenticated();
+
+    for (const InnertubeEndpoints::HomeResponseItem& item : response.contents)
+    {
+        if (const auto* horizontalShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
+        {
+            UIUtils::addShelfTitleToList(widget, horizontalShelf->title.text);
+
+            for (const InnertubeObjects::Video& video : horizontalShelf->content.items)
+            {
+                UIUtils::addVideoToList(widget, video, useThumbnailFromData);
+                QCoreApplication::processEvents();
+            }
+
+            UIUtils::addSeparatorToList(widget);
+        }
+        else if (const auto* lockup = std::get_if<InnertubeObjects::LockupViewModel>(&item))
+        {
+            UIUtils::addVideoToList(widget, *lockup, useThumbnailFromData);
+        }
+        else if (const auto* richShelf = std::get_if<InnertubeObjects::RichVideoShelf>(&item))
+        {
+            UIUtils::addShelfTitleToList(widget, richShelf->title.text);
+
+            for (const InnertubeObjects::Video& video : richShelf->contents)
+            {
+                UIUtils::addVideoToList(widget, video, useThumbnailFromData);
+                QCoreApplication::processEvents();
+            }
+
+            UIUtils::addSeparatorToList(widget);
+        }
+        else if (const auto* video = std::get_if<InnertubeObjects::Video>(&item))
+        {
+            UIUtils::addVideoToList(widget, *video, useThumbnailFromData);
+        }
+        QCoreApplication::processEvents();
+    }
+}
+
 void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response)
 {
     for (const InnertubeEndpoints::SearchResponseItem& item : response.contents)
     {
-        if (const InnertubeObjects::Channel* channel = std::get_if<InnertubeObjects::Channel>(&item))
+        if (const auto* channel = std::get_if<InnertubeObjects::Channel>(&item))
         {
             UIUtils::addChannelToList(widget, *channel);
             QCoreApplication::processEvents();
         }
-        else if (const InnertubeObjects::ReelShelf* reelShelf = std::get_if<InnertubeObjects::ReelShelf>(&item))
+        else if (const auto* reelShelf = std::get_if<InnertubeObjects::ReelShelf>(&item))
         {
             if (qtTubeApp->settings().hideSearchShelves || qtTubeApp->settings().hideShorts)
                 continue;
 
-            // TODO: make reel shelf widget, and replace this code for that
             UIUtils::addSeparatorToList(widget);
             UIUtils::addShelfTitleToList(widget, reelShelf->title.text);
             UIUtils::addRangeToList(widget, reelShelf->items);
             UIUtils::addSeparatorToList(widget);
         }
-        else if (const InnertubeObjects::VerticalVideoShelf* shelf = std::get_if<InnertubeObjects::VerticalVideoShelf>(&item))
+        else if (const auto* verticalShelf = std::get_if<InnertubeObjects::VerticalVideoShelf>(&item))
         {
             if (qtTubeApp->settings().hideSearchShelves)
                 continue;
 
-            // TODO: make expandable list widget, and replace this code for that
             UIUtils::addSeparatorToList(widget);
-            UIUtils::addShelfTitleToList(widget, shelf->title.text);
-            UIUtils::addRangeToList(widget, shelf->content.items | std::views::take(shelf->content.collapsedItemCount));
+            UIUtils::addShelfTitleToList(widget, verticalShelf->title.text);
+            UIUtils::addRangeToList(widget,
+                verticalShelf->content.items | std::views::take(verticalShelf->content.collapsedItemCount));
             UIUtils::addSeparatorToList(widget);
         }
-        else if (const InnertubeObjects::Video* video = std::get_if<InnertubeObjects::Video>(&item))
+        else if (const auto* video = std::get_if<InnertubeObjects::Video>(&item))
         {
             UIUtils::addVideoToList(widget, *video);
             QCoreApplication::processEvents();
@@ -218,26 +298,25 @@ void BrowseHelper::setupTrending(QListWidget* widget, const InnertubeEndpoints::
 {
     for (const InnertubeEndpoints::TrendingResponseItem& item : response.contents)
     {
-        // see above TODO comments
-        if (const InnertubeObjects::HorizontalVideoShelf* hvs = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
+        if (const auto* horizontalShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
         {
-            UIUtils::addShelfTitleToList(widget, hvs->title.text);
-            UIUtils::addRangeToList(widget, hvs->content.items);
+            UIUtils::addShelfTitleToList(widget, horizontalShelf->title.text);
+            UIUtils::addRangeToList(widget, horizontalShelf->content.items);
             UIUtils::addSeparatorToList(widget);
         }
-        else if (const InnertubeObjects::ReelShelf* rs = std::get_if<InnertubeObjects::ReelShelf>(&item))
+        else if (const auto* reelShelf = std::get_if<InnertubeObjects::ReelShelf>(&item))
         {
             if (qtTubeApp->settings().hideShorts)
                 continue;
 
-            UIUtils::addShelfTitleToList(widget, rs->title.text);
-            UIUtils::addRangeToList(widget, rs->items);
+            UIUtils::addShelfTitleToList(widget, reelShelf->title.text);
+            UIUtils::addRangeToList(widget, reelShelf->items);
             UIUtils::addSeparatorToList(widget);
         }
-        else if (const InnertubeObjects::StandardVideoShelf* svs = std::get_if<InnertubeObjects::StandardVideoShelf>(&item))
+        else if (const auto* standardShelf = std::get_if<InnertubeObjects::StandardVideoShelf>(&item))
         {
-            UIUtils::addShelfTitleToList(widget, svs->title.text);
-            UIUtils::addRangeToList(widget, svs->content);
+            UIUtils::addShelfTitleToList(widget, standardShelf->title.text);
+            UIUtils::addRangeToList(widget, standardShelf->content);
             UIUtils::addSeparatorToList(widget);
         }
 
