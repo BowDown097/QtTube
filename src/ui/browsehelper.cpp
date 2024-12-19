@@ -99,7 +99,7 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
         connect(reply, &InnertubeReply<BrowseHome>::exception, this,
             std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
         connect(reply, &InnertubeReply<BrowseHome>::finishedRaw, this, [this, widget](const QJsonValue& data) {
-            if (const auto endpoint = InnerTube::instance()->tryCreate<BrowseHome>(data))
+            if (const auto endpoint = InnerTube::tryCreate<BrowseHome>(data))
             {
                 setupHome(widget, endpoint->response);
                 widget->continuationToken = endpoint->continuationToken;
