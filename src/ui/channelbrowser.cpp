@@ -3,6 +3,7 @@
 #include "innertube/objects/channel/channel.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
+#include "innertube/objects/viewmodels/shortslockupviewmodel.h"
 #include "qttubeapplication.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "utils/uiutils.h"
@@ -25,6 +26,8 @@ namespace ChannelBrowser
                     UIUtils::addVideoToList(widget, InnertubeObjects::Video(it.value()));
                 else if (it.key() == "reelItemRenderer")
                     UIUtils::addVideoToList(widget, InnertubeObjects::Reel(it.value()));
+                else if (it.key() == "shortsLockupViewModel")
+                    UIUtils::addVideoToList(widget, InnertubeObjects::ShortsLockupViewModel(it.value()));
             }
             else if (const QJsonValue post = item["backstagePostThreadRenderer"]["post"]; post.isObject())
             {
@@ -268,6 +271,8 @@ namespace ChannelBrowser
         {
             if (const QJsonValue reel = v["richItemRenderer"]["content"]["reelItemRenderer"]; reel.isObject())
                 UIUtils::addVideoToList(widget, InnertubeObjects::Reel(reel));
+            else if (const QJsonValue sl = v["richItemRenderer"]["content"]["shortsLockupViewModel"]; sl.isObject())
+                UIUtils::addVideoToList(widget, InnertubeObjects::ShortsLockupViewModel(sl));
             else if (const QJsonValue continuation = v["continuationItemRenderer"]; continuation.isObject())
                 widget->continuationToken = continuation["continuationEndpoint"]["continuationCommand"]["token"].toString();
             QCoreApplication::processEvents();
