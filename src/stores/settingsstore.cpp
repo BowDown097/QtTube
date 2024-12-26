@@ -2,6 +2,7 @@
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
 #include "innertube/objects/viewmodels/lockupviewmodel.h"
+#include "innertube/objects/viewmodels/shortslockupviewmodel.h"
 #include <QSettings>
 
 bool SettingsStore::channelIsFiltered(const QString& id) const
@@ -130,6 +131,11 @@ bool SettingsStore::videoIsFiltered(const InnertubeObjects::LockupViewModel& loc
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::Reel& reel) const
 {
     return strHasFilteredTerm(reel.headline);
+}
+
+bool SettingsStore::videoIsFiltered(const InnertubeObjects::ShortsLockupViewModel& shortsLockup) const
+{
+    return strHasFilteredTerm(shortsLockup.primaryText);
 }
 
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::Video& video) const

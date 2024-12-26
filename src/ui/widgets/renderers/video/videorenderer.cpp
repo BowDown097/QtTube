@@ -79,7 +79,8 @@ void VideoRenderer::navigateVideo()
     ViewController::loadVideo(videoId, progress, watchPreloadData.get());
 }
 
-void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData)
+void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup,
+                            bool useThumbnailFromData)
 {
     progress = lockup.rendererContext["commandContext"]["onTap"]["innertubeCommand"]
                                      ["watchEndpoint"]["startTimeSeconds"].toInt();
@@ -112,7 +113,7 @@ void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup, boo
     if (useThumbnailFromData && !lockup.contentImage.image.isEmpty())
         setThumbnail(lockup.contentImage.image.recommendedQuality(thumbnail->size())->url);
     else
-        setThumbnail("https://img.youtube.com/vi/" + lockup.contentId + "/mqdefault.jpg");
+        setThumbnail("https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg");
 
     QString title = QString(lockup.metadata.title).replace("\r\n", " ");
     watchPreloadData->title = title;
@@ -120,7 +121,8 @@ void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup, boo
     titleLabel->setToolTip(title);
 }
 
-void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid, bool useThumbnailFromData)
+void VideoRenderer::setData(const InnertubeObjects::Reel& reel,
+                            bool isInGrid, bool useThumbnailFromData)
 {
     videoId = reel.videoId;
 
@@ -137,19 +139,44 @@ void VideoRenderer::setData(const InnertubeObjects::Reel& reel, bool isInGrid, b
     if (useThumbnailFromData && !reel.thumbnail.isEmpty())
         setThumbnail(reel.thumbnail.recommendedQuality(thumbnail->size())->url);
     else
-        setThumbnail("https://img.youtube.com/vi/" + reel.videoId + "/mqdefault.jpg");
+        setThumbnail("https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg");
 
     QString title = QString(reel.headline).replace("\r\n", " ");
     titleLabel->setText(title);
     titleLabel->setToolTip(title);
 
-    watchPreloadData.reset(new PreloadData::WatchView {
-        .channelId = channelId,
-        .title = title
-    });
+    watchPreloadData.reset(new PreloadData::WatchView { .title = title });
 }
 
-void VideoRenderer::setData(const InnertubeObjects::Video& video, bool useThumbnailFromData)
+void VideoRenderer::setData(const InnertubeObjects::ShortsLockupViewModel& shortsLockup,
+                            bool isInGrid, bool useThumbnailFromData)
+{
+    videoId = shortsLockup.videoId;
+
+    channelLabel->deleteLater(); // no owner info, we're just gonna yeet this out of existence
+    metadataLabel->setText(shortsLockup.secondaryText);
+
+    thumbnail->setLengthText("SHORTS");
+
+    if (isInGrid)
+        thumbnail->setFixedSize(210, 372);
+    else
+        thumbnail->setFixedSize(105, 186);
+
+    if (useThumbnailFromData && !shortsLockup.thumbnail.isEmpty())
+        setThumbnail(shortsLockup.thumbnail.recommendedQuality(thumbnail->size())->url);
+    else
+        setThumbnail("https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg");
+
+    QString title = QString(shortsLockup.primaryText).replace("\r\n", " ");
+    titleLabel->setText(title);
+    titleLabel->setToolTip(title);
+
+    watchPreloadData.reset(new PreloadData::WatchView { .title = title });
+}
+
+void VideoRenderer::setData(const InnertubeObjects::Video& video,
+                            bool useThumbnailFromData)
 {
     channelId = video.owner.id;
     progress = video.navigationEndpoint["watchEndpoint"]["startTimeSeconds"].toInt();
@@ -174,7 +201,7 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video, bool useThumbn
     if (useThumbnailFromData && !video.thumbnail.isEmpty())
         setThumbnail(video.thumbnail.recommendedQuality(thumbnail->size())->url);
     else
-        setThumbnail("https://img.youtube.com/vi/" + video.videoId + "/mqdefault.jpg");
+        setThumbnail("https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg");
 
     QString title = QString(video.title.text).replace("\r\n", " ");
     titleLabel->setText(title);

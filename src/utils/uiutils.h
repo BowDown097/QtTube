@@ -12,6 +12,7 @@ struct InnertubeString;
 struct LockupViewModel;
 struct Notification;
 struct Reel;
+struct ShortsLockupViewModel;
 struct Video;
 }
 
@@ -29,7 +30,7 @@ namespace UIUtils
         struct is_variant : std::false_type {};
 
         template<typename... Types>
-        struct is_variant<std::variant<Types...>> : std::true_type{};
+        struct is_variant<std::variant<Types...>> : std::true_type {};
 
         template<typename T>
         inline constexpr bool is_variant_v = is_variant<T>::value;
@@ -47,9 +48,14 @@ namespace UIUtils
     void addSeparatorToList(QListWidget* list);
     void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
     void addShelfTitleToList(QListWidget* list, const QString& title);
-    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData = true);
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel, bool useThumbnailFromData = true);
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video, bool useThumbnailFromData = true);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup,
+                        bool useThumbnailFromData = true);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel,
+                        bool useThumbnailFromData = true);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::ShortsLockupViewModel& shortsLockup,
+                        bool useThumbnailFromData = true);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video,
+                        bool useThumbnailFromData = true);
     QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
     void addWrappedLabelToList(QListWidget* list, const QString& text);
     void clearLayout(QLayout* layout);
@@ -77,7 +83,7 @@ namespace UIUtils
             addNotificationToList(list, item);
         else if constexpr (std::same_as<T, ITO::InnertubeString>)
             addShelfTitleToList(list, item.text);
-        else if constexpr (detail::is_any_v<T, ITO::LockupViewModel, ITO::Reel, ITO::Video>)
+        else if constexpr (detail::is_any_v<T, ITO::LockupViewModel, ITO::Reel, ITO::ShortsLockupViewModel, ITO::Video>)
             addVideoToList(list, item);
     }
 
@@ -86,7 +92,7 @@ namespace UIUtils
         for (auto it = std::ranges::begin(range); it != std::ranges::end(range); ++it)
         {
             if constexpr (detail::is_variant_v<std::ranges::range_value_t<decltype(range)>>)
-                std::visit([&](auto&& item) { addItemToList(list, item); }, *it);
+                std::visit([list](auto&& item) { addItemToList(list, item); }, *it);
             else
                 addItemToList(list, *it);
             QCoreApplication::processEvents();

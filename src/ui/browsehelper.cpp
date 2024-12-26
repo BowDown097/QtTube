@@ -238,11 +238,21 @@ void BrowseHelper::setupHome(QListWidget* widget, const InnertubeEndpoints::Home
         }
         else if (const auto* richShelf = std::get_if<InnertubeObjects::RichVideoShelf>(&item))
         {
+            if (qtTubeApp->settings().hideShorts && std::ranges::any_of(richShelf->contents, [](const auto& item) {
+                    return std::holds_alternative<InnertubeObjects::ShortsLockupViewModel>(item);
+                }))
+            {
+                return;
+            }
+
             UIUtils::addShelfTitleToList(widget, richShelf->title.text);
 
-            for (const InnertubeObjects::Video& video : richShelf->contents)
+            for (const auto& item : richShelf->contents)
             {
-                UIUtils::addVideoToList(widget, video, useThumbnailFromData);
+                std::visit([widget, useThumbnailFromData](auto&& video) {
+                    UIUtils::addVideoToList(widget, video, useThumbnailFromData);
+                }, item);
+
                 QCoreApplication::processEvents();
             }
 

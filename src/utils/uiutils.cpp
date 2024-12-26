@@ -156,7 +156,8 @@ namespace UIUtils
         return renderer;
     }
 
-    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData)
+    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup,
+                        bool useThumbnailFromData)
     {
         if (qtTubeApp->settings().videoIsFiltered(lockup))
             return;
@@ -166,7 +167,8 @@ namespace UIUtils
         addWidgetToList(list, renderer);
     }
 
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel, bool useThumbnailFromData)
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel,
+                        bool useThumbnailFromData)
     {
         if (qtTubeApp->settings().videoIsFiltered(reel))
             return;
@@ -176,7 +178,19 @@ namespace UIUtils
         addWidgetToList(list, renderer);
     }
 
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video, bool useThumbnailFromData)
+    void addVideoToList(QListWidget* list, const InnertubeObjects::ShortsLockupViewModel& shortsLockup,
+                        bool useThumbnailFromData)
+    {
+        if (qtTubeApp->settings().videoIsFiltered(shortsLockup))
+            return;
+
+        VideoRenderer* renderer = constructVideoRenderer(list);
+        renderer->setData(shortsLockup, list->flow() == QListWidget::LeftToRight, useThumbnailFromData);
+        addWidgetToList(list, renderer);
+    }
+
+    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video,
+                        bool useThumbnailFromData)
     {
         if (qtTubeApp->settings().videoIsFiltered(video))
             return;
