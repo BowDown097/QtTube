@@ -55,7 +55,7 @@ namespace OSUtils
         # ifdef QTTUBE_HAS_XSS
         if (qApp->platformName() != "xcb")
         {
-            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Can only toggle sleep on X11 on Unix systems. Screen may sleep while watching videos.";
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Can only control idle sleep on X11 on Unix systems. Screen may sleep while watching videos.";
             return;
         }
 
@@ -91,12 +91,12 @@ namespace OSUtils
             qDebug().noquote() << "Failed to" << status << "idle sleep timer: XScreenSaver support is not enabled in this build.";
         # endif // XScreenSaver check
         #elif defined(Q_OS_WIN)
-        if (SetThreadExecutionState(toggle ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS | ES_SYSTEM_REQUIRED : ES_CONTINUOUS) == NULL)
+        if (SetThreadExecutionState(suspend ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS | ES_SYSTEM_REQUIRED : ES_CONTINUOUS) == NULL)
             qDebug().noquote() << "Failed to" << status << "idle sleep timer: SetThreadExecutionState failed.";
         #elif defined(Q_OS_MACOS)
         static IOPMAssertionID sleepAssert;
 
-        if (!toggle && sleepAssert)
+        if (!suspend && sleepAssert)
         {
             IOPMAssertionRelease(sleepAssert);
             return;
