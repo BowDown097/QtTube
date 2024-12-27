@@ -3,7 +3,7 @@ project(QtTube
     VERSION 0.1
     DESCRIPTION "A Qt frontend for YouTube."
     HOMEPAGE_URL "https://github.com/BowDown097/QtTube"
-    LANGUAGES CXX)
+    LANGUAGES CXX C)
 
 # Have to do this for ui_ files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -244,6 +244,19 @@ set(FORMS
     src/ui/forms/settings/termfilterview.ui
 )
 
+# Wayland idle-inhibit stuff
+if(UNIX AND NOT APPLE)
+    find_package(Wayland QUIET)
+    if(Wayland_FOUND)
+        list(APPEND SOURCE_FILES
+            src/wayland/ext-idle-inhibit-unstable-v1.c
+            src/wayland/waylandinterface.cpp)
+        list(APPEND HEADERS
+            src/wayland/ext-idle-inhibit-unstable-v1.h
+            src/wayland/waylandinterface.h)
+    endif()
+endif()
+
 # Application icon
 if(WIN32 OR APPLE)
     include(cmake/AddIconToBinary.cmake)
@@ -259,6 +272,20 @@ elseif(APPLE)
     add_executable(${CMAKE_PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES} ${HEADERS} ${FORMS})
 else()
     add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} ${HEADERS} ${FORMS})
+endif()
+
+# Wayland idle-inhibit stuff (continued)
+if(Wayland_FOUND)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_WAYLAND)
+
+    if(QTTUBE_QT_VERSION_MAJOR EQUAL 5)
+        target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${Qt${QTTUBE_QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS})
+    else()
+        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::GuiPrivate)
+    endif()
+
+    target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${Wayland_INCLUDE_DIRS})
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${Wayland_LIBRARIES})
 endif()
 
 # Preprocessor definitions
@@ -341,7 +368,7 @@ if(WIN32)
         target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
     endif()
 elseif(UNIX AND NOT APPLE)
-    find_package(X11)
+    find_package(X11 QUIET)
     if(X11_FOUND AND X11_Xscreensaver_LIB)
         target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${X11_INCLUDE_DIR})
         target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${X11_X11_LIB} ${X11_Xscreensaver_LIB})

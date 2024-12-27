@@ -25,7 +25,7 @@
 WatchView::~WatchView()
 {
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
-    OSUtils::toggleIdleSleep(false);
+    OSUtils::suspendIdleSleep(false);
 
     if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
         mainWindow->setWindowTitle(QTTUBE_APP_NAME);

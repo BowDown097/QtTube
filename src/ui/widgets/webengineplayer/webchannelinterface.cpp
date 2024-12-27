@@ -30,15 +30,15 @@ void WebChannelInterface::handleStateChange(PlayerState state)
     switch (state)
     {
     case STATE_PLAYING:
-        OSUtils::toggleIdleSleep(true);
+        OSUtils::suspendIdleSleep(true);
         setWindowTitleSuffix("[Playing]");
         break;
     case STATE_PAUSED:
-        OSUtils::toggleIdleSleep(false);
+        OSUtils::suspendIdleSleep(false);
         setWindowTitleSuffix("[Paused]");
         break;
     case STATE_ENDED:
-        OSUtils::toggleIdleSleep(false);
+        OSUtils::suspendIdleSleep(false);
         break;
     default: break;
     }

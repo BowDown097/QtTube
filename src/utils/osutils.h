@@ -1,5 +1,5 @@
 #pragma once
 namespace OSUtils
 {
-    void toggleIdleSleep(bool toggle);
+    void suspendIdleSleep(bool suspend);
 }

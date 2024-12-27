@@ -34,10 +34,21 @@ int main(int argc, char *argv[])
 
     parser.parse(QCoreApplication::arguments());
 
-    if (parser.isSet("help")) parser.showHelp();
-    if (parser.isSet("version")) parser.showVersion();
+    if (parser.isSet("help"))
+        parser.showHelp();
+    if (parser.isSet("version"))
+        parser.showVersion();
 
     MainWindow w(parser);
     w.show();
+
+// see comment in OSUtils::suspendIdleSleep for why this is commented out.
+/*
+#ifdef QTTUBE_HAS_WAYLAND
+    if (a.platformName() == "wayland")
+        a.waylandInterface().initialize(w.windowHandle());
+#endif
+*/
+
     return a.exec();
 }
