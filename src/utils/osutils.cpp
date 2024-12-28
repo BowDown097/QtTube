@@ -26,37 +26,55 @@
 
 namespace OSUtils
 {
-    void suspendIdleSleep(bool suspend)
+#ifdef Q_OS_MACOS
+    void suspendIdleSleepMacOS(bool suspend, const char* status)
     {
-        const char* status = suspend ? "suspend" : "resume";
-        #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
-        # ifdef QTTUBE_HAS_WAYLAND
-        if (qApp->platformName() == "wayland")
+        static IOPMAssertionID sleepAssert;
+
+        if (!suspend && sleepAssert)
         {
-            WaylandInterface::InhibitIdleResult res = qtTubeApp->waylandInterface().inhibitIdle(suspend);
-            if (res == WaylandInterface::INHIBIT_MANAGER_NOT_FOUND)
-                qDebug().noquote() << "Failed to" << status << "idle sleep timer: Compositor doesn't support zwp_idle_inhibit_manager_v1 protocol.";
-            else if (res == WaylandInterface::INHIBIT_SURFACE_NOT_FOUND)
-                qDebug().noquote() << "Failed to" << status << "idle sleep timer: Could not get window surface.";
-            else if (res == WaylandInterface::INHIBIT_FAILURE)
-                qDebug().noquote() << "Failed to" << status << "idle sleep timer: Unknown failure.";
-            return;
-        }
-        # endif // Wayland check
-        # ifdef QTTUBE_HAS_XSS
-        if (qApp->platformName() != "xcb")
-        {
-            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Can only control idle sleep on X11 on Unix systems. Screen may sleep while watching videos.";
+            IOPMAssertionRelease(sleepAssert);
             return;
         }
 
-        #  if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        CFStringRef reason = CFSTR("QtTube video playing");
+        IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, reason, &sleepAssert);
+        if (success != kIOReturnSuccess)
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Creating IOPM assertion failed.";
+    }
+#endif
+
+#ifdef QTTUBE_HAS_WAYLAND
+    void suspendIdleSleepWayland(bool suspend, const char* status)
+    {
+        WaylandInterface::InhibitIdleResult res = qtTubeApp->waylandInterface().inhibitIdle(suspend);
+        if (res == WaylandInterface::INHIBIT_MANAGER_NOT_FOUND)
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Compositor doesn't support zwp_idle_inhibit_manager_v1 protocol.";
+        else if (res == WaylandInterface::INHIBIT_SURFACE_NOT_FOUND)
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Could not get window surface.";
+        else if (res == WaylandInterface::INHIBIT_FAILURE)
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Unknown failure.";
+    }
+#endif
+
+#ifdef Q_OS_WIN
+    void suspendIdleSleepWindows(bool suspend, const char* status)
+    {
+        if (!SetThreadExecutionState(suspend ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS : ES_CONTINUOUS))
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: SetThreadExecutionState failed.";
+    }
+#endif
+
+#ifdef QTTUBE_HAS_XSS
+    void suspendIdleSleepX11(bool suspend, const char* status)
+    {
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
         Display* display = qApp->nativeInterface<QNativeInterface::QX11Application>()->display();
-        #  elif defined(QTTUBE_HAS_X11EXTRAS)
+    #elif defined(QTTUBE_HAS_X11EXTRAS)
         Display* display = QX11Info::display();
-        #  else
-        Display* display = XOpenDisplay(NULL); // last resort!
-        #  endif // X11 display getter
+    #else
+        Display* display = XOpenDisplay(nullptr); // last resort!
+    #endif
 
         if (!display)
         {
@@ -77,26 +95,39 @@ namespace OSUtils
         }
 
         XScreenSaverSuspend(display, suspend);
-        # else
-        if (qApp->platformName() == "xcb")
-            qDebug().noquote() << "Failed to" << status << "idle sleep timer: XScreenSaver support is not enabled in this build.";
-        # endif // XScreenSaver check
-        #elif defined(Q_OS_WIN)
-        if (SetThreadExecutionState(suspend ? ES_DISPLAY_REQUIRED | ES_CONTINUOUS | ES_SYSTEM_REQUIRED : ES_CONTINUOUS) == NULL)
-            qDebug().noquote() << "Failed to" << status << "idle sleep timer: SetThreadExecutionState failed.";
-        #elif defined(Q_OS_MACOS)
-        static IOPMAssertionID sleepAssert;
+    }
+#endif
 
-        if (!suspend && sleepAssert)
+    void suspendIdleSleep(bool suspend)
+    {
+        const char* status = suspend ? "suspend" : "resume";
+    #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
+        if (qApp->platformName() == "wayland")
         {
-            IOPMAssertionRelease(sleepAssert);
-            return;
+        #ifdef QTTUBE_HAS_WAYLAND
+            suspendIdleSleepWayland(suspend, status);
+        #else
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Wayland protocol support is not enabled in this build.";
+        #endif
         }
-
-        CFStringRef reason = CFSTR("QtTube video playing");
-        IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, reason, &sleepAssert);
-        if (success != kIOReturnSuccess)
-            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Creating IOPM assertion failed.";
-        #endif // OS checks
+        else if (qApp->platformName() == "xcb")
+        {
+        #ifdef QTTUBE_HAS_XSS
+            suspendIdleSleepX11(suspend, status);
+        #else
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: XScreenSaver support is not enabled in this build.";
+        #endif
+        }
+        else
+        {
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Unsupported display server (not X11 or Wayland).";
+        }
+    #elif defined(Q_OS_WIN)
+        suspendIdleSleepWindows(suspend, status);
+    #elif defined(Q_OS_MACOS)
+        suspendIdleSleepMacOS(suspend, status);
+    #else
+        qDebug().noquote() << "Failed to" << status << "idle sleep timer: Unsupported operating system.";
+    #endif
     }
 }
