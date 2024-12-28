@@ -11,11 +11,9 @@
 # endif // XScreenSaver check
 #endif // Non-Mac Unix check
 
-/*
 #ifdef QTTUBE_HAS_WAYLAND
 #include "qttubeapplication.h"
 #endif
-*/
 
 #ifdef Q_OS_MACOS
 #include <IOKit/pwr_mgt/IOPMLib.h>
@@ -32,12 +30,6 @@ namespace OSUtils
     {
         const char* status = suspend ? "suspend" : "resume";
         #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
-        // when calling inhibitIdle it CRASHES THE PROGRAM and i get:
-        // wl_display#1: error 1: invalid arguments for zwp_idle_inhibit_manager_v1#39.create_inhibitor
-        // i have no fucking idea why this happens. very cool!
-        // thank you wayland for making something that should be simple extremely difficult!
-        // feel free to uncomment this and its "companion code" in main.cpp to test this for yourself.
-        /*
         # ifdef QTTUBE_HAS_WAYLAND
         if (qApp->platformName() == "wayland")
         {
@@ -51,7 +43,6 @@ namespace OSUtils
             return;
         }
         # endif // Wayland check
-        */
         # ifdef QTTUBE_HAS_XSS
         if (qApp->platformName() != "xcb")
         {

@@ -42,13 +42,10 @@ int main(int argc, char *argv[])
     MainWindow w(parser);
     w.show();
 
-// see comment in OSUtils::suspendIdleSleep for why this is commented out.
-/*
 #ifdef QTTUBE_HAS_WAYLAND
     if (a.platformName() == "wayland")
-        a.waylandInterface().initialize(w.windowHandle());
+        a.waylandInterface().initialize();
 #endif
-*/
 
     return a.exec();
 }

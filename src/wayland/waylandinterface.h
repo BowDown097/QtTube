@@ -19,7 +19,7 @@ public:
     ~WaylandInterface();
 
     InhibitIdleResult inhibitIdle(bool inhibit);
-    void initialize(QWindow* windowHandle);
+    void initialize();
     void setInhibitManager(zwp_idle_inhibit_manager_v1* inhibitManager) { m_inhibitManager = inhibitManager; }
 private:
     zwp_idle_inhibit_manager_v1* m_inhibitManager{};
