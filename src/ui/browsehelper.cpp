@@ -238,12 +238,12 @@ void BrowseHelper::setupHome(QListWidget* widget, const InnertubeEndpoints::Home
         }
         else if (const auto* richShelf = std::get_if<InnertubeObjects::RichVideoShelf>(&item))
         {
-            if (qtTubeApp->settings().hideShorts && std::ranges::any_of(richShelf->contents, [](const auto& item) {
-                    return std::holds_alternative<InnertubeObjects::ShortsLockupViewModel>(item);
-                }))
-            {
-                return;
-            }
+            auto shortFilter = [](const auto& item) {
+                return std::holds_alternative<InnertubeObjects::ShortsLockupViewModel>(item);
+            };
+
+            if (qtTubeApp->settings().hideShorts && std::ranges::any_of(richShelf->contents, shortFilter))
+                continue;
 
             UIUtils::addShelfTitleToList(widget, richShelf->title.text);
 
