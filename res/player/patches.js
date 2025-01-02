@@ -21,5 +21,7 @@ waitForElement("#movie_player .ytp-error").then(function() {
     if (isAgeGated)
         createAgeRestrictionInterceptor();
 
-    document.querySelector("#movie_player").loadVideoById(ytcfg.data_.PLAYER_VARS.video_id);
+    const player = document.querySelector("#movie_player");
+    const params = new URLSearchParams(document.location.search);
+    player.loadVideoById(ytcfg.data_.PLAYER_VARS.video_id, params.get("t"));
 });
