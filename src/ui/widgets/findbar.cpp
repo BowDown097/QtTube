@@ -1,4 +1,5 @@
 #include "findbar.h"
+#include "closebutton.h"
 #include "utils/uiutils.h"
 #include <QApplication>
 #include <QBoxLayout>
@@ -6,17 +7,21 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QPushButton>
+#include <QScrollArea>
 
 constexpr QLatin1String SelectedStylesheet("background-color: yellow");
 
 FindBar::FindBar(QWidget* parent)
     : QWidget(parent),
+      closeButton(new CloseButton(this)),
       hbox(new QHBoxLayout(this)),
       matchesLabel(new QLabel(this)),
       nextButton(new QPushButton(this)),
       previousButton(new QPushButton(this)),
       searchBox(new QLineEdit(this))
 {
+    hbox->addWidget(closeButton);
+
     searchBox->setPlaceholderText("Find in program");
     hbox->addWidget(searchBox);
 
@@ -34,49 +39,57 @@ FindBar::FindBar(QWidget* parent)
     setAutoFillBackground(true);
     setPalette(qApp->palette().alternateBase().color());
 
+    connect(closeButton, &CloseButton::clicked, this, [this] { setReveal(false); });
     connect(nextButton, &QPushButton::clicked, this, &FindBar::goToNext);
     connect(previousButton, &QPushButton::clicked, this, &FindBar::goToPrevious);
+    connect(searchBox, &QLineEdit::returnPressed, this, &FindBar::returnPressed);
     connect(searchBox, &QLineEdit::textChanged, this, &FindBar::initializeSearch);
 }
 
-void FindBar::clearLabels()
+void FindBar::clearMatches()
 {
-    for (QLabel* label : matches)
-        if (label->styleSheet().contains(SelectedStylesheet))
-            label->setStyleSheet(label->styleSheet().remove(SelectedStylesheet));
-
+    for (const QPointer<QLabel>& match : std::as_const(matches))
+        unhighlightMatch(match);
     matches.clear();
+    matchesLabel->clear();
     currentIndex = 0;
 }
 
 void FindBar::goToNext()
 {
     currentIndex++;
-    jumpToLabel();
-    matches[currentIndex - 1]->setStyleSheet(matches[currentIndex - 1]->styleSheet().remove(SelectedStylesheet));
+    unhighlightMatch(matches[currentIndex - 1]);
+    jumpToCurrentMatch();
 }
 
 void FindBar::goToPrevious()
 {
     currentIndex--;
-    jumpToLabel();
-    matches[currentIndex + 1]->setStyleSheet(matches[currentIndex + 1]->styleSheet().remove(SelectedStylesheet));
+    unhighlightMatch(matches[currentIndex + 1]);
+    jumpToCurrentMatch();
+}
+
+void FindBar::highlightMatch(const QPointer<QLabel>& label)
+{
+    if (!label.isNull() && !label->styleSheet().contains(SelectedStylesheet))
+        label->setStyleSheet(label->styleSheet() + SelectedStylesheet);
 }
 
 void FindBar::initializeSearch(const QString& searchText)
 {
-    clearLabels();
+    clearMatches();
     if (searchText.isEmpty())
         return;
 
-    for (QLabel* label : parentWidget()->findChildren<QLabel*>())
+    const QList<QLabel*> labels = parentWidget()->findChildren<QLabel*>();
+    for (QLabel* label : labels)
         if (label->isVisible() && label->text().contains(searchText, Qt::CaseInsensitive))
             matches.append(label);
 
-    jumpToLabel();
+    jumpToCurrentMatch();
 }
 
-void FindBar::jumpToLabel()
+void FindBar::jumpToCurrentMatch()
 {
     nextButton->setEnabled(currentIndex + 1 < matches.length());
     previousButton->setEnabled(currentIndex >= 1);
@@ -87,12 +100,17 @@ void FindBar::jumpToLabel()
         return;
     }
 
-    if (!matches[currentIndex]->styleSheet().contains(SelectedStylesheet))
-        matches[currentIndex]->setStyleSheet(matches[currentIndex]->styleSheet() + SelectedStylesheet);
-
+    highlightMatch(matches[currentIndex]);
     matchesLabel->setText(matches.length() > 1
-                              ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())
-                              : QStringLiteral("%1 of 1 match").arg(currentIndex + 1));
+        ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())
+        : QStringLiteral("%1 of 1 match").arg(currentIndex + 1));
+
+    // if match found, but the match is deleted, try again
+    if (matches[currentIndex].isNull())
+    {
+        initializeSearch(searchBox->text());
+        return;
+    }
 
     if (QListWidget* list = UIUtils::findParent<QListWidget*>(matches[currentIndex]))
     {
@@ -100,11 +118,7 @@ void FindBar::jumpToLabel()
         {
             if (QWidget* itemWidget = list->itemWidget(list->item(i)))
             {
-                const QList<QLabel*> labels = itemWidget->findChildren<QLabel*>();
-                bool foundMatch = std::ranges::any_of(labels, [this](const QLabel* l) {
-                    return l == matches[currentIndex];
-                });
-                if (foundMatch)
+                if (itemWidget->findChildren<QLabel*>().contains(matches[currentIndex]))
                 {
                     list->scrollToItem(list->item(i));
                     break;
@@ -112,6 +126,28 @@ void FindBar::jumpToLabel()
             }
         }
     }
+    else if (QScrollArea* scrollArea = UIUtils::findParent<QScrollArea*>(matches[currentIndex]))
+    {
+        scrollArea->ensureWidgetVisible(matches[currentIndex]);
+    }
+}
+
+void FindBar::returnPressed()
+{
+    if (matches.empty())
+        return;
+
+    if (++currentIndex >= matches.length())
+    {
+        currentIndex = 0;
+        unhighlightMatch(matches.last());
+    }
+    else
+    {
+        unhighlightMatch(matches[currentIndex - 1]);
+    }
+
+    jumpToCurrentMatch();
 }
 
 void FindBar::setReveal(bool reveal)
@@ -125,10 +161,17 @@ void FindBar::setReveal(bool reveal)
     }
     else
     {
-        clearLabels();
+        clearMatches();
         hide();
         nextButton->setEnabled(false);
         previousButton->setEnabled(false);
+        matchesLabel->clear();
         searchBox->clear();
     }
+}
+
+void FindBar::unhighlightMatch(const QPointer<QLabel>& label)
+{
+    if (!label.isNull() && label->styleSheet().contains(SelectedStylesheet))
+        label->setStyleSheet(label->styleSheet().remove(SelectedStylesheet));
 }

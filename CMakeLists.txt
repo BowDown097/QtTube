@@ -109,6 +109,7 @@ set(SOURCE_FILES
     src/ui/views/watchview.cpp
     src/ui/views/watchview_ui.cpp
     src/ui/views/watchviewplayer.cpp
+    src/ui/widgets/closebutton.cpp
     src/ui/widgets/continuablelistwidget.cpp
     src/ui/widgets/findbar.cpp
     src/ui/widgets/flowlayout.cpp
@@ -193,6 +194,7 @@ set(HEADERS
     src/ui/views/watchview_ui.h
     src/ui/views/watchviewplayer.h
     src/ui/widgets/clickablewidget.h
+    src/ui/widgets/closebutton.h
     src/ui/widgets/continuablelistwidget.h
     src/ui/widgets/findbar.h
     src/ui/widgets/flowlayout.h

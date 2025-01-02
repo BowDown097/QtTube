@@ -1,6 +1,8 @@
 #pragma once
+#include <QPointer>
 #include <QWidget>
 
+class CloseButton;
 class QHBoxLayout;
 class QLabel;
 class QLineEdit;
@@ -12,17 +14,22 @@ public:
     explicit FindBar(QWidget* parent);
     void setReveal(bool reveal);
 private:
+    CloseButton* closeButton;
     int currentIndex{};
     QHBoxLayout* hbox;
-    QList<QLabel*> matches;
+    QList<QPointer<QLabel>> matches;
     QLabel* matchesLabel;
     QPushButton* nextButton;
     QPushButton* previousButton;
     QLineEdit* searchBox;
-    void clearLabels();
+
+    void clearMatches();
+    void highlightMatch(const QPointer<QLabel>& label);
+    void unhighlightMatch(const QPointer<QLabel>& label);
 private slots:
     void goToNext();
     void goToPrevious();
-    void jumpToLabel();
     void initializeSearch(const QString& searchText);
+    void jumpToCurrentMatch();
+    void returnPressed();
 };

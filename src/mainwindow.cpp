@@ -28,7 +28,10 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     notificationMenu->setContinuationThreshold(5);
 
     findbar = new FindBar(this);
-    connect(ui->centralwidget, &QStackedWidget::currentChanged, this, [this] { if (findbar->isVisible()) { findbar->setReveal(false); } });
+    connect(ui->centralwidget, &QStackedWidget::currentChanged, this, [this] {
+        if (findbar->isVisible())
+            findbar->setReveal(false);
+    });
 
     connect(m_topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
     connect(m_topbar->avatarButton, &TubeLabel::clicked, this, &MainWindow::showAccountMenu);
