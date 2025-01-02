@@ -42,18 +42,32 @@ SubscribeLabel::SubscribeLabel(QWidget* parent) : ClickableWidget<QLabel>(parent
     connect(this, &ClickableWidget<QLabel>::clicked, this, &SubscribeLabel::trySubscribe);
 }
 
+void SubscribeLabel::setSubscribeButton(const InnertubeObjects::Button& button)
+{
+    subscribeText = button.text.text;
+    setStyleSheet(SubscribeStylesheet);
+    setText(subscribeText);
+}
+
+void SubscribeLabel::setSubscribeButton(const InnertubeObjects::ButtonViewModel& button)
+{
+    subscribeText = button.title;
+    setStyleSheet(SubscribeStylesheet);
+    setText(subscribeText);
+}
+
 void SubscribeLabel::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
-    this->subscribed = subscribeButton.subscribed;
-    this->subscribeEndpoint = subscribeButton.onSubscribeEndpoints[0]["subscribeEndpoint"];
-    this->subscribeText = subscribeButton.unsubscribedButtonText.text;
-    this->subscribedText = subscribeButton.subscribedButtonText.text;
-    this->unsubscribeText = subscribeButton.unsubscribeButtonText.text;
+    subscribed = subscribeButton.subscribed;
+    subscribeEndpoint = subscribeButton.onSubscribeEndpoints[0]["subscribeEndpoint"];
+    subscribeText = subscribeButton.unsubscribedButtonText.text;
+    subscribedText = subscribeButton.subscribedButtonText.text;
+    unsubscribeText = subscribeButton.unsubscribeButtonText.text;
 
-    const QJsonValue unsubscribeDialog = subscribeButton.onUnsubscribeEndpoints[0]["signalServiceEndpoint"]["actions"][0]
-                                         ["openPopupAction"]["popup"]["confirmDialogRenderer"];
-    this->unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
-    this->unsubscribeEndpoint = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
+    const QJsonValue unsubscribeDialog = subscribeButton.onUnsubscribeEndpoints
+        [0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"];
+    unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
+    unsubscribeEndpoint = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
 
     setStyleSheet(subscribed ? SubscribedStylesheet : SubscribeStylesheet);
     setText(subscribed ? subscribedText : subscribeText);
@@ -63,16 +77,16 @@ void SubscribeLabel::setSubscribeButton(const InnertubeObjects::SubscribeButtonV
                                         bool subscribed)
 {
     this->subscribed = subscribed;
-    this->subscribeEndpoint = subscribeViewModel.subscribeButtonContent.onTapCommand["innertubeCommand"]["subscribeEndpoint"];
-    this->subscribeText = subscribeViewModel.subscribeButtonContent.buttonText;
-    this->subscribedText = subscribeViewModel.unsubscribeButtonContent.buttonText;
-    this->unsubscribeText = "Unsubscribe";
+    subscribeEndpoint = subscribeViewModel.subscribeButtonContent.onTapCommand["innertubeCommand"]["subscribeEndpoint"];
+    subscribeText = subscribeViewModel.subscribeButtonContent.buttonText;
+    subscribedText = subscribeViewModel.unsubscribeButtonContent.buttonText;
+    unsubscribeText = "Unsubscribe";
 
     const QJsonValue unsubscribeDialog = subscribeViewModel.unsubscribeButtonContent.onTapCommand["innertubeCommand"]
                                          ["signalServiceEndpoint"]["actions"][0]["openPopupAction"]
                                          ["popup"]["confirmDialogRenderer"];
-    this->unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
-    this->unsubscribeEndpoint = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
+    unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
+    unsubscribeEndpoint = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
 
     setStyleSheet(subscribed ? SubscribedStylesheet : SubscribeStylesheet);
     setText(subscribed ? subscribedText : subscribeText);

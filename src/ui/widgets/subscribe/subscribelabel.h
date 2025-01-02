@@ -1,5 +1,6 @@
 #pragma once
 #include "innertube/objects/channel/subscribebutton.h"
+#include "innertube/objects/viewmodels/buttonviewmodel.h"
 #include "innertube/objects/viewmodels/subscribebuttonviewmodel.h"
 #include "ui/widgets/clickablewidget.h"
 #include <QLabel>
@@ -9,6 +10,8 @@ class SubscribeLabel : public ClickableWidget<QLabel>
     Q_OBJECT
 public:
     explicit SubscribeLabel(QWidget* parent = nullptr);
+    void setSubscribeButton(const InnertubeObjects::Button& button);
+    void setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
     void setSubscribeButton(const InnertubeObjects::SubscribeButtonViewModel& subscribeViewModel, bool subscribed);
 protected:
@@ -19,7 +22,7 @@ protected:
 #endif
     void leaveEvent(QEvent* event) override;
 private:
-    bool subscribed;
+    bool subscribed{};
     QJsonValue subscribeEndpoint;
     QString subscribeText;
     QString subscribedText;

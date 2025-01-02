@@ -43,6 +43,18 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
     });
 }
 
+void SubscribeWidget::setSubscribeButton(const InnertubeObjects::Button& button)
+{
+    subscribeLabel->setSubscribeButton(button);
+    subscribeLabel->show();
+}
+
+void SubscribeWidget::setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel)
+{
+    subscribeLabel->setSubscribeButton(buttonViewModel);
+    subscribeLabel->show();
+}
+
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
     if (!subscribeButton.enabled)

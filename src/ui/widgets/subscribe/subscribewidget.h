@@ -1,5 +1,6 @@
 #pragma once
 #include "innertube/objects/channel/subscribebutton.h"
+#include "innertube/objects/viewmodels/buttonviewmodel.h"
 #include "innertube/objects/viewmodels/subscribebuttonviewmodel.h"
 #include <QWidget>
 
@@ -12,6 +13,8 @@ class SubscribeWidget : public QWidget
 {
 public:
     explicit SubscribeWidget(QWidget* parent = nullptr);
+    void setSubscribeButton(const InnertubeObjects::Button& button);
+    void setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
     void setSubscribeButton(const InnertubeObjects::SubscribeButtonViewModel& subscribeViewModel, bool subscribed);
     void setSubscriberCount(const QString& subscriberCountText, const QString& channelId);

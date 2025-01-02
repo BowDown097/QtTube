@@ -69,7 +69,7 @@ void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
     const QString& subCount = channel.subscriberCountText.text;
     const QString& videoCount = channel.videoCountText.text;
 
-    subscribeWidget->setSubscribeButton(channel.subscribeButton);
+    std::visit([this](auto&& v) { subscribeWidget->setSubscribeButton(v); }, channel.subscribeButton);
     subscribeWidget->setSubscriberCount(subCount.contains("subscribers") ? subCount : videoCount, channelId);
 
     if (qtTubeApp->settings().fullSubs)

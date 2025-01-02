@@ -6,6 +6,7 @@
 #include "ui/widgets/subscribe/subscribewidget.h"
 #include <QBoxLayout>
 #include <QScrollBar>
+#include <ranges>
 
 ChannelView::~ChannelView()
 {
@@ -176,8 +177,23 @@ void ChannelView::prepareHeader(const InnertubeObjects::ChannelPageHeader& pageH
     handleAndVideos->setText(channelHandle + ' ' + pageHeader.metadata.delimiter + ' ' + videosCount);
     subscribeWidget->setSubscriberCount(subCount, channelId);
 
-    if (const InnertubeObjects::SubscribeButtonViewModel* subscribeButton = pageHeader.findSubscribeButton())
-        subscribeWidget->setSubscribeButton(*subscribeButton, subscribeButton->isSubscribed(mutations));
+    auto flatActions = pageHeader.actions.actionsRows
+        | std::views::transform([](const auto& list) { return list.items; })
+        | std::views::join;
+
+    for (const auto& action : flatActions)
+    {
+        if (auto subscribeButton = std::get_if<InnertubeObjects::SubscribeButtonViewModel>(&action))
+        {
+            subscribeWidget->setSubscribeButton(*subscribeButton, subscribeButton->isSubscribed(mutations));
+        }
+        else if (auto plainButton = std::get_if<InnertubeObjects::ButtonViewModel>(&action))
+        {
+            // logged out subscribe button should be the only one with a modalEndpoint
+            if (plainButton->onTap["innertubeCommand"]["modalEndpoint"].isObject())
+                subscribeWidget->setSubscribeButton(*plainButton);
+        }
+    }
 
     if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
         mainWindow->setWindowTitle(pageHeader.title.text.content + " - " + QTTUBE_APP_NAME);
