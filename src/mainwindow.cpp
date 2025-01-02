@@ -212,15 +212,22 @@ void MainWindow::search(const QString& query, SearchBox::SearchType searchType)
 
 void MainWindow::searchByLink(const QString& link)
 {
-    static QRegularExpression videoRegex("(?:v=|vi=|v/|vi/|shorts/|youtu.be/)([a-zA-Z0-9_-]{11})");
-    if (link.startsWith("UC")) // channel IDs always start with "UC"
+    static QRegularExpression channelRegex(R"((?:^|\/channel\/)(UC[a-zA-Z0-9_-]{22})(?=\b))");
+    static QRegularExpression videoRegex(R"((?:^|v=|vi=|v\/|vi\/|shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})(?=\b))");
+
+    if (QRegularExpressionMatch channelMatch = channelRegex.match(link); channelMatch.lastCapturedIndex() >= 1)
     {
-        ViewController::loadChannel(link);
+        ViewController::loadChannel(channelMatch.captured(1));
         return;
     }
     else if (QRegularExpressionMatch videoMatch = videoRegex.match(link); videoMatch.lastCapturedIndex() >= 1)
     {
-        ViewController::loadVideo(videoMatch.captured(1));
+        int progress{};
+        if (QUrl url(link); url.isValid())
+            if (QUrlQuery urlQuery(url); urlQuery.hasQueryItem("t"))
+                progress = urlQuery.queryItemValue("t").toInt();
+
+        ViewController::loadVideo(videoMatch.captured(1), progress);
         return;
     }
 
@@ -230,20 +237,7 @@ void MainWindow::searchByLink(const QString& link)
     using UrlReply = InnertubeReply<UrlEndpoint>;
     auto reply = InnerTube::instance()->get<UrlEndpoint>(link);
     connect(reply, &UrlReply::exception, this, [this, link](const InnertubeException& ex) {
-        // plain video IDs throw 404 sadly, so we're gonna shoot for video ID if that happens
-        if (ex.message().contains("Error 404"))
-        {
-            static QRegularExpression videoIdRegex("[a-zA-Z0-9_-]{11}");
-            if (QRegularExpressionMatch videoIdMatch = videoIdRegex.match(link); videoIdMatch.hasMatch())
-                ViewController::loadVideo(videoIdMatch.captured());
-            else
-                QMessageBox::warning(this, "Nothing Found!", "Could not find anything from your input.");
-        }
-        // nothing valid should reach this point, so error
-        else
-        {
-            QMessageBox::critical(this, "Error", ex.message());
-        }
+        QMessageBox::critical(this, "Error", ex.message());
     });
     connect(reply, &UrlReply::finished, this, [this](const UrlEndpoint& endpoint) {
         QString webPageType = endpoint.endpoint["commandMetadata"]["webCommandMetadata"]["webPageType"].toString();
@@ -253,7 +247,9 @@ void MainWindow::searchByLink(const QString& link)
         }
         else if (webPageType == "WEB_PAGE_TYPE_WATCH")
         {
-            ViewController::loadVideo(endpoint.endpoint["watchEndpoint"]["videoId"].toString());
+            ViewController::loadVideo(
+                endpoint.endpoint["watchEndpoint"]["videoId"].toString(),
+                endpoint.endpoint["watchEndpoint"]["startTimeSeconds"].toInt());
         }
         else
         {
