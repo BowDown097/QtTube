@@ -161,6 +161,7 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
 
 void BrowseHelper::continueChannel(ContinuableListWidget* widget, const QJsonValue& contents)
 {
+    widget->continuationToken.clear();
     ChannelBrowser::continuation(widget, contents);
 }
 
