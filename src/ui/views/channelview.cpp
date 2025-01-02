@@ -28,7 +28,11 @@ ChannelView::ChannelView(const QString& channelId)
       subscribeWidget(new SubscribeWidget(this))
 {
     metaHbox->setContentsMargins(0, 0, 0, 0);
+
     pageLayout->setSpacing(0);
+
+    channelBanner->setMinimumSize(1, 1);
+    channelBanner->setScaledContents(true);
     pageLayout->addWidget(channelBanner);
 
     if (qtTubeApp->settings().autoHideTopBar)
@@ -185,7 +189,7 @@ void ChannelView::setBanner(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    channelBanner->setPixmap(pixmap.scaled(channelBanner->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    channelBanner->setPixmap(pixmap);
 }
 
 void ChannelView::setIcon(const HttpReply& reply)
