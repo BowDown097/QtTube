@@ -35,20 +35,20 @@ void WatchNextFeed::reset()
 
 void WatchNextFeed::setData(const InnertubeEndpoints::Next& endpoint)
 {
-    if (endpoint.response.results.results.commentsSectionContinuation.has_value())
+    if (!endpoint.response.results.results.commentsSectionContinuation.isEmpty())
     {
         setTabVisible(1, true);
-        commentsContinuation = endpoint.response.results.results.commentsSectionContinuation.value();
+        commentsContinuation = endpoint.response.results.results.commentsSectionContinuation;
         connect(comments, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueComments);
     }
 
-    if (endpoint.response.results.secondaryResults.feedContinuation.has_value())
+    if (!endpoint.response.results.secondaryResults.feedContinuation.isEmpty())
     {
-        recommendedContinuation = endpoint.response.results.secondaryResults.feedContinuation.value();
+        recommendedContinuation = endpoint.response.results.secondaryResults.feedContinuation;
         connect(recommended, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueRecommended);
     }
 
-    for (const InnertubeObjects::Video& recommendedVideo : endpoint.response.results.secondaryResults.feed)
+    for (const InnertubeObjects::CompactVideo& recommendedVideo : endpoint.response.results.secondaryResults.feed)
     {
         BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
         renderer->thumbnail->setFixedSize(167, 94);

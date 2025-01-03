@@ -4,6 +4,7 @@
 
 namespace InnertubeObjects
 {
+struct CompactVideo;
 struct LockupViewModel;
 struct Reel;
 struct ShortsLockupViewModel;
@@ -25,6 +26,9 @@ public:
     TubeLabel* titleLabel;
 
     explicit VideoRenderer(QWidget* parent = nullptr);
+
+    void setData(const InnertubeObjects::CompactVideo& compactVideo,
+                 bool useThumbnailFromData = true);
     void setData(const InnertubeObjects::LockupViewModel& lockup,
                  bool useThumbnailFromData = true);
     void setData(const InnertubeObjects::Reel& reel,

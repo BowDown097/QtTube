@@ -140,7 +140,7 @@ bool SettingsStore::videoIsFiltered(const InnertubeObjects::ShortsLockupViewMode
 
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::Video& video) const
 {
-    return channelIsFiltered(video.owner.id) || strHasFilteredTerm(video.title.text) ||
+    return channelIsFiltered(video.ownerId()) || strHasFilteredTerm(video.title.text) ||
            (filterLengthEnabled && !video.isLive() && QTime(0, 0).secsTo(video.length()) <= filterLength) ||
            (hideShorts && video.isReel()) ||
            (hideStreams && video.isLive());

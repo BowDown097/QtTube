@@ -79,6 +79,49 @@ void VideoRenderer::navigateVideo()
     ViewController::loadVideo(videoId, progress, watchPreloadData.get());
 }
 
+void VideoRenderer::setData(const InnertubeObjects::CompactVideo& compactVideo,
+                            bool useThumbnailFromData)
+{
+    progress = compactVideo.navigationEndpoint["watchEndpoint"]["startTimeSeconds"].toInt();
+    videoId = compactVideo.videoId;
+    watchPreloadData = std::make_unique<PreloadData::WatchView>();
+
+    QStringList metadataList;
+    metadataList.reserve(2);
+    metadataList.append(compactVideo.publishedTimeText.text);
+    metadataList.append(qtTubeApp->settings().condensedCounts
+        ? compactVideo.shortViewCountText.text : compactVideo.viewCountText.text);
+    metadataList.removeAll({});
+    metadataLabel->setText(metadataList.join(" • "));
+
+    InnertubeObjects::VideoOwner owner = compactVideo.owner();
+
+    if (InnertubeObjects::VideoOwner owner = compactVideo.owner(); !owner.id.isEmpty())
+    {
+        channelId = owner.id;
+        watchPreloadData->channelAvatar = owner.icon;
+        watchPreloadData->channelBadges = compactVideo.ownerBadges;
+        watchPreloadData->channelId = owner.id;
+        watchPreloadData->channelName = owner.name;
+
+        channelLabel->show();
+        channelLabel->setInfo(channelId, owner.name, compactVideo.ownerBadges);
+    }
+
+    thumbnail->setLengthText(compactVideo.lengthDisplay().text);
+    thumbnail->setProgress(progress, QTime(0, 0).secsTo(compactVideo.length()));
+
+    if (useThumbnailFromData && !compactVideo.thumbnail.isEmpty())
+        setThumbnail(compactVideo.thumbnail.recommendedQuality(thumbnail->size())->url);
+    else
+        setThumbnail("https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg");
+
+    QString title = QString(compactVideo.title.text).replace("\r\n", " ");
+    watchPreloadData->title = title;
+    titleLabel->setText(title);
+    titleLabel->setToolTip(title);
+}
+
 void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup,
                             bool useThumbnailFromData)
 {
@@ -178,24 +221,24 @@ void VideoRenderer::setData(const InnertubeObjects::ShortsLockupViewModel& short
 void VideoRenderer::setData(const InnertubeObjects::Video& video,
                             bool useThumbnailFromData)
 {
-    channelId = video.owner.id;
+    channelId = video.ownerId();
     progress = video.navigationEndpoint["watchEndpoint"]["startTimeSeconds"].toInt();
     videoId = video.videoId;
 
     QStringList metadataList;
     metadataList.reserve(2);
-    metadataList.append(video.publishedTimeText.text);
+    metadataList.append(video.publishedTimeDisplay());
     metadataList.append(qtTubeApp->settings().condensedCounts ? video.shortViewCountText.text : video.viewCountText.text);
     metadataList.removeAll({});
     metadataLabel->setText(metadataList.join(" • "));
 
-    if (!video.owner.id.isEmpty())
+    if (!channelId.isEmpty())
     {
         channelLabel->show();
-        channelLabel->setInfo(channelId, video.owner.name, video.owner.badges);
+        channelLabel->setInfo(channelId, video.ownerText.text, video.ownerBadges);
     }
 
-    thumbnail->setLengthText(video.lengthText.text);
+    thumbnail->setLengthText(video.lengthDisplay().text);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
 
     if (useThumbnailFromData && !video.thumbnail.isEmpty())
@@ -208,10 +251,10 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video,
     titleLabel->setToolTip(title);
 
     watchPreloadData.reset(new PreloadData::WatchView {
-        .channelAvatar = video.owner.icon,
-        .channelBadges = video.owner.badges,
+        .channelAvatar = video.channelThumbnailSupportedRenderers.thumbnail,
+        .channelBadges = video.ownerBadges,
         .channelId = channelId,
-        .channelName = video.owner.name,
+        .channelName = video.ownerText.text,
         .title = title
     });
 }
