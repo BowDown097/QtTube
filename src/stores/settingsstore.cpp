@@ -1,4 +1,5 @@
 #include "settingsstore.h"
+#include "innertube/objects/ad/adslot.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
 #include "innertube/objects/viewmodels/lockupviewmodel.h"
@@ -116,6 +117,22 @@ void SettingsStore::save()
 bool SettingsStore::strHasFilteredTerm(const QString& str) const
 {
     return std::ranges::any_of(filteredTerms, [&str](const QString& t) { return str.contains(t, Qt::CaseInsensitive); });
+}
+
+bool SettingsStore::videoIsFiltered(const InnertubeObjects::AdSlot& adSlot) const
+{
+    if (blockAds)
+        return true;
+
+    const auto& renderingContent = adSlot.fulfillmentContent.fulfilledLayout.renderingContent;
+
+    QString title;
+    if (const auto* displayAd = std::get_if<InnertubeObjects::DisplayAd>(&renderingContent))
+        title = displayAd->titleText.text;
+    else if (const auto* video = std::get_if<InnertubeObjects::VideoDisplayButtonGroup>(&renderingContent))
+        title = video->title.text;
+
+    return strHasFilteredTerm(title);
 }
 
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::LockupViewModel& lockup) const

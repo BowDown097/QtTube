@@ -221,6 +221,10 @@ void BrowseHelper::setupHome(QListWidget* widget, const InnertubeEndpoints::Home
 
     for (const InnertubeEndpoints::HomeResponseItem& item : response.contents)
     {
+        if (const auto* adSlot = std::get_if<InnertubeObjects::AdSlot>(&item))
+        {
+            UIUtils::addVideoToList(widget, *adSlot, useThumbnailFromData);
+        }
         if (const auto* horizontalShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
         {
             UIUtils::addShelfTitleToList(widget, horizontalShelf->title.text);
@@ -263,6 +267,7 @@ void BrowseHelper::setupHome(QListWidget* widget, const InnertubeEndpoints::Home
         {
             UIUtils::addVideoToList(widget, *video, useThumbnailFromData);
         }
+
         QCoreApplication::processEvents();
     }
 }

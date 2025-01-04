@@ -359,7 +359,7 @@ void MainWindow::searchWatchHistory()
 
 void MainWindow::showAccountMenu()
 {
-    if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>("accountController"))
+    if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>())
     {
         m_topbar->setAlwaysShow(ui->centralwidget->currentIndex() == 0);
         accountController->deleteLater();
@@ -369,7 +369,6 @@ void MainWindow::showAccountMenu()
     m_topbar->setAlwaysShow(true);
 
     AccountControllerWidget* accountController = new AccountControllerWidget(this);
-    accountController->setObjectName("accountController");
     accountController->show();
     accountController->raise();
     accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);

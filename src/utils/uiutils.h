@@ -6,6 +6,7 @@
 
 namespace InnertubeObjects
 {
+struct AdSlot;
 struct BackstagePost;
 struct Channel;
 struct InnertubeString;
@@ -48,6 +49,8 @@ namespace UIUtils
     void addSeparatorToList(QListWidget* list);
     void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
     void addShelfTitleToList(QListWidget* list, const QString& title);
+    void addVideoToList(QListWidget* list, const InnertubeObjects::AdSlot& adSLot,
+                        bool useThumbnailFromData = true);
     void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup,
                         bool useThumbnailFromData = true);
     void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel,

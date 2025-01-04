@@ -50,5 +50,4 @@ private slots:
     void setDislikes(const HttpReply& reply);
 signals:
     void loadFailed(const InnertubeException& ie);
-    void navigateChannelRequested(const QString& channelId);
 };

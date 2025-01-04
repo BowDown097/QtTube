@@ -1,5 +1,6 @@
 #include "uiutils.h"
 #include "http.h"
+#include "innertube/objects/ad/adslot.h"
 #include "innertube/objects/backstage/backstagepost.h"
 #include "innertube/objects/channel/channel.h"
 #include "innertube/objects/notification/notification.h"
@@ -154,6 +155,19 @@ namespace UIUtils
         }
 
         return renderer;
+    }
+
+    void addVideoToList(QListWidget* list, const InnertubeObjects::AdSlot& adSlot,
+                        bool useThumbnailFromData)
+    {
+        if (qtTubeApp->settings().videoIsFiltered(adSlot))
+            return;
+
+        std::visit([&adSlot, list, useThumbnailFromData](auto&& v) {
+            VideoRenderer* renderer = constructVideoRenderer(list);
+            renderer->setData(v, useThumbnailFromData);
+            addWidgetToList(list, renderer);
+        }, adSlot.fulfillmentContent.fulfilledLayout.renderingContent);
     }
 
     void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup,

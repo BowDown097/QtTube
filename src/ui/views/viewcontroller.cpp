@@ -67,7 +67,6 @@ namespace ViewController
         MainWindow::centralWidget()->addWidget(watchView);
         MainWindow::centralWidget()->setCurrentWidget(watchView);
 
-        QObject::connect(watchView, &WatchView::navigateChannelRequested, &ViewController::loadChannel);
         QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, watchView, [watchView]
         {
             watchView->deleteLater();

@@ -5,10 +5,12 @@
 namespace InnertubeObjects
 {
 struct CompactVideo;
+struct DisplayAd;
 struct LockupViewModel;
 struct Reel;
 struct ShortsLockupViewModel;
 struct Video;
+struct VideoDisplayButtonGroup;
 }
 
 class ChannelLabel;
@@ -29,6 +31,8 @@ public:
 
     void setData(const InnertubeObjects::CompactVideo& compactVideo,
                  bool useThumbnailFromData = true);
+    void setData(const InnertubeObjects::DisplayAd& displayAd,
+                 bool useThumbnailFromData = true);
     void setData(const InnertubeObjects::LockupViewModel& lockup,
                  bool useThumbnailFromData = true);
     void setData(const InnertubeObjects::Reel& reel,
@@ -37,9 +41,11 @@ public:
                  bool isInGrid = false, bool useThumbnailFromData = true);
     void setData(const InnertubeObjects::Video& video,
                  bool useThumbnailFromData = true);
+    void setData(const InnertubeObjects::VideoDisplayButtonGroup& video,
+                 bool useThumbnailFromData = true);
 private:
-    QString channelId;
-    int progress = 0;
+    int progress{};
+    QJsonValue videoEndpoint;
     QString videoId;
     std::unique_ptr<PreloadData::WatchView> watchPreloadData;
 
@@ -47,8 +53,7 @@ private:
 private slots:
     void copyDirectUrl();
     void copyVideoUrl();
-    void navigateChannel();
-    void navigateVideo();
+    void navigate();
     void setDeArrowData(const QString& fallbackThumbUrl, const HttpReply& reply);
     void showTitleContextMenu(const QPoint& pos);
 };

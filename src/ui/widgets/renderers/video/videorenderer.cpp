@@ -8,6 +8,7 @@
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "videothumbnailwidget.h"
+#include <QDesktopServices>
 #include <QJsonDocument>
 #include <QMenu>
 #include <QMessageBox>
@@ -28,9 +29,8 @@ VideoRenderer::VideoRenderer(QWidget* parent)
     titleLabel->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
     titleLabel->setUnderlineOnHover(true);
 
-    connect(channelLabel->text, &TubeLabel::clicked, this, &VideoRenderer::navigateChannel);
-    connect(thumbnail, &VideoThumbnailWidget::clicked, this, &VideoRenderer::navigateVideo);
-    connect(titleLabel, &TubeLabel::clicked, this, &VideoRenderer::navigateVideo);
+    connect(thumbnail, &VideoThumbnailWidget::clicked, this, &VideoRenderer::navigate);
+    connect(titleLabel, &TubeLabel::clicked, this, &VideoRenderer::navigate);
     connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &VideoRenderer::showTitleContextMenu);
 }
 
@@ -69,14 +69,12 @@ void VideoRenderer::copyVideoUrl()
     UIUtils::copyToClipboard("https://www.youtube.com/watch?v=" + videoId);
 }
 
-void VideoRenderer::navigateChannel()
+void VideoRenderer::navigate()
 {
-    ViewController::loadChannel(channelId);
-}
-
-void VideoRenderer::navigateVideo()
-{
-    ViewController::loadVideo(videoId, progress, watchPreloadData.get());
+    if (!videoId.isEmpty())
+        ViewController::loadVideo(videoId, progress, watchPreloadData.get());
+    else if (const QJsonValue urlEndpoint = videoEndpoint["urlEndpoint"]; urlEndpoint.isObject())
+        QDesktopServices::openUrl(urlEndpoint["url"].toString());
 }
 
 void VideoRenderer::setData(const InnertubeObjects::CompactVideo& compactVideo,
@@ -98,14 +96,13 @@ void VideoRenderer::setData(const InnertubeObjects::CompactVideo& compactVideo,
 
     if (InnertubeObjects::VideoOwner owner = compactVideo.owner(); !owner.id.isEmpty())
     {
-        channelId = owner.id;
         watchPreloadData->channelAvatar = owner.icon;
         watchPreloadData->channelBadges = compactVideo.ownerBadges;
         watchPreloadData->channelId = owner.id;
         watchPreloadData->channelName = owner.name;
 
         channelLabel->show();
-        channelLabel->setInfo(channelId, owner.name, compactVideo.ownerBadges);
+        channelLabel->setInfo(owner.id, owner.name, compactVideo.ownerBadges);
     }
 
     thumbnail->setLengthText(compactVideo.lengthDisplay().text);
@@ -118,6 +115,28 @@ void VideoRenderer::setData(const InnertubeObjects::CompactVideo& compactVideo,
 
     QString title = QString(compactVideo.title.text).replace("\r\n", " ");
     watchPreloadData->title = title;
+    titleLabel->setText(title);
+    titleLabel->setToolTip(title);
+}
+
+void VideoRenderer::setData(const InnertubeObjects::DisplayAd& displayAd,
+                            bool useThumbnailFromData)
+{
+    videoEndpoint = displayAd.clickCommand;
+
+    metadataLabel->setText(displayAd.bodyText.text);
+    metadataLabel->setToolTip(displayAd.bodyText.text);
+
+    if (displayAd.clickCommand.isObject())
+    {
+        channelLabel->show();
+        channelLabel->setInfo(displayAd.clickCommand, displayAd.secondaryText.text);
+    }
+
+    thumbnail->setLengthText("Ad");
+    setThumbnail(displayAd.image.recommendedQuality(thumbnail->size())->url);
+
+    QString title = QString(displayAd.titleText.text).replace("\r\n", " ");
     titleLabel->setText(title);
     titleLabel->setToolTip(title);
 }
@@ -141,13 +160,12 @@ void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup,
 
     if (std::optional<InnertubeObjects::VideoOwner> owner = lockup.owner())
     {
-        channelId = owner->id;
         watchPreloadData->channelAvatar = owner->icon;
         watchPreloadData->channelId = owner->id;
         watchPreloadData->channelName = owner->name;
 
         channelLabel->show();
-        channelLabel->setInfo(channelId, owner->name, {});
+        channelLabel->setInfo(owner->id, owner->name, {});
     }
 
     thumbnail->setLengthText(lockup.lengthText());
@@ -221,7 +239,6 @@ void VideoRenderer::setData(const InnertubeObjects::ShortsLockupViewModel& short
 void VideoRenderer::setData(const InnertubeObjects::Video& video,
                             bool useThumbnailFromData)
 {
-    channelId = video.ownerId();
     progress = video.navigationEndpoint["watchEndpoint"]["startTimeSeconds"].toInt();
     videoId = video.videoId;
 
@@ -232,10 +249,11 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video,
     metadataList.removeAll({});
     metadataLabel->setText(metadataList.join(" • "));
 
-    if (!channelId.isEmpty())
+    QString ownerId = video.ownerId();
+    if (!ownerId.isEmpty())
     {
         channelLabel->show();
-        channelLabel->setInfo(channelId, video.ownerText.text, video.ownerBadges);
+        channelLabel->setInfo(ownerId, video.ownerText.text, video.ownerBadges);
     }
 
     thumbnail->setLengthText(video.lengthDisplay().text);
@@ -253,10 +271,54 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video,
     watchPreloadData.reset(new PreloadData::WatchView {
         .channelAvatar = video.channelThumbnailSupportedRenderers.thumbnail,
         .channelBadges = video.ownerBadges,
-        .channelId = channelId,
+        .channelId = ownerId,
         .channelName = video.ownerText.text,
         .title = title
     });
+}
+
+void VideoRenderer::setData(const InnertubeObjects::VideoDisplayButtonGroup& video,
+                            bool useThumbnailFromData)
+{
+    videoId = video.videoId;
+    watchPreloadData = std::make_unique<PreloadData::WatchView>();
+    metadataLabel->setText(video.badge.label);
+
+    if (video.channelEndpoint.isObject())
+    {
+        watchPreloadData->channelAvatar = video.channelThumbnail;
+        watchPreloadData->channelName = video.shortBylineText.text;
+
+        channelLabel->show();
+        channelLabel->setInfo(video.channelEndpoint, video.shortBylineText.text);
+    }
+
+    auto overlayIt = std::ranges::find_if(video.thumbnailOverlays, [](const InnertubeObjects::ThumbnailOverlay& overlay) {
+        return std::holds_alternative<InnertubeObjects::ThumbnailOverlayTimeStatus>(overlay);
+    });
+
+    if (overlayIt != video.thumbnailOverlays.end())
+    {
+        const auto& timeOverlay = std::get<InnertubeObjects::ThumbnailOverlayTimeStatus>(*overlayIt);
+        if (timeOverlay.iconType == "EXTERNAL_LINK")
+            thumbnail->setLengthText("Ad");
+        else
+            thumbnail->setLengthText(timeOverlay.text.text);
+    }
+    else
+    {
+        thumbnail->setLengthText(video.lengthText.text);
+    }
+
+    if (useThumbnailFromData && !video.thumbnail.isEmpty())
+        setThumbnail(video.thumbnail.recommendedQuality(thumbnail->size())->url);
+    else
+        setThumbnail("https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg");
+
+    QString title = QString(video.title.text).replace("\r\n", " ");
+    watchPreloadData->title = title;
+    titleLabel->setText(title);
+    titleLabel->setToolTip(title);
 }
 
 void VideoRenderer::setDeArrowData(const QString& thumbFallbackUrl, const HttpReply& reply)

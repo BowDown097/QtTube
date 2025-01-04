@@ -1,4 +1,5 @@
 #include "watchview.h"
+#include "ui/views/viewcontroller.h"
 #include "watchview_ui.h"
 #include "http.h"
 #include "innertube.h"
@@ -67,7 +68,7 @@ void WatchView::descriptionLinkActivated(const QString& url)
     else if (url.startsWith("/channel"))
     {
         QString funnyPath = qUrl.path().replace("/channel/", "");
-        emit navigateChannelRequested(funnyPath.left(funnyPath.indexOf('/')));
+        ViewController::loadChannel(funnyPath.left(funnyPath.indexOf('/')));
     }
     else if (url.startsWith("/watch"))
     {
@@ -155,7 +156,6 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     channelId = nextResp.results.results.secondaryInfo.owner.navigationEndpoint["browseEndpoint"]["browseId"].toString();
 
     ui->channelLabel->setInfo(channelId, secondaryInfo.owner.title.text, secondaryInfo.owner.badges);
-    connect(ui->channelLabel->text, &TubeLabel::clicked, this, std::bind(&WatchView::navigateChannelRequested, this, channelId));
 
     ui->subscribeWidget->setSubscribeButton(secondaryInfo.subscribeButton);
     ui->subscribeWidget->setSubscriberCount(secondaryInfo.owner.subscriberCountText.text, secondaryInfo.subscribeButton.channelId);

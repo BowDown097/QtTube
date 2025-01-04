@@ -42,7 +42,6 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
     hbox->addLayout(textVbox);
 
     connect(thumbLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
-    connect(titleLabel->text, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
 }
 
 void BrowseChannelRenderer::navigateChannel()

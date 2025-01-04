@@ -2,8 +2,10 @@
 #include "channelbadgelabel.h"
 #include "innertube.h"
 #include "qttubeapplication.h"
+#include "ui/views/viewcontroller.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
+#include <QDesktopServices>
 #include <QMenu>
 
 ChannelLabel::ChannelLabel(QWidget* parent)
@@ -19,6 +21,7 @@ ChannelLabel::ChannelLabel(QWidget* parent)
     badgeLayout->setSpacing(2);
     layout->addLayout(badgeLayout);
 
+    connect(text, &TubeLabel::clicked, this, &ChannelLabel::navigate);
     connect(text, &TubeLabel::customContextMenuRequested, this, &ChannelLabel::showContextMenu);
 }
 
@@ -54,6 +57,14 @@ void ChannelLabel::filterThis()
     qtTubeApp->settings().filteredChannels.append(channelId + "|" + channelHandle);
 }
 
+void ChannelLabel::navigate()
+{
+    if (!channelId.isEmpty())
+        ViewController::loadChannel(channelId);
+    else if (const QJsonValue urlEndpoint = channelEndpoint["urlEndpoint"]; urlEndpoint.isObject())
+        QDesktopServices::openUrl(urlEndpoint["url"].toString());
+}
+
 void ChannelLabel::reset()
 {
     text->clear();
@@ -77,6 +88,14 @@ void ChannelLabel::setInfo(const QString& channelId, const QString& channelName,
 
     if (badgeLayout->count() > 0)
         badgeLayout->addStretch();
+}
+
+void ChannelLabel::setInfo(const QJsonValue& endpoint, const QString& name)
+{
+    this->channelEndpoint = endpoint;
+
+    reset();
+    text->setText(name);
 }
 
 void ChannelLabel::showContextMenu(const QPoint& pos)

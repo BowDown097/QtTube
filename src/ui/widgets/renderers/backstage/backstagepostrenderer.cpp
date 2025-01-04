@@ -60,7 +60,6 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     actionButtons->addStretch();
 
     connect(channelIconLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
-    connect(channelLabel->text, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
     connect(contentText, &TubeLabel::linkActivated, this, &BackstagePostRenderer::linkActivated);
     connect(publishedTimeLabel, &TubeLabel::customContextMenuRequested, this,
             &BackstagePostRenderer::showPublishedTimeContextMenu);
