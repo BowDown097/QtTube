@@ -86,9 +86,9 @@ void VideoRenderer::setData(const InnertubeObjects::CompactVideo& compactVideo,
 
     QStringList metadataList;
     metadataList.reserve(2);
-    metadataList.append(compactVideo.publishedTimeText.text);
     metadataList.append(qtTubeApp->settings().condensedCounts
         ? compactVideo.shortViewCountText.text : compactVideo.viewCountText.text);
+    metadataList.append(compactVideo.publishedTimeText.text);
     metadataList.removeAll({});
     metadataLabel->setText(metadataList.join(" • "));
 
@@ -244,8 +244,8 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video,
 
     QStringList metadataList;
     metadataList.reserve(2);
-    metadataList.append(video.publishedTimeDisplay());
     metadataList.append(qtTubeApp->settings().condensedCounts ? video.shortViewCountText.text : video.viewCountText.text);
+    metadataList.append(video.publishedTimeDisplay());
     metadataList.removeAll({});
     metadataLabel->setText(metadataList.join(" • "));
 
