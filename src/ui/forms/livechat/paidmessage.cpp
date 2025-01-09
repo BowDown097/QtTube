@@ -48,7 +48,7 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     authorIcon->setFixedSize(32, 32);
     authorIcon->setScaledContents(true);
     headerLayout->addWidget(authorIcon);
-    headerLayout->addSpacing(6);
+    headerLayout->addSpacerItem(new QSpacerItem(6, 0));
 
     HttpReply* iconReply = HttpUtils::cachedInstance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
     connect(iconReply, &HttpReply::finished, this, &PaidMessage::setAuthorIcon);

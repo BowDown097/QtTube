@@ -12,9 +12,9 @@ IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, con
     icon->setScaledContents(true);
 
     layout->setContentsMargins(contentsMargins);
-    layout->addSpacing(2);
 
     layout->addWidget(icon);
+    layout->addSpacerItem(new QSpacerItem(2, 0));
     layout->addWidget(textLabel);
 }
 

@@ -186,7 +186,7 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
     channelIcon->setFixedSize(48, 48);
     channelIcon->setScaledContents(true);
     primaryInfoHbox->addWidget(channelIcon);
-    primaryInfoHbox->setSpacing(7);
+    primaryInfoHbox->addSpacerItem(new QSpacerItem(7, 0));
 
     primaryInfoVbox = new QVBoxLayout;
 

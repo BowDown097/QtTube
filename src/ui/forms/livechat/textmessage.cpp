@@ -25,7 +25,7 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     authorIcon->setFixedSize(32, 32);
     authorIcon->setScaledContents(true);
     layout->addWidget(authorIcon);
-    layout->addSpacing(6);
+    layout->addSpacerItem(new QSpacerItem(6, 0));
 
     InnertubeObjects::ResponsiveImage authorPhoto(renderer["authorPhoto"]["thumbnails"]);
     if (const InnertubeObjects::GenericThumbnail* bestPhoto = authorPhoto.bestQuality())

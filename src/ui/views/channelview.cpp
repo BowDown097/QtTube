@@ -48,7 +48,7 @@ ChannelView::ChannelView(const QString& channelId)
     channelIcon->setFixedSize(48, 48);
     channelIcon->setScaledContents(true);
     metaHbox->addWidget(channelIcon);
-    metaHbox->addSpacing(7);
+    metaHbox->addSpacerItem(new QSpacerItem(7, 0));
 
     metaVbox->addWidget(channelName);
 
