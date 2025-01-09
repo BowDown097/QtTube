@@ -64,12 +64,12 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     reloadShortcut->setShortcuts(QList<QKeySequence>() << Qt::Key_F5 << QKeySequence(Qt::ControlModifier | Qt::Key_R));
     connect(reloadShortcut, &QAction::triggered, this, &MainWindow::reloadCurrentTab);
     addAction(reloadShortcut);
-    
-    qtTubeApp->creds().initialize();
-    qtTubeApp->settings().initialize();
 
-    UIUtils::g_defaultStyle = qApp->style()->objectName();
-    UIUtils::setAppStyle(qtTubeApp->settings().appStyle, qtTubeApp->settings().darkTheme);
+    connect(InnerTube::instance()->authStore(), &InnertubeAuthStore::authenticateSuccess, this, [this] {
+        m_topbar->postSignInSetup();
+    });
+
+    qtTubeApp->doInitialSetup();
 
 #ifdef Q_OS_LINUX
     // Setting has no effect on Wayland because VAAPI accel
@@ -81,14 +81,15 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     }
 #endif
 
-    InnerTube::instance()->createClient(InnertubeClient::ClientType::WEB, "2.20240712.01.00", true);
-    tryRestoreData();
-    connect(InnerTube::instance()->authStore(), &InnertubeAuthStore::authenticateSuccess, m_topbar, [this] { m_topbar->postSignInSetup(); });
-
     if (parser.isSet("channel"))
         ViewController::loadChannel(parser.value("channel"));
     else if (parser.isSet("video"))
         ViewController::loadVideo(parser.value("video"));
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
 }
 
 void MainWindow::browse()
@@ -393,19 +394,4 @@ void MainWindow::showNotifications()
     m_topbar->setAlwaysShow(true);
     notificationMenu->show();
     BrowseHelper::instance()->browseNotificationMenu(notificationMenu);
-}
-
-void MainWindow::tryRestoreData()
-{
-    if (const CredentialSet* activeLogin = qtTubeApp->creds().activeLogin())
-    {
-        qtTubeApp->creds().populateAuthStore(*activeLogin);
-        if (InnerTube::instance()->hasAuthenticated())
-            m_topbar->postSignInSetup(false);
-    }
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }

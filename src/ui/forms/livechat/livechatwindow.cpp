@@ -14,7 +14,6 @@
 LiveChatWindow::LiveChatWindow(QWidget* parent)
     : QWidget(parent), emojiMenuLabel(new TubeLabel(this)), messagesTimer(new QTimer(this)), ui(new Ui::LiveChatWindow)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
 
     emojiMenuLabel->setClickable(true);

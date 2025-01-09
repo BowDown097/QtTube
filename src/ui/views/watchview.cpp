@@ -185,16 +185,17 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     IconLabel* shareLabel = new IconLabel("share", "Share", ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0));
     ui->topLevelButtons->addWidget(shareLabel);
 
-    if (nextResp.results.liveChat.has_value())
+    if (std::optional<InnertubeObjects::LiveChat> liveChat = nextResp.results.liveChat; liveChat.has_value())
     {
         IconLabel* liveChatLabel = new IconLabel("live-chat", "Chat", QMargins(15, 0, 0, 0));
         ui->topLevelButtons->addWidget(liveChatLabel);
 
-        connect(liveChatLabel, &IconLabel::clicked, this, [this, nextResp]
+        connect(liveChatLabel, &IconLabel::clicked, this, [this, liveChat]
         {
             LiveChatWindow* liveChatWindow = new LiveChatWindow;
+            liveChatWindow->setAttribute(Qt::WA_DeleteOnClose);
             liveChatWindow->show();
-            liveChatWindow->initialize(nextResp.results.liveChat.value(), ui->player);
+            liveChatWindow->initialize(liveChat.value(), ui->player);
         });
     }
 

@@ -1,5 +1,7 @@
 #include "qttubeapplication.h"
+#include "innertube.h"
 #include "mainwindow.h"
+#include "ui/forms/livechat/livechatwindow.h"
 
 int main(int argc, char *argv[])
 {
@@ -24,6 +26,9 @@ int main(int argc, char *argv[])
     QCommandLineOption channel(QStringList() << "c" << "channel", "View a channel.", "Channel ID", "");
     parser.addOption(channel);
 
+    QCommandLineOption chat("chat", "Open a live chat window.", "Video ID");
+    parser.addOption(chat);
+
     QCommandLineOption version("version", "Displays version information.");
     parser.addOption(version);
 
@@ -38,6 +43,26 @@ int main(int argc, char *argv[])
         parser.showHelp();
     if (parser.isSet("version"))
         parser.showVersion();
+
+    if (parser.isSet("chat"))
+    {
+        qtTubeApp->doInitialSetup();
+
+        auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::Next>(parser.value("chat"));
+
+        if (endpoint.response.results.liveChat.has_value())
+        {
+            LiveChatWindow liveChatWindow;
+            liveChatWindow.show();
+            liveChatWindow.initialize(endpoint.response.results.liveChat.value(), nullptr);
+            return a.exec();
+        }
+        else
+        {
+            qDebug() << "Video not found or live chat is not available.";
+            exit(EXIT_FAILURE);
+        }
+    }
 
     MainWindow w(parser);
     w.show();

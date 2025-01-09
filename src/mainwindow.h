@@ -39,7 +39,6 @@ private:
     void browse();
     void searchByLink(const QString& link);
     void searchByQuery(const QString& query);
-    void tryRestoreData();
 
     static inline QStackedWidget* m_centralWidget;
     static inline QSize m_size;

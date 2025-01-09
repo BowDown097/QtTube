@@ -15,6 +15,8 @@ public:
     QtTubeApplication(int& argc, char** argv) : QApplication(argc, argv) {}
     bool notify(QObject* receiver, QEvent* event) override;
 
+    void doInitialSetup();
+
     CredentialsStore& creds() { return m_creds; }
     SettingsStore& settings() { return m_settings; }
 
