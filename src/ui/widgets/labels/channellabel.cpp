@@ -55,6 +55,7 @@ void ChannelLabel::filterThis()
     }
 
     qtTubeApp->settings().filteredChannels.append(channelId + "|" + channelHandle);
+    qtTubeApp->settings().save();
 }
 
 void ChannelLabel::navigate()
