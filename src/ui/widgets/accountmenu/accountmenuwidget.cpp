@@ -5,6 +5,7 @@
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "utils/tubeutils.h"
+#include "utils/uiutils.h"
 #include <QBoxLayout>
 
 AccountMenuWidget::AccountMenuWidget(QWidget* parent)
@@ -19,15 +20,18 @@ AccountMenuWidget::AccountMenuWidget(QWidget* parent)
       switchAccountsLabel(new IconLabel("switch-accounts", "Switch account", QMargins(), QSize(24, 24), this)),
       yourChannelLabel(new IconLabel("your-channel", "Your channel", QMargins(), QSize(24, 24), this))
 {
-    accountNameLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
-    avatar->setFixedSize(64, 64);
     setAutoFillBackground(true);
 
+    accountNameLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
     accountLayout->addWidget(accountNameLabel);
+
     accountLayout->addWidget(handleLabel);
 
+    avatar->setFixedSize(48, 48);
+    avatar->setScaledContents(true);
     headerLayout->addWidget(avatar);
-    headerLayout->addLayout(accountLayout, 1);
+
+    headerLayout->addLayout(accountLayout);
 
     layout->addLayout(headerLayout);
     layout->addWidget(switchAccountsLabel);
@@ -70,7 +74,7 @@ void AccountMenuWidget::setAvatar(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    avatar->setPixmap(pixmap.scaled(avatar->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    avatar->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
 }
 
 void AccountMenuWidget::triggerSignOut()

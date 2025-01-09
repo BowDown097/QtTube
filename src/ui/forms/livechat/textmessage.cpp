@@ -1,5 +1,6 @@
 #include "textmessage.h"
 #include "http.h"
+#include "innertube/objects/images/responsiveimage.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "utils/httputils.h"
 #include "utils/uiutils.h"
@@ -21,11 +22,17 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    authorIcon->setFixedSize(38, 32);
+    authorIcon->setFixedSize(32, 32);
+    authorIcon->setScaledContents(true);
     layout->addWidget(authorIcon);
+    layout->addSpacing(6);
 
-    HttpReply* iconReply = HttpUtils::cachedInstance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
-    connect(iconReply, &HttpReply::finished, this, &TextMessage::setAuthorIcon);
+    InnertubeObjects::ResponsiveImage authorPhoto(renderer["authorPhoto"]["thumbnails"]);
+    if (const InnertubeObjects::GenericThumbnail* bestPhoto = authorPhoto.bestQuality())
+    {
+        HttpReply* iconReply = HttpUtils::cachedInstance().get(bestPhoto->url);
+        connect(iconReply, &HttpReply::finished, this, &TextMessage::setAuthorIcon);
+    }
 
     contentLayout->setContentsMargins(0, 0, 0, 0);
     contentLayout->setSpacing(0);
@@ -105,6 +112,5 @@ void TextMessage::setAuthorIcon(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    pixmap = pixmap.scaled(32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     authorIcon->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
 }

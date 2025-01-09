@@ -84,8 +84,7 @@ namespace ChannelBrowser
                         UIUtils::addChannelToList(widget, InnertubeObjects::Channel(it.value()));
                     else if (it.key() == "gridVideoRenderer" || it.key() == "videoRenderer")
                         UIUtils::addVideoToList(widget, InnertubeObjects::Video(it.value()));
-                    // no QCoreApplication::processEvents(). breaks the banner for some reason :(
-                    // this should be investigated and hopefully fixed at some point later
+                    QCoreApplication::processEvents();
                 }
             }
         }
@@ -132,7 +131,7 @@ namespace ChannelBrowser
 
             QLabel* badgeLabel = new QLabel;
             badgeLabel->setFixedSize(18, 18);
-            UIUtils::setThumbnail(badgeLabel, perks["badge"]["thumbnails"].toArray());
+            UIUtils::setThumbnail(badgeLabel, perks["badge"]["thumbnails"]);
             perksHeader->addWidget(badgeLabel);
 
             TubeLabel* membershipTitle = new TubeLabel(InnertubeObjects::InnertubeString(perks["title"]));
@@ -203,7 +202,7 @@ namespace ChannelBrowser
 
                             QLabel* loyaltyBadgeIcon = new QLabel;
                             loyaltyBadgeIcon->setFixedSize(18, 18);
-                            UIUtils::setThumbnail(loyaltyBadgeIcon, loyaltyBadge["icon"]["thumbnails"].toArray());
+                            UIUtils::setThumbnail(loyaltyBadgeIcon, loyaltyBadge["icon"]["thumbnails"]);
                             loyaltyBadgeLayout->addWidget(loyaltyBadgeIcon);
 
                             perkInfo->addWidget(loyaltyBadgeWrapper);
@@ -220,7 +219,7 @@ namespace ChannelBrowser
                         {
                             QLabel* thumbnailLabel = new QLabel;
                             thumbnailLabel->setFixedSize(32, 32);
-                            UIUtils::setThumbnail(thumbnailLabel, v2["thumbnails"].toArray(), true);
+                            UIUtils::setThumbnail(thumbnailLabel, v2["thumbnails"]);
                             imagesLayout->addWidget(thumbnailLabel);
                         }
 

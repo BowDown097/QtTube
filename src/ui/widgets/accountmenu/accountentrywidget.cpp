@@ -12,9 +12,10 @@ AccountEntryWidget::AccountEntryWidget(const CredentialSet& credSet, QWidget* pa
       nameLabel(new QLabel(this))
 {
     avatarLabel->setFixedSize(30, 30);
-    nameLabel->setText(credSet.username);
-
+    avatarLabel->setScaledContents(true);
     layout->addWidget(avatarLabel);
+
+    nameLabel->setText(credSet.username);
     layout->addWidget(nameLabel);
 
     HttpReply* reply = Http::instance().get(QUrl(credSet.avatarUrl));
@@ -25,6 +26,5 @@ void AccountEntryWidget::setAvatar(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    pixmap = pixmap.scaled(avatarLabel->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    avatarLabel->setPixmap(UIUtils::pixmapRounded(pixmap, 15, 15));
+    avatarLabel->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
 }

@@ -45,8 +45,10 @@ ChannelView::ChannelView(const QString& channelId)
     channelHeaderContainer->setAutoFillBackground(true);
     channelHeaderLayout->setSpacing(10);
 
-    channelIcon->setFixedSize(55, 48);
+    channelIcon->setFixedSize(48, 48);
+    channelIcon->setScaledContents(true);
     metaHbox->addWidget(channelIcon);
+    metaHbox->addSpacing(7);
 
     metaVbox->addWidget(channelName);
 
@@ -212,5 +214,5 @@ void ChannelView::setIcon(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    channelIcon->setPixmap(pixmap);
 }

@@ -271,9 +271,9 @@ namespace UIUtils
         return rounded;
     }
 
-    QPixmap pixmapThemed(const QString& name, bool fromQIcon, const QSize& size, const QPalette& pal)
+    QPixmap pixmapThemed(const QString& name, const QPalette& pal)
     {
-        return fromQIcon ? QIcon(resolveThemedIconName(name, pal)).pixmap(size) : QPixmap(resolveThemedIconName(name, pal));
+        return QPixmap(resolveThemedIconName(name, pal));
     }
 
     bool preferDark(const QPalette& pal)
@@ -343,21 +343,22 @@ namespace UIUtils
             widget->setTabEnabled(i, enabled);
     }
 
-    void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest)
+    void setThumbnail(QLabel* label, const QJsonValue& thumbnails)
     {
-        auto it = getBest
-            ? std::ranges::max_element(thumbsArr, std::less{}, [](const QJsonValue& a) { return a["height"].toInt(); })
-            : thumbsArr.begin();
-        if (it == thumbsArr.end())
+        label->setMinimumSize(1, 1);
+        label->setScaledContents(true);
+
+        InnertubeObjects::ResponsiveImage image(thumbnails);
+        const InnertubeObjects::GenericThumbnail* best = image.bestQuality();
+        if (!best)
             return;
 
-        const QJsonValue& thumbnail = *it;
-        HttpReply* reply = Http::instance().get(QUrl(thumbnail["url"].toString()));
+        HttpReply* reply = Http::instance().get(QUrl(best->url));
         QObject::connect(reply, &HttpReply::finished, reply, [label](const HttpReply& reply)
         {
             QPixmap pixmap;
             pixmap.loadFromData(reply.body());
-            label->setPixmap(pixmap.scaled(label->width(), label->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            label->setPixmap(pixmap);
         });
     }
 }

@@ -32,6 +32,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
 {
     channelIconLabel->setClickable(true);
     channelIconLabel->setFixedSize(40, 40);
+    channelIconLabel->setScaledContents(true);
     layout->addWidget(channelIconLabel, 0, Qt::AlignTop);
 
     channelLabel->text->setFont(QFont(font().toString(), font().pointSize() - 1, QFont::Bold));
@@ -104,7 +105,6 @@ void BackstagePostRenderer::setChannelIcon(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    pixmap = pixmap.scaled(channelIconLabel->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     channelIconLabel->setPixmap(UIUtils::pixmapRounded(pixmap, 20, 20));
 }
 
@@ -147,8 +147,7 @@ void BackstagePostRenderer::setImage(const InnertubeObjects::BackstageImage& ima
     QLabel* imageLabel = new QLabel(this);
     imageLabel->setMaximumWidth(width());
     imageLabel->setScaledContents(true);
-    if (surface != "BACKSTAGE_SURFACE_TYPE_STREAM")
-        imageLabel->setMaximumHeight(420);
+    imageLabel->setMaximumHeight(surface == "BACKSTAGE_SURFACE_TYPE_STREAM" ? 638 : 420);
     innerLayout->addWidget(imageLabel);
 
     // workaround for layout fucking up when there's no content

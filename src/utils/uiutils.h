@@ -65,14 +65,13 @@ namespace UIUtils
     void copyToClipboard(const QString& text);
     QIcon iconThemed(const QString& name, const QPalette& pal = {});
     QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius);
-    QPixmap pixmapThemed(const QString& name, bool fromQIcon = false,
-                         const QSize& size = {}, const QPalette& pal = {});
+    QPixmap pixmapThemed(const QString& name, const QPalette& pal = {});
     bool preferDark(const QPalette& pal = {});
     QString resolveThemedIconName(const QString& name, const QPalette& pal = {});
     void setAppStyle(const QString& styleName, bool dark);
     void setMaximumLines(QWidget* widget, int lines);
     void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
-    void setThumbnail(QLabel* label, const QJsonArray& thumbsArr, bool getBest = false);
+    void setThumbnail(QLabel* label, const QJsonValue& thumbnails);
 
     template<typename T>
     void addItemToList(QListWidget* list, const T& item)

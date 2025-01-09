@@ -13,8 +13,6 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
       textVbox(new QVBoxLayout),
       thumbLabel(new TubeLabel(this))
 {
-    channelIcon->setFixedSize(48, 48);
-    thumbLabel->setFixedSize(128, 72);
 
     shortMessage->setWordWrap(true);
 
@@ -23,8 +21,14 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
     textVbox->addWidget(sentTimeText);
     textVbox->addStretch();
 
+    channelIcon->setFixedSize(48, 48);
+    channelIcon->setScaledContents(true);
     hbox->addWidget(channelIcon);
+
     hbox->addLayout(textVbox, 1);
+
+    thumbLabel->setFixedSize(128, 72);
+    thumbLabel->setScaledContents(true);
     hbox->addWidget(thumbLabel);
 
     sentTimeText->setFont(QFont(font().toString(), font().pointSize() - 2));
@@ -36,7 +40,7 @@ void BrowseNotificationRenderer::setChannelIcon(const HttpReply& reply)
         return;
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    channelIcon->setPixmap(pixmap);
 }
 
 void BrowseNotificationRenderer::setData(const InnertubeObjects::Notification& notification)
@@ -51,5 +55,5 @@ void BrowseNotificationRenderer::setThumbnail(const HttpReply& reply)
         return;
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    thumbLabel->setPixmap(pixmap.scaled(128, 72, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    thumbLabel->setPixmap(pixmap);
 }

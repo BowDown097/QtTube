@@ -37,6 +37,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
 
     thumbLabel->setClickable(true);
     thumbLabel->setFixedSize(80, 80);
+    thumbLabel->setScaledContents(true);
     hbox->addWidget(thumbLabel);
 
     hbox->addLayout(textVbox);
@@ -104,5 +105,5 @@ void BrowseChannelRenderer::setThumbnail(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    thumbLabel->setPixmap(pixmap.scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    thumbLabel->setPixmap(pixmap);
 }

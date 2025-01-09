@@ -315,7 +315,7 @@ void WatchView::setChannelIcon(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    ui->channelIcon->setPixmap(pixmap.scaled(48, 48, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    ui->channelIcon->setPixmap(pixmap);
 }
 
 void WatchView::setDislikes(const HttpReply& reply)

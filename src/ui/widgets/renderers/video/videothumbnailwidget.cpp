@@ -42,8 +42,7 @@ void VideoThumbnailWidget::setData(const HttpReply& reply)
 
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-
-    setPixmap(pixmap.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    setPixmap(pixmap);
     emit thumbnailSet();
 }
 

@@ -30,5 +30,5 @@ void TopBarBell::updateCount(int unseenCount)
 
 void TopBarBell::updatePixmap(bool hasNotif, const QPalette& pal)
 {
-    bell->setPixmap(UIUtils::pixmapThemed(hasNotif ? "notif-bell-hasnotif" : "notif-bell", false, QSize(), pal));
+    bell->setPixmap(UIUtils::pixmapThemed(hasNotif ? "notif-bell-hasnotif" : "notif-bell", pal));
 }

@@ -45,8 +45,10 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     headerLayout->setContentsMargins(5, 0, 0, 0);
     headerLayout->setSpacing(0);
 
-    authorIcon->setFixedSize(38, 32);
+    authorIcon->setFixedSize(32, 32);
+    authorIcon->setScaledContents(true);
     headerLayout->addWidget(authorIcon);
+    headerLayout->addSpacing(6);
 
     HttpReply* iconReply = HttpUtils::cachedInstance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
     connect(iconReply, &HttpReply::finished, this, &PaidMessage::setAuthorIcon);
@@ -80,6 +82,5 @@ void PaidMessage::setAuthorIcon(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    pixmap = pixmap.scaled(32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     authorIcon->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
 }

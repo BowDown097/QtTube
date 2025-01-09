@@ -6,6 +6,8 @@ EmojiLabel::EmojiLabel(const QStringList& shortcuts, const QStringList& searchTe
     : TubeLabel(parent), m_primaryShortcut(shortcuts[0]), m_searchTerms(shortcuts + searchTerms)
 {
     setClickable(true);
+    setFixedSize(24, 24);
+    setScaledContents(true);
     setToolTip(m_primaryShortcut);
 
     HttpReply* reply = HttpUtils::cachedInstance().get(image);
@@ -16,5 +18,5 @@ void EmojiLabel::setIcon(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    setPixmap(pixmap.scaled(24, 24, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    setPixmap(pixmap);
 }

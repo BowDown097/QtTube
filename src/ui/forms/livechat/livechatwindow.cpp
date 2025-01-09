@@ -18,7 +18,9 @@ LiveChatWindow::LiveChatWindow(QWidget* parent)
     ui->setupUi(this);
 
     emojiMenuLabel->setClickable(true);
-    emojiMenuLabel->setPixmap(UIUtils::pixmapThemed("emoji", true, QSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8)));
+    emojiMenuLabel->setFixedSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8);
+    emojiMenuLabel->setScaledContents(true);
+    emojiMenuLabel->setPixmap(UIUtils::pixmapThemed("emoji"));
     ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
 
     connect(emojiMenuLabel, &TubeLabel::clicked, this, &LiveChatWindow::showEmojiMenu);

@@ -39,11 +39,12 @@ TopBar::TopBar(QWidget* parent)
     avatarButton->move(673, 3);
     avatarButton->resize(30, 30);
     avatarButton->setClickable(true);
+    avatarButton->setScaledContents(true);
 
     logo->move(10, 2);
     logo->resize(134, 30);
     logo->setClickable(true);
-    logo->setPixmap(UIUtils::pixmapThemed("qttube-full", true, logo->size()));
+    logo->setPixmap(UIUtils::iconThemed("qttube-full").pixmap(logo->size()));
     logo->setScaledContents(true);
 
     searchBox->move(152, 0);
@@ -125,8 +126,7 @@ void TopBar::setAvatar(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    pixmap = pixmap.scaled(avatarButton->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    avatarButton->setPixmap(UIUtils::pixmapRounded(pixmap, 15, 15));
+    avatarButton->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
 }
 
 void TopBar::setUpAvatarButton()
@@ -223,10 +223,10 @@ void TopBar::updateNotificationCount(int value)
 void TopBar::updatePalette(const QPalette& palette)
 {
     setPalette(palette);
-    logo->setPixmap(UIUtils::pixmapThemed("qttube-full", true, logo->size(), palette));
+    logo->setPixmap(UIUtils::iconThemed("qttube-full", palette).pixmap(logo->size()));
     notificationBell->updatePixmap(notificationBell->count->isVisible(), palette);
     searchBox->updatePalette(palette);
-    settingsButton->setPixmap(UIUtils::pixmapThemed("settings", false, QSize(), palette));
+    settingsButton->setPixmap(UIUtils::pixmapThemed("settings", palette));
 
     if (!InnerTube::instance()->hasAuthenticated())
         notificationBell->hide();

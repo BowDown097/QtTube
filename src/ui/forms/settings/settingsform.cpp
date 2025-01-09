@@ -32,7 +32,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
 
     ui->description->setText(DescriptionTemplate
         .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
-    ui->qttubeLogo->setPixmap(UIUtils::pixmapThemed("qttube-full", true, ui->qttubeLogo->size()));
+    ui->qttubeLogo->setPixmap(UIUtils::iconThemed("qttube-full").pixmap(ui->qttubeLogo->size()));
 
     ui->takeoutRadio->setProperty("id", 1);
     ui->pipedRadio->setProperty("id", 2);
