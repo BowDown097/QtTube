@@ -28,6 +28,7 @@ SettingsForm::~SettingsForm() { delete ui; }
 
 SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::SettingsForm)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
 
     ui->description->setText(DescriptionTemplate
@@ -110,6 +111,26 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     connect(ui->showFilteredChannels, &QPushButton::clicked, this, &SettingsForm::showChannelFilterTable);
     connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
     connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
+
+    for (QPushButton* pushButton : findChildren<QPushButton*>())
+        if (pushButton != ui->saveButton && pushButton != ui->importButton && pushButton != ui->exportButton)
+            connect(pushButton, &QPushButton::clicked, this, &SettingsForm::enableSaveButton);
+
+    for (QRadioButton* radioButton : findChildren<QRadioButton*>())
+        if (radioButton->parentWidget() != ui->dataSourcesGroup)
+            connect(radioButton, &QRadioButton::clicked, this, &SettingsForm::enableSaveButton);
+
+    for (QCheckBox* checkBox : findChildren<QCheckBox*>())
+        connect(checkBox, &QCheckBox::clicked, this, &SettingsForm::enableSaveButton);
+
+    for (QSpinBox* spinBox : findChildren<QSpinBox*>())
+        connect(spinBox, &QSpinBox::valueChanged, this, &SettingsForm::enableSaveButton);
+
+    for (QComboBox* comboBox : findChildren<QComboBox*>())
+        connect(comboBox, &QComboBox::currentIndexChanged, this, &SettingsForm::enableSaveButton);
+
+    for (QLineEdit* lineEdit : findChildren<QLineEdit*>())
+        connect(lineEdit, &QLineEdit::textEdited, this, &SettingsForm::enableSaveButton);
 }
 
 void SettingsForm::checkExternalPlayer(const QString& text)
@@ -136,6 +157,25 @@ void SettingsForm::clearCache()
 
     directory.removeRecursively();
     QMessageBox::information(this, "Cleared", "Cache directory cleared successfully.");
+}
+
+void SettingsForm::closeEvent(QCloseEvent* event)
+{
+    if (ui->saveButton->isEnabled())
+    {
+        QMessageBox::StandardButton unsavedResponse = QMessageBox::warning(this,
+            "Unsaved changes", "You have unsaved changes! Would you like to save them?",
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+        if (unsavedResponse == QMessageBox::Yes)
+            saveSettings();
+    }
+
+    QWidget::closeEvent(event);
+}
+
+void SettingsForm::enableSaveButton()
+{
+    ui->saveButton->setEnabled(true);
 }
 
 void SettingsForm::handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox)
@@ -175,7 +215,7 @@ void SettingsForm::openExportWizard()
 
 void SettingsForm::openImportWizard()
 {
-    const QList<QRadioButton*> radios = ui->groupBox->findChildren<QRadioButton*>();
+    const QList<QRadioButton*> radios = ui->dataSourcesGroup->findChildren<QRadioButton*>();
     if (auto it = std::ranges::find_if(radios, [](QRadioButton* r) { return r->isChecked(); }); it != radios.end())
     {
         QRadioButton* selectedRadio = *it;
@@ -199,6 +239,8 @@ void SettingsForm::openImportWizard()
 
 void SettingsForm::saveSettings()
 {
+    ui->saveButton->setEnabled(false);
+
     SettingsStore& store = qtTubeApp->settings();
 
     // force show top bar if auto hiding has been turned off

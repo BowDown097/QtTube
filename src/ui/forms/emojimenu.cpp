@@ -10,6 +10,7 @@ EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
+
     connect(ui->emojiSearch, &QLineEdit::textEdited, this, &EmojiMenu::filterEmojis);
 
     layout = new FlowLayout(ui->scrollAreaContents);

@@ -8,7 +8,9 @@ ChannelFilterTable::~ChannelFilterTable() { delete ui; }
 
 ChannelFilterTable::ChannelFilterTable(QWidget* parent) : QWidget(parent), ui(new Ui::ChannelFilterTable)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
+
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     connect(ui->addButton, &QPushButton::clicked, this, &ChannelFilterTable::addNewRow);

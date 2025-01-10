@@ -7,7 +7,9 @@ TermFilterView::~TermFilterView() { delete ui; }
 
 TermFilterView::TermFilterView(QWidget *parent) : QWidget(parent), ui(new Ui::TermFilterView)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
+
     connect(ui->addButton, &QPushButton::clicked, this, &TermFilterView::addNewRow);
     connect(ui->listWidget, &QListWidget::itemChanged, this, &TermFilterView::registerInSettings);
     connect(ui->removeButton, &QPushButton::clicked, this, &TermFilterView::removeCurrentRow);

@@ -14,6 +14,8 @@
 #include <QScrollBar>
 #include <QUrlQuery>
 
+MainWindow::~MainWindow() { delete ui; }
+
 MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -85,11 +87,6 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
         ViewController::loadChannel(parser.value("channel"));
     else if (parser.isSet("video"))
         ViewController::loadVideo(parser.value("video"));
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 void MainWindow::browse()
