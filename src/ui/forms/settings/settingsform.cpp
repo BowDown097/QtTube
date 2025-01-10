@@ -124,10 +124,10 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
         connect(checkBox, &QCheckBox::clicked, this, &SettingsForm::enableSaveButton);
 
     for (QSpinBox* spinBox : findChildren<QSpinBox*>())
-        connect(spinBox, &QSpinBox::valueChanged, this, &SettingsForm::enableSaveButton);
+        connect(spinBox, qOverload<int>(&QSpinBox::valueChanged), this, &SettingsForm::enableSaveButton);
 
     for (QComboBox* comboBox : findChildren<QComboBox*>())
-        connect(comboBox, &QComboBox::currentIndexChanged, this, &SettingsForm::enableSaveButton);
+        connect(comboBox, qOverload<int>(&QComboBox::currentIndexChanged), this, &SettingsForm::enableSaveButton);
 
     for (QLineEdit* lineEdit : findChildren<QLineEdit*>())
         connect(lineEdit, &QLineEdit::textEdited, this, &SettingsForm::enableSaveButton);
