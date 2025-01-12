@@ -74,7 +74,7 @@ void AccountMenuWidget::setAvatar(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    avatar->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
+    avatar->setPixmap(UIUtils::pixmapRounded(pixmap));
 }
 
 void AccountMenuWidget::triggerSignOut()

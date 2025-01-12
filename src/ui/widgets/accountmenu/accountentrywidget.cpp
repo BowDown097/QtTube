@@ -26,5 +26,5 @@ void AccountEntryWidget::setAvatar(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    avatarLabel->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
+    avatarLabel->setPixmap(UIUtils::pixmapRounded(pixmap));
 }

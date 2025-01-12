@@ -82,5 +82,5 @@ void PaidMessage::setAuthorIcon(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    authorIcon->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
+    authorIcon->setPixmap(UIUtils::pixmapRounded(pixmap));
 }

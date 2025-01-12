@@ -29,6 +29,10 @@ QRect TubeLabel::alignedRect(QRect rect) const
         rect.moveLeft((width() - rect.width()) / 2);
     else if (alignment() & Qt::AlignRight || alignRightStyleRegex.match(styleSheet()).hasMatch())
         rect.moveLeft(width() - rect.width());
+    else if (alignment() & Qt::AlignVCenter && boundingRect().height() < height())
+        rect.moveTop(std::abs((boundingRect().height() / 2) - (height() / 2) - rect.y()));
+    else if (alignment() & Qt::AlignBottom && boundingRect().height() < height())
+        rect.moveTop(std::abs(boundingRect().height() - height() - rect.y()));
 
     return rect;
 }
@@ -64,7 +68,7 @@ void TubeLabel::calculateAndSetLineRects()
     else
         doc.setPlainText(text());
 
-    doc.setTextWidth(m_hasFixedWidth ? width() : maximumWidth());
+    doc.setTextWidth(textLineWidth());
     doc.documentLayout(); // why do i have to call this for it to actually lay out bruh
 
     int y = 0;
@@ -143,25 +147,14 @@ void TubeLabel::mouseReleaseEvent(QMouseEvent* event)
     QLabel::mouseReleaseEvent(event); // clazy:exclude=skipped-base-method
 }
 
-void TubeLabel::setFixedSize(const QSize& size)
+void TubeLabel::resizeEvent(QResizeEvent* event)
 {
-    QLabel::setFixedSize(size);
-    m_hasFixedWidth = true;
-}
-
-void TubeLabel::setFixedSize(int width, int height)
-{
-    setFixedSize(QSize(width, height));
-}
-
-void TubeLabel::setFixedWidth(int width)
-{
-    QLabel::setFixedWidth(width);
-    m_hasFixedWidth = true;
+    setText(m_text);
 }
 
 void TubeLabel::setText(const QString& text)
 {
+    m_text = text;
     if (text.isEmpty())
     {
         QLabel::setText(QString());
@@ -172,7 +165,7 @@ void TubeLabel::setText(const QString& text)
     QFontMetrics fm(font());
     if (!wordWrap())
     {
-        QLabel::setText(fm.elidedText(text, m_elideMode, m_hasFixedWidth ? width() : maximumWidth()));
+        QLabel::setText(fm.elidedText(text, m_elideMode, textLineWidth()));
         calculateAndSetLineRects();
         return;
     }
@@ -189,7 +182,7 @@ void TubeLabel::setText(const QString& text)
         if (!line.isValid())
             break;
 
-        line.setLineWidth(m_hasFixedWidth ? width() : maximumWidth());
+        line.setLineWidth(textLineWidth());
         int nextLineY = y + fm.lineSpacing();
 
         if (maximumHeight() >= nextLineY + fm.lineSpacing())
@@ -212,4 +205,9 @@ void TubeLabel::setText(const QString& text)
     textLayout.endLayout();
     QLabel::setText(outText);
     calculateAndSetLineRects();
+}
+
+int TubeLabel::textLineWidth() const
+{
+    return maximumWidth() != QWIDGETSIZE_MAX ? std::max(width(), maximumWidth()) : width();
 }

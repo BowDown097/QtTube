@@ -1,52 +1,35 @@
 #include "backstagepostrenderer.h"
-#include "backstagepollrenderer.h"
 #include "http.h"
 #include "innertube/objects/backstage/backstagepost.h"
 #include "qttubeapplication.h"
-#include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/labels/tubelabel.h"
+#include "ui/widgets/renderers/backstage/backstagepollrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
-#include <QDesktopServices>
-#include <QMenu>
-#include <QUrlQuery>
 
 BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
-    : QWidget(parent),
+    : BasePostRenderer(parent),
       actionButtons(new QHBoxLayout),
-      channelIconLabel(new TubeLabel(this)),
-      channelLabel(new ChannelLabel(this)),
       channelTimeLayout(new QHBoxLayout),
-      contentText(new TubeLabel(this)),
-      dislikeLabel(new IconLabel("dislike")),
       innerLayout(new QVBoxLayout),
       layout(new QHBoxLayout(this)),
-      likeLabel(new IconLabel("like")),
-      publishedTimeLabel(new TubeLabel(this)),
-      readMoreLabel(new TubeLabel(this)),
-      replyLabel(new IconLabel("live-chat"))
+      readMoreLabel(new TubeLabel(this))
 {
-    channelIconLabel->setClickable(true);
     channelIconLabel->setFixedSize(40, 40);
-    channelIconLabel->setScaledContents(true);
     layout->addWidget(channelIconLabel, 0, Qt::AlignTop);
 
     channelLabel->text->setFont(QFont(font().toString(), font().pointSize() - 1, QFont::Bold));
     channelTimeLayout->addWidget(channelLabel);
 
-    publishedTimeLabel->setClickable(true);
-    publishedTimeLabel->setContextMenuPolicy(Qt::CustomContextMenu);
     publishedTimeLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
     channelTimeLayout->addWidget(publishedTimeLabel);
     channelTimeLayout->addStretch();
     innerLayout->addLayout(channelTimeLayout);
 
-    contentText->setTextFormat(Qt::RichText);
-    contentText->setWordWrap(true);
     UIUtils::setMaximumLines(contentText, 3);
     innerLayout->addWidget(contentText);
 
@@ -60,52 +43,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     actionButtons->addWidget(replyLabel);
     actionButtons->addStretch();
 
-    connect(channelIconLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::navigateChannel);
-    connect(contentText, &TubeLabel::linkActivated, this, &BackstagePostRenderer::linkActivated);
-    connect(publishedTimeLabel, &TubeLabel::customContextMenuRequested, this,
-            &BackstagePostRenderer::showPublishedTimeContextMenu);
     connect(readMoreLabel, &TubeLabel::clicked, this, &BackstagePostRenderer::toggleReadMore);
-}
-
-void BackstagePostRenderer::copyPostUrl()
-{
-    UIUtils::copyToClipboard("https://www.youtube.com/post/" + postId);
-}
-
-void BackstagePostRenderer::linkActivated(const QString& url)
-{
-    QUrl qUrl(url);
-    if (url.startsWith("http"))
-    {
-        QDesktopServices::openUrl(qUrl);
-    }
-    else if (url.startsWith("/channel"))
-    {
-        QString funnyPath = qUrl.path().replace("/channel/", "");
-        ViewController::loadChannel(funnyPath.left(funnyPath.indexOf('/')));
-    }
-    else if (url.startsWith("/watch"))
-    {
-        QUrlQuery query(qUrl);
-        int progress = query.queryItemValue("t").replace("s", "").toInt();
-        ViewController::loadVideo(query.queryItemValue("v"), progress);
-    }
-    else
-    {
-        qDebug() << "Ran into unsupported description link:" << url;
-    }
-}
-
-void BackstagePostRenderer::navigateChannel()
-{
-    ViewController::loadChannel(channelId);
-}
-
-void BackstagePostRenderer::setChannelIcon(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    channelIconLabel->setPixmap(UIUtils::pixmapRounded(pixmap, 20, 20));
 }
 
 void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
@@ -116,7 +54,7 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     showLessText = post.collapseButton.text.text;
     surface = post.surface;
 
-    channelLabel->setInfo(channelId, post.authorText.text, QList<InnertubeObjects::MetadataBadge>());
+    channelLabel->setInfo(channelId, post.authorText.text, {});
     contentText->setText(StringUtils::innertubeStringToRichText(post.contentText, false));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
         ? post.voteCount.text : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
@@ -125,9 +63,9 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     readMoreLabel->setVisible(contentText->heightForWidth(width() - channelIconLabel->width()) > contentText->maximumHeight());
     replyLabel->setText(post.actionButtons.replyButton.text.text);
 
-    if (const InnertubeObjects::GenericThumbnail* recAvatar = post.authorThumbnail.recommendedQuality(channelIconLabel->size()))
+    if (const InnertubeObjects::GenericThumbnail* avatar = post.authorThumbnail.bestQuality())
     {
-        HttpReply* reply = Http::instance().get("https:" + recAvatar->url);
+        HttpReply* reply = Http::instance().get("https:" + avatar->url);
         connect(reply, &HttpReply::finished, this, &BackstagePostRenderer::setChannelIcon);
     }
 
@@ -154,9 +92,9 @@ void BackstagePostRenderer::setImage(const InnertubeObjects::BackstageImage& ima
     if (contentText->text().isEmpty())
         contentText->setText(" ");
 
-    if (const InnertubeObjects::GenericThumbnail* recImage = image.image.recommendedQuality(size()))
+    if (const InnertubeObjects::GenericThumbnail* bestImage = image.image.bestQuality())
     {
-        HttpReply* reply = Http::instance().get(recImage->url);
+        HttpReply* reply = Http::instance().get(bestImage->url);
         connect(reply, &HttpReply::finished, this,
                 std::bind_front(&BackstagePostRenderer::setImageLabelData, this, imageLabel));
     }
@@ -187,17 +125,6 @@ void BackstagePostRenderer::setVideo(const InnertubeObjects::Video& video)
     videoRenderer->titleLabel->setMaximumWidth(width() - 100);
     videoRenderer->setData(video);
     innerLayout->addWidget(videoRenderer);
-}
-
-void BackstagePostRenderer::showPublishedTimeContextMenu(const QPoint& pos)
-{
-    QMenu* menu = new QMenu(this);
-
-    QAction* copyUrlAction = new QAction("Copy post URL", this);
-    connect(copyUrlAction, &QAction::triggered, this, &BackstagePostRenderer::copyPostUrl);
-
-    menu->addAction(copyUrlAction);
-    menu->popup(publishedTimeLabel->mapToGlobal(pos));
 }
 
 void BackstagePostRenderer::toggleReadMore()

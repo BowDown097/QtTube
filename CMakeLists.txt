@@ -126,6 +126,8 @@ set(SOURCE_FILES
     src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.cpp
     src/ui/widgets/renderers/backstage/backstagepollrenderer.cpp
     src/ui/widgets/renderers/backstage/backstagepostrenderer.cpp
+    src/ui/widgets/renderers/backstage/basepostrenderer.cpp
+    src/ui/widgets/renderers/backstage/postrenderer.cpp
     src/ui/widgets/renderers/browsechannelrenderer.cpp
     src/ui/widgets/renderers/browsenotificationrenderer.cpp
     src/ui/widgets/renderers/video/browsevideorenderer.cpp
@@ -211,6 +213,8 @@ set(HEADERS
     src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.h
     src/ui/widgets/renderers/backstage/backstagepollrenderer.h
     src/ui/widgets/renderers/backstage/backstagepostrenderer.h
+    src/ui/widgets/renderers/backstage/basepostrenderer.h
+    src/ui/widgets/renderers/backstage/postrenderer.h
     src/ui/widgets/renderers/browsechannelrenderer.h
     src/ui/widgets/renderers/browsenotificationrenderer.h
     src/ui/widgets/renderers/video/browsevideorenderer.h

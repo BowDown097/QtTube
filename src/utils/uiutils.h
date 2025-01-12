@@ -12,6 +12,7 @@ struct Channel;
 struct InnertubeString;
 struct LockupViewModel;
 struct Notification;
+struct Post;
 struct Reel;
 struct ShortsLockupViewModel;
 struct Video;
@@ -46,6 +47,7 @@ namespace UIUtils
     void addBoldLabelToList(QListWidget* list, const QString& text);
     void addChannelToList(QListWidget* list, const InnertubeObjects::Channel& channel);
     void addNotificationToList(QListWidget* list, const InnertubeObjects::Notification& notification);
+    void addPostToList(QListWidget* list, const InnertubeObjects::Post& post);
     void addSeparatorToList(QListWidget* list);
     void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
     void addShelfTitleToList(QListWidget* list, const QString& title);
@@ -64,7 +66,7 @@ namespace UIUtils
     void clearLayout(QLayout* layout);
     void copyToClipboard(const QString& text);
     QIcon iconThemed(const QString& name, const QPalette& pal = {});
-    QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius);
+    QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius = 9999, double yRadius = 9999);
     QPixmap pixmapThemed(const QString& name, const QPalette& pal = {});
     bool preferDark(const QPalette& pal = {});
     QString resolveThemedIconName(const QString& name, const QPalette& pal = {});
@@ -83,6 +85,8 @@ namespace UIUtils
             addChannelToList(list, item);
         else if constexpr (std::same_as<T, ITO::Notification>)
             addNotificationToList(list, item);
+        else if constexpr (std::same_as<T, ITO::Post>)
+            addPostToList(list, item);
         else if constexpr (std::same_as<T, ITO::InnertubeString>)
             addShelfTitleToList(list, item.text);
         else if constexpr (detail::is_any_v<T, ITO::LockupViewModel, ITO::Reel, ITO::ShortsLockupViewModel, ITO::Video>)

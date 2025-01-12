@@ -16,9 +16,6 @@ public:
     explicit TubeLabel(const QString& text, QWidget* parent = nullptr);
 
     void setElideMode(Qt::TextElideMode mode) { m_elideMode = mode; }
-    void setFixedSize(const QSize& size);
-    void setFixedSize(int width, int height);
-    void setFixedWidth(int width);
     void setText(const QString& text);
 
     QRect alignedRect(QRect rect) const;
@@ -34,9 +31,13 @@ protected:
     void leaveEvent(QEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 private:
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
     bool m_hasFixedWidth{};
     QList<QRect> m_lineRects;
+    QString m_text;
+
     void calculateAndSetLineRects();
+    int textLineWidth() const;
 };

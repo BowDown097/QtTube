@@ -10,6 +10,7 @@
 #include "qttubeapplication.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/backstage/backstagepostrenderer.h"
+#include "ui/widgets/renderers/backstage/postrenderer.h"
 #include "ui/widgets/renderers/browsechannelrenderer.h"
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
@@ -101,6 +102,21 @@ namespace UIUtils
         QObject::connect(thumbReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setThumbnail);
     }
 
+    void addPostToList(QListWidget* list, const InnertubeObjects::Post& post)
+    {
+        if (qtTubeApp->settings().channelIsFiltered(post.authorEndpoint["browseEndpoint"]["browseId"].toString()))
+            return;
+
+        PostRenderer* renderer = new PostRenderer;
+        renderer->setFixedSize(350, 196);
+        renderer->setData(post);
+
+        QListWidgetItem* item = new QListWidgetItem;
+        item->setSizeHint(renderer->size());
+        list->addItem(item);
+        list->setItemWidget(item, renderer);
+    }
+
     void addSeparatorToList(QListWidget* list)
     {
         QFrame* line = new QFrame;
@@ -145,14 +161,9 @@ namespace UIUtils
     {
         VideoRenderer* renderer;
         if (list->flow() == QListWidget::LeftToRight)
-        {
             renderer = new GridVideoRenderer(list);
-        }
         else
-        {
             renderer = new BrowseVideoRenderer(list);
-            renderer->titleLabel->setMaximumWidth(list->width() - 240);
-        }
 
         return renderer;
     }

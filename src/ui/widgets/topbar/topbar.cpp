@@ -126,7 +126,7 @@ void TopBar::setAvatar(const HttpReply& reply)
 {
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
-    avatarButton->setPixmap(UIUtils::pixmapRounded(pixmap, 9999, 9999));
+    avatarButton->setPixmap(UIUtils::pixmapRounded(pixmap));
 }
 
 void TopBar::setUpAvatarButton()

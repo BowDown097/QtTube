@@ -241,22 +241,33 @@ void BrowseHelper::setupHome(QListWidget* widget, const InnertubeEndpoints::Home
         {
             UIUtils::addVideoToList(widget, *lockup, useThumbnailFromData);
         }
-        else if (const auto* richShelf = std::get_if<InnertubeObjects::RichVideoShelf>(&item))
+        else if (const auto* richShelf = std::get_if<InnertubeObjects::HomeRichShelf>(&item))
         {
-            auto shortFilter = [](const auto& item) {
-                return std::holds_alternative<InnertubeObjects::ShortsLockupViewModel>(item);
-            };
-
-            if (qtTubeApp->settings().hideShorts && std::ranges::any_of(richShelf->contents, shortFilter))
+            if (qtTubeApp->settings().hideShorts && std::ranges::any_of(richShelf->contents, [](const auto& item) {
+                    return std::holds_alternative<InnertubeObjects::ShortsLockupViewModel>(item);
+                }))
+            {
                 continue;
+            }
+
+            if (std::ranges::any_of(richShelf->contents, [](const auto& item) {
+                    return std::holds_alternative<InnertubeObjects::MiniGameCardViewModel>(item);
+                }))
+            {
+                continue;
+            }
 
             UIUtils::addShelfTitleToList(widget, richShelf->title.text);
 
-            for (const auto& item : richShelf->contents)
+            for (const auto& itemVariant : richShelf->contents)
             {
-                std::visit([widget, useThumbnailFromData](auto&& video) {
-                    UIUtils::addVideoToList(widget, video, useThumbnailFromData);
-                }, item);
+                std::visit([widget, useThumbnailFromData](auto&& item) {
+                    using ItemType = std::remove_cvref_t<decltype(item)>;
+                    if constexpr (std::same_as<ItemType, InnertubeObjects::Post>)
+                        UIUtils::addPostToList(widget, item);
+                    else if constexpr (!std::same_as<ItemType, InnertubeObjects::MiniGameCardViewModel>)
+                        UIUtils::addVideoToList(widget, item, useThumbnailFromData);
+                }, itemVariant);
 
                 QCoreApplication::processEvents();
             }
