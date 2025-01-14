@@ -30,6 +30,7 @@ public:
     const CredentialSet* activeLogin() const;
     const QList<CredentialSet>& credentials() const { return m_credentials; }
 
+    void clear() override;
     void initialize() override;
     void save() override;
 

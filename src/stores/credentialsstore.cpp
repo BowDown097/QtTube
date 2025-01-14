@@ -12,6 +12,12 @@ const CredentialSet* CredentialsStore::activeLogin() const
     return it != m_credentials.end() ? &(*it) : nullptr;
 }
 
+void CredentialsStore::clear()
+{
+    GenericStore::clear();
+    m_credentials.clear();
+}
+
 void CredentialsStore::initialize()
 {
     QSettings settings(configPath(), QSettings::IniFormat);
@@ -70,8 +76,11 @@ void CredentialsStore::save()
 
 void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data)
 {
-    QString channelId = TubeUtils::getUcidFromUrl("https://www.youtube.com/" + data.response.header.channelHandle);
-    if (channelId.isEmpty())
+    const QString& channelHandle = data.response.header.channelHandle;
+    QString channelId;
+
+    if (channelHandle.isEmpty() ||
+        !(channelId = TubeUtils::getUcidFromUrl("https://www.youtube.com/" + channelHandle)).startsWith("UC"))
     {
         QMessageBox::critical(nullptr, "Invalid Login Credentials", "Your login credentials are invalid. They may have expired. You will be logged out, then try logging in again.");
         MainWindow::topbar()->signOut();
