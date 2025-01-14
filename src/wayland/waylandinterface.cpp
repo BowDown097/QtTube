@@ -16,9 +16,7 @@ static void wl_global(void* data, wl_registry* registry, std::uint32_t name, con
     }
 }
 
-static void wl_global_remove(void* data, wl_registry* registry, std::uint32_t name) {}
-
-static const struct wl_registry_listener wl_registry_listener = { wl_global, wl_global_remove };
+static const struct wl_registry_listener wl_registry_listener = { wl_global };
 
 WaylandInterface::~WaylandInterface()
 {

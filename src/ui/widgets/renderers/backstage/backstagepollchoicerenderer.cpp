@@ -7,7 +7,8 @@
 constexpr QLatin1String NotSelectedStylesheet("QProgressBar::chunk { background-color: rgba(255, 255, 255, 0.2) }");
 
 BackstagePollChoiceRenderer::BackstagePollChoiceRenderer(QWidget* parent)
-    : m_choiceTextLabel(new QLabel(this)),
+    : ClickableWidget<QWidget>(parent),
+      m_choiceTextLabel(new QLabel(this)),
       m_percentageLabel(new QLabel(this)),
       m_progressBar(new QProgressBar(this))
 {
@@ -29,7 +30,8 @@ BackstagePollChoiceRenderer::BackstagePollChoiceRenderer(QWidget* parent)
 void BackstagePollChoiceRenderer::choose()
 {
     const QJsonValue endpoint = hasStyle() || value() == -1 ? m_data.selectServiceEndpoint : m_data.deselectServiceEndpoint;
-    InnerTube::instance()->get<InnertubeEndpoints::PerformCommentAction>(endpoint["performCommentActionEndpoint"]["action"].toString());
+    InnerTube::instance()->get<InnertubeEndpoints::PerformCommentAction>(
+        endpoint["performCommentActionEndpoint"]["action"].toString());
 }
 
 bool BackstagePollChoiceRenderer::hasStyle() const

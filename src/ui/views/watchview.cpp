@@ -170,14 +170,9 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         if (fi.topLevelButton.iconName == "CONTENT_CUT" || fi.topLevelButton.iconName == "MONEY_HEART")
             continue;
 
-        // change "Save" button to "Add to" to replicate Hitchhiker style
-        QString title = fi.topLevelButton.title;
-        if (title == "Save")
-            title = "Add to";
-
         ui->topLevelButtons->addWidget(new IconLabel(
             fi.topLevelButton.iconName.toLower(),
-            title,
+            fi.topLevelButton.title,
             ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0)
         ));
     }

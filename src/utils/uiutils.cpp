@@ -108,7 +108,7 @@ namespace UIUtils
             return;
 
         PostRenderer* renderer = new PostRenderer;
-        renderer->setFixedSize(350, 196);
+        renderer->setFixedSize(350, 200);
         renderer->setData(post);
 
         QListWidgetItem* item = new QListWidgetItem;
