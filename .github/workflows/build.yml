@@ -24,13 +24,6 @@ jobs:
             qt_version: '6.8.1'
             qt_modules: 'qtserialport qtpositioning qtwebchannel qtwebengine'
             ssl_version: '3'
-          - os: ubuntu-22.04
-            name: Ubuntu-Legacy
-            qt_ver: 5
-            qt_host: linux
-            qt_version: '5.15.2'
-            qt_modules: 'qtwebengine'
-            ssl_version: '1.1'
           - os: windows-2022
             qt_ver: 6
             qt_host: windows
@@ -132,7 +125,6 @@ jobs:
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
           cp /usr/lib/x86_64-linux-gnu/libcrypto.so.${{ matrix.ssl_version }} ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           cp /usr/lib/x86_64-linux-gnu/libssl.so.${{ matrix.ssl_version }} ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-          [[ ${{matrix.qt_ver}} -ne 6 ]] && cp /usr/lib/x86_64-linux-gnu/nss/* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           export V8_SNAPSHOT_FILE="/home/runner/work/QtTube/Qt/${{ matrix.qt_version }}/gcc_64/resources/v8_context_snapshot.bin"
           [[ -e $V8_SNAPSHOT_FILE ]] && cp $V8_SNAPSHOT_FILE ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib"
