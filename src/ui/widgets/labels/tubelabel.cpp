@@ -1,5 +1,7 @@
 #include "tubelabel.h"
 #include "innertube/objects/innertubestring.h"
+#include <QStyle>
+#include <QStyleOption>
 #include <QTextBlock>
 #include <QTextDocument>
 #include <QTextLayout>
@@ -29,7 +31,8 @@ QRect TubeLabel::alignedRect(QRect rect) const
         rect.moveLeft((width() - rect.width()) / 2);
     else if (alignment() & Qt::AlignRight || alignRightStyleRegex.match(styleSheet()).hasMatch())
         rect.moveLeft(width() - rect.width());
-    else if (alignment() & Qt::AlignVCenter && boundingRect().height() < height())
+
+    if (alignment() & Qt::AlignVCenter && boundingRect().height() < height())
         rect.moveTop(std::abs((boundingRect().height() / 2) - (height() / 2) - rect.y()));
     else if (alignment() & Qt::AlignBottom && boundingRect().height() < height())
         rect.moveTop(std::abs(boundingRect().height() - height() - rect.y()));
@@ -55,24 +58,10 @@ void TubeLabel::calculateAndSetLineRects()
 {
     m_lineRects.clear();
 
-    QTextOption opt;
-    opt.setWrapMode(wordWrap() ? QTextOption::WordWrap : QTextOption::NoWrap);
-
-    QTextDocument doc;
-    doc.setDefaultFont(font());
-    doc.setDefaultTextOption(opt);
-    doc.setDocumentMargin(0);
-
-    if (textFormat() == Qt::RichText || (textFormat() == Qt::AutoText && Qt::mightBeRichText(text())))
-        doc.setHtml(text());
-    else
-        doc.setPlainText(text());
-
-    doc.setTextWidth(textLineWidth());
-    doc.documentLayout(); // why do i have to call this for it to actually lay out bruh
-
+    std::unique_ptr<QTextDocument> doc = createTextDocument(text(), textLineWidth());
     int y = 0;
-    for (QTextBlock block = doc.firstBlock(); block.isValid(); block = block.next())
+
+    for (QTextBlock block = doc->firstBlock(); block.isValid(); block = block.next())
     {
         if (QTextLayout* layout = block.layout())
         {
@@ -86,6 +75,27 @@ void TubeLabel::calculateAndSetLineRects()
     }
 }
 
+std::unique_ptr<QTextDocument> TubeLabel::createTextDocument(const QString& text, int textWidth) const
+{
+    QTextOption opt;
+    opt.setWrapMode(wordWrap() ? QTextOption::WordWrap : QTextOption::NoWrap);
+
+    std::unique_ptr<QTextDocument> doc = std::make_unique<QTextDocument>();
+    doc->setDefaultFont(font());
+    doc->setDefaultTextOption(opt);
+    doc->setDocumentMargin(margin());
+
+    if (textFormat() == Qt::RichText || (textFormat() == Qt::AutoText && Qt::mightBeRichText(text)))
+        doc->setHtml(text);
+    else
+        doc->setPlainText(text);
+
+    doc->setTextWidth(textWidth);
+    doc->documentLayout(); // why do i have to call this for it to actually lay out bruh
+
+    return doc;
+}
+
 // enterEvent in ClickableWidget superseded by mouseMoveEvent
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 void TubeLabel::enterEvent(QEnterEvent* event)
@@ -97,6 +107,87 @@ void TubeLabel::enterEvent(QEvent* event)
         ClickableWidget<QLabel>::enterEvent(event);
     else
         QLabel::enterEvent(event);
+}
+
+// this is essentially a complete reimplementation of
+// the original method, with some minor changes as
+// QLabelPrivate is not available and was used in some spots.
+// original method has problems because we can't give it the raw text </3
+int TubeLabel::heightForWidth(int w) const
+{
+    if (text().isEmpty())
+        return QLabel::heightForWidth(w);
+
+    if (minimumWidth() > 0)
+        w = std::max(w, minimumWidth());
+
+    QMargins cm = contentsMargins();
+    QSize contentsMargin(cm.left() + cm.right(), cm.top() + cm.bottom());
+
+    QRect br;
+
+    int hextra = 2 * margin();
+    int vextra = hextra;
+    QFontMetrics fm(font());
+
+    int align = QStyle::visualAlignment(layoutDirection(), alignment());
+    if (wordWrap())
+        align |= Qt::TextWordWrap;
+
+    int m = indent();
+
+    if (m < 0 && frameWidth())
+        m = fm.horizontalAdvance(u'x') - margin() * 2;
+    if (m > 0)
+    {
+        if ((align & Qt::AlignLeft) || (align & Qt::AlignRight))
+            hextra += m;
+        if ((align & Qt::AlignTop) || (align & Qt::AlignBottom))
+            vextra += m;
+    }
+
+    if (Qt::mightBeRichText(m_rawText))
+    {
+        std::unique_ptr<QTextDocument> doc = createTextDocument(m_rawText, -1);
+        if (align & Qt::TextWordWrap)
+        {
+            if (w >= 0)
+                doc->setTextWidth(std::max(w - hextra - contentsMargin.width(), 0));
+            else
+                doc->adjustSize();
+        }
+
+        QSizeF docSize = doc->size();
+        br = QRect(QPoint(0, 0), QSize(std::ceil(docSize.width()), std::ceil(docSize.height())));
+    }
+    else
+    {
+        int flags = align & ~(Qt::AlignVCenter | Qt::AlignHCenter);
+        if (!QKeySequence::mnemonic(m_rawText).isEmpty())
+        {
+            flags |= Qt::TextShowMnemonic;
+            QStyleOption opt;
+            opt.initFrom(this);
+            if (!style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
+                flags |= Qt::TextHideMnemonic;
+        }
+
+        bool tryWidth = (w < 0) && (align & Qt::TextWordWrap);
+        if (tryWidth)
+            w = std::min(fm.averageCharWidth() * 80, maximumSize().width());
+        else if (w < 0)
+            w = 2000;
+
+        w -= (hextra + contentsMargin.width());
+        br = fm.boundingRect(0, 0, w, 2000, flags, m_rawText);
+        if (tryWidth && br.height() < 4 * fm.lineSpacing() && br.width() > w / 2)
+            br = fm.boundingRect(0, 0, w / 2, 2000, flags, m_rawText);
+        if (tryWidth && br.height() < 2 * fm.lineSpacing() && br.width() > w / 4)
+            br = fm.boundingRect(0, 0, w / 4, 2000, flags, m_rawText);
+    }
+
+    const QSize contentsSize(br.width() + hextra, br.height() + vextra);
+    return (contentsSize + contentsMargin).expandedTo(minimumSize()).height();
 }
 
 void TubeLabel::leaveEvent(QEvent* event)
@@ -149,12 +240,12 @@ void TubeLabel::mouseReleaseEvent(QMouseEvent* event)
 
 void TubeLabel::resizeEvent(QResizeEvent* event)
 {
-    setText(m_text);
+    setText(m_rawText);
 }
 
 void TubeLabel::setText(const QString& text)
 {
-    m_text = text;
+    m_rawText = text;
     if (text.isEmpty())
     {
         QLabel::setText(QString());
@@ -176,19 +267,15 @@ void TubeLabel::setText(const QString& text)
     QString outText;
     int y{};
 
-    forever
+    for (QTextLine line = textLayout.createLine(); line.isValid(); line = textLayout.createLine())
     {
-        QTextLine line = textLayout.createLine();
-        if (!line.isValid())
-            break;
-
         line.setLineWidth(textLineWidth());
         int nextLineY = y + fm.lineSpacing();
 
         if (maximumHeight() >= nextLineY + fm.lineSpacing())
         {
         #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-            outText += QStringView(text.mid(line.textStart(), line.textLength()));
+            outText += QStringView(text).mid(line.textStart(), line.textLength());
         #else
             outText += text.midRef(line.textStart(), line.textLength());
         #endif

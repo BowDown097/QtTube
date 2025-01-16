@@ -4,9 +4,6 @@
 
 namespace InnertubeObjects { struct InnertubeString; }
 
-// have to reinvent the wheel (the wheel being ClickableWidget) quite a bit here to
-// support our new boundingRect without having to bloat up ClickableWidget a ton
-
 class TubeLabel : public ClickableWidget<QLabel>
 {
     Q_OBJECT
@@ -22,6 +19,7 @@ public:
     QRect boundingRect() const;
     QRect boundingRectOfLineAt(const QPoint& point) const;
     Qt::TextElideMode elideMode() const { return m_elideMode; }
+    int heightForWidth(int w) const override;
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent* event) override;
@@ -34,10 +32,10 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 private:
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
-    bool m_hasFixedWidth{};
     QList<QRect> m_lineRects;
-    QString m_text;
+    QString m_rawText;
 
     void calculateAndSetLineRects();
+    std::unique_ptr<QTextDocument> createTextDocument(const QString& text, int textWidth) const;
     int textLineWidth() const;
 };
