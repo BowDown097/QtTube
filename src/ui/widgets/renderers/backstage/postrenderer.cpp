@@ -8,10 +8,12 @@
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
+#include <QPushButton>
 
 PostRenderer::PostRenderer(QWidget* parent)
     : BasePostRenderer(parent),
       body(new QHBoxLayout),
+      bodyContent(new QVBoxLayout),
       header(new QHBoxLayout),
       layout(new QVBoxLayout(this)),
       toolbar(new QHBoxLayout)
@@ -33,7 +35,9 @@ PostRenderer::PostRenderer(QWidget* parent)
     layout->addWidget(headerWidget, 0, Qt::AlignTop);
 
     contentText->setFont(QFont(font().toString(), font().pointSize() - 1));
-    body->addWidget(contentText);
+    bodyContent->addWidget(contentText);
+    bodyContent->addStretch();
+    body->addLayout(bodyContent);
 
     QWidget* bodyWidget = new QWidget;
     bodyWidget->setLayout(body);
@@ -69,6 +73,23 @@ void PostRenderer::setData(const InnertubeObjects::Post& post)
 
     if (auto image = std::get_if<InnertubeObjects::BackstageImage>(&post.backstageAttachment))
         setImage(*image);
+    else if (auto poll = std::get_if<InnertubeObjects::Poll>(&post.backstageAttachment))
+        setPoll(*poll);
+    else if (auto quiz = std::get_if<InnertubeObjects::Quiz>(&post.backstageAttachment))
+        setQuiz(*quiz);
+
+    if (const std::optional<InnertubeObjects::Button>& voteButton = post.voteButton; voteButton.has_value())
+    {
+        QHBoxLayout* buttonLayout = new QHBoxLayout;
+
+        QPushButton* button = new QPushButton(voteButton->text.text, this);
+        button->setEnabled(false);
+        button->setToolTip("Not implemented yet!");
+
+        buttonLayout->addWidget(button);
+        buttonLayout->addStretch();
+        bodyContent->addLayout(buttonLayout);
+    }
 }
 
 void PostRenderer::setImage(const InnertubeObjects::BackstageImage& image)
@@ -91,4 +112,18 @@ void PostRenderer::setImageLabelData(QLabel* imageLabel, const HttpReply& reply)
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     imageLabel->setPixmap(pixmap);
+}
+
+void PostRenderer::setPoll(const InnertubeObjects::Poll& poll)
+{
+    TubeLabel* votesLabel = new TubeLabel(poll.totalVotes, this);
+    votesLabel->setFont(QFont(font().toString(), font().pointSize() - 1));
+    bodyContent->addWidget(votesLabel);
+}
+
+void PostRenderer::setQuiz(const InnertubeObjects::Quiz& quiz)
+{
+    TubeLabel* votesLabel = new TubeLabel(quiz.totalVotes.text, this);
+    votesLabel->setFont(QFont(font().toString(), font().pointSize() - 1));
+    bodyContent->addWidget(votesLabel);
 }

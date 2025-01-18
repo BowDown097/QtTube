@@ -6,6 +6,7 @@ namespace InnertubeObjects
 struct BackstageImage;
 struct BackstagePost;
 struct Poll;
+struct Quiz;
 struct Video;
 }
 
@@ -31,6 +32,7 @@ private:
 
     void setImage(const InnertubeObjects::BackstageImage& image);
     void setPoll(const InnertubeObjects::Poll& poll);
+    void setQuiz(const InnertubeObjects::Quiz& quiz);
     void setVideo(const InnertubeObjects::Video& video);
 private slots:
     void setImageLabelData(QLabel* imageLabel, const HttpReply& reply);

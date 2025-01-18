@@ -6,6 +6,7 @@
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/backstage/backstagepollrenderer.h"
+#include "ui/widgets/renderers/backstage/backstagequizrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
@@ -73,6 +74,8 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
         setImage(*image);
     else if (auto poll = std::get_if<InnertubeObjects::Poll>(&post.backstageAttachment))
         setPoll(*poll);
+    else if (auto quiz = std::get_if<InnertubeObjects::Quiz>(&post.backstageAttachment))
+        setQuiz(*quiz);
     else if (auto video = std::get_if<InnertubeObjects::Video>(&post.backstageAttachment))
         setVideo(*video);
 
@@ -112,8 +115,17 @@ void BackstagePostRenderer::setPoll(const InnertubeObjects::Poll& poll)
 {
     BackstagePollRenderer* pollRenderer = new BackstagePollRenderer(this);
     pollRenderer->setData(poll);
-    pollRenderer->setFixedWidth(width());
     innerLayout->addWidget(pollRenderer);
+}
+
+void BackstagePostRenderer::setQuiz(const InnertubeObjects::Quiz& quiz)
+{
+    BackstageQuizRenderer* quizRenderer = new BackstageQuizRenderer(this);
+    quizRenderer->setData(quiz);
+    innerLayout->addWidget(quizRenderer);
+    connect(quizRenderer, &BackstageQuizRenderer::explanationUpdated, this, [this] {
+        emit dynamicSizeChange(sizeHint());
+    });
 }
 
 void BackstagePostRenderer::setVideo(const InnertubeObjects::Video& video)
@@ -140,6 +152,5 @@ void BackstagePostRenderer::toggleReadMore()
         readMoreLabel->setText(readMoreText);
     }
 
-    adjustSize();
     emit dynamicSizeChange(sizeHint());
 }
