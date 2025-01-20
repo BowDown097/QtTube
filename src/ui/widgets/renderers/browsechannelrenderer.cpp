@@ -2,7 +2,6 @@
 #include "httpreply.h"
 #include "innertube/objects/channel/channel.h"
 #include "qttubeapplication.h"
-#include "utils/uiutils.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/tubelabel.h"
@@ -28,8 +27,8 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
 
     textVbox->addWidget(metadataLabel);
 
+    descriptionLabel->setMaximumLines(2);
     descriptionLabel->setWordWrap(true);
-    UIUtils::setMaximumLines(descriptionLabel, 2);
     textVbox->addWidget(descriptionLabel);
 
     subscribeWidget->layout->addStretch();

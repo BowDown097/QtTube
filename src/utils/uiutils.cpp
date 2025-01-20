@@ -344,13 +344,6 @@ namespace UIUtils
     #endif
     }
 
-    // this will be used for the description and perhaps elsewhere
-    void setMaximumLines(QWidget* widget, int lines)
-    {
-        QFontMetrics fm(widget->font());
-        widget->setMaximumHeight(fm.lineSpacing() * lines);
-    }
-
     void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes)
     {
         for (int i : indexes)

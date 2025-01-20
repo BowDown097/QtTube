@@ -4,7 +4,6 @@
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
 #include "ui/widgets/watchnextfeed.h"
-#include "utils/uiutils.h"
 #include "watchviewplayer.h"
 #include <QBoxLayout>
 #include <QProgressBar>
@@ -69,9 +68,9 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
 {
     description = new TubeLabel(watchView);
     description->setFixedWidth(player->size().width());
+    description->setMaximumLines(3);
     description->setTextFormat(Qt::RichText);
     description->setWordWrap(true);
-    UIUtils::setMaximumLines(description, 3);
     frameLayout->addWidget(description);
 
     showMoreLabel = new TubeLabel(watchView);
@@ -229,12 +228,12 @@ void WatchView_Ui::toggleShowMore()
 {
     if (showMoreLabel->text() == "SHOW MORE")
     {
-        description->setMaximumHeight(QWIDGETSIZE_MAX);
+        description->setMaximumLines(-1);
         showMoreLabel->setText("SHOW LESS");
     }
     else
     {
-        UIUtils::setMaximumLines(description, 3);
+        description->setMaximumLines(3);
         showMoreLabel->setText("SHOW MORE");
     }
 }

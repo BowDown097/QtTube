@@ -1,7 +1,6 @@
 #include "backstagequizexplanation.h"
 #include "innertube/objects/backstage/quiz/quiz.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "utils/uiutils.h"
 #include <QBoxLayout>
 
 BackstageQuizExplanation::BackstageQuizExplanation(QWidget* parent)
@@ -15,9 +14,9 @@ BackstageQuizExplanation::BackstageQuizExplanation(QWidget* parent)
     m_layout->addWidget(m_header);
 
     m_content->setElideMode(Qt::TextElideMode::ElideRight);
+    m_content->setMaximumLines(3);
     m_content->setTextFormat(Qt::RichText);
     m_content->setWordWrap(true);
-    UIUtils::setMaximumLines(m_content, 3);
     m_layout->addWidget(m_content);
 
     m_readMoreLabel->setClickable(true);
@@ -42,12 +41,12 @@ void BackstageQuizExplanation::toggleReadMore()
 {
     if (m_readMoreLabel->text() == m_readMoreText)
     {
-        m_content->setMaximumHeight(QWIDGETSIZE_MAX);
+        m_content->setMaximumLines(-1);
         m_readMoreLabel->setText(m_showLessText);
     }
     else
     {
-        UIUtils::setMaximumLines(m_content, 3);
+        m_content->setMaximumLines(3);
         m_readMoreLabel->setText(m_readMoreText);
     }
 

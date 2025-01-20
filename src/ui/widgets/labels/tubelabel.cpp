@@ -243,10 +243,17 @@ void TubeLabel::resizeEvent(QResizeEvent* event)
     setText(m_rawText);
 }
 
+void TubeLabel::setMaximumLines(int lines)
+{
+    m_maximumLines = lines;
+    if (!m_rawText.isEmpty())
+        setText(m_rawText);
+}
+
 void TubeLabel::setText(const QString& text)
 {
     m_rawText = text;
-    if (text.isEmpty())
+    if (text.isEmpty() || m_maximumLines == 0) [[unlikely]]
     {
         QLabel::setText(QString());
         m_lineRects.clear();
@@ -265,32 +272,36 @@ void TubeLabel::setText(const QString& text)
     textLayout.beginLayout();
 
     QString outText;
-    int y{};
+    int lineNum = 1, y{};
 
-    for (QTextLine line = textLayout.createLine(); line.isValid(); line = textLayout.createLine())
+    for (QTextLine line = textLayout.createLine(); line.isValid(); line = textLayout.createLine(), ++lineNum)
     {
         line.setLineWidth(textLineWidth());
-        int nextLineY = y + fm.lineSpacing();
+        y += line.height();
 
-        if (maximumHeight() >= nextLineY + fm.lineSpacing())
+        if (maximumHeight() >= y + line.height() && (m_maximumLines < 1 || lineNum < m_maximumLines))
         {
         #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
             outText += QStringView(text).mid(line.textStart(), line.textLength());
         #else
             outText += text.midRef(line.textStart(), line.textLength());
         #endif
-            y = nextLineY;
         }
         else
         {
             outText += fm.elidedText(text.mid(line.textStart()), m_elideMode, line.width());
-            line = textLayout.createLine();
             break;
         }
     }
 
     textLayout.endLayout();
     QLabel::setText(outText);
+
+    // QLabel::setText somehow magically knows the height of the original text or something???
+    // y should contain the height of our created text, so set it to that if we need to
+    if (m_maximumLines > 0)
+        setFixedHeight(y);
+
     calculateAndSetLineRects();
 }
 

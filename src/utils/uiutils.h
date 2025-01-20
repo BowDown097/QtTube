@@ -72,7 +72,6 @@ namespace UIUtils
     bool preferDark(const QPalette& pal = {});
     QString resolveThemedIconName(const QString& name, const QPalette& pal = {});
     void setAppStyle(const QString& styleName, bool dark);
-    void setMaximumLines(QWidget* widget, int lines);
     void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
     void setThumbnail(QLabel* label, const QJsonValue& thumbnails);
 

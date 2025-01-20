@@ -10,7 +10,6 @@
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "utils/innertubestringformatter.h"
 #include "utils/stringutils.h"
-#include "utils/uiutils.h"
 #include <QBoxLayout>
 
 BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
@@ -32,7 +31,7 @@ BackstagePostRenderer::BackstagePostRenderer(QWidget* parent)
     channelTimeLayout->addStretch();
     innerLayout->addLayout(channelTimeLayout);
 
-    UIUtils::setMaximumLines(contentText, 3);
+    contentText->setMaximumLines(3);
     innerLayout->addWidget(contentText);
 
     readMoreLabel->setClickable(true);
@@ -142,12 +141,12 @@ void BackstagePostRenderer::toggleReadMore()
 {
     if (readMoreLabel->text() == readMoreText)
     {
-        contentText->setMaximumHeight(QWIDGETSIZE_MAX);
+        contentText->setMaximumLines(-1);
         readMoreLabel->setText(showLessText);
     }
     else
     {
-        UIUtils::setMaximumLines(contentText, 3);
+        contentText->setMaximumLines(3);
         readMoreLabel->setText(readMoreText);
     }
 

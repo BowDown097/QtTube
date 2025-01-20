@@ -13,6 +13,7 @@ public:
     explicit TubeLabel(const QString& text, QWidget* parent = nullptr);
 
     void setElideMode(Qt::TextElideMode mode) { m_elideMode = mode; }
+    void setMaximumLines(int lines);
     void setText(const QString& text);
 
     QRect alignedRect(QRect rect) const;
@@ -33,6 +34,7 @@ protected:
 private:
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
     QList<QRect> m_lineRects;
+    int m_maximumLines = -1;
     QString m_rawText;
 
     void calculateAndSetLineRects();
