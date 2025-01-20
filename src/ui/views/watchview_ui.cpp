@@ -228,6 +228,7 @@ void WatchView_Ui::toggleShowMore()
 {
     if (showMoreLabel->text() == "SHOW MORE")
     {
+        description->setMaximumHeight(QWIDGETSIZE_MAX);
         description->setMaximumLines(-1);
         showMoreLabel->setText("SHOW LESS");
     }

@@ -297,8 +297,6 @@ void TubeLabel::setText(const QString& text)
     textLayout.endLayout();
     QLabel::setText(outText);
 
-    // QLabel::setText somehow magically knows the height of the original text or something???
-    // y should contain the height of our created text, so set it to that if we need to
     if (m_maximumLines > 0)
         setFixedHeight(y);
 

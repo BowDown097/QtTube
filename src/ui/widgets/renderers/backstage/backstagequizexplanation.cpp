@@ -41,6 +41,7 @@ void BackstageQuizExplanation::toggleReadMore()
 {
     if (m_readMoreLabel->text() == m_readMoreText)
     {
+        m_content->setMaximumHeight(QWIDGETSIZE_MAX);
         m_content->setMaximumLines(-1);
         m_readMoreLabel->setText(m_showLessText);
     }

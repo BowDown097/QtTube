@@ -141,6 +141,7 @@ void BackstagePostRenderer::toggleReadMore()
 {
     if (readMoreLabel->text() == readMoreText)
     {
+        contentText->setMaximumHeight(QWIDGETSIZE_MAX);
         contentText->setMaximumLines(-1);
         readMoreLabel->setText(showLessText);
     }
