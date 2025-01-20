@@ -5,6 +5,7 @@
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/labels/tubelabel.h"
+#include "utils/innertubestringformatter.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
@@ -59,7 +60,7 @@ void PostRenderer::setData(const InnertubeObjects::Post& post)
     postId = post.postId;
 
     channelLabel->setInfo(channelId, post.authorText.text, {});
-    contentText->setText(StringUtils::innertubeStringToRichText(post.contentText, false));
+    contentText->setText(InnertubeStringFormatter::formatSimple(post.contentText, false));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
         ? post.voteCount.text : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
     publishedTimeLabel->setText(post.publishedTimeText.text);

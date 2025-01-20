@@ -30,35 +30,35 @@ LiveChatWindow::LiveChatWindow(QWidget* parent)
 
 void LiveChatWindow::addChatItemToList(const QJsonValue& item)
 {
-    if (item["liveChatTextMessageRenderer"].isObject()) [[likely]]
-        UIUtils::addWidgetToList(ui->listWidget, new TextMessage(item["liveChatTextMessageRenderer"], this));
-    else if (item["liveChatMembershipItemRenderer"].isObject())
-        UIUtils::addWidgetToList(ui->listWidget, new SpecialMessage(item["liveChatMembershipItemRenderer"], this, "authorName", "headerSubtext", false, "#0f9d58"));
-    else if (item["liveChatModeChangeMessageRenderer"].isObject())
-        UIUtils::addWidgetToList(ui->listWidget, new SpecialMessage(item["liveChatModeChangeMessageRenderer"], this));
-    else if (item["liveChatPaidMessageRenderer"].isObject())
-        UIUtils::addWidgetToList(ui->listWidget, new PaidMessage(item["liveChatPaidMessageRenderer"], this));
-    else if (item["liveChatSponsorshipsGiftRedemptionAnnouncementRenderer"].isObject())
-        UIUtils::addWidgetToList(ui->listWidget, new GiftRedemptionMessage(item["liveChatSponsorshipsGiftRedemptionAnnouncementRenderer"], this));
-    else if (item["liveChatViewerEngagementMessageRenderer"].isObject())
-        UIUtils::addWidgetToList(ui->listWidget, new SpecialMessage(item["liveChatViewerEngagementMessageRenderer"], this, "text", "message", false));
+    if (const QJsonValue textMessage = item["liveChatTextMessageRenderer"]; textMessage.isObject()) [[likely]]
+        UIUtils::addWidgetToList(ui->listWidget, new TextMessage(textMessage, this));
+    else if (const QJsonValue membership = item["liveChatMembershipItemRenderer"]; membership.isObject())
+        UIUtils::addWidgetToList(ui->listWidget, new SpecialMessage(membership, this, "authorName", "headerSubtext", false, "#0f9d58"));
+    else if (const QJsonValue modeChange = item["liveChatModeChangeMessageRenderer"]; modeChange.isObject())
+        UIUtils::addWidgetToList(ui->listWidget, new SpecialMessage(modeChange, this));
+    else if (const QJsonValue paidMessage = item["liveChatPaidMessageRenderer"]; paidMessage.isObject())
+        UIUtils::addWidgetToList(ui->listWidget, new PaidMessage(paidMessage, this));
+    else if (const QJsonValue giftRedemption = item["liveChatSponsorshipsGiftRedemptionAnnouncementRenderer"]; giftRedemption.isObject())
+        UIUtils::addWidgetToList(ui->listWidget, new GiftRedemptionMessage(giftRedemption, this));
+    else if (const QJsonValue engagement = item["liveChatViewerEngagementMessageRenderer"]; engagement.isObject())
+        UIUtils::addWidgetToList(ui->listWidget, new SpecialMessage(engagement, this, "text", "message", false));
 }
 
 void LiveChatWindow::addNewChatReplayItems(double progress, double previousProgress, bool seeked)
 {
-    for (const QJsonValue& v : std::as_const(replayActions))
+    for (const QJsonValue& replayAction : std::as_const(replayActions))
     {
-        if (!v["replayChatItemAction"]["actions"].isArray())
-            continue;
+        if (const QJsonValue replayItemAction = replayAction["replayChatItemAction"]; replayItemAction.isObject())
+        {
+            double videoOffsetTimeSec = replayItemAction["videoOffsetTimeMsec"].toString().toDouble() / 1000;
+            if ((!seeked && videoOffsetTimeSec < previousProgress) || videoOffsetTimeSec > progress)
+                continue;
 
-        double videoOffsetTimeSec = v["replayChatItemAction"]["videoOffsetTimeMsec"].toString().toDouble() / 1000;
-        if ((!seeked && videoOffsetTimeSec < previousProgress) || videoOffsetTimeSec > progress)
-            continue;
-
-        const QJsonArray itemActions = v["replayChatItemAction"]["actions"].toArray();
-        for (const QJsonValue& v2 : itemActions)
-            if (v2["addChatItemAction"]["item"].isObject())
-                addChatItemToList(v2["addChatItemAction"]["item"]);
+            const QJsonArray itemActions = replayItemAction["actions"].toArray();
+            for (const QJsonValue& itemAction : itemActions)
+                if (const QJsonValue item = itemAction["addChatItemAction"]["item"]; item.isObject())
+                    addChatItemToList(item);
+        }
     }
 }
 
@@ -88,19 +88,19 @@ void LiveChatWindow::chatReplayTick(double progress, double previousProgress)
         return;
 
     populating = true;
-    QString playerOffsetMs = QString::number(int(progress * 1000));
-    int progDiff = progress - previousProgress;
 
-    if (previousProgress > 0 && (progDiff <= -1 || progDiff > 1))
+    if (previousProgress > 0 && (int)std::abs(progress - previousProgress) > 5)
     {
         ui->listWidget->clear();
-        auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChatReplay>(seekContinuation, playerOffsetMs);
+        auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChatReplay>(
+            seekContinuation, QString::number(int(progress * 1000)));
         connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChatReplay>::finished, this,
                 std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, true));
     }
     else if (progress < firstChatItemOffset || progress > lastChatItemOffset)
     {
-        auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChatReplay>(currentContinuation, playerOffsetMs);
+        auto reply = InnerTube::instance()->get<InnertubeEndpoints::GetLiveChatReplay>(
+            currentContinuation, QString::number(int(progress * 1000)));
         connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChatReplay>::finished, this,
                 std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, false));
     }
@@ -141,7 +141,7 @@ void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData, 
 
 void LiveChatWindow::insertEmoji(const QString& emoji)
 {
-    if (QString msg = ui->messageBox->text(); !msg.isEmpty() && ui->messageBox->cursorPosition() == msg.size())
+    if (const QString msg = ui->messageBox->text(); !msg.isEmpty() && ui->messageBox->cursorPosition() == msg.size())
         ui->messageBox->insert(" " + emoji);
     else
         ui->messageBox->insert(emoji);
@@ -150,12 +150,11 @@ void LiveChatWindow::insertEmoji(const QString& emoji)
 void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& liveChat)
 {
     // check if user can chat
-    if (liveChat.liveChatContinuation["actionPanel"].isObject())
+    if (actionPanel = liveChat.liveChatContinuation["actionPanel"]; actionPanel.isObject())
     {
-        actionPanel = liveChat.liveChatContinuation["actionPanel"];
-        if (actionPanel["liveChatRestrictedParticipationRenderer"].isObject())
+        if (const QJsonValue restricted = actionPanel["liveChatRestrictedParticipationRenderer"]; restricted.isObject())
         {
-            InnertubeObjects::InnertubeString message(actionPanel["liveChatRestrictedParticipationRenderer"]["message"]);
+            InnertubeObjects::InnertubeString message(restricted["message"]);
             ui->messageBox->setEnabled(false);
             ui->messageBox->setPlaceholderText(message.text);
             ui->sendButton->setEnabled(false);
@@ -169,23 +168,24 @@ void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& live
     }
 
     // get top and live chat continuations
-    if (liveChat.liveChatContinuation["header"]["liveChatHeaderRenderer"]["viewSelector"].isObject())
+    if (const QJsonValue viewSelector = liveChat.liveChatContinuation["header"]["liveChatHeaderRenderer"]["viewSelector"];
+        viewSelector.isObject())
     {
-        QJsonValue sortFilter = liveChat.liveChatContinuation["header"]["liveChatHeaderRenderer"]["viewSelector"]
-                                                             ["sortFilterSubMenuRenderer"]["subMenuItems"];
+        const QJsonValue sortFilter = viewSelector["sortFilterSubMenuRenderer"]["subMenuItems"];
         topChatReloadContinuation = sortFilter[0]["continuation"]["reloadContinuationData"]["continuation"].toString();
         liveChatReloadContinuation = sortFilter[1]["continuation"]["reloadContinuationData"]["continuation"].toString();
     }
 
     const QJsonArray actions = liveChat.liveChatContinuation["actions"].toArray();
-    for (const QJsonValue& v : actions)
-        if (v["addChatItemAction"]["item"].isObject())
-            addChatItemToList(v["addChatItemAction"]["item"]);
+    for (const QJsonValue& action : actions)
+        if (const QJsonValue item = action["addChatItemAction"]["item"]; item.isObject())
+            addChatItemToList(item);
 
-    QString continuation = liveChat.liveChatContinuation["continuations"][0]["invalidationContinuationData"]["continuation"].toString();
+    const QJsonValue continuationObj = liveChat.liveChatContinuation["continuations"][0];
+    const QString continuation = continuationObj["invalidationContinuationData"]["continuation"].toString();
     if (!continuation.isEmpty())
         currentContinuation = continuation;
-    else if (liveChat.liveChatContinuation["continuations"][0]["reloadContinuationData"].isObject()) // should be true if live stream has finished
+    else if (continuationObj["reloadContinuationData"].isObject()) // should be true if live stream has finished
         messagesTimer->stop();
 
     processingEnd();
@@ -197,7 +197,7 @@ void LiveChatWindow::processChatReplayData(double progress, double previousProgr
     replayActions = replay.liveChatContinuation["actions"].toArray();
     addNewChatReplayItems(progress, previousProgress, seeked);
 
-    QJsonValue liveChatReplayContinuationData = replay.liveChatContinuation["continuations"][0]["liveChatReplayContinuationData"];
+    const QJsonValue liveChatReplayContinuationData = replay.liveChatContinuation["continuations"][0]["liveChatReplayContinuationData"];
     if (liveChatReplayContinuationData["continuation"].isString())
         currentContinuation = liveChatReplayContinuationData["continuation"].toString();
     if (!liveChatReplayContinuationData["timeUntilLastMessageMsec"].isUndefined())
@@ -226,12 +226,13 @@ void LiveChatWindow::sendMessage()
     if (ui->messageBox->text().trimmed().isEmpty())
         return;
 
-    QJsonValue sendEndpoint = actionPanel["liveChatMessageInputRenderer"]["sendButton"]["buttonRenderer"]
-                                         ["serviceEndpoint"]["sendLiveChatMessageEndpoint"];
+    const QJsonValue sendEndpoint = actionPanel["liveChatMessageInputRenderer"]["sendButton"]["buttonRenderer"]
+                                               ["serviceEndpoint"]["sendLiveChatMessageEndpoint"];
 
-    QString clientMessageId = sendEndpoint["clientIdPrefix"].toString() + QString::number(numSentMessages++);
-    QString params = sendEndpoint["params"].toString();
-    QJsonArray textSegments = ytemoji::instance()->produceRichText(ytemoji::instance()->emojize(ui->messageBox->text().trimmed()));
+    const QString clientMessageId = sendEndpoint["clientIdPrefix"].toString() + QString::number(numSentMessages++);
+    const QString params = sendEndpoint["params"].toString();
+    const QJsonArray textSegments = ytemoji::instance()->produceRichText(
+        ytemoji::instance()->emojize(ui->messageBox->text().trimmed()));
 
     InnerTube::instance()->sendMessage(textSegments, clientMessageId, params);
     ui->messageBox->clear();

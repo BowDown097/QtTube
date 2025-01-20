@@ -8,6 +8,7 @@
 #include "ui/widgets/renderers/backstage/backstagepollrenderer.h"
 #include "ui/widgets/renderers/backstage/backstagequizrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
+#include "utils/innertubestringformatter.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
@@ -56,7 +57,7 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     surface = post.surface;
 
     channelLabel->setInfo(channelId, post.authorText.text, {});
-    contentText->setText(StringUtils::innertubeStringToRichText(post.contentText, false));
+    contentText->setText(InnertubeStringFormatter::formatSimple(post.contentText, false));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
         ? post.voteCount.text : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
     publishedTimeLabel->setText(post.publishedTimeText.text);
@@ -108,7 +109,7 @@ void BackstagePostRenderer::setImageLabelData(QLabel* imageLabel, const HttpRepl
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     imageLabel->setPixmap(pixmap);
-    emit dynamicSizeChange(sizeHint());
+    adjustSize();
 }
 
 void BackstagePostRenderer::setPoll(const InnertubeObjects::Poll& poll)
@@ -123,9 +124,7 @@ void BackstagePostRenderer::setQuiz(const InnertubeObjects::Quiz& quiz)
     BackstageQuizRenderer* quizRenderer = new BackstageQuizRenderer(this);
     quizRenderer->setData(quiz);
     innerLayout->addWidget(quizRenderer);
-    connect(quizRenderer, &BackstageQuizRenderer::explanationUpdated, this, [this] {
-        emit dynamicSizeChange(sizeHint());
-    });
+    connect(quizRenderer, &BackstageQuizRenderer::explanationUpdated, this, &BackstagePostRenderer::adjustSize);
 }
 
 void BackstagePostRenderer::setVideo(const InnertubeObjects::Video& video)
@@ -152,5 +151,5 @@ void BackstagePostRenderer::toggleReadMore()
         readMoreLabel->setText(readMoreText);
     }
 
-    emit dynamicSizeChange(sizeHint());
+    adjustSize();
 }

@@ -21,6 +21,5 @@ private:
     TubeLabel* messageLabel;
     TubeLabel* timestampLabel;
 private slots:
-    void insertEmojiIntoMessage(const QString& placeholder, const HttpReply& reply);
     void setAuthorIcon(const HttpReply& reply);
 };

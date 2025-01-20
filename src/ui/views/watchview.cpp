@@ -11,6 +11,7 @@
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
 #include "ui/widgets/watchnextfeed.h"
+#include "utils/innertubestringformatter.h"
 #include "utils/osutils.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
@@ -244,10 +245,10 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     if (!dateText.startsWith("Premier") && !dateText.startsWith("St") && !dateText.startsWith("Sched"))
         dateText.prepend("Published on ");
     if (nextResp.results.results.primaryInfo.superTitleLink.has_value())
-        dateText += " | " + StringUtils::innertubeStringToRichText(nextResp.results.results.primaryInfo.superTitleLink.value(), true);
+        dateText += " | " + InnertubeStringFormatter::formatSimple(nextResp.results.results.primaryInfo.superTitleLink.value(), true);
 
     ui->date->setText(dateText);
-    ui->description->setText(StringUtils::innertubeStringToRichText(unattributeDescription(nextResp.results.results.secondaryInfo.attributedDescription), false));
+    ui->description->setText(InnertubeStringFormatter::formatSimple(unattributeDescription(nextResp.results.results.secondaryInfo.attributedDescription), false));
     ui->description->setVisible(!ui->description->text().isEmpty());
     ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumHeight());
     ui->feed->setData(endpoint);
@@ -387,7 +388,7 @@ void WatchView::updateMetadata(const QString& videoId)
         else
             ui->date->setText(endpoint.response.dateText);
 
-        ui->description->setText(StringUtils::innertubeStringToRichText(endpoint.response.description, false));
+        ui->description->setText(InnertubeStringFormatter::formatSimple(endpoint.response.description, false));
         ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
                                    ? endpoint.response.likeCountEntity.likeCountIfIndifferent
                                    : endpoint.response.likeCountEntity.expandedLikeCountIfIndifferent);

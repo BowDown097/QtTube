@@ -3,11 +3,10 @@
 #include "innertube/objects/images/responsiveimage.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "utils/httputils.h"
+#include "utils/innertubestringformatter.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QJsonArray>
-
-constexpr QLatin1String ImgPlaceholder("<img src='data:%1;base64,%2' width='20' height='20'>");
 
 TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     : QWidget(parent),
@@ -56,9 +55,9 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     }
 
     timestampLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
-    if (renderer["timestampText"].isObject())
+    if (const QJsonValue timestampText = renderer["timestampText"]; timestampText.isObject())
     {
-        timestampLabel->setText(renderer["timestampText"]["simpleText"].toString());
+        timestampLabel->setText(timestampText.toString());
     }
     else
     {
@@ -78,34 +77,11 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     messageLabel->setWordWrap(true);
     contentLayout->addWidget(messageLabel);
 
-    const QJsonArray runs = renderer["message"]["runs"].toArray();
-    for (const QJsonValue& v2 : runs)
-    {
-        if (v2["emoji"].isObject())
-        {
-            QString url = v2["emoji"]["image"]["thumbnails"][0]["url"].toString();
-            QString placeholder = ImgPlaceholder
-                .arg(v2["emoji"]["shortcuts"][0].toString() + v2["emoji"]["searchTerms"][0].toString() + url);
-            if (!messageLabel->text().contains(placeholder))
-            {
-                HttpReply* emojiReply = HttpUtils::cachedInstance().get(url);
-                connect(emojiReply, &HttpReply::finished, this,
-                    std::bind_front(&TextMessage::insertEmojiIntoMessage, this, placeholder));
-            }
-
-            messageLabel->setText(messageLabel->text() + placeholder);
-        }
-        else if (v2["text"].isString())
-        {
-            messageLabel->setText(messageLabel->text() + v2["text"].toString());
-        }
-    }
-}
-
-void TextMessage::insertEmojiIntoMessage(const QString& placeholder, const HttpReply& reply)
-{
-    QString data = ImgPlaceholder.arg(reply.header("content-type"), reply.body().toBase64());
-    messageLabel->setText(messageLabel->text().replace(placeholder, data));
+    InnertubeObjects::InnertubeString message(renderer["message"]);
+    InnertubeStringFormatter* fmt = new InnertubeStringFormatter;
+    connect(fmt, &InnertubeStringFormatter::finished, fmt, &InnertubeStringFormatter::deleteLater);
+    connect(fmt, &InnertubeStringFormatter::readyRead, messageLabel, &TubeLabel::setText);
+    fmt->setData(message, false);
 }
 
 void TextMessage::setAuthorIcon(const HttpReply& reply)

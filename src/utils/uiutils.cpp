@@ -8,6 +8,7 @@
 #include "innertube/objects/video/video.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
+#include "ui/widgets/dynamiclistwidgetitem.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/backstage/backstagepostrenderer.h"
 #include "ui/widgets/renderers/backstage/postrenderer.h"
@@ -17,7 +18,6 @@
 #include "ui/widgets/renderers/video/gridvideorenderer.h"
 #include <QClipboard>
 #include <QFile>
-#include <QJsonArray>
 #include <QLayout>
 #include <QPainter>
 #include <QStyleFactory>
@@ -56,10 +56,7 @@ namespace UIUtils
 
         BackstagePostRenderer* renderer = new BackstagePostRenderer;
         renderer->setData(post);
-
-        QListWidgetItem* item = addWidgetToList(list, renderer);
-        QObject::connect(renderer, &BackstagePostRenderer::dynamicSizeChange,
-                         std::bind_front(&QListWidgetItem::setSizeHint, item));
+        addResizingWidgetToList(list, renderer);
     }
 
     void addBoldLabelToList(QListWidget* list, const QString& text)
@@ -117,6 +114,13 @@ namespace UIUtils
         list->setItemWidget(item, renderer);
     }
 
+    QListWidgetItem* addResizingWidgetToList(QListWidget* list, QWidget* widget)
+    {
+        DynamicListWidgetItem* item = new DynamicListWidgetItem(list);
+        item->setWidget(widget);
+        return item;
+    }
+
     void addSeparatorToList(QListWidget* list)
     {
         QFrame* line = new QFrame;
@@ -145,7 +149,6 @@ namespace UIUtils
 
         TubeLabel* shelfLabel = new TubeLabel(title);
         shelfLabel->setFont(QFont(shelfLabel->font().toString(), shelfLabel->font().pointSize() + 2));
-
 
         QSize hint = shelfLabel->sizeHint();
         if (list->flow() == QListWidget::LeftToRight)

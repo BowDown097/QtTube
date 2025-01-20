@@ -3,6 +3,7 @@
 #include "innertube/objects/innertubestring.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "utils/httputils.h"
+#include "utils/innertubestringformatter.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 
@@ -73,9 +74,14 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     messageLabel->setStyleSheet(MessageStylesheet
         .arg(QString::number(renderer["bodyBackgroundColor"].toVariant().toLongLong(), 16),
              QString::number(renderer["bodyTextColor"].toVariant().toLongLong(), 16)));
-    messageLabel->setText(message.text);
+    messageLabel->setTextFormat(Qt::RichText);
     messageLabel->setWordWrap(true);
     layout->addWidget(messageLabel);
+
+    InnertubeStringFormatter* fmt = new InnertubeStringFormatter;
+    connect(fmt, &InnertubeStringFormatter::finished, fmt, &InnertubeStringFormatter::deleteLater);
+    connect(fmt, &InnertubeStringFormatter::readyRead, messageLabel, &TubeLabel::setText);
+    fmt->setData(message, false);
 }
 
 void PaidMessage::setAuthorIcon(const HttpReply& reply)

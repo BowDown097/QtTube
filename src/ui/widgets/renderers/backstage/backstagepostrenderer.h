@@ -37,6 +37,4 @@ private:
 private slots:
     void setImageLabelData(QLabel* imageLabel, const HttpReply& reply);
     void toggleReadMore();
-signals:
-    void dynamicSizeChange(const QSize& newSize);
 };

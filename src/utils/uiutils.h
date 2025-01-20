@@ -48,6 +48,7 @@ namespace UIUtils
     void addChannelToList(QListWidget* list, const InnertubeObjects::Channel& channel);
     void addNotificationToList(QListWidget* list, const InnertubeObjects::Notification& notification);
     void addPostToList(QListWidget* list, const InnertubeObjects::Post& post);
+    QListWidgetItem* addResizingWidgetToList(QListWidget* list, QWidget* widget);
     void addSeparatorToList(QListWidget* list);
     void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
     void addShelfTitleToList(QListWidget* list, const QString& title);

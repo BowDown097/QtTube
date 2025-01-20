@@ -111,6 +111,7 @@ set(SOURCE_FILES
     src/ui/views/watchviewplayer.cpp
     src/ui/widgets/closebutton.cpp
     src/ui/widgets/continuablelistwidget.cpp
+    src/ui/widgets/dynamiclistwidgetitem.cpp
     src/ui/widgets/findbar.cpp
     src/ui/widgets/flowlayout.cpp
     src/ui/widgets/watchnextfeed.cpp
@@ -151,6 +152,7 @@ set(SOURCE_FILES
     src/ui/widgets/webengineplayer/webchannelinterface.cpp
     src/ui/widgets/webengineplayer/webengineplayer.cpp
     src/utils/httputils.cpp
+    src/utils/innertubestringformatter.cpp
     src/utils/osutils.cpp
     src/utils/stringutils.cpp
     src/utils/tubeutils.cpp
@@ -201,6 +203,7 @@ set(HEADERS
     src/ui/widgets/clickablewidget.h
     src/ui/widgets/closebutton.h
     src/ui/widgets/continuablelistwidget.h
+    src/ui/widgets/dynamiclistwidgetitem.h
     src/ui/widgets/findbar.h
     src/ui/widgets/flowlayout.h
     src/ui/widgets/watchnextfeed.h
@@ -241,6 +244,7 @@ set(HEADERS
     src/ui/widgets/webengineplayer/webchannelinterface.h
     src/ui/widgets/webengineplayer/webengineplayer.h
     src/utils/httputils.h
+    src/utils/innertubestringformatter.h
     src/utils/osutils.h
     src/utils/stringutils.h
     src/utils/tubeutils.h

@@ -1,7 +1,5 @@
 #include "stringutils.h"
-#include "innertube/objects/innertubestring.h"
 #include <QLocale>
-#include <QUrlQuery>
 
 #ifdef QTTUBE_HAS_ICU
 #include <unicode/errorcode.h>
@@ -67,103 +65,5 @@ namespace StringUtils
         }
 
         return out;
-    }
-
-    QString innertubeStringToRichText(const InnertubeObjects::InnertubeString& istr, bool useLinkText)
-    {
-        QString out;
-
-        for (const InnertubeObjects::InnertubeRun& run : istr.runs)
-        {
-            if (run.navigationEndpoint.isNull() || run.navigationEndpoint.isUndefined())
-            {
-                out += run.text;
-                continue;
-            }
-
-            QString href, text = run.text;
-            if (run.navigationEndpoint["urlEndpoint"].isObject())
-            {
-                QUrl url(run.navigationEndpoint["urlEndpoint"]["url"].toString());
-                QUrlQuery query(url);
-
-                if (query.hasQueryItem("q"))
-                {
-                    href = QUrl::fromPercentEncoding(query.queryItemValue("q").toUtf8());
-                    if (!useLinkText)
-                        text = href;
-                }
-                else if (QString urlStr = url.toString(); urlStr.contains("youtube.com/channel"))
-                {
-                    href = url.path();
-                    if (!useLinkText)
-                        text = urlStr;
-                }
-                else
-                {
-                    href = url.toString();
-                    if (!useLinkText)
-                        text = href;
-                }
-
-                if (!useLinkText)
-                    truncateUrlString(text, false);
-            }
-            else if (run.navigationEndpoint["browseEndpoint"].isObject())
-            {
-                QString browseId = run.navigationEndpoint["browseEndpoint"]["browseId"].toString();
-                QString code = browseId.left(2);
-
-                if (code == "UC")
-                {
-                    text.replace(text.indexOf('/'), 1, "").replace("/xc2/xa0", "");
-                    if (text[0] != '@')
-                        text.prepend('@');
-                    href = "/channel/" + browseId;
-                }
-                else if (code != "FE")
-                {
-                    href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
-                    if (!useLinkText)
-                    {
-                        text = href;
-                        truncateUrlString(text, true);
-                    }
-                }
-            }
-            else
-            {
-                href = run.navigationEndpoint["commandMetadata"]["webCommandMetadata"]["url"].toString();
-                if (run.navigationEndpoint["watchEndpoint"].isObject())
-                {
-                    if (!run.navigationEndpoint["watchEndpoint"]["continuePlayback"].isBool())
-                    {
-                        if (!useLinkText)
-                        {
-                            text = "https://www.youtube.com" + href;
-                        }
-                    }
-                    else
-                    {
-                        href += "&continuePlayback=1";
-                    }
-                }
-
-                if (!useLinkText)
-                    truncateUrlString(text, false);
-            }
-
-            out += QStringLiteral("<a href=\"%1\">%2</a>").arg(href, text);
-        }
-
-        return out.replace("\n", "<br>");
-    }
-
-    void truncateUrlString(QString& url, bool prefix)
-    {
-        if (prefix)
-            url.prepend("https://www.youtube.com");
-        if (url.length() > 37)
-            url = url.left(37) + "...";
     }
 }
