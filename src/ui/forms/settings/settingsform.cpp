@@ -191,7 +191,7 @@ void SettingsForm::handleSponsorCategory(QStringList& categories, const QString&
 void SettingsForm::openExportWizard()
 {
     const QList<QRadioButton*> radios = ui->groupBox->findChildren<QRadioButton*>();
-    if (auto it = std::ranges::find_if(radios, [](QRadioButton* r) { return r->isChecked(); }); it != radios.end())
+    if (auto it = std::ranges::find_if(radios, &QRadioButton::isChecked); it != radios.end())
     {
         QRadioButton* selectedRadio = *it;
         switch (selectedRadio->property("id").toInt())
@@ -216,7 +216,7 @@ void SettingsForm::openExportWizard()
 void SettingsForm::openImportWizard()
 {
     const QList<QRadioButton*> radios = ui->dataSourcesGroup->findChildren<QRadioButton*>();
-    if (auto it = std::ranges::find_if(radios, [](QRadioButton* r) { return r->isChecked(); }); it != radios.end())
+    if (auto it = std::ranges::find_if(radios, &QRadioButton::isChecked); it != radios.end())
     {
         QRadioButton* selectedRadio = *it;
         switch (selectedRadio->property("id").toInt())

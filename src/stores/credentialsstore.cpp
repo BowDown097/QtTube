@@ -8,7 +8,7 @@
 
 const CredentialSet* CredentialsStore::activeLogin() const
 {
-    auto it = std::ranges::find_if(m_credentials, [](const CredentialSet& cs) { return cs.active; });
+    auto it = std::ranges::find_if(m_credentials, &CredentialSet::active);
     return it != m_credentials.end() ? &(*it) : nullptr;
 }
 
@@ -91,14 +91,12 @@ void CredentialsStore::updateAccount(const InnertubeEndpoints::AccountMenu& data
     QString avatarUrl = bestPhoto ? bestPhoto->url : QString();
     QString username = data.response.header.accountName;
 
-    if (auto active = std::ranges::find_if(m_credentials, [](const CredentialSet& cs) { return cs.active; });
-        active != m_credentials.end())
+    if (auto active = std::ranges::find_if(m_credentials, &CredentialSet::active); active != m_credentials.end())
     {
         if (active->channelId != channelId)
         {
             active->active = false;
-            if (auto match = std::ranges::find_if(m_credentials, [&channelId](const CredentialSet& cs) { return cs.channelId == channelId; });
-                match != m_credentials.end())
+            if (auto match = std::ranges::find(m_credentials, channelId, &CredentialSet::channelId); match != m_credentials.end())
             {
                 match->active = true;
                 match->avatarUrl = avatarUrl;

@@ -65,9 +65,13 @@ QJsonArray ytemoji::produceRichText(QString s)
             continue;
         }
 
-        auto it = std::ranges::find_if(m_youtubeEmojis, [index, &s, i](const YouTubeEmoji& e) {
-            return e.shortcut == s.mid(index, i - index + 1);
-        });
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QStringView shortcut = QStringView(s).sliced(index, i - index + 1);
+    #else
+        QStringRef shortcut = s.midRef(index, i - index + 1);
+    #endif
+
+        auto it = std::ranges::find(m_youtubeEmojis, shortcut, &YouTubeEmoji::shortcut);
         if (it == m_youtubeEmojis.end())
         {
             index = i;
