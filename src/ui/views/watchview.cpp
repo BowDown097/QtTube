@@ -1,5 +1,6 @@
 #include "watchview.h"
 #include "ui/views/viewcontroller.h"
+#include "ui/widgets/download/downloadmanager.h"
 #include "watchview_ui.h"
 #include "http.h"
 #include "innertube.h"
@@ -180,6 +181,14 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     IconLabel* shareLabel = new IconLabel("share", "Share", ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0));
     ui->topLevelButtons->addWidget(shareLabel);
+
+    if (!primaryInfo.viewCount.isLive)
+    {
+        IconLabel* downloadLabel = new IconLabel("download", "Download", QMargins(15, 0, 0, 0));
+        ui->topLevelButtons->addWidget(downloadLabel);
+        connect(downloadLabel, &IconLabel::clicked, this,
+                std::bind(&DownloadManager::append, DownloadManager::instance(), nextResp.videoId));
+    }
 
     if (std::optional<InnertubeObjects::LiveChat> liveChat = nextResp.results.liveChat; liveChat.has_value())
     {

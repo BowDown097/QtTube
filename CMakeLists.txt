@@ -119,6 +119,8 @@ set(SOURCE_FILES
     src/ui/widgets/accountmenu/accountentrywidget.cpp
     src/ui/widgets/accountmenu/accountmenuwidget.cpp
     src/ui/widgets/accountmenu/accountswitcherwidget.cpp
+    src/ui/widgets/download/downloadentity.cpp
+    src/ui/widgets/download/downloadmanager.cpp
     src/ui/widgets/labels/channelbadgelabel.cpp
     src/ui/widgets/labels/channellabel.cpp
     src/ui/widgets/labels/emojilabel.cpp
@@ -211,6 +213,8 @@ set(HEADERS
     src/ui/widgets/accountmenu/accountentrywidget.h
     src/ui/widgets/accountmenu/accountmenuwidget.h
     src/ui/widgets/accountmenu/accountswitcherwidget.h
+    src/ui/widgets/download/downloadentity.h
+    src/ui/widgets/download/downloadmanager.h
     src/ui/widgets/labels/channelbadgelabel.h
     src/ui/widgets/labels/channellabel.h
     src/ui/widgets/labels/emojilabel.h

@@ -20,6 +20,7 @@ void SettingsStore::initialize()
     autoHideTopBar = settings.value("autoHideTopBar", true).toBool();
     condensedCounts = settings.value("condensedCounts", false).toBool();
     darkTheme = settings.value("darkTheme", false).toBool();
+    downloadPath = settings.value("downloadPath").toString();
     fullSubs = settings.value("fullSubs", false).toBool();
     imageCaching = settings.value("imageCaching", true).toBool();
     preferLists = settings.value("preferLists", false).toBool();
@@ -78,6 +79,7 @@ void SettingsStore::save()
     settings.setValue("autoHideTopBar", autoHideTopBar);
     settings.setValue("condensedCounts", condensedCounts);
     settings.setValue("darkTheme", darkTheme);
+    settings.setValue("downloadPath", downloadPath);
     settings.setValue("fullSubs", fullSubs);
     settings.setValue("imageCaching", imageCaching);
     settings.setValue("preferLists", preferLists);

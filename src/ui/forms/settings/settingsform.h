@@ -19,12 +19,14 @@ private:
     Ui::SettingsForm* ui;
     void handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox);
 private slots:
+    void checkDownloadPath(const QString& text);
     void checkExternalPlayer(const QString& text);
     void clearCache();
     void enableSaveButton();
     //void openExportWizard();
     void openImportWizard();
     void saveSettings();
+    void selectDownloadPath();
     void selectExternalPlayer();
     void showChannelFilterTable();
     void showTermFilterTable();

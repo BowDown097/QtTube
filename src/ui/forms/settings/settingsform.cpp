@@ -8,9 +8,9 @@
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "termfilterview.h"
+#include "ui/widgets/download/downloadmanager.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
-#include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QStandardPaths>
@@ -35,6 +35,8 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
         .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
     ui->qttubeLogo->setPixmap(UIUtils::iconThemed("qttube-full").pixmap(ui->qttubeLogo->size()));
 
+    ui->downloadPathEdit->setPlaceholderText(DownloadManager::instance()->directory().absolutePath());
+
     ui->takeoutRadio->setProperty("id", 1);
     ui->pipedRadio->setProperty("id", 2);
     ui->grayjayRadio->setProperty("id", 3);
@@ -54,6 +56,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     // general
     ui->autoHideTopBar->setChecked(store.autoHideTopBar);
     ui->condensedCounts->setChecked(store.condensedCounts);
+    ui->downloadPathEdit->setText(store.downloadPath);
     ui->fullSubs->setChecked(store.fullSubs);
     ui->imageCaching->setChecked(store.imageCaching);
     ui->preferLists->setChecked(store.preferLists);
@@ -101,6 +104,8 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
 
     connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
     connect(ui->deArrow, &QCheckBox::toggled, this, &SettingsForm::toggleDeArrowSettings);
+    connect(ui->downloadPathButton, &QPushButton::clicked, this, &SettingsForm::selectDownloadPath);
+    connect(ui->downloadPathEdit, &QLineEdit::textEdited, this, &SettingsForm::checkDownloadPath);
     //connect(ui->exportButton, &QPushButton::clicked, this, &SettingsForm::openExportWizard);
     connect(ui->externalPlayerButton, &QPushButton::clicked, this, &SettingsForm::selectExternalPlayer);
     connect(ui->externalPlayerEdit, &QLineEdit::textEdited, this, &SettingsForm::checkExternalPlayer);
@@ -133,17 +138,35 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
         connect(lineEdit, &QLineEdit::textEdited, this, &SettingsForm::enableSaveButton);
 }
 
+void SettingsForm::checkDownloadPath(const QString& text)
+{
+    if (QFileInfo(text).isDir())
+        ui->downloadPathEdit->setStyleSheet(QString());
+    else
+        ui->downloadPathEdit->setStyleSheet("background-color: red");
+}
+
 void SettingsForm::checkExternalPlayer(const QString& text)
 {
     if (text.isEmpty())
+    {
+        ui->externalPlayerEdit->setStyleSheet(QString());
         toggleWebPlayerSettings(true);
+        return;
+    }
+
     if (!text.contains("%U"))
         return;
 
-    if (QString playerPath = StringUtils::extractPath(text); QFile::exists(playerPath))
+    if (QString playerPath = StringUtils::extractPath(text); QFileInfo(playerPath).isExecutable())
+    {
+        ui->externalPlayerEdit->setStyleSheet(QString());
         toggleWebPlayerSettings(false);
+    }
     else
-        QMessageBox::warning(this, "Invalid path", "Player path is invalid.");
+    {
+        ui->externalPlayerEdit->setStyleSheet("background-color: red");
+    }
 }
 
 void SettingsForm::clearCache()
@@ -241,6 +264,9 @@ void SettingsForm::saveSettings()
 {
     ui->saveButton->setEnabled(false);
 
+    if (QString downloadPath = ui->downloadPathEdit->text(); QFileInfo(downloadPath).isDir())
+        DownloadManager::instance()->setDirectory(QDir(downloadPath));
+
     SettingsStore& store = qtTubeApp->settings();
 
     // force show top bar if auto hiding has been turned off
@@ -252,6 +278,7 @@ void SettingsForm::saveSettings()
     store.autoHideTopBar = ui->autoHideTopBar->isChecked();
     store.condensedCounts = ui->condensedCounts->isChecked();
     store.darkTheme = ui->darkTheme->isChecked();
+    store.downloadPath = ui->downloadPathEdit->text();
     store.fullSubs = ui->fullSubs->isChecked();
     store.imageCaching = ui->imageCaching->isChecked();
     store.preferLists = ui->preferLists->isChecked();
@@ -297,6 +324,12 @@ void SettingsForm::saveSettings()
 
     UIUtils::setAppStyle(store.appStyle, store.darkTheme);
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
+}
+
+void SettingsForm::selectDownloadPath()
+{
+    if (QString downloadPath = QFileDialog::getExistingDirectory(this); !downloadPath.isNull())
+        ui->downloadPathEdit->setText(downloadPath);
 }
 
 void SettingsForm::selectExternalPlayer()

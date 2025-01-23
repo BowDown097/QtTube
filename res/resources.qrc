@@ -13,6 +13,12 @@
         <file>dislike-toggled.svg</file>
     </qresource>
     <qresource>
+        <file>download.svg</file>
+    </qresource>
+    <qresource>
+        <file>download-light.svg</file>
+    </qresource>
+    <qresource>
         <file>emoji.svg</file>
     </qresource>
     <qresource>

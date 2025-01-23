@@ -3,6 +3,8 @@
 
 namespace StringUtils
 {
+    QString bytesString(double bytes);
+
 #ifdef QTTUBE_HAS_ICU
     QString condensedNumericString(qint64 num, int precision = 1);
 #endif

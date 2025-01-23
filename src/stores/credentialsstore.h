@@ -1,6 +1,5 @@
 #pragma once
 #include "genericstore.h"
-#include <QObject>
 
 struct CredentialSet
 {

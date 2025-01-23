@@ -60,7 +60,7 @@
             <x>0</x>
             <y>0</y>
             <width>462</width>
-            <height>270</height>
+            <height>294</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -122,6 +122,30 @@
               <string>Use full subscriber counts</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="downloadPathLabel">
+               <property name="text">
+                <string>Download path</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="downloadPathEdit"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="downloadPathButton">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -233,7 +257,7 @@
             <x>0</x>
             <y>0</y>
             <width>462</width>
-            <height>411</height>
+            <height>387</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -555,7 +579,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>82</height>
+            <height>78</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -637,7 +661,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>199</height>
+            <height>189</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -801,7 +825,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>215</height>
+            <height>207</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -946,7 +970,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>227</height>
+            <height>215</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1149,7 +1173,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>118</height>
+            <height>112</height>
            </rect>
           </property>
           <property name="sizePolicy">

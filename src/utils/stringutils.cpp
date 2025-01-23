@@ -8,6 +8,32 @@
 
 namespace StringUtils
 {
+    QString bytesString(double bytes)
+    {
+        QString out = "N/A";
+        if (bytes < 1024)
+        {
+            out = QStringLiteral("%1 %2").arg(bytes, 3, 'f', 1).arg("B");
+        }
+        else if (bytes < 1048576)
+        {
+            bytes /= 1024;
+            out = QStringLiteral("%1 %2").arg(bytes, 3, 'f', 1).arg("KB");
+        }
+        else if (bytes < 1073741824)
+        {
+            bytes /= 1048576;
+            out = QStringLiteral("%1 %2").arg(bytes, 3, 'f', 1).arg("MB");
+        }
+        else
+        {
+            bytes /= 1073741824;
+            out = QStringLiteral("%1 %2").arg(bytes, 3, 'f', 1).arg("GB");
+        }
+
+        return out;
+    }
+
     // Qt provides no way to do this (surprisingly), so we have to do it manually with ICU.
     #ifdef QTTUBE_HAS_ICU
     QString condensedNumericString(qint64 num, int precision)

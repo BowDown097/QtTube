@@ -1,5 +1,6 @@
 #include "osutils.h"
-#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
 
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
 # include <QApplication>
@@ -26,6 +27,38 @@
 
 namespace OSUtils
 {
+    QString getFullPath(const QFileInfo& fileInfo)
+    {
+        QString absoluteFilePath = fileInfo.absoluteFilePath();
+        if (fileInfo.exists())
+            return absoluteFilePath;
+
+    #ifdef Q_OS_WIN
+        absoluteFilePath += ".exe";
+        if (QFile::exists(absoluteFilePath))
+            return absoluteFilePath;
+    #endif
+
+        if (QString pathEnv = qgetenv("PATH"); !pathEnv.isEmpty())
+        {
+            const QStringList pathParts = pathEnv.split(QDir::listSeparator());
+            for (const QString& dir : pathParts)
+            {
+                QString fullPath = dir + QDir::separator() + fileInfo.fileName();
+                if (QFile::exists(fullPath))
+                    return fullPath;
+
+            #ifdef Q_OS_WIN
+                fullPath += ".exe";
+                if (QFile::exists(fullPath))
+                    return fullPath;
+            #endif
+            }
+        }
+
+        return QString();
+    }
+
 #ifdef Q_OS_MACOS
     void suspendIdleSleepMacOS(bool suspend, const char* status)
     {

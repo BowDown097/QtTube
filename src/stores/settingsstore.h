@@ -1,6 +1,5 @@
 #pragma once
 #include "genericstore.h"
-#include <QObject>
 
 namespace InnertubeObjects
 {
@@ -38,6 +37,7 @@ public:
     bool deArrowTitles{};
     bool disable60Fps{};
     bool disablePlayerInfoPanels{};
+    QString downloadPath;
     QString externalPlayerPath;
     int filterLength{};
     bool filterLengthEnabled{};
