@@ -210,6 +210,12 @@ void SettingsForm::handleSponsorCategory(QStringList& categories, const QString&
         categories.removeAt(categoryIndex);
 }
 
+void SettingsForm::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Escape)
+        close();
+}
+
 /*
 void SettingsForm::openExportWizard()
 {

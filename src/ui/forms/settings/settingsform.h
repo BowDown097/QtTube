@@ -15,6 +15,7 @@ public:
     ~SettingsForm();
 protected:
     void closeEvent(QCloseEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
 private:
     Ui::SettingsForm* ui;
     void handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox);
