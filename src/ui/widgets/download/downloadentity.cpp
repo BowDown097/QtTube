@@ -68,12 +68,11 @@ QByteArray DownloadEntity::findEntry(const QByteArray& data, const QByteArray& e
 
     const QByteArray entryData = data.mid(index + entry.size());
     index = entryData.front() == '\'' ? entryData.indexOf('\'', 1) : entryData.indexOf(' ');
-    return index != -1 ? entryData.mid(0, index) : "NA";
+    return index != -1 ? entryData.mid(0, index) : QByteArray("NA");
 }
 
 void DownloadEntity::handleFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    qDebug() << "handleFinished called";
     emit finished(exitCode != 0 || exitStatus == QProcess::ExitStatus::CrashExit);
 }
 
