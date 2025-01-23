@@ -15,6 +15,7 @@ public:
     void calcAndSetSize(const QSize& maxSize);
     void play(const QString& videoId, int progress = 0);
     void seek(int progress);
+    void showSharePanel();
     void startTracking(const InnertubeEndpoints::PlayerResponse& playerResp);
     QWidget* widget();
 

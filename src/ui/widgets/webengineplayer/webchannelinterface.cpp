@@ -2,8 +2,11 @@
 #include "qttubeapplication.h"
 #include "ui/views/viewcontroller.h"
 #include "utils/osutils.h"
+#include "utils/uiutils.h"
+#include <QDesktopServices>
 #include <QMainWindow>
 #include <QRegularExpression>
+#include <QUrl>
 
 WebChannelInterface::WebChannelInterface(QObject* parent) : QObject(parent)
 {
@@ -11,18 +14,19 @@ WebChannelInterface::WebChannelInterface(QObject* parent) : QObject(parent)
     connect(&qtTubeApp->settings(), &SettingsStore::preferredVolumeChanged, &qtTubeApp->settings(), &SettingsStore::save);
 }
 
-void setWindowTitleSuffix(const QString& suffix)
+void WebChannelInterface::copyToClipboard(const QString& text)
 {
-    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
-    {
-        static QRegularExpression suffixRegex(R"( \[(Playing|Paused)\]$)");
-        mainWindow->setWindowTitle(mainWindow->windowTitle().remove(suffixRegex).append(' ').append(suffix));
-    }
+    UIUtils::copyToClipboard(text);
 }
 
 void WebChannelInterface::emitProgressChanged(double progress, double previousProgress)
 {
     emit progressChanged(progress, previousProgress);
+}
+
+void WebChannelInterface::handleShare(const QString& href)
+{
+    QDesktopServices::openUrl(QUrl(href));
 }
 
 void WebChannelInterface::handleStateChange(PlayerState state)
@@ -41,6 +45,15 @@ void WebChannelInterface::handleStateChange(PlayerState state)
         OSUtils::suspendIdleSleep(false);
         break;
     default: break;
+    }
+}
+
+void WebChannelInterface::setWindowTitleSuffix(const QString& suffix)
+{
+    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+    {
+        static QRegularExpression suffixRegex(R"( \[(Playing|Paused)\]$)");
+        mainWindow->setWindowTitle(mainWindow->windowTitle().remove(suffixRegex).append(' ').append(suffix));
     }
 }
 

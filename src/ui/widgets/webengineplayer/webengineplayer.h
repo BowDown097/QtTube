@@ -21,6 +21,7 @@ public:
     void setAuthStore(InnertubeAuthStore* authStore);
     void setContext(InnertubeContext* context);
     void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp);
+    void showSharePanel();
 private:
     std::unique_ptr<FullScreenWindow> m_fullScreenWindow;
     PlayerInterceptor* m_interceptor;

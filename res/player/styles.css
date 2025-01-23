@@ -60,13 +60,11 @@
 .ytp-big-mode .ytp-panel-title {
     padding: 0 15px !important;
 }
-/* end 2019 menu scaling */
 
 /* menu icon disabling */
 .ytp-menuitem-icon {
     display: none !important;
 }
-/* end menu icon disabling */
 
 /* heatmap disabling */
 .ytp-heat-map-container, .ytp-tooltip-title {
@@ -80,7 +78,6 @@
 .ytp-big-mode .ytp-tooltip-text {
     top: 41px !important;
 }
-/* end heatmap disabling */
 
 /* 2019 chrome scaling */
 .ytp-embed:not(.ytp-big-mode) .ytp-chrome-bottom {
@@ -112,7 +109,6 @@
 .ytp-chapter-container {
     margin-top: 1px;
 }
-/* end 2019 chrome scaling */
 
 /* top + bottom gradients */
 .ytp-gradient-bottom {
@@ -135,7 +131,6 @@
     padding: 0 !important;
     background: linear-gradient(to bottom, #0009, #0000) !important;
 }
-/* top + bottom gradients */
 
 /* general styles */
 .ytp-pause-overlay-container {
@@ -288,7 +283,6 @@
 .ytp-title-channel, .ytp-shorts-title-channel, .ytp-chrome-top-buttons {
     display: none !important;
 }
-/* end general styles */
 
 /* SponsorBlock styles */
 .previewbar {
@@ -308,4 +302,8 @@
     z-index: 42;
     transition: transform .1s cubic-bezier(0,0,0.2,1);
 }
-/* end SponsorBlock styles */
+
+/* hide unnecessary share panel elements */
+.ytp-share-panel-close, .ytp-share-panel-service-button[aria-label="More"] {
+    display: none;
+}

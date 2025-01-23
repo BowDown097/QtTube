@@ -70,6 +70,12 @@ void WatchViewPlayer::seek(int progress)
         m_player->seek(progress);
 }
 
+void WatchViewPlayer::showSharePanel()
+{
+    if (m_player)
+        m_player->showSharePanel();
+}
+
 void WatchViewPlayer::startTracking(const InnertubeEndpoints::PlayerResponse& playerResp)
 {
     if (m_player)

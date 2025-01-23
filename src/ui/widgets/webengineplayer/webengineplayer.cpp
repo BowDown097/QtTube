@@ -129,3 +129,8 @@ void WebEnginePlayer::seek(int progress)
 {
     m_view->page()->runJavaScript(QStringLiteral("document.getElementById('movie_player').seekTo(%1);").arg(progress));
 }
+
+void WebEnginePlayer::showSharePanel()
+{
+    m_view->page()->runJavaScript("document.querySelector('.ytp-share-button').click()");
+}

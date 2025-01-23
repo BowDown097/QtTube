@@ -16,10 +16,13 @@ public:
     };
 
     explicit WebChannelInterface(QObject* parent = nullptr);
+    Q_INVOKABLE void copyToClipboard(const QString& text);
     Q_INVOKABLE void emitProgressChanged(double progress, double previousProgress);
+    Q_INVOKABLE void handleShare(const QString& href);
     Q_INVOKABLE void handleStateChange(PlayerState state);
-public slots:
-    void switchWatchViewVideo(const QString& videoId);
+    Q_INVOKABLE void switchWatchViewVideo(const QString& videoId);
+private:
+    void setWindowTitleSuffix(const QString& suffix);
 signals:
     void progressChanged(double progress, double previousProgress);
 };

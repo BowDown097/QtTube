@@ -166,6 +166,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
                                ? primaryInfo.viewCount.extraShortViewCount.text + " views"
                                : primaryInfo.viewCount.viewCount.text);
 
+    /* none of these items have functionality rn
     for (const InnertubeObjects::MenuFlexibleItem& fi : primaryInfo.videoActions.flexibleItems)
     {
         // these will never be implemented
@@ -178,9 +179,11 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
             ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0)
         ));
     }
+    */
 
-    IconLabel* shareLabel = new IconLabel("share", "Share", ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0));
+    IconLabel* shareLabel = new IconLabel("share", "Share", QMargins(5, 0, 0, 0));
     ui->topLevelButtons->addWidget(shareLabel);
+    connect(shareLabel, &IconLabel::clicked, ui->player, &WatchViewPlayer::showSharePanel);
 
     if (!primaryInfo.viewCount.isLive)
     {

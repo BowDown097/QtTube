@@ -19,15 +19,25 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
     if (settings.sponsorBlockCategories?.length)
         await sponsorBlock(settings.sponsorBlockCategories);
 
-    document.addEventListener("mousedown", function(e) {
-        const coveringOverlay = e.target.closest(".ytp-ce-covering-overlay");
-        const videowallStill = e.target.closest(".ytp-videowall-still");
-        if (coveringOverlay != null) {
-            const olParams = new URLSearchParams(coveringOverlay.search);
-            channel.objects.interface.switchWatchViewVideo(olParams.get("v"));
-        } else if (videowallStill != null) {
-            const stillParams = new URLSearchParams(videowallStill.search);
-            channel.objects.interface.switchWatchViewVideo(stillParams.get("v"));
+    document.addEventListener("click", function(e) {
+        // open share button link on click
+        if (e.target.matches(".ytp-share-panel-service-button")) {
+            channel.objects.interface.handleShare(e.target.href);
+        }
+        // copy video URL from share panel on click (clipboard API doesn't work in WebEngine ig)
+        else if (e.target.matches(".ytp-share-panel-link")) {
+            channel.objects.interface.copyToClipboard(e.target.href);
+        }
+        // switch to video tied to card on click
+        else {
+            let coveringOverlay, videowallStill;
+            if ((coveringOverlay = e.target.closest(".ytp-ce-covering-overlay")) != null) {
+                const olParams = new URLSearchParams(coveringOverlay.search);
+                channel.objects.interface.switchWatchViewVideo(olParams.get("v"));
+            } else if ((videowallStill = e.target.closest(".ytp-videowall-still")) != null) {
+                const stillParams = new URLSearchParams(videowallStill.search);
+                channel.objects.interface.switchWatchViewVideo(stillParams.get("v"));
+            }
         }
     });
 
