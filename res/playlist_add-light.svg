@@ -1,48 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Generator: Adobe Illustrator 19.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-
 <svg
+   height="28"
+   viewBox="0 -960 560 560"
+   width="28"
+   fill="#ffffff"
    version="1.1"
-   x="0px"
-   y="0px"
-   viewBox="0 0 128 128"
-   style="enable-background:new 0 0 128 128;"
-   xml:space="preserve"
-   id="svg6"
+   id="svg1"
    sodipodi:docname="playlist_add-light.svg"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"><defs
-   id="defs10" /><sodipodi:namedview
-   id="namedview8"
-   pagecolor="#ffffff"
-   bordercolor="#000000"
-   borderopacity="0.25"
-   inkscape:showpageshadow="2"
-   inkscape:pageopacity="0.0"
-   inkscape:pagecheckerboard="0"
-   inkscape:deskcolor="#d1d1d1"
-   showgrid="false"
-   inkscape:zoom="6.6875"
-   inkscape:cx="64.074766"
-   inkscape:cy="55.700935"
-   inkscape:window-width="1920"
-   inkscape:window-height="1018"
-   inkscape:window-x="0"
-   inkscape:window-y="27"
-   inkscape:window-maximized="1"
-   inkscape:current-layer="svg6" />
-<g
-   id="_x33_"
-   style="fill:#ffffff">
-	<path
-   style="fill:#ffffff"
-   d="M128,63.954c0,2.006-0.797,3.821-2.136,5.127c-1.308,1.337-3.125,2.133-5.166,2.133H71.302v49.356   c0,4.012-3.284,7.292-7.302,7.292c-2.009,0-3.827-0.828-5.166-2.134c-1.308-1.337-2.136-3.152-2.136-5.159V71.214H7.302   c-4.05,0-7.302-3.248-7.302-7.26c0-2.006,0.797-3.853,2.136-5.159c1.308-1.306,3.125-2.134,5.166-2.134h49.395V7.306   c0-4.012,3.284-7.26,7.302-7.26c2.009,0,3.827,0.828,5.166,2.133c1.308,1.306,2.136,3.121,2.136,5.127v49.356h49.395   C124.747,56.662,128,59.91,128,63.954z"
-   id="path2" />
-</g>
-<g
-   id="Layer_1">
-</g>
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="15.9375"
+     inkscape:cx="14.023529"
+     inkscape:cy="14.023529"
+     inkscape:window-width="1920"
+     inkscape:window-height="984"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <path
+     d="M 250,-650 H 0 v -60 h 250 v -250 h 60 v 250 h 250 v 60 H 310 v 250 h -60 z"
+     id="path1" />
 </svg>
