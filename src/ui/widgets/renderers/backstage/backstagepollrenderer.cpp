@@ -54,9 +54,7 @@ void BackstagePollRenderer::pollChoiceClicked()
 void BackstagePollRenderer::setData(const InnertubeObjects::Poll& poll)
 {
     voteCount->setText(poll.totalVotes);
-    bool hasSelected = std::ranges::any_of(poll.choices, [](const InnertubeObjects::PollChoice& choice) {
-        return choice.selected;
-    });
+    bool hasSelected = std::ranges::any_of(poll.choices, &InnertubeObjects::PollChoice::selected);
 
     for (const InnertubeObjects::PollChoice& pollChoice : poll.choices)
     {

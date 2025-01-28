@@ -1,5 +1,6 @@
 #include "settingsstore.h"
 #include "innertube/objects/ad/adslot.h"
+#include "innertube/objects/video/compactvideo.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
 #include "innertube/objects/viewmodels/lockupviewmodel.h"
@@ -135,6 +136,13 @@ bool SettingsStore::videoIsFiltered(const InnertubeObjects::AdSlot& adSlot) cons
         title = video->title.text;
 
     return strHasFilteredTerm(title);
+}
+
+bool SettingsStore::videoIsFiltered(const InnertubeObjects::CompactVideo& compactVideo) const
+{
+    return channelIsFiltered(compactVideo.owner().id) || strHasFilteredTerm(compactVideo.title.text) ||
+           (filterLengthEnabled && !compactVideo.isLive() && QTime(0, 0).secsTo(compactVideo.length()) <= filterLength) ||
+           (hideStreams && compactVideo.isLive());
 }
 
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::LockupViewModel& lockup) const

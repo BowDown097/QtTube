@@ -4,6 +4,7 @@
 namespace InnertubeObjects
 {
 struct AdSlot;
+struct CompactVideo;
 struct LockupViewModel;
 struct Reel;
 struct ShortsLockupViewModel;
@@ -68,6 +69,7 @@ public:
     bool strHasFilteredTerm(const QString& str) const;
 
     bool videoIsFiltered(const InnertubeObjects::AdSlot& adSlot) const;
+    bool videoIsFiltered(const InnertubeObjects::CompactVideo& compactVideo) const;
     bool videoIsFiltered(const InnertubeObjects::LockupViewModel& lockup) const;
     bool videoIsFiltered(const InnertubeObjects::Reel& reel) const;
     bool videoIsFiltered(const InnertubeObjects::ShortsLockupViewModel& shortsLockup) const;

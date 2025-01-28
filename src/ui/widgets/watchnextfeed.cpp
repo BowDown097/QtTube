@@ -1,11 +1,11 @@
 #include "watchnextfeed.h"
 #include "continuablelistwidget.h"
 #include "innertube/endpoints/video/next.h"
+#include "qttubeapplication.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/videothumbnailwidget.h"
 #include "utils/uiutils.h"
-#include <QCoreApplication>
 
 WatchNextFeed::WatchNextFeed(QWidget* parent)
     : QTabWidget(parent),
@@ -50,6 +50,9 @@ void WatchNextFeed::setData(const InnertubeEndpoints::Next& endpoint)
 
     for (const InnertubeObjects::CompactVideo& recommendedVideo : endpoint.response.results.secondaryResults.feed)
     {
+        if (qtTubeApp->settings().videoIsFiltered(recommendedVideo))
+            return;
+
         BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
         renderer->thumbnail->setFixedSize(167, 94);
         renderer->titleLabel->setMaximumLines(2);
