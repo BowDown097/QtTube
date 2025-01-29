@@ -150,8 +150,9 @@ void LiveChatWindow::insertEmoji(const QString& emoji)
 void LiveChatWindow::processChatData(const InnertubeEndpoints::GetLiveChat& liveChat)
 {
     // check if user can chat
-    if (actionPanel = liveChat.liveChatContinuation["actionPanel"]; actionPanel.isObject())
+    if (const QJsonValue actionPanelTmp = liveChat.liveChatContinuation["actionPanel"]; actionPanelTmp.isObject())
     {
+        actionPanel = actionPanelTmp;
         if (const QJsonValue restricted = actionPanel["liveChatRestrictedParticipationRenderer"]; restricted.isObject())
         {
             InnertubeObjects::InnertubeString message(restricted["message"]);
