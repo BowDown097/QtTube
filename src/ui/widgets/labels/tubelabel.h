@@ -32,6 +32,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 private:
+    int m_calculatedMaximumHeight = -1;
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
     QList<QRect> m_lineRects;
     int m_maximumLines = -1;

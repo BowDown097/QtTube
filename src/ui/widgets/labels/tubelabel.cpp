@@ -252,7 +252,11 @@ void TubeLabel::setMaximumLines(int lines)
 
 void TubeLabel::setText(const QString& text)
 {
+    if (maximumHeight() == m_calculatedMaximumHeight)
+        setMaximumHeight(QWIDGETSIZE_MAX);
+
     m_rawText = text;
+
     if (text.isEmpty() || m_maximumLines == 0) [[unlikely]]
     {
         QLabel::setText(QString());
@@ -298,7 +302,10 @@ void TubeLabel::setText(const QString& text)
     QLabel::setText(outText);
 
     if (m_maximumLines > 0)
-        setFixedHeight(y);
+    {
+        m_calculatedMaximumHeight = y;
+        setMaximumHeight(m_calculatedMaximumHeight);
+    }
 
     calculateAndSetLineRects();
 }
