@@ -57,6 +57,9 @@ void CredentialsStore::populateAuthStore(const CredentialSet& credSet)
 
 void CredentialsStore::save()
 {
+    if (m_credentials.empty())
+        return;
+
     QSettings settings(configPath(), QSettings::IniFormat);
     for (const CredentialSet& credSet : std::as_const(m_credentials))
     {
