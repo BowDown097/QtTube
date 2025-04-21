@@ -41,6 +41,10 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     QString stylesData = getFileContents(":/player/styles.css");
     loadScriptString(patchesData.arg(annotationStylesData + stylesData), QWebEngineScript::DocumentReady);
 
+    // band-aid fix. goodbye all cookies for now
+    m_view->page()->profile()->cookieStore()->setCookieFilter(
+        [](const QWebEngineCookieStore::FilterRequest& req) { return false; });
+
     m_view->page()->profile()->setUrlRequestInterceptor(m_interceptor);
     m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
     m_view->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
@@ -120,10 +124,14 @@ void WebEnginePlayer::setAuthStore(InnertubeAuthStore* authStore)
 }
 
 void WebEnginePlayer::setContext(InnertubeContext* context)
-{ m_interceptor->setContext(context); }
+{
+    m_interceptor->setContext(context);
+}
 
 void WebEnginePlayer::setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp)
-{ m_interceptor->setPlayerResponse(resp); }
+{
+    m_interceptor->setPlayerResponse(resp);
+}
 
 void WebEnginePlayer::seek(int progress)
 {
