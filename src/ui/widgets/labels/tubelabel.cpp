@@ -29,7 +29,7 @@ QRect TubeLabel::alignedRect(QRect rect) const
 
     if (alignment() & Qt::AlignHCenter || alignCenterStyleRegex.match(styleSheet()).hasMatch())
         rect.moveLeft((width() - rect.width()) / 2);
-    else if (alignment() & Qt::AlignRight || alignRightStyleRegex.match(styleSheet()).hasMatch())
+    else if (alignment() & Qt::AlignRight || text().isRightToLeft() || alignRightStyleRegex.match(styleSheet()).hasMatch())
         rect.moveLeft(width() - rect.width());
 
     if (alignment() & Qt::AlignVCenter && boundingRect().height() < height())
