@@ -1,23 +1,12 @@
 #include "tubeutils.h"
 #include "http.h"
 #include "innertube.h"
+#include "protobuf/protobufutil.h"
 #include <QRandomGenerator>
 #include <QUrlQuery>
 
 namespace TubeUtils
 {
-    QString generateCpn()
-    {
-        QString out;
-        out.reserve(16);
-
-        constexpr QLatin1String chars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
-        for (int i = 0; i < out.capacity(); i++)
-            out += chars[QRandomGenerator::global()->bounded(chars.size())];
-
-        return out;
-    }
-
     QString getUcidFromUrl(const QString& url)
     {
         QString ucid;
@@ -55,7 +44,7 @@ namespace TubeUtils
         {
             { "ns", "yt" },
             { "el", "detailpage" },
-            { "cpn", generateCpn() },
+            { "cpn", ProtobufUtil::randomString(16) },
             { "ver", "2" },
             { "fmt", "243" },
             { "fs", "0" },

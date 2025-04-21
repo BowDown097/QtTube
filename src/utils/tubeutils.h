@@ -9,7 +9,6 @@ struct InnertubeContext;
 
 namespace TubeUtils
 {
-    QString generateCpn();
     QString getUcidFromUrl(const QString& url);
     void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp);
     void setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore);
