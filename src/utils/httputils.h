@@ -1,6 +1,5 @@
 #pragma once
-
-class Http;
+#include "http.h"
 
 namespace HttpUtils
 {

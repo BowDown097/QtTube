@@ -1,9 +1,9 @@
 #include "accountmenuwidget.h"
-#include "http.h"
 #include "innertube/endpoints/misc/accountmenu.h"
 #include "mainwindow.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
+#include "utils/httputils.h"
 #include "utils/tubeutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
@@ -52,7 +52,7 @@ void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoi
 
     if (const InnertubeObjects::GenericThumbnail* recAvatar = header.accountPhoto.recommendedQuality(avatar->size()))
     {
-        HttpReply* avatarReply = Http::instance().get(QUrl(recAvatar->url));
+        HttpReply* avatarReply = HttpUtils::cachedInstance().get(QUrl(recAvatar->url));
         connect(avatarReply, &HttpReply::finished, this, &AccountMenuWidget::setAvatar);
     }
 

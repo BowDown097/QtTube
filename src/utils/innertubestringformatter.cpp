@@ -1,5 +1,4 @@
 #include "innertubestringformatter.h"
-#include "http.h"
 #include "utils/httputils.h"
 #include <QLabel>
 #include <QUrlQuery>

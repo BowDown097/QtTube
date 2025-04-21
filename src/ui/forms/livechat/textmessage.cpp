@@ -1,5 +1,4 @@
 #include "textmessage.h"
-#include "http.h"
 #include "innertube/objects/images/responsiveimage.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "utils/httputils.h"

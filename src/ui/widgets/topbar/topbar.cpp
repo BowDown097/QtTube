@@ -3,10 +3,10 @@
 // is what this should be using instead of whatever the hell's going on.
 
 #include "topbar.h"
-#include "http.h"
 #include "innertube.h"
 #include "qttubeapplication.h"
 #include "ui/forms/settings/settingsform.h"
+#include "utils/httputils.h"
 #include "utils/uiutils.h"
 #include <QApplication>
 #include <QMouseEvent>
@@ -139,7 +139,7 @@ void TopBar::setUpAvatarButton()
         if (const InnertubeObjects::GenericThumbnail* recAvatar =
             endpoint.response.header.accountPhoto.recommendedQuality(avatarButton->size()))
         {
-            HttpReply* photoReply = Http::instance().get(recAvatar->url);
+            HttpReply* photoReply = HttpUtils::cachedInstance().get(recAvatar->url);
             connect(photoReply, &HttpReply::finished, this, &TopBar::setAvatar);
         }
     });

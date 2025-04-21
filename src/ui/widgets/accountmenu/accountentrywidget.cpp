@@ -1,6 +1,6 @@
 #include "accountentrywidget.h"
-#include "http.h"
 #include "stores/credentialsstore.h"
+#include "utils/httputils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QLabel>
@@ -18,7 +18,7 @@ AccountEntryWidget::AccountEntryWidget(const CredentialSet& credSet, QWidget* pa
     nameLabel->setText(credSet.username);
     layout->addWidget(nameLabel);
 
-    HttpReply* reply = Http::instance().get(QUrl(credSet.avatarUrl));
+    HttpReply* reply = HttpUtils::cachedInstance().get(QUrl(credSet.avatarUrl));
     connect(reply, &HttpReply::finished, this, &AccountEntryWidget::setAvatar);
 }
 
