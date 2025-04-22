@@ -41,10 +41,6 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
     QString stylesData = getFileContents(":/player/styles.css");
     loadScriptString(patchesData.arg(annotationStylesData + stylesData), QWebEngineScript::DocumentReady);
 
-    // band-aid fix. goodbye all cookies for now
-    m_view->page()->profile()->cookieStore()->setCookieFilter(
-        [](const QWebEngineCookieStore::FilterRequest& req) { return false; });
-
     m_view->page()->profile()->setUrlRequestInterceptor(m_interceptor);
     m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
     m_view->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
@@ -56,15 +52,12 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
 void WebEnginePlayer::fullScreenRequested(QWebEngineFullScreenRequest request)
 {
     request.accept();
-    if (request.toggleOn())
+    if (m_fullScreenWindow)
     {
-        if (m_fullScreenWindow) return;
-        m_fullScreenWindow.reset(new FullScreenWindow(m_view));
-    }
-    else
-    {
-        if (!m_fullScreenWindow) return;
-        m_fullScreenWindow.reset();
+        if (request.toggleOn())
+            m_fullScreenWindow.reset(new FullScreenWindow(m_view));
+        else
+            m_fullScreenWindow.reset();
     }
 }
 
@@ -117,7 +110,7 @@ void WebEnginePlayer::setAuthStore(InnertubeAuthStore* authStore)
     {
         QStringList parts = cookiePair.split('=');
         QNetworkCookie cookie(parts[0].toUtf8(), parts[1].toUtf8());
-        cookie.setDomain("www.youtube.com");
+        cookie.setDomain("youtube.com");
         cookie.setPath("/");
         cookieStore->setCookie(cookie);
     }
