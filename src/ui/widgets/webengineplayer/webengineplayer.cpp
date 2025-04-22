@@ -52,13 +52,10 @@ WebEnginePlayer::WebEnginePlayer(QWidget* parent)
 void WebEnginePlayer::fullScreenRequested(QWebEngineFullScreenRequest request)
 {
     request.accept();
-    if (m_fullScreenWindow)
-    {
-        if (request.toggleOn())
-            m_fullScreenWindow.reset(new FullScreenWindow(m_view));
-        else
-            m_fullScreenWindow.reset();
-    }
+    if (request.toggleOn())
+        m_fullScreenWindow.reset(new FullScreenWindow(m_view));
+    else
+        m_fullScreenWindow.reset();
 }
 
 QString WebEnginePlayer::getFileContents(const QString& path)
