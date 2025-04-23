@@ -11,7 +11,7 @@
 ChannelView::~ChannelView()
 {
     disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
-    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
         mainWindow->setWindowTitle(QTTUBE_APP_NAME);
 }
 
@@ -162,7 +162,7 @@ void ChannelView::prepareHeader(const InnertubeObjects::ChannelC4Header& c4Heade
     subscribeWidget->setSubscribeButton(c4Header.subscribeButton);
     subscribeWidget->setSubscriberCount(c4Header.subscriberCountText.text, c4Header.channelId);
 
-    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
         mainWindow->setWindowTitle(c4Header.title + " - " + QTTUBE_APP_NAME);
 
     prepareAvatarAndBanner(c4Header.avatar, c4Header.banner);
@@ -197,7 +197,7 @@ void ChannelView::prepareHeader(const InnertubeObjects::ChannelPageHeader& pageH
         }
     }
 
-    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
         mainWindow->setWindowTitle(pageHeader.title.text.content + " - " + QTTUBE_APP_NAME);
 
     prepareAvatarAndBanner(pageHeader.image.avatar.image, pageHeader.banner.image);

@@ -22,7 +22,9 @@ class QLabel;
 class QLayout;
 class QListWidget;
 class QListWidgetItem;
+class QMainWindow;
 class QTabWidget;
+class VideoRenderer;
 
 namespace UIUtils
 {
@@ -65,7 +67,9 @@ namespace UIUtils
     QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
     void addWrappedLabelToList(QListWidget* list, const QString& text);
     void clearLayout(QLayout* layout);
+    VideoRenderer* constructVideoRenderer(QListWidget* list);
     void copyToClipboard(const QString& text);
+    QMainWindow* getMainWindow();
     QIcon iconThemed(const QString& name, const QPalette& pal = {});
     QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius = 9999, double yRadius = 9999);
     QPixmap pixmapThemed(const QString& name, const QPalette& pal = {});

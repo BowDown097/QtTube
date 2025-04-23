@@ -36,7 +36,7 @@ protected:
 private:
     QString channelId;
     QPointer<QTimer> metadataUpdateTimer;
-    std::unique_ptr<Ui::WatchView> ui;
+    Ui::WatchView* ui;
 
     void processPreloadData(PreloadData::WatchView* preload);
     InnertubeObjects::InnertubeString unattributeDescription(const InnertubeObjects::DynamicText& attributedDescription);

@@ -21,6 +21,7 @@
 #include <QLayout>
 #include <QPainter>
 #include <QStyleFactory>
+#include <QWindow>
 
 constexpr QLatin1String DarkStylesheet(R"(
     QLineEdit {
@@ -160,17 +161,6 @@ namespace UIUtils
         list->setItemWidget(item, shelfLabel);
     }
 
-    VideoRenderer* constructVideoRenderer(QListWidget* list)
-    {
-        VideoRenderer* renderer;
-        if (list->flow() == QListWidget::LeftToRight)
-            renderer = new GridVideoRenderer(list);
-        else
-            renderer = new BrowseVideoRenderer(list);
-
-        return renderer;
-    }
-
     void addVideoToList(QListWidget* list, const InnertubeObjects::AdSlot& adSlot,
                         bool useThumbnailFromData)
     {
@@ -256,6 +246,17 @@ namespace UIUtils
         }
     }
 
+    VideoRenderer* constructVideoRenderer(QListWidget* list)
+    {
+        VideoRenderer* renderer;
+        if (list->flow() == QListWidget::LeftToRight)
+            renderer = new GridVideoRenderer(list);
+        else
+            renderer = new BrowseVideoRenderer(list);
+
+        return renderer;
+    }
+
     void copyToClipboard(const QString& text)
     {
         QClipboard* clipboard = qApp->clipboard();
@@ -263,6 +264,15 @@ namespace UIUtils
 
         if (clipboard->supportsSelection())
             clipboard->setText(text, QClipboard::Selection);
+    }
+
+    QMainWindow* getMainWindow()
+    {
+        const QWidgetList widgets = qApp->topLevelWidgets();
+        for (QWidget* window : widgets)
+            if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(window))
+                return mainWindow;
+        return nullptr;
     }
 
     QIcon iconThemed(const QString& name, const QPalette& pal)

@@ -50,7 +50,7 @@ void WebChannelInterface::handleStateChange(PlayerState state)
 
 void WebChannelInterface::setWindowTitleSuffix(const QString& suffix)
 {
-    if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(qApp->activeWindow()))
+    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
     {
         static QRegularExpression suffixRegex(R"( \[(Playing|Paused)\]$)");
         mainWindow->setWindowTitle(mainWindow->windowTitle().remove(suffixRegex).append(' ').append(suffix));
