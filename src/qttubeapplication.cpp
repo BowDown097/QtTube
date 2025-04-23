@@ -22,6 +22,7 @@ void QtTubeApplication::doInitialSetup()
     }
     else
     {
+        cache->clear();
         InnerTube::instance()->createClient(InnertubeClient::ClientType::WEB, "2.20250421.01.00", true);
         cache->insert("cver", InnerTube::instance()->context()->client.clientVersion.toLatin1());
     }
