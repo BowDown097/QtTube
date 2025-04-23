@@ -1,7 +1,7 @@
 #pragma once
 #include <QTabWidget>
 
-namespace InnertubeEndpoints { class Next; }
+namespace InnertubeEndpoints { struct Next; }
 
 class ContinuableListWidget;
 

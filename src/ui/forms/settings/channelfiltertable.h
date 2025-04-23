@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 
-namespace InnertubeEndpoints { class BrowseChannel; }
+namespace InnertubeEndpoints { struct BrowseChannel; }
 
 namespace Ui {
 class ChannelFilterTable;

@@ -9,8 +9,8 @@ class LiveChatWindow;
 
 namespace InnertubeEndpoints
 {
-class GetLiveChat;
-class GetLiveChatReplay;
+struct GetLiveChat;
+struct GetLiveChatReplay;
 }
 
 namespace InnertubeObjects { struct LiveChat; }

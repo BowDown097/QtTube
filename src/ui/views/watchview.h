@@ -4,8 +4,8 @@
 
 namespace InnertubeEndpoints
 {
-class Next;
-class Player;
+struct Next;
+struct Player;
 struct UpdatedMetadataResponse;
 }
 

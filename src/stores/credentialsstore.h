@@ -18,7 +18,7 @@ struct CredentialSet
     { return lhs.channelId == rhs.channelId; }
 };
 
-namespace InnertubeEndpoints { class AccountMenu; }
+namespace InnertubeEndpoints { struct AccountMenu; }
 
 class CredentialsStore : public GenericStore
 {

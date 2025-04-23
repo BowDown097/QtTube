@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 
-namespace InnertubeEndpoints { class AccountMenu; }
+namespace InnertubeEndpoints { struct AccountMenu; }
 
 class HttpReply;
 class IconLabel;
