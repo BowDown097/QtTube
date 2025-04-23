@@ -2,11 +2,46 @@
 #include "http.h"
 #include "innertube.h"
 #include "protobuf/protobufutil.h"
+#include "qttubeapplication.h"
+#include <QNetworkReply>
 #include <QRandomGenerator>
 #include <QUrlQuery>
 
 namespace TubeUtils
 {
+    QFuture<std::pair<QString, bool>> getSubCount(const QString& channelId, const QString& fallback)
+    {
+        QFutureInterface<std::pair<QString, bool>> futureInterface;
+        futureInterface.reportStarted();
+
+        if (!qtTubeApp->settings().fullSubs)
+        {
+            futureInterface.reportResult(std::make_pair(fallback, false));
+            futureInterface.reportFinished();
+            return futureInterface.future();
+        }
+
+        HttpReply* reply = Http::instance().get("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId);
+        QObject::connect(reply, &HttpReply::finished, [fallback, futureInterface](const HttpReply& reply) mutable {
+            if (reply.isSuccessful())
+            {
+                static QRegularExpression estSubRegex("\"est_sub\":(\\d+)");
+                if (QRegularExpressionMatch match = estSubRegex.match(reply.body()); match.hasCaptured(1))
+                    futureInterface.reportResult(std::make_pair(QLocale::system().toString(match.captured(1).toInt()), true));
+                else
+                    futureInterface.reportResult(std::make_pair(fallback, false));
+            }
+            else
+            {
+                futureInterface.reportResult(std::make_pair(fallback, false));
+            }
+
+            futureInterface.reportFinished();
+        });
+
+        return futureInterface.future();
+    }
+
     QString getUcidFromUrl(const QString& url)
     {
         QString ucid;

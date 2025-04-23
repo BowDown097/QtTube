@@ -1,15 +1,13 @@
 #include "browsechannelrenderer.h"
 #include "httpreply.h"
 #include "innertube/objects/channel/channel.h"
-#include "qttubeapplication.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
+#include "utils/tubeutils.h"
 #include <QBoxLayout>
-#include <QJsonDocument>
 #include <QMessageBox>
-#include <QNetworkReply>
 
 BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
     : QWidget(parent),
@@ -65,39 +63,28 @@ void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
         descriptionLabel->setText(channel.descriptionSnippet.text);
     }
 
-    const QString& subCount = channel.subscriberCountText.text;
-    const QString& videoCount = channel.videoCountText.text;
+    // "google lied to you!" - kanye west
+    // subscriberCountText and videoCountText may be what they say, but they also may not.
+    // either one can actually be the channel handle (but never both), so we have to check for that.
+    const QString& givenSubCount = channel.subscriberCountText.text;
+    const QString& givenVideoCount = channel.videoCountText.text;
+
+    const QString& realSubCount = givenSubCount.startsWith('@') ? givenVideoCount : givenSubCount;
+    const QString& handleOrVideos = givenSubCount.startsWith('@') ? givenSubCount : givenVideoCount;
 
     std::visit([this](auto&& v) { subscribeWidget->setSubscribeButton(v); }, channel.subscribeButton);
-    subscribeWidget->setSubscriberCount(subCount.contains("subscribers") ? subCount : videoCount, channelId);
+    subscribeWidget->setSubscriberCount(realSubCount, channelId);
 
-    if (qtTubeApp->settings().fullSubs)
-    {
-        // QNetworkAccessManager needs to be used here due to a bug with the http library
-        QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-        manager->setTransferTimeout(2000);
+    TubeUtils::getSubCount(channelId, realSubCount).then([this, handleOrVideos](std::pair<QString, bool> result) {
+        // add "subscribers" if we got full count so the format is consistent
+        if (result.second)
+            result.first += " subscribers";
 
-        QNetworkReply* reply = manager->get(QNetworkRequest("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId));
-        connect(reply, &QNetworkReply::finished, this, [this, reply, subCount, videoCount] {
-            reply->deleteLater();
-            reply->manager()->deleteLater();
-
-            if (reply->error() != QNetworkReply::NoError)
-                return;
-
-            int subs = QJsonDocument::fromJson(reply->readAll())["est_sub"].toInt();
-            QString fullSubs = QLocale::system().toString(subs) + " subscribers";
-
-            // in some cases, subCount is the channel handle, and other times it's actually the sub count.
-            // thanks innertube! so ya, we have to check for that, otherwise subs show up twice.
-            metadataLabel->setText(subCount.contains(" subscribers")
-                ? QStringLiteral("%1 • %2").arg(fullSubs, videoCount) : QStringLiteral("%1 • %2").arg(subCount, fullSubs));
-        });
-    }
-    else
-    {
-        metadataLabel->setText(!videoCount.isEmpty() ? QStringLiteral("%1 • %2").arg(subCount, videoCount) : subCount);
-    }
+        if (!handleOrVideos.isEmpty())
+            metadataLabel->setText(QStringLiteral("%1 • %2").arg(result.first, handleOrVideos));
+        else
+            metadataLabel->setText(result.first);
+    });
 }
 
 void BrowseChannelRenderer::setThumbnail(const HttpReply& reply)

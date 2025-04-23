@@ -17,7 +17,7 @@ public:
     void setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
     void setSubscribeButton(const InnertubeObjects::SubscribeButtonViewModel& subscribeViewModel, bool subscribed);
-    void setSubscriberCount(const QString& subscriberCountText, const QString& channelId);
+    void setSubscriberCount(QString subscriberCountText, const QString& channelId);
 
     QHBoxLayout* layout;
     TubeLabel* subscribersCountLabel;

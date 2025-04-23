@@ -1,11 +1,9 @@
 #include "subscribewidget.h"
 #include "notificationbell.h"
-#include "qttubeapplication.h"
 #include "subscribelabel.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include <QHBoxLayout>
-#include <QJsonDocument>
-#include <QNetworkReply>
+#include "utils/tubeutils.h"
+#include <QBoxLayout>
 
 constexpr QLatin1String SubscribersCountStylesheet(R"(
     border: 1px solid #555;
@@ -87,34 +85,11 @@ void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton
     notificationBell->setVisible(subscribed);
 }
 
-void SubscribeWidget::setSubscriberCount(const QString& subscriberCountText, const QString& channelId)
+void SubscribeWidget::setSubscriberCount(QString subscriberCountText, const QString& channelId)
 {
-    if (!qtTubeApp->settings().fullSubs)
-    {
-        subscribersCountLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
+    subscriberCountText.chop(subscriberCountText.lastIndexOf(' '));
+    TubeUtils::getSubCount(channelId, subscriberCountText).then([this](const std::pair<QString, bool>& result) {
+        subscribersCountLabel->setText(result.first);
         subscribersCountLabel->adjustSize();
-        return;
-    }
-
-    // QNetworkAccessManager needs to be used here due to a bug with the http library
-    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-    manager->setTransferTimeout(2000);
-
-    QNetworkReply* reply = manager->get(QNetworkRequest("https://api.socialcounts.org/youtube-live-subscriber-count/" + channelId));
-    connect(reply, &QNetworkReply::finished, this, [this, reply, subscriberCountText] {
-        reply->deleteLater();
-        reply->manager()->deleteLater();
-
-        if (reply->error() != QNetworkReply::NoError)
-        {
-            subscribersCountLabel->setText(subscriberCountText.left(subscriberCountText.lastIndexOf(" ")));
-            subscribersCountLabel->adjustSize();
-        }
-        else
-        {
-            int subs = QJsonDocument::fromJson(reply->readAll())["est_sub"].toInt();
-            subscribersCountLabel->setText(QLocale::system().toString(subs));
-            subscribersCountLabel->adjustSize();
-        }
     });
 }

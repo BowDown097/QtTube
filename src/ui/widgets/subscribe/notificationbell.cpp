@@ -65,11 +65,11 @@ void NotificationBell::leaveEvent(QEvent*)
 // i couldn't find one that wouldn't require even more voodoo unfortunately :(
 void NotificationBell::fromListViewModel(const QJsonValue& listViewModel)
 {
-    constexpr int MaxStateValue = 2;
+    constexpr qsizetype MaxStateValue = 2;
     PreferenceListState currentState = PreferenceListState::Personalized;
     const QJsonArray listItems = listViewModel["listItems"].toArray();
 
-    for (int i = 0; i < std::min<qsizetype>(listItems.size(), MaxStateValue + 1); i++)
+    for (qsizetype i = 0; i < std::min(listItems.size(), MaxStateValue + 1); ++i)
     {
         const QJsonValue viewModel = listItems[i]["listItemViewModel"];
         if (viewModel["isSelected"].toBool())
