@@ -76,6 +76,9 @@ void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
     subscribeWidget->setSubscriberCount(realSubCount, channelId);
 
     TubeUtils::getSubCount(channelId, realSubCount).then([this, handleOrVideos](std::pair<QString, bool> result) {
+        if (!metadataLabel)
+            return;
+
         // add "subscribers" if we got full count so the format is consistent
         if (result.second)
             result.first += " subscribers";

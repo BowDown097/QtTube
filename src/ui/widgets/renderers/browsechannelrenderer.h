@@ -1,4 +1,5 @@
 #pragma once
+#include <QPointer>
 #include <QWidget>
 
 namespace InnertubeObjects { struct Channel; struct MetadataBadge; struct SubscribeButton; }
@@ -20,7 +21,7 @@ private:
     QString channelId;
     TubeLabel* descriptionLabel;
     QHBoxLayout* hbox;
-    TubeLabel* metadataLabel;
+    QPointer<TubeLabel> metadataLabel;
     SubscribeWidget* subscribeWidget;
     QVBoxLayout* textVbox;
     TubeLabel* thumbLabel;

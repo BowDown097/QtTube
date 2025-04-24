@@ -49,17 +49,16 @@ void VideoRenderer::copyDirectUrl()
         }
         else
         {
-            auto best = std::ranges::max_element(streamingData.formats, [](const auto& a, const auto& b) {
-                return a.bitrate < b.bitrate;
-            });
-
-            if (best == streamingData.formats.end())
+            if (auto best = std::ranges::max_element(
+                    streamingData.formats, std::less(), &InnertubeObjects::StreamingFormat::bitrate);
+                best != streamingData.formats.end())
+            {
+                UIUtils::copyToClipboard(best->url);
+            }
+            else
             {
                 QMessageBox::critical(this, "Failed to copy to clipboard", "Failed to copy the direct video URL to the clipboard. The video is likely unavailable.");
-                return;
             }
-
-            UIUtils::copyToClipboard(best->url);
         }
     });
 }

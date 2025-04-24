@@ -89,7 +89,10 @@ void SubscribeWidget::setSubscriberCount(QString subscriberCountText, const QStr
 {
     subscriberCountText.chop(subscriberCountText.lastIndexOf(' '));
     TubeUtils::getSubCount(channelId, subscriberCountText).then([this](const std::pair<QString, bool>& result) {
-        subscribersCountLabel->setText(result.first);
-        subscribersCountLabel->adjustSize();
+        if (subscribersCountLabel)
+        {
+            subscribersCountLabel->setText(result.first);
+            subscribersCountLabel->adjustSize();
+        }
     });
 }

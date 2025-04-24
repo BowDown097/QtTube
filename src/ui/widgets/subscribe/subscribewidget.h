@@ -2,6 +2,7 @@
 #include "innertube/objects/channel/subscribebutton.h"
 #include "innertube/objects/viewmodels/buttonviewmodel.h"
 #include "innertube/objects/viewmodels/subscribebuttonviewmodel.h"
+#include <QPointer>
 #include <QWidget>
 
 class NotificationBell;
@@ -20,7 +21,7 @@ public:
     void setSubscriberCount(QString subscriberCountText, const QString& channelId);
 
     QHBoxLayout* layout;
-    TubeLabel* subscribersCountLabel;
+    QPointer<TubeLabel> subscribersCountLabel;
 private:
     NotificationBell* notificationBell;
     SubscribeLabel* subscribeLabel;

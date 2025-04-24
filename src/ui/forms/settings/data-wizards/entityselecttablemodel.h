@@ -20,7 +20,7 @@ public:
     int columnCount(const QModelIndex& = QModelIndex()) const override { return 2; }
     int rowCount(const QModelIndex& = QModelIndex()) const override { return m_data.count(); }
     int checkedRowCount(const QModelIndex& = QModelIndex()) const
-    { return std::ranges::count_if(m_data, [](const Entity& e) { return e.checked; }); }
+    { return std::ranges::count_if(m_data, &Entity::checked); }
     Qt::ItemFlags flags(const QModelIndex& = QModelIndex()) const override
     { return Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled; }
 
