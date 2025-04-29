@@ -152,12 +152,20 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButtonVie
     }
 }
 
+void WatchView::openLiveChat(const InnertubeObjects::LiveChat& conversationBar)
+{
+    LiveChatWindow* liveChatWindow = new LiveChatWindow;
+    liveChatWindow->setAttribute(Qt::WA_DeleteOnClose);
+    liveChatWindow->show();
+    liveChatWindow->initialize(conversationBar.continuations.front(), conversationBar.isReplay, ui->player);
+}
+
 void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 {
     const InnertubeEndpoints::NextResponse& nextResp = endpoint.response;
-    const InnertubeObjects::VideoPrimaryInfo& primaryInfo = nextResp.results.results.primaryInfo;
-    const InnertubeObjects::VideoSecondaryInfo& secondaryInfo = nextResp.results.results.secondaryInfo;
-    channelId = nextResp.results.results.secondaryInfo.owner.navigationEndpoint["browseEndpoint"]["browseId"].toString();
+    const InnertubeObjects::VideoPrimaryInfo& primaryInfo = nextResp.contents.results.primaryInfo;
+    const InnertubeObjects::VideoSecondaryInfo& secondaryInfo = nextResp.contents.results.secondaryInfo;
+    channelId = secondaryInfo.owner.navigationEndpoint["browseEndpoint"]["browseId"].toString();
 
     ui->channelLabel->setInfo(channelId, secondaryInfo.owner.title.text, secondaryInfo.owner.badges);
 
@@ -195,18 +203,12 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
                 std::bind(&DownloadManager::append, DownloadManager::instance(), nextResp.videoId));
     }
 
-    if (std::optional<InnertubeObjects::LiveChat> liveChat = nextResp.results.liveChat; liveChat.has_value())
+    if (const std::optional<InnertubeObjects::LiveChat>& conversationBar = nextResp.contents.conversationBar)
     {
         IconLabel* liveChatLabel = new IconLabel("live-chat", "Chat", QMargins(15, 0, 0, 0));
         ui->topLevelButtons->addWidget(liveChatLabel);
-
-        connect(liveChatLabel, &IconLabel::clicked, this, [this, liveChat]
-        {
-            LiveChatWindow* liveChatWindow = new LiveChatWindow;
-            liveChatWindow->setAttribute(Qt::WA_DeleteOnClose);
-            liveChatWindow->show();
-            liveChatWindow->initialize(liveChat.value(), ui->player);
-        });
+        connect(liveChatLabel, &IconLabel::clicked, this,
+                std::bind(&WatchView::openLiveChat, this, conversationBar.value()));
     }
 
     ui->topLevelButtons->addStretch();
@@ -258,11 +260,11 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     QString dateText = primaryInfo.dateText.text;
     if (!dateText.startsWith("Premier") && !dateText.startsWith("St") && !dateText.startsWith("Sched"))
         dateText.prepend("Published on ");
-    if (nextResp.results.results.primaryInfo.superTitleLink.has_value())
-        dateText += " | " + InnertubeStringFormatter::formatSimple(nextResp.results.results.primaryInfo.superTitleLink.value(), true);
+    if (!primaryInfo.superTitleLink.text.isEmpty())
+        dateText += " | " + InnertubeStringFormatter::formatSimple(primaryInfo.superTitleLink, true);
 
     ui->date->setText(dateText);
-    ui->description->setText(InnertubeStringFormatter::formatSimple(unattributeDescription(nextResp.results.results.secondaryInfo.attributedDescription), false));
+    ui->description->setText(InnertubeStringFormatter::formatSimple(unattributeDescription(secondaryInfo.attributedDescription), false));
     ui->description->setVisible(!ui->description->text().isEmpty());
     ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumHeight());
     ui->feed->setData(endpoint);

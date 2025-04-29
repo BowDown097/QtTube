@@ -13,8 +13,6 @@ struct GetLiveChat;
 struct GetLiveChatReplay;
 }
 
-namespace InnertubeObjects { struct LiveChat; }
-
 class QJsonArray;
 class QTimer;
 class TubeLabel;
@@ -26,7 +24,7 @@ public:
     explicit LiveChatWindow(QWidget* parent = nullptr);
     ~LiveChatWindow();
 public slots:
-    void initialize(const InnertubeObjects::LiveChat& liveChatData, WatchViewPlayer* player);
+    void initialize(const QString& continuation, bool isReplay, WatchViewPlayer* player);
 private:
     QJsonValue actionPanel;
     QString currentContinuation;

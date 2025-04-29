@@ -120,17 +120,18 @@ void LiveChatWindow::chatTick()
     connect(reply, &InnertubeReply<InnertubeEndpoints::GetLiveChat>::finished, this, &LiveChatWindow::processChatData);
 }
 
-void LiveChatWindow::initialize(const InnertubeObjects::LiveChat& liveChatData, WatchViewPlayer* player)
+void LiveChatWindow::initialize(const QString& continuation, bool isReplay, WatchViewPlayer* player)
 {
-    currentContinuation = liveChatData.continuations[0];
+    currentContinuation = continuation;
 
-    if (liveChatData.isReplay)
+    if (isReplay)
     {
         emojiMenuLabel->hide();
         ui->chatModeSwitcher->hide();
         ui->messageBox->hide();
         ui->sendButton->hide();
-        connect(player, &WatchViewPlayer::progressChanged, this, std::bind_front(&LiveChatWindow::chatReplayTick, this));
+        if (player)
+            connect(player, &WatchViewPlayer::progressChanged, this, std::bind_front(&LiveChatWindow::chatReplayTick, this));
     }
     else
     {

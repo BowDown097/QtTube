@@ -13,6 +13,7 @@ namespace InnertubeObjects
 {
 struct DynamicText;
 struct InnertubeString;
+struct LiveChat;
 struct ToggleButtonViewModel;
 }
 
@@ -44,6 +45,7 @@ private:
 private slots:
     void descriptionLinkActivated(const QString& url);
     void likeOrDislike(bool like, const InnertubeObjects::ToggleButtonViewModel& toggleButton);
+    void openLiveChat(const InnertubeObjects::LiveChat& conversationBar);
     void processNext(const InnertubeEndpoints::Next& endpoint);
     void processPlayer(const InnertubeEndpoints::Player& endpoint);
     void setChannelIcon(const HttpReply& reply);

@@ -35,29 +35,39 @@ void WatchNextFeed::reset()
 
 void WatchNextFeed::setData(const InnertubeEndpoints::Next& endpoint)
 {
-    if (!endpoint.response.results.results.commentsSectionContinuation.isEmpty())
+    if (!endpoint.response.contents.results.commentsSectionContinuation.isEmpty())
     {
         setTabVisible(1, true);
-        commentsContinuation = endpoint.response.results.results.commentsSectionContinuation;
+        commentsContinuation = endpoint.response.contents.results.commentsSectionContinuation;
         connect(comments, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueComments);
     }
 
-    if (!endpoint.response.results.secondaryResults.feedContinuation.isEmpty())
+    if (!endpoint.response.contents.secondaryResults.feedContinuation.isEmpty())
     {
-        recommendedContinuation = endpoint.response.results.secondaryResults.feedContinuation;
+        recommendedContinuation = endpoint.response.contents.secondaryResults.feedContinuation;
         connect(recommended, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueRecommended);
     }
 
-    for (const InnertubeObjects::CompactVideo& recommendedVideo : endpoint.response.results.secondaryResults.feed)
+    for (const InnertubeObjects::WatchNextFeedItem& item : endpoint.response.contents.secondaryResults.feed)
     {
-        if (qtTubeApp->settings().videoIsFiltered(recommendedVideo))
-            return;
+        if (std::visit([](auto&& v) { return qtTubeApp->settings().videoIsFiltered(v); }, item))
+            continue;
 
         BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
         renderer->thumbnail->setFixedSize(167, 94);
         renderer->titleLabel->setMaximumLines(2);
         renderer->titleLabel->setWordWrap(true);
-        renderer->setData(recommendedVideo);
+
+        if (const auto* compactVideo = std::get_if<InnertubeObjects::CompactVideo>(&item))
+        {
+            renderer->setData(*compactVideo);
+        }
+        else if (const auto* adSlot = std::get_if<InnertubeObjects::AdSlot>(&item))
+        {
+            std::visit([renderer](auto&& v) {
+                renderer->setData(v);
+            }, adSlot->fulfillmentContent.fulfilledLayout.renderingContent);
+        }
 
         UIUtils::addWidgetToList(recommended, renderer);
         QCoreApplication::processEvents();

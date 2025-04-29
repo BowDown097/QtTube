@@ -167,7 +167,7 @@ namespace UIUtils
         if (qtTubeApp->settings().videoIsFiltered(adSlot))
             return;
 
-        std::visit([&adSlot, list, useThumbnailFromData](auto&& v) {
+        std::visit([list, useThumbnailFromData](auto&& v) {
             VideoRenderer* renderer = constructVideoRenderer(list);
             renderer->setData(v, useThumbnailFromData);
             addWidgetToList(list, renderer);

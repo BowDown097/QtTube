@@ -87,7 +87,7 @@ void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton
 
 void SubscribeWidget::setSubscriberCount(QString subscriberCountText, const QString& channelId)
 {
-    subscriberCountText.chop(subscriberCountText.lastIndexOf(' '));
+    subscriberCountText.truncate(subscriberCountText.lastIndexOf(' '));
     TubeUtils::getSubCount(channelId, subscriberCountText).then([this](const std::pair<QString, bool>& result) {
         if (subscribersCountLabel)
         {

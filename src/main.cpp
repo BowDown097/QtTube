@@ -50,11 +50,11 @@ int main(int argc, char *argv[])
 
         auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::Next>(parser.value("chat"));
 
-        if (endpoint.response.results.liveChat.has_value())
+        if (const std::optional<InnertubeObjects::LiveChat>& conversationBar = endpoint.response.contents.conversationBar)
         {
             LiveChatWindow liveChatWindow;
             liveChatWindow.show();
-            liveChatWindow.initialize(endpoint.response.results.liveChat.value(), nullptr);
+            liveChatWindow.initialize(conversationBar->continuations.front(), conversationBar->isReplay, nullptr);
             return a.exec();
         }
         else

@@ -147,7 +147,7 @@ bool SettingsStore::videoIsFiltered(const InnertubeObjects::CompactVideo& compac
 
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::LockupViewModel& lockup) const
 {
-    if (std::optional<InnertubeObjects::VideoOwner> owner = lockup.owner(); channelIsFiltered(owner->id))
+    if (std::optional<InnertubeObjects::BasicChannel> owner = lockup.owner(); channelIsFiltered(owner->id))
         return true;
 
     return strHasFilteredTerm(lockup.metadata.title) ||

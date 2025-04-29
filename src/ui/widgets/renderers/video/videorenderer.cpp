@@ -91,9 +91,7 @@ void VideoRenderer::setData(const InnertubeObjects::CompactVideo& compactVideo,
     metadataList.removeAll({});
     metadataLabel->setText(metadataList.join(" • "));
 
-    InnertubeObjects::VideoOwner owner = compactVideo.owner();
-
-    if (InnertubeObjects::VideoOwner owner = compactVideo.owner(); !owner.id.isEmpty())
+    if (InnertubeObjects::BasicChannel owner = compactVideo.owner(); !owner.id.isEmpty())
     {
         watchPreloadData->channelAvatar = owner.icon;
         watchPreloadData->channelBadges = compactVideo.ownerBadges;
@@ -157,7 +155,7 @@ void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup,
         metadataLabel->setText(metadataList.join(lockup.metadata.metadata.delimiter));
     }
 
-    if (std::optional<InnertubeObjects::VideoOwner> owner = lockup.owner())
+    if (std::optional<InnertubeObjects::BasicChannel> owner = lockup.owner())
     {
         watchPreloadData->channelAvatar = owner->icon;
         watchPreloadData->channelId = owner->id;
