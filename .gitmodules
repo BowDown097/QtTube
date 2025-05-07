@@ -1,4 +1,4 @@
-[submodule "lib/innertube-qt"]
-	path = lib/innertube-qt
+[submodule "application/lib/innertube-qt"]
+	path = application/lib/innertube-qt
 	url = https://github.com/BowDown097/innertube-qt
 	branch = master
