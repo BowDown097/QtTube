@@ -5,17 +5,21 @@ project(QtTube
     HOMEPAGE_URL "https://github.com/BowDown097/QtTube"
     LANGUAGES CXX C)
 
-# Have to do this for ui_ files
+# CMake options
+## Needed for includes in ui files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-# Set up AUTOMOC, AUTORCC, and AUTOUIC
+## MOC, RCC, and UIC
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-
-# Standard
+## Standard version
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+## Output executables and libs in the main build folder, not in subfolders
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+if(UNIX)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+endif()
 
 # Names
 ## App
@@ -48,4 +52,7 @@ endif()
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 set(QTTUBE_QT_VERSION_MAJOR ${QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QT_VERSION_MAJOR}")
 
+# Components
+add_subdirectory(plugin_interface)
+add_subdirectory(builtin_plugins/youtube)
 add_subdirectory(application)
