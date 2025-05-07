@@ -1,6 +1,12 @@
 #pragma once
 #include <QString>
 
+#ifdef Q_OS_WIN
+#define DLLEXPORT __declspec(dllexport)
+#else
+#define DLLEXPORT
+#endif
+
 namespace QtTube
 {
     struct PluginInterface
@@ -17,16 +23,20 @@ namespace QtTube
         const char* author;
         const char* url;
     };
+
+    struct PluginSettings {};
 }
 
-using QtTubePluginLoadFunc = QtTube::PluginInterface*(*)();
+using QtTubePluginMetadataFunc = QtTube::PluginMetadata*(*)();
+using QtTubePluginNewInstanceFunc = QtTube::PluginInterface*(*)();
+using QtTubePluginSettingsFunc = QtTube::PluginSettings*(*)();
 using QtTubePluginVersionFunc = const char*(*)();
-constexpr const char* TARGET_VERSION = QTTUBE_VERSION_NAME;
 
-#define DECLARE_QTTUBE_PLUGIN(PluginClass, ...) \
+#define DECLARE_QTTUBE_PLUGIN(PluginClass, SettingsClass, ...) \
     extern "C" \
     { \
-        QtTube::PluginMetadata metadata() { return { __VA_ARGS__ }; } \
-        QtTube::PluginInterface* newInstance() { return new PluginClass; } \
-        const char* targetVersion() { return TARGET_VERSION; } \
+        DLLEXPORT QtTube::PluginMetadata* metadata() { static QtTube::PluginMetadata md = { __VA_ARGS__ }; return &md; } \
+        DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
+        DLLEXPORT QtTube::PluginSettings* settings() { static SettingsClass s; return &s; } \
+        DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
     }

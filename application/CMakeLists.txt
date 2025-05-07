@@ -24,6 +24,7 @@ set(SOURCE_FILES
     src/mainwindow.cpp
     src/qttubeapplication.cpp
     src/ytemoji.cpp
+    src/plugins/pluginmanager.cpp
     src/stores/credentialsstore.cpp
     src/stores/genericstore.cpp
     src/stores/settingsstore.cpp
@@ -115,6 +116,7 @@ set(HEADERS
     src/mainwindow.h
     src/qttubeapplication.h
     src/ytemoji.h
+    src/plugins/pluginmanager.h
     src/stores/credentialsstore.h
     src/stores/genericstore.h
     src/stores/settingsstore.h
@@ -270,7 +272,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Include directories, libraries
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE innertube-qt Qt::Network Qt::Sql Qt::WebEngineWidgets Qt::Widgets)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE innertube-qt QtTube::PluginInterface Qt::Network Qt::Sql Qt::WebEngineWidgets Qt::Widgets)
 
 ## Optional
 find_package(ICU COMPONENTS i18n uc)

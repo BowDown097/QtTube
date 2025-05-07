@@ -1,4 +1,5 @@
 #pragma once
+#include "plugins/pluginmanager.h"
 #include "stores/credentialsstore.h"
 #include "stores/settingsstore.h"
 #include <QApplication>
@@ -18,6 +19,7 @@ public:
     void doInitialSetup();
 
     CredentialsStore& creds() { return m_creds; }
+    PluginManager& plugins() { return m_plugins; }
     SettingsStore& settings() { return m_settings; }
 
 #ifdef QTTUBE_HAS_WAYLAND
@@ -25,6 +27,7 @@ public:
 #endif
 private:
     CredentialsStore m_creds;
+    PluginManager m_plugins;
     SettingsStore m_settings;
 
 #ifdef QTTUBE_HAS_WAYLAND

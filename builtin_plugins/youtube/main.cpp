@@ -1,16 +1,18 @@
-#include "qttube-plugin/plugininterface.h"
+#include "youtubesettings.h"
+#include <QDebug>
 
-class YoutubePlugin : public QtTube::PluginInterface
+class YouTubePlugin : public QtTube::PluginInterface
 {
 public:
     void init() override
     {
-
+        qDebug() << "plugin initialized";
     }
 };
 
 DECLARE_QTTUBE_PLUGIN(
-    YoutubePlugin,
+    YouTubePlugin,
+    YouTubeSettings,
     .name = "YouTube",
     .description = "Built-in plugin for YouTube.",
     .image = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/330px-YouTube_full-color_icon_%282017%29.svg.png",

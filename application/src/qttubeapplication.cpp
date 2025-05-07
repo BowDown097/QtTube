@@ -8,6 +8,7 @@
 void QtTubeApplication::doInitialSetup()
 {
     m_creds.initialize();
+    m_plugins.reloadPlugins();
     m_settings.initialize();
 
     UIUtils::g_defaultStyle = style()->objectName();
