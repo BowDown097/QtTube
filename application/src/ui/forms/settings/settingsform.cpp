@@ -8,6 +8,7 @@
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "termfilterview.h"
+#include "ui/widgets/pluginwidget.h"
 #include "ui/widgets/download/downloadmanager.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
@@ -115,6 +116,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
     connect(ui->showFilteredChannels, &QPushButton::clicked, this, &SettingsForm::showChannelFilterTable);
     connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &SettingsForm::currentChanged);
     connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
 
     for (QPushButton* pushButton : findChildren<QPushButton*>())
@@ -194,6 +196,18 @@ void SettingsForm::closeEvent(QCloseEvent* event)
     }
 
     QWidget::closeEvent(event);
+}
+
+void SettingsForm::currentChanged(int index)
+{
+    if (ui->tabWidget->tabText(index) != "Plugins")
+        return;
+
+    ui->pluginsListWidget->clear();
+
+    const QList<const PluginData*> plugins = qtTubeApp->plugins().plugins();
+    for (const PluginData* plugin : plugins)
+        UIUtils::addWidgetToList(ui->pluginsListWidget, new PluginWidget(plugin));
 }
 
 void SettingsForm::enableSaveButton()

@@ -63,6 +63,7 @@ set(SOURCE_FILES
     src/ui/widgets/dynamiclistwidgetitem.cpp
     src/ui/widgets/findbar.cpp
     src/ui/widgets/flowlayout.cpp
+    src/ui/widgets/pluginwidget.cpp
     src/ui/widgets/watchnextfeed.cpp
     src/ui/widgets/accountmenu/accountcontrollerwidget.cpp
     src/ui/widgets/accountmenu/accountentrywidget.cpp
@@ -158,6 +159,7 @@ set(HEADERS
     src/ui/widgets/dynamiclistwidgetitem.h
     src/ui/widgets/findbar.h
     src/ui/widgets/flowlayout.h
+    src/ui/widgets/pluginwidget.h
     src/ui/widgets/watchnextfeed.h
     src/ui/widgets/accountmenu/accountcontrollerwidget.h
     src/ui/widgets/accountmenu/accountentrywidget.h

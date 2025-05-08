@@ -14,16 +14,6 @@
    <string>Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QPushButton" name="saveButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Save</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
@@ -223,6 +213,31 @@
           </layout>
          </widget>
         </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="plugins">
+      <attribute name="title">
+       <string>Plugins</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_16">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QListWidget" name="pluginsListWidget"/>
        </item>
       </layout>
      </widget>
@@ -578,7 +593,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>462</width>
             <height>78</height>
            </rect>
           </property>
@@ -660,7 +675,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>462</width>
             <height>189</height>
            </rect>
           </property>
@@ -824,7 +839,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>462</width>
             <height>207</height>
            </rect>
           </property>
@@ -969,7 +984,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>462</width>
             <height>215</height>
            </rect>
           </property>
@@ -1172,7 +1187,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>476</width>
+            <width>462</width>
             <height>112</height>
            </rect>
           </property>
@@ -1277,6 +1292,16 @@
        </property>
       </widget>
      </widget>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="saveButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Save</string>
+     </property>
     </widget>
    </item>
   </layout>

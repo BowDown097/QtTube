@@ -23,6 +23,7 @@ private slots:
     void checkDownloadPath(const QString& text);
     void checkExternalPlayer(const QString& text);
     void clearCache();
+    void currentChanged(int index);
     void enableSaveButton();
     //void openExportWizard();
     void openImportWizard();
