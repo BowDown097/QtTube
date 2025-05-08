@@ -11,20 +11,26 @@ namespace QtTube
 {
     struct PluginInterface
     {
-        virtual void init() = 0;
         virtual ~PluginInterface() = default;
+        virtual void init() = 0;
     };
 
     struct PluginMetadata
     {
-        const char* name;
-        const char* description;
-        const char* image;
-        const char* author;
-        const char* url;
+        const char* name = "";
+        const char* description = "";
+        const char* image = "";
+        const char* author = "";
+        const char* url = "";
     };
 
-    struct PluginSettings {};
+    struct PluginSettings
+    {
+        virtual ~PluginSettings() = default;
+        virtual void init() = 0;
+        virtual void save() = 0;
+        virtual class QWidget* window() { return nullptr; }
+    };
 }
 
 using QtTubePluginMetadataFunc = QtTube::PluginMetadata*(*)();

@@ -1,3 +1,11 @@
 #include "youtubesettings.h"
 
-YouTubeSettings::YouTubeSettings() {}
+void YouTubeSettings::init()
+{
+
+}
+
+void YouTubeSettings::save()
+{
+
+}

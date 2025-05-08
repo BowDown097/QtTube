@@ -1,8 +1,9 @@
 #include "pluginmanager.h"
+#include <QApplication>
 #include <QDirIterator>
 #include <QMessageBox>
 
-constexpr QLatin1String LoadFailedError("Could not load plugin from %1.");
+constexpr QLatin1String LoadFailedError("Could not load plugin from %1: %2.");
 constexpr QLatin1String MetadataNotFoundError("Could not find metadata function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
 constexpr QLatin1String NameConflictError("The name of the plugin from %1 conflicts with that of the plugin from %2 (%3).");
 constexpr QLatin1String NewInstanceNotFoundError("Could not find initialization function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
@@ -15,7 +16,7 @@ bool PluginManager::checkPluginTargetVersion(const QFileInfo& fileInfo)
     std::unique_ptr<QLibrary, QLibraryDeleter> handle(new QLibrary(fileInfo.absoluteFilePath()));
     if (!handle->load())
     {
-        QMessageBox::critical(nullptr, "Plugin Error", LoadFailedError.arg(fileInfo.fileName()));
+        QMessageBox::critical(nullptr, "Plugin Error", LoadFailedError.arg(fileInfo.fileName(), handle->errorString()));
         return false;
     }
 
@@ -55,7 +56,7 @@ std::optional<PluginData> PluginManager::loadPlugin(const QFileInfo& fileInfo)
     handle->setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
     if (!handle->load())
     {
-        QMessageBox::critical(nullptr, "Plugin Error", LoadFailedError.arg(fileInfo.fileName()));
+        QMessageBox::critical(nullptr, "Plugin Error", LoadFailedError.arg(fileInfo.fileName(), handle->errorString()));
         return {};
     }
 
@@ -103,7 +104,7 @@ void PluginManager::reloadPlugins()
     m_plugins.clear();
 
     QList<QFileInfo> pluginsToLoad;
-    for (QDirIterator it("plugins", QDir::Files); it.hasNext();)
+    for (QDirIterator it(qApp->applicationDirPath() + QDir::separator() + "plugins", QDir::Files); it.hasNext();)
         if (QFileInfo fileInfo(it.next()); QLibrary::isLibrary(fileInfo.absoluteFilePath()))
             pluginsToLoad.append(fileInfo);
 
@@ -114,6 +115,7 @@ void PluginManager::reloadPlugins()
             if (auto it = m_plugins.find(plugin->metadata->name); it == m_plugins.end())
             {
                 plugin->interface->init();
+                plugin->settings->init();
                 m_plugins.emplace(plugin->metadata->name, std::move(plugin.value()));
             }
             else

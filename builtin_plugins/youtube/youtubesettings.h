@@ -3,6 +3,6 @@
 
 class YouTubeSettings : public QtTube::PluginSettings
 {
-public:
-    YouTubeSettings();
+    void init() override;
+    void save() override;
 };
