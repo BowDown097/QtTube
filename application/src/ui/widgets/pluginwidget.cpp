@@ -3,6 +3,7 @@
 #include "utils/httputils.h"
 #include <QBoxLayout>
 #include <QDesktopServices>
+#include <QPushButton>
 
 PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
     : QWidget(parent),
@@ -12,7 +13,8 @@ PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
       imageLabel(new QLabel(this)),
       layout(new QHBoxLayout(this)),
       metadataLayout(new QVBoxLayout),
-      nameLabel(new TubeLabel(this))
+      nameLabel(new TubeLabel(this)),
+      settingsWindow(data->settings->window())
 {
     authorLabel->setElideMode(Qt::ElideRight);
     authorLabel->setFont(QFont(authorLabel->font().toString(), authorLabel->font().pointSize() - 2));
@@ -50,6 +52,15 @@ PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
         nameLabel->setUnderlineOnHover(true);
         connect(nameLabel, &TubeLabel::clicked, std::bind(&QDesktopServices::openUrl, QUrl(data->metadata->url)));
     }
+
+    if (settingsWindow)
+    {
+        QPushButton* openSettingsButton = new QPushButton("Open settings", this);
+        buttonsLayout->addWidget(openSettingsButton);
+        connect(openSettingsButton, &QPushButton::clicked, settingsWindow.get(), &QWidget::show);
+    }
+
+    buttonsLayout->addStretch();
 }
 
 void PluginWidget::setImage(const HttpReply& reply)

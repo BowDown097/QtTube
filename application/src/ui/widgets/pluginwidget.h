@@ -21,6 +21,7 @@ private:
     QHBoxLayout* layout;
     QVBoxLayout* metadataLayout;
     TubeLabel* nameLabel;
+    QScopedPointer<QWidget, QScopedPointerDeleteLater> settingsWindow;
 private slots:
     void setImage(const HttpReply& reply);
 };
