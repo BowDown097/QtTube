@@ -236,8 +236,6 @@ if(WIN32 OR APPLE)
 endif()
 
 # Add executable
-set(INNERTUBE_QT_VERSION_MAJOR ${QTTUBE_QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QTTUBE_QT_VERSION_MAJOR}" FORCE)
-add_subdirectory(lib/innertube-qt)
 if(WIN32)
     add_executable(${CMAKE_PROJECT_NAME} WIN32 ${SOURCE_FILES} ${HEADERS} ${FORMS})
 elseif(APPLE)

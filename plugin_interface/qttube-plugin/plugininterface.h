@@ -28,18 +28,17 @@ namespace QtTube
         const char* url = "";
     };
 
-    class PluginSettings
+    class ConfigStore
     {
     public:
-        virtual ~PluginSettings() = default;
-
-        const QString& configPath() const { return m_configPath; }
+        virtual ~ConfigStore() = default;
         virtual void init() = 0;
         virtual void save() = 0;
-        virtual QWidget* window() { return nullptr; }
 
-        template<typename T> requires std::derived_from<T, PluginSettings>
-        static std::unique_ptr<T> create(const QString& key)
+        const QString& configPath() const { return m_configPath; }
+
+        template<typename T> requires std::derived_from<T, ConfigStore>
+        static std::unique_ptr<T> create(const QString& key, const QString& filename)
         {
             auto inst = std::make_unique<T>();
             inst->m_configPath =
@@ -47,7 +46,7 @@ namespace QtTube
                 QDir::separator() +
                 key.toLower().replace(' ', '-') +
                 QDir::separator() +
-                "settings.ini";
+                filename;
             return inst;
         }
     protected:
@@ -77,6 +76,30 @@ namespace QtTube
     private:
         QString m_configPath;
     };
+
+    struct PluginAuthentication : ConfigStore
+    {
+        virtual ~PluginAuthentication() = default;
+        virtual void clear() { QSettings(configPath(), QSettings::IniFormat).clear(); }
+
+        template<typename T> requires std::derived_from<T, PluginAuthentication>
+        static std::unique_ptr<T> create(const QString& key)
+        {
+            return ConfigStore::create<T>(key, "auth.ini");
+        }
+    };
+
+    struct PluginSettings : ConfigStore
+    {
+        virtual ~PluginSettings() = default;
+        virtual QWidget* window() { return nullptr; }
+
+        template<typename T> requires std::derived_from<T, PluginSettings>
+        static std::unique_ptr<T> create(const QString& key)
+        {
+            return ConfigStore::create<T>(key, "settings.ini");
+        }
+    };
 }
 
 using QtTubePluginMetadataFunc = QtTube::PluginMetadata*(*)();
@@ -84,11 +107,16 @@ using QtTubePluginNewInstanceFunc = QtTube::PluginInterface*(*)();
 using QtTubePluginSettingsFunc = QtTube::PluginSettings*(*)();
 using QtTubePluginVersionFunc = const char*(*)();
 
-#define DECLARE_QTTUBE_PLUGIN(PluginClass, SettingsClass, ...) \
+#define DECLARE_QTTUBE_PLUGIN(PluginClass, SettingsClass, AuthClass, ...) \
     extern "C" \
     { \
         DLLEXPORT QtTube::PluginMetadata* metadata() { static QtTube::PluginMetadata md = { __VA_ARGS__ }; return &md; } \
         DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
+        DLLEXPORT QtTube::PluginAuthentication* authentication() \
+        { \
+            static std::unique_ptr<AuthClass> a = QtTube::PluginAuthentication::create<AuthClass>(metadata()->name); \
+            return a.get(); \
+        } \
         DLLEXPORT QtTube::PluginSettings* settings() \
         { \
             static std::unique_ptr<SettingsClass> s = QtTube::PluginSettings::create<SettingsClass>(metadata()->name); \
