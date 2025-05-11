@@ -32,20 +32,45 @@ using QtTubePluginNewInstanceFunc = QtTube::PluginInterface*(*)();
 using QtTubePluginSettingsFunc = QtTube::PluginSettings*(*)();
 using QtTubePluginVersionFunc = const char*(*)();
 
-#define DECLARE_QTTUBE_PLUGIN(PluginClass, SettingsClass, AuthClass, ...) \
+#define GET_MACRO(_1, _2, _3, _4, NAME, ...) NAME
+#define DECLARE_QTTUBE_PLUGIN(...) \
+    GET_MACRO(__VA_ARGS__, DECLARE_QTTUBE_PLUGIN4, DECLARE_QTTUBE_PLUGIN3, DECLARE_QTTUBE_PLUGIN2, DECLARE_QTTUBE_PLUGIN1)(__VA_ARGS__)
+
+#define DECLARE_QTTUBE_PLUGIN2(PluginClass, MetadataInstance) \
     extern "C" \
     { \
-        DLLEXPORT QtTube::PluginMetadata* metadata() { static QtTube::PluginMetadata md = { __VA_ARGS__ }; return &md; } \
+        DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
         DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
-        DLLEXPORT QtTube::PluginAuth* auth() \
-        { \
-            static std::unique_ptr<AuthClass> a = QtTube::PluginAuth::create<AuthClass>(metadata()->name); \
-            return a.get(); \
-        } \
+        DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
+    }
+
+#define DECLARE_QTTUBE_PLUGIN3(PluginClass, MetadataInstance, SettingsClass) \
+    extern "C" \
+    { \
+        DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
+        DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
+        DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
         DLLEXPORT QtTube::PluginSettings* settings() \
         { \
             static std::unique_ptr<SettingsClass> s = QtTube::PluginSettings::create<SettingsClass>(metadata()->name); \
             return s.get(); \
         } \
+    }
+
+#define DECLARE_QTTUBE_PLUGIN4(PluginClass, MetadataInstance, SettingsClass, AuthClass) \
+    extern "C" \
+    { \
         DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
+        DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
+        DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
+        DLLEXPORT QtTube::PluginSettings* settings() \
+        { \
+            static std::unique_ptr<SettingsClass> s = QtTube::PluginSettings::create<SettingsClass>(metadata()->name); \
+            return s.get(); \
+        } \
+        DLLEXPORT QtTube::PluginAuth* auth() \
+        { \
+            static std::unique_ptr<AuthClass> a = QtTube::PluginAuth::create<AuthClass>(metadata()->name); \
+            return a.get(); \
+        } \
     }
