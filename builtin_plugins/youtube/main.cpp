@@ -1,5 +1,6 @@
 #include "youtubeauth.h"
 #include "youtubesettings.h"
+#include "qttube-plugin/plugininterface.h"
 
 class YouTubePlugin : public QtTube::PluginInterface
 {
@@ -16,7 +17,7 @@ DECLARE_QTTUBE_PLUGIN(
     .author = "BowDown097",
     .url = "https://github.com/BowDown097/QtTube")
 
-YouTubeAuth* authPtr = static_cast<YouTubeAuth*>(authentication());
+YouTubeAuth* authPtr = static_cast<YouTubeAuth*>(auth());
 YouTubeSettings* settingsPtr = static_cast<YouTubeSettings*>(settings());
 
 void YouTubePlugin::init()

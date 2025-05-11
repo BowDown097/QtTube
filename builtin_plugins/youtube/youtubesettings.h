@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/plugininterface.h"
+#include "qttube-plugin/components/pluginsettings.h"
 
 class YouTubeSettings : public QObject, public QtTube::PluginSettings
 {

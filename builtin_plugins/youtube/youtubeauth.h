@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/plugininterface.h"
+#include "qttube-plugin/components/pluginauth.h"
 
 struct CredentialSet
 {
@@ -18,7 +18,7 @@ struct CredentialSet
     { return lhs.channelId == rhs.channelId; }
 };
 
-class YouTubeAuth : public QtTube::PluginAuthentication
+class YouTubeAuth : public QtTube::PluginAuth
 {
 public:
     void clear() override;

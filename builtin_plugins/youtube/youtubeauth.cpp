@@ -2,7 +2,7 @@
 
 void YouTubeAuth::clear()
 {
-    QtTube::PluginAuthentication::clear();
+    QtTube::PluginAuth::clear();
     m_credentials.clear();
 }
 
