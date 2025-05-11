@@ -3,6 +3,22 @@
 #include <QFileInfo>
 #include <QLibrary>
 
+struct CaseInsensitiveEqual
+{
+    bool operator()(const QString& lhs, const QString& rhs) const
+    {
+        return lhs.compare(rhs, Qt::CaseInsensitive) == 0;
+    }
+};
+
+struct CaseInsensitiveHash
+{
+    std::size_t operator()(const QString& str) const
+    {
+        return std::hash<QString>()(str.toLower());
+    }
+};
+
 struct QLibraryDeleter
 {
     void operator()(QLibrary* p) const
@@ -29,7 +45,7 @@ public:
     QList<const PluginData*> plugins() const;
     void reloadPlugins();
 private:
-    std::unordered_map<QString, PluginData> m_plugins;
+    std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_plugins;
 
     bool checkPluginTargetVersion(const QFileInfo& fileInfo);
     std::optional<PluginData> loadPlugin(const QFileInfo& fileInfo);
