@@ -1,29 +1,37 @@
 #pragma once
 #include "qttube-plugin/components/pluginauth.h"
 
-struct CredentialSet
+struct CredentialSet : QtTube::PluginAuth::AuthUser
 {
-    bool active{};
     QString apisid;
-    QString avatarUrl;
-    QString channelId;
     QString hsid;
     QString sapisid;
     QString sid;
     QString ssid;
-    QString username;
     QString visitorInfo;
 
     friend bool operator==(const CredentialSet& lhs, const CredentialSet& rhs)
-    { return lhs.channelId == rhs.channelId; }
+    { return lhs.id == rhs.id; }
+
+    CredentialSet() = default;
+    CredentialSet(
+        bool active, const QString& avatar, const QString& id, const QString& username,
+        const QString& apisid, const QString& hsid, const QString& sapisid,
+        const QString& sid, const QString& ssid, const QString& visitorInfo)
+        : QtTube::PluginAuth::AuthUser(active, avatar, id, username),
+          apisid(apisid), hsid(hsid), sapisid(sapisid),
+          sid(sid), ssid(ssid), visitorInfo(visitorInfo) {}
 };
 
 class YouTubeAuth : public QtTube::PluginAuth
 {
 public:
+    const QtTube::PluginAuth::AuthUser* activeLogin() const override;
     void clear() override;
     void init() override;
     void save() override;
+
+    void populateAuthStore(const CredentialSet& credSet);
 private:
     QList<CredentialSet> m_credentials;
 };

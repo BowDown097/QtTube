@@ -1,6 +1,8 @@
 project(youtube_plugin)
 add_library(youtube_plugin SHARED)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 target_sources(youtube_plugin
     PRIVATE
         main.cpp

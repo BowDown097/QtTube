@@ -1,6 +1,8 @@
+#include "innertube.h"
+#include "localcache.h"
+#include "qttube-plugin/plugininterface.h"
 #include "youtubeauth.h"
 #include "youtubesettings.h"
-#include "qttube-plugin/plugininterface.h"
 
 class YouTubePlugin : public QtTube::PluginInterface
 {
@@ -21,5 +23,25 @@ YouTubeSettings* settingsPtr = static_cast<YouTubeSettings*>(settings());
 
 void YouTubePlugin::init()
 {
-    qDebug() << "plugin initialized";
+    LocalCache* cache = LocalCache::instance("yt-client");
+    cache->setMaxSeconds(86400);
+
+    if (const QByteArray cver = cache->value("cver"); !cver.isNull())
+    {
+        InnerTube::instance()->createClient(InnertubeClient::ClientType::WEB, cver);
+    }
+    else
+    {
+        cache->clear();
+        InnerTube::instance()->createClient(InnertubeClient::ClientType::WEB, "2.20250421.01.00", true);
+        cache->insert("cver", InnerTube::instance()->context()->client.clientVersion.toLatin1());
+    }
+
+    if (const CredentialSet* activeLogin = dynamic_cast<const CredentialSet*>(authPtr->activeLogin()))
+    {
+        authPtr->populateAuthStore(*activeLogin);
+        qDebug() << "from plugin:" << InnerTube::instance();
+        if (InnerTube::instance()->hasAuthenticated())
+            emit InnerTube::instance()->authStore()->authenticateSuccess();
+    }
 }

@@ -1,4 +1,12 @@
 #include "youtubeauth.h"
+#include "innertube.h"
+#include "protobuf/protobufcompiler.h"
+
+const QtTube::PluginAuth::AuthUser* YouTubeAuth::activeLogin() const
+{
+    auto it = std::ranges::find_if(m_credentials, &QtTube::PluginAuth::AuthUser::active);
+    return it != m_credentials.end() ? &(*it) : nullptr;
+}
 
 void YouTubeAuth::clear()
 {
@@ -14,20 +22,32 @@ void YouTubeAuth::init()
     for (const QString& group : childGroups)
     {
         settings.beginGroup(group);
-        m_credentials.append(CredentialSet {
-            .active = settings.value("active", false).toBool(),
-            .apisid = settings.value("apisid").toString(),
-            .avatarUrl = settings.value("avatarUrl").toString(),
-            .channelId = group,
-            .hsid = settings.value("hsid").toString(),
-            .sapisid = settings.value("sapisid").toString(),
-            .sid = settings.value("sid").toString(),
-            .ssid = settings.value("ssid").toString(),
-            .username = settings.value("username").toString(),
-            .visitorInfo = settings.value("visitorInfo").toString()
-        });
+        m_credentials.append(CredentialSet(
+            settings.value("active", false).toBool(), // active
+            settings.value("avatar").toString(), // avatar
+            group, // id
+            settings.value("username").toString(), // username
+            settings.value("apisid").toString(), // apisid
+            settings.value("hsid").toString(), // hsid
+            settings.value("sapisid").toString(), // sapisid
+            settings.value("sid").toString(), // sid
+            settings.value("ssid").toString(), // ssid
+            settings.value("visitorInfo").toString() // visitorInfo
+        ));
         settings.endGroup();
     }
+}
+
+void YouTubeAuth::populateAuthStore(const CredentialSet& credSet)
+{
+    InnertubeAuthStore* authStore = InnerTube::instance()->authStore();
+    authStore->apisid = credSet.apisid;
+    authStore->hsid = credSet.hsid;
+    authStore->sapisid = credSet.sapisid;
+    authStore->sid = credSet.sid;
+    authStore->ssid = credSet.ssid;
+    authStore->visitorInfo = credSet.visitorInfo;
+    InnerTube::instance()->context()->client.visitorData = ProtobufCompiler::padded(credSet.visitorInfo);
 }
 
 void YouTubeAuth::save()
@@ -38,10 +58,10 @@ void YouTubeAuth::save()
     QSettings settings(configPath(), QSettings::IniFormat);
     for (const CredentialSet& credSet : std::as_const(m_credentials))
     {
-        settings.beginGroup(credSet.channelId);
+        settings.beginGroup(credSet.id);
         settings.setValue("active", credSet.active);
         settings.setValue("apisid", credSet.apisid);
-        settings.setValue("avatarUrl", credSet.avatarUrl);
+        settings.setValue("avatar", credSet.avatar);
         settings.setValue("hsid", credSet.hsid);
         settings.setValue("sapisid", credSet.sapisid);
         settings.setValue("sid", credSet.sid);

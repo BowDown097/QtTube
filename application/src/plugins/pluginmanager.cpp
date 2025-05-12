@@ -106,11 +106,11 @@ void PluginManager::reloadPlugins()
         {
             if (auto it = m_plugins.find(plugin->metadata->name); it == m_plugins.end())
             {
-                plugin->interface->init();
                 if (plugin->auth)
                     plugin->auth->init();
                 if (plugin->settings)
                     plugin->settings->init();
+                plugin->interface->init();
                 m_plugins.emplace(plugin->metadata->name, std::move(plugin.value()));
             }
             else
