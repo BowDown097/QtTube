@@ -1,5 +1,8 @@
 #include "youtubesettings.h"
 #include "youtubesettingsform.h"
+#include "innertube/objects/video/compactvideo.h"
+#include "innertube/objects/video/video.h"
+#include "innertube/objects/viewmodels/lockupviewmodel.h"
 
 void YouTubeSettings::init()
 {
@@ -74,4 +77,40 @@ void YouTubeSettings::save()
 QtTube::PluginSettingsWindow* YouTubeSettings::window()
 {
     return new YouTubeSettingsForm(this);
+}
+
+bool YouTubeSettings::channelIsFiltered(const QString& id) const
+{
+    return !id.isEmpty() && std::ranges::any_of(filteredChannels, [&id](const QString& c) { return c.startsWith(id); });
+}
+
+bool YouTubeSettings::videoIsFiltered(const InnertubeObjects::AdSlot& adSlot) const
+{
+    return blockAds;
+}
+
+bool YouTubeSettings::videoIsFiltered(const InnertubeObjects::CompactVideo& compactVideo) const
+{
+    return channelIsFiltered(compactVideo.owner().id) || (hideStreams && compactVideo.isLive());
+}
+
+bool YouTubeSettings::videoIsFiltered(const InnertubeObjects::LockupViewModel& lockup) const
+{
+    std::optional<InnertubeObjects::BasicChannel> owner = lockup.owner();
+    return (owner && channelIsFiltered(owner->id)) || (hideStreams && lockup.isLive());
+}
+
+bool YouTubeSettings::videoIsFiltered(const InnertubeObjects::Reel& reel) const
+{
+    return hideShorts;
+}
+
+bool YouTubeSettings::videoIsFiltered(const InnertubeObjects::ShortsLockupViewModel& shortsLockup) const
+{
+    return hideShorts;
+}
+
+bool YouTubeSettings::videoIsFiltered(const InnertubeObjects::Video& video) const
+{
+    return channelIsFiltered(video.ownerId()) || (hideShorts && video.isReel()) || (hideStreams && video.isLive());
 }

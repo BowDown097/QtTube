@@ -18,7 +18,11 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/configstore.h
             qttube-plugin/components/pluginauth.h
             qttube-plugin/components/pluginsettings.h
-            qttube-plugin/components/pluginsettingswindow.h)
+            qttube-plugin/components/pluginsettingswindow.h
+            qttube-plugin/components/reply.h
+            qttube-plugin/objects/video.h)
 
-target_link_libraries(QtTube-PluginInterface PUBLIC Qt::Widgets)
 add_library(QtTube::PluginInterface ALIAS QtTube-PluginInterface)
+
+target_include_directories(QtTube-PluginInterface PUBLIC verdigris/src)
+target_link_libraries(QtTube-PluginInterface PUBLIC Qt::Widgets)

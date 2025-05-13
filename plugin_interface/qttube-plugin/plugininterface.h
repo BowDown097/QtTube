@@ -1,6 +1,8 @@
 #pragma once
 #include "components/pluginauth.h"
 #include "components/pluginsettings.h"
+#include "components/reply.h"
+#include "objects/video.h"
 
 #ifdef Q_OS_WIN
 #define DLLEXPORT __declspec(dllexport)
@@ -8,11 +10,16 @@
 #define DLLEXPORT
 #endif
 
+W_REGISTER_ARGTYPE(QList<QtTube::PluginVideo>)
+
 namespace QtTube
 {
+    using HomeReply = PluginReply<QList<PluginVideo>>;
+
     struct PluginInterface
     {
         virtual ~PluginInterface() = default;
+        virtual HomeReply* getHome() { return HomeReply::create(); }
         virtual void init() = 0;
     };
 
@@ -25,6 +32,7 @@ namespace QtTube
         const char* url = "";
     };
 }
+
 
 using QtTubePluginAuthFunc = QtTube::PluginAuth*(*)();
 using QtTubePluginMetadataFunc = QtTube::PluginMetadata*(*)();

@@ -1,6 +1,17 @@
 #pragma once
 #include "qttube-plugin/components/pluginsettings.h"
 
+namespace InnertubeObjects
+{
+struct AdSlot;
+struct CompactVideo;
+struct DisplayAd;
+struct LockupViewModel;
+struct Reel;
+struct ShortsLockupViewModel;
+struct Video;
+}
+
 class YouTubeSettings : public QObject, public QtTube::PluginSettings
 {
     Q_OBJECT
@@ -42,6 +53,15 @@ public:
     void init() override;
     void save() override;
     QtTube::PluginSettingsWindow* window() override;
+
+    bool channelIsFiltered(const QString& id) const;
+    bool videoIsFiltered(const InnertubeObjects::AdSlot& adSlot) const;
+    bool videoIsFiltered(const InnertubeObjects::CompactVideo& compactVideo) const;
+    bool videoIsFiltered(const InnertubeObjects::DisplayAd&) const { return false; }
+    bool videoIsFiltered(const InnertubeObjects::LockupViewModel& lockup) const;
+    bool videoIsFiltered(const InnertubeObjects::Reel& reel) const;
+    bool videoIsFiltered(const InnertubeObjects::ShortsLockupViewModel& shortsLockup) const;
+    bool videoIsFiltered(const InnertubeObjects::Video& video) const;
 signals:
     void disablePlayerInfoPanelsChanged(bool);
     void preferredQualityChanged(YouTubeSettings::PlayerQuality);

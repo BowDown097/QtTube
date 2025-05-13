@@ -30,6 +30,7 @@ target_sources(youtube_plugin
         settings/data-wizards/import/shared/importfileselectpage.cpp
         settings/data-wizards/richtableview/richitemdelegate.cpp
         settings/data-wizards/richtableview/richtableview.cpp
+        utils/conversion.cpp
         utils/tubeutils.cpp
     PUBLIC
         FILE_SET HEADERS FILES
@@ -53,6 +54,7 @@ target_sources(youtube_plugin
             settings/data-wizards/import/shared/importfileselectpage.h
             settings/data-wizards/richtableview/richitemdelegate.h
             settings/data-wizards/richtableview/richtableview.h
+            utils/conversion.h
             utils/tubeutils.h)
 
 set(INNERTUBE_QT_VERSION_MAJOR ${QTTUBE_QT_VERSION_MAJOR} CACHE STRING "Qt version to use, defaults to ${QTTUBE_QT_VERSION_MAJOR}" FORCE)
