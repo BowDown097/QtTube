@@ -1,14 +1,5 @@
 #include "conversion.h"
-#include "innertube/innertubeexception.h"
-#include "innertube/objects/ad/displayad.h"
-#include "innertube/objects/video/compactvideo.h"
-#include "innertube/objects/video/reel.h"
-#include "innertube/objects/video/video.h"
-#include "innertube/objects/video/videodisplaybuttongroup.h"
-#include "innertube/objects/viewmodels/lockupviewmodel.h"
-#include "innertube/objects/viewmodels/shortslockupviewmodel.h"
-#include "qttube-plugin/plugininterface.h"
-#include "settings/youtubesettings.h"
+#include "youtubeplugin.h"
 
 QtTube::PluginVideoBadge convertBadge(const InnertubeObjects::MetadataBadge& badge)
 {
@@ -22,14 +13,12 @@ QtTube::PluginException convertException(const InnertubeException& ex)
     return QtTube::PluginException(ex.message(), static_cast<QtTube::PluginException::Severity>(ex.severity()));
 }
 
-QtTube::PluginVideo convertVideo(
-    const QtTube::PluginMetadata& metadata, YouTubeSettings* settings,
-    const InnertubeObjects::CompactVideo& compactVideo, bool useThumbnailFromData)
+QtTube::PluginVideo convertVideo(const InnertubeObjects::CompactVideo& compactVideo, bool useThumbnailFromData)
 {
     QtTube::PluginVideo result = {
         .lengthText = compactVideo.lengthDisplay().text,
         .progressSecs = compactVideo.navigationEndpoint["watchEndpoint"]["startTimeSeconds"].toInt(),
-        .sourceIconUrl = metadata.image,
+        .sourceIconUrl = g_metadata.image,
         .title = QString(compactVideo.title.text).replace("\r\n", " "),
         .videoId = compactVideo.videoId,
         .videoUrlPrefix = "https://www.youtube.com/watch?v="
@@ -37,7 +26,7 @@ QtTube::PluginVideo convertVideo(
 
     QStringList metadataList;
     metadataList.reserve(2);
-    metadataList.append(settings->condensedCounts ? compactVideo.shortViewCountText.text : compactVideo.viewCountText.text);
+    metadataList.append(g_settings->condensedCounts ? compactVideo.shortViewCountText.text : compactVideo.viewCountText.text);
     metadataList.append(compactVideo.publishedTimeText.text);
     metadataList.removeAll({});
     result.metadataText = metadataList.join(" • ");
@@ -60,14 +49,12 @@ QtTube::PluginVideo convertVideo(
     return result;
 }
 
-QtTube::PluginVideo convertVideo(
-    const QtTube::PluginMetadata& metadata, YouTubeSettings* settings,
-    const InnertubeObjects::DisplayAd& displayAd, bool useThumbnailFromData)
+QtTube::PluginVideo convertVideo(const InnertubeObjects::DisplayAd& displayAd, bool useThumbnailFromData)
 {
     QtTube::PluginVideo result = {
         .lengthText = "Ad",
         .metadataText = displayAd.bodyText.text,
-        .sourceIconUrl = metadata.image,
+        .sourceIconUrl = g_metadata.image,
         .thumbnailUrl = displayAd.image.bestQuality()->url,
         .title = QString(displayAd.titleText.text).replace("\r\n", " ")
     };
@@ -82,14 +69,12 @@ QtTube::PluginVideo convertVideo(
     return result;
 }
 
-QtTube::PluginVideo convertVideo(
-    const QtTube::PluginMetadata& metadata, YouTubeSettings* settings,
-    const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData)
+QtTube::PluginVideo convertVideo(const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData)
 {
     QtTube::PluginVideo result = {
         .lengthText = lockup.lengthText(),
         .progressSecs = lockup.rendererContext["commandContext"]["onTap"]["innertubeCommand"]["watchEndpoint"]["startTimeSeconds"].toInt(),
-        .sourceIconUrl = metadata.image,
+        .sourceIconUrl = g_metadata.image,
         .title = QString(lockup.metadata.title).replace("\r\n", " "),
         .videoId = lockup.contentId,
         .videoUrlPrefix = "https://www.youtube.com/watch?v="
@@ -119,14 +104,12 @@ QtTube::PluginVideo convertVideo(
     return result;
 }
 
-QtTube::PluginVideo convertVideo(
-    const QtTube::PluginMetadata& metadata, YouTubeSettings* settings,
-    const InnertubeObjects::Reel& reel, bool useThumbnailFromData)
+QtTube::PluginVideo convertVideo(const InnertubeObjects::Reel& reel, bool useThumbnailFromData)
 {
     QtTube::PluginVideo result = {
         .lengthText = "SHORTS",
         .metadataText = reel.viewCountText.text,
-        .sourceIconUrl = metadata.image,
+        .sourceIconUrl = g_metadata.image,
         .title = QString(reel.headline).replace("\r\n", " "),
         .videoId = reel.videoId,
         .videoUrlPrefix = "https://www.youtube.com/shorts/"
@@ -139,14 +122,12 @@ QtTube::PluginVideo convertVideo(
     return result;
 }
 
-QtTube::PluginVideo convertVideo(
-    const QtTube::PluginMetadata& metadata, YouTubeSettings* settings,
-    const InnertubeObjects::ShortsLockupViewModel& shortsLockup, bool useThumbnailFromData)
+QtTube::PluginVideo convertVideo(const InnertubeObjects::ShortsLockupViewModel& shortsLockup, bool useThumbnailFromData)
 {
     QtTube::PluginVideo result = {
         .lengthText = "SHORTS",
         .metadataText = shortsLockup.secondaryText,
-        .sourceIconUrl = metadata.image,
+        .sourceIconUrl = g_metadata.image,
         .title = QString(shortsLockup.primaryText).replace("\r\n", " "),
         .videoId = shortsLockup.videoId,
         .videoUrlPrefix = "https://www.youtube.com/shorts/"
@@ -159,14 +140,12 @@ QtTube::PluginVideo convertVideo(
     return result;
 }
 
-QtTube::PluginVideo convertVideo(
-    const QtTube::PluginMetadata& metadata, YouTubeSettings* settings,
-    const InnertubeObjects::Video& video, bool useThumbnailFromData)
+QtTube::PluginVideo convertVideo(const InnertubeObjects::Video& video, bool useThumbnailFromData)
 {
     QtTube::PluginVideo result = {
         .lengthText = video.lengthDisplay().text,
         .progressSecs = video.navigationEndpoint["watchEndpoint"]["startTimeSeconds"].toInt(),
-        .sourceIconUrl = metadata.image,
+        .sourceIconUrl = g_metadata.image,
         .title = QString(video.title.text).replace("\r\n", " "),
         .videoId = video.videoId,
         .videoUrlPrefix = "https://www.youtube.com/watch?v="
@@ -174,7 +153,7 @@ QtTube::PluginVideo convertVideo(
 
     QStringList metadataList;
     metadataList.reserve(2);
-    metadataList.append(settings->condensedCounts ? video.shortViewCountText.text : video.viewCountText.text);
+    metadataList.append(g_settings->condensedCounts ? video.shortViewCountText.text : video.viewCountText.text);
     metadataList.append(video.publishedTimeDisplay());
     metadataList.removeAll({});
     result.metadataText = metadataList.join(" • ");
@@ -197,13 +176,11 @@ QtTube::PluginVideo convertVideo(
     return result;
 }
 
-QtTube::PluginVideo convertVideo(
-    const QtTube::PluginMetadata& metadata, YouTubeSettings* settings,
-    const InnertubeObjects::VideoDisplayButtonGroup& video, bool useThumbnailFromData)
+QtTube::PluginVideo convertVideo(const InnertubeObjects::VideoDisplayButtonGroup& video, bool useThumbnailFromData)
 {
     QtTube::PluginVideo result = {
         .metadataText = video.badge.label,
-        .sourceIconUrl = metadata.image,
+        .sourceIconUrl = g_metadata.image,
         .title = QString(video.title.text).replace("\r\n", " "),
         .videoId = video.videoId,
         .videoUrlPrefix = "https://www.youtube.com/watch?v="

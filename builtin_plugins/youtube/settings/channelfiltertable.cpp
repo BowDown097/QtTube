@@ -1,13 +1,13 @@
 #include "channelfiltertable.h"
 #include "ui_channelfiltertable.h"
 #include "innertube.h"
-#include "settings/youtubesettings.h"
+#include "youtubeplugin.h"
 #include <QMessageBox>
 
 ChannelFilterTable::~ChannelFilterTable() { delete ui; }
 
-ChannelFilterTable::ChannelFilterTable(YouTubeSettings* settings, QWidget* parent)
-    : QWidget(parent), settings(settings), ui(new Ui::ChannelFilterTable)
+ChannelFilterTable::ChannelFilterTable(QWidget* parent)
+    : QWidget(parent), ui(new Ui::ChannelFilterTable)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -30,7 +30,7 @@ void ChannelFilterTable::addNewRow()
 void ChannelFilterTable::populateFromSettings()
 {
     populating = true;
-    for (const QString& channel : settings->filteredChannels)
+    for (const QString& channel : std::as_const(g_settings->filteredChannels))
     {
         QStringList split = channel.split('|');
         addNewRow();
@@ -74,21 +74,21 @@ void ChannelFilterTable::processChannelEntry(const InnertubeEndpoints::BrowseCha
         return;
     }
 
-    auto matchingIt = std::ranges::find_if(settings->filteredChannels, [&channelId](const QString& s) {
+    auto matchingIt = std::ranges::find_if(g_settings->filteredChannels, [&channelId](const QString& s) {
         return s.startsWith(channelId);
     });
 
-    if (matchingIt != settings->filteredChannels.end())
+    if (matchingIt != g_settings->filteredChannels.end())
     {
         if (QStringList split = matchingIt->split('|'); split.size() > 1 && split[1] == channelHandle)
             return;
-        settings->filteredChannels.removeOne(*matchingIt);
+        g_settings->filteredChannels.removeOne(*matchingIt);
     }
 
     QTableWidgetItem* handleItem = ui->tableWidget->item(item->row(), 1);
     handleItem->setText(channelHandle);
 
-    settings->filteredChannels.append(channelId + "|" + channelHandle);
+    g_settings->filteredChannels.append(channelId + "|" + channelHandle);
 }
 
 void ChannelFilterTable::removeCurrentRow()
@@ -98,7 +98,7 @@ void ChannelFilterTable::removeCurrentRow()
         return;
 
     int row = selModel->selectedRows().constFirst().row();
-    settings->filteredChannels.removeAt(row);
+    g_settings->filteredChannels.removeAt(row);
     ui->tableWidget->removeRow(row);
 }
 

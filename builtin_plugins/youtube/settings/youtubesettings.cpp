@@ -76,7 +76,7 @@ void YouTubeSettings::save()
 
 QtTube::PluginSettingsWindow* YouTubeSettings::window()
 {
-    return new YouTubeSettingsForm(this);
+    return new YouTubeSettingsForm;
 }
 
 bool YouTubeSettings::channelIsFiltered(const QString& id) const

@@ -5,11 +5,11 @@
 #include "data-wizards/import/newpipeimportwizard.h"
 #include "data-wizards/import/pipedimportwizard.h"
 #include "data-wizards/import/takeoutimportwizard.h"
-#include "youtubesettings.h"
+#include "youtubeplugin.h"
 #include <QMessageBox>
 
-YouTubeSettingsForm::YouTubeSettingsForm(YouTubeSettings* settings, QWidget* parent)
-    : QtTube::PluginSettingsWindow(parent), settings(settings), ui(new Ui::YouTubeSettingsForm)
+YouTubeSettingsForm::YouTubeSettingsForm(QWidget* parent)
+    : QtTube::PluginSettingsWindow(parent), ui(new Ui::YouTubeSettingsForm)
 {
     ui->setupUi(this);
 
@@ -19,43 +19,43 @@ YouTubeSettingsForm::YouTubeSettingsForm(YouTubeSettings* settings, QWidget* par
     ui->newpipeRadio->setProperty("id", 4);
 
     // general
-    ui->condensedCounts->setChecked(settings->condensedCounts);
-    ui->fullSubs->setChecked(settings->fullSubs);
-    ui->returnDislikes->setChecked(settings->returnDislikes);
+    ui->condensedCounts->setChecked(g_settings->condensedCounts);
+    ui->fullSubs->setChecked(g_settings->fullSubs);
+    ui->returnDislikes->setChecked(g_settings->returnDislikes);
     // player
-    ui->blockAds->setChecked(settings->blockAds);
-    ui->disable60Fps->setChecked(settings->disable60Fps);
-    ui->disablePlayerInfoPanels->setChecked(settings->disablePlayerInfoPanels);
-    ui->h264Only->setChecked(settings->h264Only);
-    ui->preferredQuality->setEnabled(!settings->qualityFromPlayer);
-    ui->preferredQuality->setCurrentIndex(static_cast<int>(settings->preferredQuality));
-    ui->preferredVolume->setEnabled(!settings->volumeFromPlayer);
-    ui->preferredVolume->setValue(settings->preferredVolume);
-    ui->qualityFromPlayer->setChecked(settings->qualityFromPlayer);
-    ui->restoreAnnotations->setChecked(settings->restoreAnnotations);
-    ui->volumeFromPlayer->setChecked(settings->volumeFromPlayer);
+    ui->blockAds->setChecked(g_settings->blockAds);
+    ui->disable60Fps->setChecked(g_settings->disable60Fps);
+    ui->disablePlayerInfoPanels->setChecked(g_settings->disablePlayerInfoPanels);
+    ui->h264Only->setChecked(g_settings->h264Only);
+    ui->preferredQuality->setEnabled(!g_settings->qualityFromPlayer);
+    ui->preferredQuality->setCurrentIndex(static_cast<int>(g_settings->preferredQuality));
+    ui->preferredVolume->setEnabled(!g_settings->volumeFromPlayer);
+    ui->preferredVolume->setValue(g_settings->preferredVolume);
+    ui->qualityFromPlayer->setChecked(g_settings->qualityFromPlayer);
+    ui->restoreAnnotations->setChecked(g_settings->restoreAnnotations);
+    ui->volumeFromPlayer->setChecked(g_settings->volumeFromPlayer);
     // privacy
-    ui->playbackTracking->setChecked(settings->playbackTracking);
-    ui->watchtimeTracking->setChecked(settings->watchtimeTracking);
+    ui->playbackTracking->setChecked(g_settings->playbackTracking);
+    ui->watchtimeTracking->setChecked(g_settings->watchtimeTracking);
     // filtering
-    ui->hideSearchShelves->setChecked(settings->hideSearchShelves);
-    ui->hideShorts->setChecked(settings->hideShorts);
-    ui->hideStreams->setChecked(settings->hideStreams);
+    ui->hideSearchShelves->setChecked(g_settings->hideSearchShelves);
+    ui->hideShorts->setChecked(g_settings->hideShorts);
+    ui->hideStreams->setChecked(g_settings->hideStreams);
     // sponsorblock
-    ui->blockFiller->setChecked(settings->sponsorBlockCategories.contains("filler"));
-    ui->blockInteraction->setChecked(settings->sponsorBlockCategories.contains("interaction"));
-    ui->blockIntro->setChecked(settings->sponsorBlockCategories.contains("intro"));
-    ui->blockNonMusic->setChecked(settings->sponsorBlockCategories.contains("music_offtopic"));
-    ui->blockOutro->setChecked(settings->sponsorBlockCategories.contains("outro"));
-    ui->blockPreview->setChecked(settings->sponsorBlockCategories.contains("preview"));
-    ui->blockSelfPromo->setChecked(settings->sponsorBlockCategories.contains("selfpromo"));
-    ui->blockSponsor->setChecked(settings->sponsorBlockCategories.contains("sponsor"));
-    ui->showSBToasts->setChecked(settings->showSBToasts);
+    ui->blockFiller->setChecked(g_settings->sponsorBlockCategories.contains("filler"));
+    ui->blockInteraction->setChecked(g_settings->sponsorBlockCategories.contains("interaction"));
+    ui->blockIntro->setChecked(g_settings->sponsorBlockCategories.contains("intro"));
+    ui->blockNonMusic->setChecked(g_settings->sponsorBlockCategories.contains("music_offtopic"));
+    ui->blockOutro->setChecked(g_settings->sponsorBlockCategories.contains("outro"));
+    ui->blockPreview->setChecked(g_settings->sponsorBlockCategories.contains("preview"));
+    ui->blockSelfPromo->setChecked(g_settings->sponsorBlockCategories.contains("selfpromo"));
+    ui->blockSponsor->setChecked(g_settings->sponsorBlockCategories.contains("sponsor"));
+    ui->showSBToasts->setChecked(g_settings->showSBToasts);
     // dearrow
-    ui->deArrow->setChecked(settings->deArrow);
-    ui->deArrowThumbs->setChecked(settings->deArrowThumbs);
-    ui->deArrowTitles->setChecked(settings->deArrowTitles);
-    toggleDeArrowSettings(settings->deArrow);
+    ui->deArrow->setChecked(g_settings->deArrow);
+    ui->deArrowThumbs->setChecked(g_settings->deArrowThumbs);
+    ui->deArrowTitles->setChecked(g_settings->deArrowTitles);
+    toggleDeArrowSettings(g_settings->deArrow);
 
     connect(ui->deArrow, &QCheckBox::toggled, this, &YouTubeSettingsForm::toggleDeArrowSettings);
     //connect(ui->exportButton, &QPushButton::clicked, this, &YouTubeSettingsForm::openExportWizard);
@@ -147,50 +147,50 @@ bool YouTubeSettingsForm::savePending() const
 void YouTubeSettingsForm::saveSettings()
 {
     // general
-    settings->condensedCounts = ui->condensedCounts->isChecked();
-    settings->fullSubs = ui->fullSubs->isChecked();
-    settings->returnDislikes = ui->returnDislikes->isChecked();
+    g_settings->condensedCounts = ui->condensedCounts->isChecked();
+    g_settings->fullSubs = ui->fullSubs->isChecked();
+    g_settings->returnDislikes = ui->returnDislikes->isChecked();
     // player
-    settings->blockAds = ui->blockAds->isChecked();
-    settings->disable60Fps = ui->disable60Fps->isChecked();
-    settings->disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
-    settings->h264Only = ui->h264Only->isChecked();
-    settings->preferredQuality = static_cast<YouTubeSettings::PlayerQuality>(ui->preferredQuality->currentIndex());
-    settings->preferredVolume = ui->preferredVolume->value();
-    settings->qualityFromPlayer = ui->qualityFromPlayer->isChecked();
-    settings->restoreAnnotations = ui->restoreAnnotations->isChecked();
-    settings->volumeFromPlayer = ui->volumeFromPlayer->isChecked();
+    g_settings->blockAds = ui->blockAds->isChecked();
+    g_settings->disable60Fps = ui->disable60Fps->isChecked();
+    g_settings->disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
+    g_settings->h264Only = ui->h264Only->isChecked();
+    g_settings->preferredQuality = static_cast<YouTubeSettings::PlayerQuality>(ui->preferredQuality->currentIndex());
+    g_settings->preferredVolume = ui->preferredVolume->value();
+    g_settings->qualityFromPlayer = ui->qualityFromPlayer->isChecked();
+    g_settings->restoreAnnotations = ui->restoreAnnotations->isChecked();
+    g_settings->volumeFromPlayer = ui->volumeFromPlayer->isChecked();
     // privacy
-    settings->playbackTracking = ui->playbackTracking->isChecked();
-    settings->watchtimeTracking = ui->watchtimeTracking->isChecked();
+    g_settings->playbackTracking = ui->playbackTracking->isChecked();
+    g_settings->watchtimeTracking = ui->watchtimeTracking->isChecked();
     // filtering
-    settings->hideSearchShelves = ui->hideSearchShelves->isChecked();
-    settings->hideShorts = ui->hideShorts->isChecked();
-    settings->hideStreams = ui->hideStreams->isChecked();
+    g_settings->hideSearchShelves = ui->hideSearchShelves->isChecked();
+    g_settings->hideShorts = ui->hideShorts->isChecked();
+    g_settings->hideStreams = ui->hideStreams->isChecked();
     // sponsorblock
-    handleSponsorCategory(settings->sponsorBlockCategories, "filler", ui->blockFiller);
-    handleSponsorCategory(settings->sponsorBlockCategories, "interaction", ui->blockInteraction);
-    handleSponsorCategory(settings->sponsorBlockCategories, "intro", ui->blockIntro);
-    handleSponsorCategory(settings->sponsorBlockCategories, "music_offtopic", ui->blockNonMusic);
-    handleSponsorCategory(settings->sponsorBlockCategories, "outro", ui->blockOutro);
-    handleSponsorCategory(settings->sponsorBlockCategories, "preview", ui->blockPreview);
-    handleSponsorCategory(settings->sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
-    handleSponsorCategory(settings->sponsorBlockCategories, "sponsor", ui->blockSponsor);
-    settings->showSBToasts = ui->showSBToasts->isChecked();
+    handleSponsorCategory(g_settings->sponsorBlockCategories, "filler", ui->blockFiller);
+    handleSponsorCategory(g_settings->sponsorBlockCategories, "interaction", ui->blockInteraction);
+    handleSponsorCategory(g_settings->sponsorBlockCategories, "intro", ui->blockIntro);
+    handleSponsorCategory(g_settings->sponsorBlockCategories, "music_offtopic", ui->blockNonMusic);
+    handleSponsorCategory(g_settings->sponsorBlockCategories, "outro", ui->blockOutro);
+    handleSponsorCategory(g_settings->sponsorBlockCategories, "preview", ui->blockPreview);
+    handleSponsorCategory(g_settings->sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
+    handleSponsorCategory(g_settings->sponsorBlockCategories, "sponsor", ui->blockSponsor);
+    g_settings->showSBToasts = ui->showSBToasts->isChecked();
     // dearrow
-    settings->deArrow = ui->deArrow->isChecked();
-    settings->deArrowThumbs = ui->deArrowThumbs->isChecked();
-    settings->deArrowTitles = ui->deArrowTitles->isChecked();
+    g_settings->deArrow = ui->deArrow->isChecked();
+    g_settings->deArrowThumbs = ui->deArrowThumbs->isChecked();
+    g_settings->deArrowTitles = ui->deArrowTitles->isChecked();
 
-    settings->save();
-    settings->init();
+    g_settings->save();
+    g_settings->init();
 
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
 }
 
 void YouTubeSettingsForm::showChannelFilterTable()
 {
-    ChannelFilterTable* ft = new ChannelFilterTable(settings);
+    ChannelFilterTable* ft = new ChannelFilterTable;
     ft->show();
     ft->populateFromSettings();
 }
