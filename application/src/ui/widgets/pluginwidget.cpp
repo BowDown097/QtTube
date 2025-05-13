@@ -13,8 +13,7 @@ PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
       imageLabel(new QLabel(this)),
       layout(new QHBoxLayout(this)),
       metadataLayout(new QVBoxLayout),
-      nameLabel(new TubeLabel(this)),
-      settingsWindow(data->settings->window())
+      nameLabel(new TubeLabel(this))
 {
     authorLabel->setElideMode(Qt::ElideRight);
     authorLabel->setFont(QFont(authorLabel->font().toString(), authorLabel->font().pointSize() - 2));
@@ -53,11 +52,15 @@ PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
         connect(nameLabel, &TubeLabel::clicked, std::bind(&QDesktopServices::openUrl, QUrl(data->metadata->url)));
     }
 
-    if (settingsWindow)
+    if (data->settings->window())
     {
         QPushButton* openSettingsButton = new QPushButton("Open settings", this);
         buttonsLayout->addWidget(openSettingsButton);
-        connect(openSettingsButton, &QPushButton::clicked, settingsWindow.get(), &QWidget::show);
+        connect(openSettingsButton, &QPushButton::clicked, this, [data] {
+            QWidget* window = data->settings->window();
+            window->setAttribute(Qt::WA_DeleteOnClose);
+            window->show();
+        });
     }
 
     buttonsLayout->addStretch();

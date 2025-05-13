@@ -19,7 +19,6 @@ namespace QtTube
                 : active(active), avatar(avatar), id(id), username(username) {}
         };
 
-        virtual ~PluginAuth() = default;
         virtual const AuthUser* activeLogin() const = 0;
 
         template<typename T> requires std::derived_from<T, PluginAuth>

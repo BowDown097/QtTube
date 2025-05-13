@@ -1,4 +1,5 @@
 #include "youtubesettings.h"
+#include "youtubesettingsform.h"
 
 void YouTubeSettings::init()
 {
@@ -68,4 +69,9 @@ void YouTubeSettings::save()
     settings.setValue("deArrow/enabled", deArrow);
     settings.setValue("deArrow/thumbs", deArrowThumbs);
     settings.setValue("deArrow/titles", deArrowTitles);
+}
+
+QtTube::PluginSettingsWindow* YouTubeSettings::window()
+{
+    return new YouTubeSettingsForm(this);
 }

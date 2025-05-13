@@ -32,7 +32,8 @@ namespace QtTube
         void readIntoList(QSettings& settings, QList<T>& list, const QString& prefix, const QString& key)
         {
             list.clear();
-            for (int i = 0; i < settings.beginReadArray(prefix); ++i)
+            int sz = settings.beginReadArray(prefix);
+            for (int i = 0; i < sz; ++i)
             {
                 settings.setArrayIndex(i);
                 list.append(settings.value(key).value<T>());

@@ -1,13 +1,8 @@
+#include "youtubeplugin.h"
 #include "innertube.h"
 #include "localcache.h"
-#include "qttube-plugin/plugininterface.h"
+#include "settings/youtubesettings.h"
 #include "youtubeauth.h"
-#include "youtubesettings.h"
-
-class YouTubePlugin : public QtTube::PluginInterface
-{
-    void init() override;
-};
 
 static QtTube::PluginMetadata Metadata = {
     .name = "YouTube",
@@ -40,7 +35,6 @@ void YouTubePlugin::init()
     if (const CredentialSet* activeLogin = dynamic_cast<const CredentialSet*>(authPtr->activeLogin()))
     {
         authPtr->populateAuthStore(*activeLogin);
-        qDebug() << "from plugin:" << InnerTube::instance();
         if (InnerTube::instance()->hasAuthenticated())
             emit InnerTube::instance()->authStore()->authenticateSuccess();
     }

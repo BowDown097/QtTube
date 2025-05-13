@@ -41,6 +41,7 @@ public:
 
     void init() override;
     void save() override;
+    QtTube::PluginSettingsWindow* window() override;
 signals:
     void disablePlayerInfoPanelsChanged(bool);
     void preferredQualityChanged(YouTubeSettings::PlayerQuality);

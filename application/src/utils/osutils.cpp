@@ -2,6 +2,10 @@
 #include <QDir>
 #include <QFileInfo>
 
+#ifdef QTTUBE_HAS_WAYLAND
+#include "qttubeapplication.h"
+#endif
+
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)
 # include <QApplication>
 # ifdef QTTUBE_HAS_XSS
@@ -11,10 +15,6 @@
 #  endif // X11Extras check
 # endif // XScreenSaver check
 #endif // Non-Mac Unix check
-
-#ifdef QTTUBE_HAS_WAYLAND
-#include "qttubeapplication.h"
-#endif
 
 #ifdef Q_OS_MACOS
 #include <IOKit/pwr_mgt/IOPMLib.h>
