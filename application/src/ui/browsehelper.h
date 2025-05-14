@@ -15,7 +15,7 @@ public:
 
     void browseChannel(ContinuableListWidget* widget, int index, const InnertubeEndpoints::ChannelResponse& resp);
     void browseHistory(ContinuableListWidget* widget, const QString& query = "");
-    void browseHome(ContinuableListWidget* widget);
+    void browseHome(ContinuableListWidget* widget, const QString& continuationToken = "");
     void browseNotificationMenu(ContinuableListWidget* widget);
     void browseSubscriptions(ContinuableListWidget* widget);
     void browseTrending(ContinuableListWidget* widget);
@@ -29,32 +29,37 @@ public:
         if (widget->continuationToken.isEmpty())
             return;
 
-        widget->setPopulatingFlag(true);
-
-        try
+        if constexpr (std::same_as<E, InnertubeEndpoints::BrowseHome>)
         {
-            E newData = browseRequest<E>(widget->continuationToken, data);
-            if constexpr (std::same_as<E, InnertubeEndpoints::Search>)
-                setupSearch(widget, newData.response);
-            else if constexpr (std::same_as<E, InnertubeEndpoints::GetNotificationMenu>)
-                UIUtils::addRangeToList(widget, newData.response.notifications);
-            else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseChannel>)
-                continueChannel(widget, newData.response.contents);
-            else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseHome>)
-                setupHome(widget, newData.response);
-            else
-                UIUtils::addRangeToList(widget, newData.response.videos);
-
-            // continuationToken is added by ChannelBrowser::continuation() for channels
-            if constexpr (!std::same_as<E, InnertubeEndpoints::BrowseChannel>)
-                widget->continuationToken = newData.continuationToken;
+            browseHome(widget, widget->continuationToken);
         }
-        catch (const InnertubeException& ie)
+        else
         {
-            QMessageBox::critical(nullptr, "Failed to get continuation browsing info", ie.message());
-        }
+            widget->setPopulatingFlag(true);
 
-        widget->setPopulatingFlag(false);
+            try
+            {
+                E newData = browseRequest<E>(widget->continuationToken, data);
+                if constexpr (std::same_as<E, InnertubeEndpoints::Search>)
+                    setupSearch(widget, newData.response);
+                else if constexpr (std::same_as<E, InnertubeEndpoints::GetNotificationMenu>)
+                    UIUtils::addRangeToList(widget, newData.response.notifications);
+                else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseChannel>)
+                    continueChannel(widget, newData.response.contents);
+                else
+                    UIUtils::addRangeToList(widget, newData.response.videos);
+
+                // continuationToken is added by ChannelBrowser::continuation() for channels
+                if constexpr (!std::same_as<E, InnertubeEndpoints::BrowseChannel>)
+                    widget->continuationToken = newData.continuationToken;
+            }
+            catch (const InnertubeException& ie)
+            {
+                QMessageBox::critical(nullptr, "Failed to get continuation browsing info", ie.message());
+            }
+
+            widget->setPopulatingFlag(false);
+        }
     }
 private slots:
     void browseFailed(const QString& title, ContinuableListWidget* widget, const InnertubeException& ie);
@@ -65,7 +70,7 @@ private:
     template<EndpointWithData E>
     E browseRequest(const QString& continuationToken, const QString& data = "")
     {
-        if constexpr (innertube_is_any_v<E, InnertubeEndpoints::BrowseHome, InnertubeEndpoints::BrowseSubscriptions>)
+        if constexpr (std::same_as<E, InnertubeEndpoints::BrowseSubscriptions>)
             return InnerTube::instance()->getBlocking<E>(continuationToken);
         else
             return InnerTube::instance()->getBlocking<E>(data, continuationToken);

@@ -18,6 +18,8 @@ struct ShortsLockupViewModel;
 struct Video;
 }
 
+namespace QtTube { struct PluginVideo; }
+
 class QLabel;
 class QLayout;
 class QListWidget;
@@ -54,7 +56,7 @@ namespace UIUtils
     void addSeparatorToList(QListWidget* list);
     void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
     void addShelfTitleToList(QListWidget* list, const QString& title);
-    void addVideoToList(QListWidget* list, const InnertubeObjects::AdSlot& adSLot,
+    void addVideoToList(QListWidget* list, const InnertubeObjects::AdSlot& adSlot,
                         bool useThumbnailFromData = true);
     void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup,
                         bool useThumbnailFromData = true);
@@ -64,6 +66,7 @@ namespace UIUtils
                         bool useThumbnailFromData = true);
     void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video,
                         bool useThumbnailFromData = true);
+    void addVideoToList(QListWidget* list, const QtTube::PluginVideo& video);
     QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
     void addWrappedLabelToList(QListWidget* list, const QString& text);
     void clearLayout(QLayout* layout);

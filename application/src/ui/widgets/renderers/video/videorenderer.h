@@ -13,6 +13,8 @@ struct Video;
 struct VideoDisplayButtonGroup;
 }
 
+namespace QtTube { struct PluginVideo; }
+
 class ChannelLabel;
 class HttpReply;
 class TubeLabel;
@@ -43,6 +45,7 @@ public:
                  bool useThumbnailFromData = true);
     void setData(const InnertubeObjects::VideoDisplayButtonGroup& video,
                  bool useThumbnailFromData = true);
+    void setData(const QtTube::PluginVideo& video);
 private:
     int progress{};
     QJsonValue videoEndpoint;

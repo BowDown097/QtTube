@@ -318,6 +318,38 @@ void VideoRenderer::setData(const InnertubeObjects::VideoDisplayButtonGroup& vid
     titleLabel->setToolTip(title);
 }
 
+void VideoRenderer::setData(const QtTube::PluginVideo& video)
+{
+    progress = video.progressSecs;
+    videoId = video.videoId;
+
+    metadataLabel->setText(video.metadataText);
+    if (!video.uploaderId.isEmpty())
+    {
+        channelLabel->show();
+        channelLabel->setInfo(video.uploaderId, video.uploaderText, /*video.uploaderBadges*/{});
+    }
+
+    thumbnail->setLengthText(video.lengthText);
+    thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
+
+    if (video.videoUrlPrefix.contains("youtube.com"))
+        setThumbnail(video.thumbnailUrl);
+    else
+        thumbnail->setUrl(video.thumbnailUrl);
+
+    titleLabel->setText(video.title);
+    titleLabel->setToolTip(video.title);
+
+    watchPreloadData.reset(new PreloadData::WatchView {
+        //.channelAvatar = video.uploaderAvatarUrl,
+        //.channelBadges = video.uploaderBadges,
+        .channelId = video.uploaderId,
+        .channelName = video.uploaderText,
+        .title = video.title
+    });
+}
+
 void VideoRenderer::setDeArrowData(const QString& thumbFallbackUrl, const HttpReply& reply)
 {
     if (!reply.isSuccessful())

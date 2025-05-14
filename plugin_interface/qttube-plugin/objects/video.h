@@ -1,6 +1,5 @@
 #pragma once
-#include <QList>
-#include <QString>
+#include <QTime>
 
 namespace QtTube
 {
@@ -26,5 +25,13 @@ namespace QtTube
         QString uploaderUrlPrefix;
         QString videoId;
         QString videoUrlPrefix;
+
+        QTime length() const
+        {
+            QTime out = QTime::fromString(lengthText, "h:mm:ss");
+            if (!out.isValid())
+                out = QTime::fromString(lengthText, "m:ss");
+            return out;
+        }
     };
 }

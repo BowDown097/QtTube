@@ -218,6 +218,13 @@ namespace UIUtils
         addWidgetToList(list, renderer);
     }
 
+    void addVideoToList(QListWidget* list, const QtTube::PluginVideo& video)
+    {
+        VideoRenderer* renderer = constructVideoRenderer(list);
+        renderer->setData(video);
+        addWidgetToList(list, renderer);
+    }
+
     QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget)
     {
         QListWidgetItem* item = new QListWidgetItem;

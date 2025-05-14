@@ -5,6 +5,12 @@
 #include "qttubeapplication.h"
 #include <ranges>
 
+// TODO: incrementally switch everything over to using the plugin interface.
+// once all of this stuff is said and done,
+// ContinuableListWidget::continuationToken needs to be made a std::any itself
+// to support plugins that may not take a token in particular.
+// not doing this already for compatibility sake and because the YouTube plugin is the only one.
+
 using namespace InnertubeEndpoints;
 
 BrowseHelper* BrowseHelper::instance()
@@ -66,50 +72,28 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
     });
 }
 
-void BrowseHelper::browseHome(ContinuableListWidget* widget)
+void BrowseHelper::browseHome(ContinuableListWidget* widget, const QString& continuationToken)
 {
     widget->setPopulatingFlag(true);
 
-    // most clients will not serve you a home page unless if you are logged in or have searched for videos.
-    // i don't like this. thankfully, there's a few clients that do still:
-    // ANDROID_TESTSUITE, ANDROID_VR, IOS_UNPLUGGED, TVAPPLE, and TVHTML5
-    // IOS_UNPLUGGED is the only one that works with tryCreate currently, so it will be used.
-    if (InnerTube::instance()->hasAuthenticated())
+    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
     {
-        auto reply = InnerTube::instance()->get<BrowseHome>();
-        connect(reply, &InnertubeReply<BrowseHome>::exception, this,
-            std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
-        connect(reply, &InnertubeReply<BrowseHome>::finished, this, [this, widget](const BrowseHome& endpoint) {
-            setupHome(widget, endpoint.response);
-            widget->continuationToken = endpoint.continuationToken;
+        QtTube::HomeReply* reply = plugin->interface->getHome(continuationToken);
+        connect(reply, &QtTube::HomeReply::exception, this, [widget](const QtTube::PluginException& ex) {
             widget->setPopulatingFlag(false);
-        });
-    }
-    else
-    {
-        auto reply = InnerTube::instance()->getRaw<BrowseHome>({
-            { "context", QJsonObject {
-                { "client", QJsonObject {
-                    { "clientName", static_cast<int>(InnertubeClient::ClientType::IOS_UNPLUGGED) },
-                    { "clientVersion", InnertubeClient::getLatestVersion(InnertubeClient::ClientType::IOS_UNPLUGGED) }
-                }}
-            }}
-        });
-
-        connect(reply, &InnertubeReply<BrowseHome>::exception, this,
-            std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
-        connect(reply, &InnertubeReply<BrowseHome>::finishedRaw, this, [this, widget](const QJsonValue& data) {
-            if (const auto endpoint = InnerTube::tryCreate<BrowseHome>(data))
-            {
-                setupHome(widget, endpoint->response);
-                widget->continuationToken = endpoint->continuationToken;
-            }
+            if (ex.severity() == QtTube::PluginException::Severity::Normal)
+                QMessageBox::critical(nullptr, "Failed to get home data", ex.message());
             else
+                qWarning() << "Failed to get home data:" << ex.message();
+        });
+        connect(reply, &QtTube::HomeReply::finished, this, [reply, widget](const QList<QtTube::PluginVideo>& videos) {
+            for (const QtTube::PluginVideo& video : videos)
             {
-                browseFailed("home", widget, endpoint.error());
+                UIUtils::addVideoToList(widget, video);
+                QCoreApplication::processEvents();
             }
-
             widget->setPopulatingFlag(false);
+            widget->continuationToken = std::any_cast<QString>(reply->continuationData);
         });
     }
 }
