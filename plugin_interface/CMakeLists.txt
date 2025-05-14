@@ -20,6 +20,8 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/pluginsettings.h
             qttube-plugin/components/pluginsettingswindow.h
             qttube-plugin/components/reply.h
+            qttube-plugin/components/replytypes.h
+            qttube-plugin/objects/shelf.h
             qttube-plugin/objects/video.h)
 
 add_library(QtTube::PluginInterface ALIAS QtTube-PluginInterface)

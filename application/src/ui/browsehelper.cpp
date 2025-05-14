@@ -86,10 +86,30 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget, const QString& cont
             else
                 qWarning() << "Failed to get home data:" << ex.message();
         });
-        connect(reply, &QtTube::HomeReply::finished, this, [reply, widget](const QList<QtTube::PluginVideo>& videos) {
-            for (const QtTube::PluginVideo& video : videos)
+        connect(reply, &QtTube::HomeReply::finished, this, [reply, widget](const QtTube::HomeData& data) {
+            for (const QtTube::HomeDataItem& item : data)
             {
-                UIUtils::addVideoToList(widget, video);
+                if (const auto* shelf = std::get_if<QtTube::PluginShelf<QtTube::PluginVideo>>(&item))
+                {
+                    if (shelf->contents.isEmpty())
+                        continue;
+
+                    UIUtils::addShelfTitleToList(widget, shelf->title);
+
+                    for (const QtTube::PluginVideo& video : shelf->contents)
+                    {
+                        UIUtils::addVideoToList(widget, video);
+                        QCoreApplication::processEvents();
+                    }
+
+                    if (!shelf->isDividerHidden)
+                        UIUtils::addSeparatorToList(widget);
+                }
+                else if (const auto* video = std::get_if<QtTube::PluginVideo>(&item))
+                {
+                    UIUtils::addVideoToList(widget, *video);
+                }
+
                 QCoreApplication::processEvents();
             }
             widget->setPopulatingFlag(false);

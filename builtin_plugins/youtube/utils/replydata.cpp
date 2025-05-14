@@ -3,8 +3,8 @@
 #include "innertube.h"
 #include "youtubeplugin.h"
 
-template<typename T>
-void addVideo(QList<QtTube::PluginVideo>& videoList, const T& video, bool useThumbnailFromData)
+template<typename T, typename U>
+void addVideo(QList<U>& videoList, const T& video, bool useThumbnailFromData)
 {
     if constexpr (std::same_as<T, InnertubeObjects::AdSlot>)
     {
@@ -22,9 +22,9 @@ void addVideo(QList<QtTube::PluginVideo>& videoList, const T& video, bool useThu
     }
 }
 
-QList<QtTube::PluginVideo> getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
+QtTube::HomeData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
 {
-    QList<QtTube::PluginVideo> videoList;
+    QtTube::HomeData result;
 
     // non-authenticated users will be under the IOS_UNPLUGGED client,
     // which serves thumbnails in an odd aspect ratio.
@@ -34,33 +34,49 @@ QList<QtTube::PluginVideo> getHomeData(const InnertubeEndpoints::BrowseHome& end
     {
         if (const auto* adSlot = std::get_if<InnertubeObjects::AdSlot>(&item))
         {
-            addVideo(videoList, *adSlot, useThumbnailFromData);
+            addVideo(result, *adSlot, useThumbnailFromData);
         }
-        else if (const auto* horizontalShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
+        else if (const auto* hShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
         {
-            for (const InnertubeObjects::Video& video : horizontalShelf->content.items)
-                addVideo(videoList, video, useThumbnailFromData);
+            QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
+            videoShelf.title = hShelf->title.text;
+            if (const InnertubeObjects::GenericThumbnail* bestThumb = hShelf->thumbnail.bestQuality())
+                videoShelf.iconUrl = bestThumb->url;
+
+            for (const InnertubeObjects::Video& video : hShelf->content.items)
+                addVideo(videoShelf.contents, video, useThumbnailFromData);
+
+            result.append(videoShelf);
         }
         else if (const auto* lockup = std::get_if<InnertubeObjects::LockupViewModel>(&item))
         {
-            addVideo(videoList, *lockup, useThumbnailFromData);
+            addVideo(result, *lockup, useThumbnailFromData);
         }
-        else if (const auto* richShelf = std::get_if<InnertubeObjects::HomeRichShelf>(&item))
+        else if (const auto* rShelf = std::get_if<InnertubeObjects::HomeRichShelf>(&item))
         {
-            for (const auto& itemVariant : richShelf->contents)
+            QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
+            videoShelf.isDividerHidden = rShelf->isBottomDividerHidden;
+            videoShelf.subtitle = rShelf->subtitle.text;
+            videoShelf.title = rShelf->title.text;
+            if (const InnertubeObjects::GenericThumbnail* bestThumb = rShelf->thumbnail.bestQuality())
+                videoShelf.iconUrl = bestThumb->url;
+
+            for (const auto& itemVariant : rShelf->contents)
             {
-                std::visit([&videoList, useThumbnailFromData](auto&& item) {
+                std::visit([&videoShelf, useThumbnailFromData](auto&& item) {
                     using ItemType = std::remove_cvref_t<decltype(item)>;
                     if constexpr (!innertube_is_any_v<ItemType, InnertubeObjects::MiniGameCardViewModel, InnertubeObjects::Post>)
-                        addVideo(videoList, item, useThumbnailFromData);
+                        addVideo(videoShelf.contents, item, useThumbnailFromData);
                 }, itemVariant);
             }
+
+            result.append(videoShelf);
         }
         else if (const auto* video = std::get_if<InnertubeObjects::Video>(&item))
         {
-            addVideo(videoList, *video, useThumbnailFromData);
+            addVideo(result, *video, useThumbnailFromData);
         }
     }
 
-    return videoList;
+    return result;
 }

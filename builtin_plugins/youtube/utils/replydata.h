@@ -1,5 +1,5 @@
 #pragma once
 #include "innertube/endpoints/browse/browsehome.h"
-#include "qttube-plugin/objects/video.h"
+#include "qttube-plugin/components/replytypes.h"
 
-QList<QtTube::PluginVideo> getHomeData(const InnertubeEndpoints::BrowseHome& endpoint);
+QtTube::HomeData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint);
