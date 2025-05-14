@@ -36,14 +36,14 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::CompactVideo& compactVi
         result.uploaderId = owner.id;
         result.uploaderText = owner.name;
         result.uploaderUrlPrefix = "https://www.youtube.com/channel/";
-        if (const InnertubeObjects::GenericThumbnail* recAvatar = owner.icon.recommendedQuality(QSize(200, 200)))
+        if (const InnertubeObjects::GenericThumbnail* recAvatar = owner.icon.recommendedQuality(QSize(205, 205)))
             result.uploaderAvatarUrl = recAvatar->url;
         for (const InnertubeObjects::MetadataBadge& badge : compactVideo.ownerBadges)
             result.uploaderBadges.append(convertBadge(badge));
     }
 
     result.thumbnailUrl = useThumbnailFromData && !compactVideo.thumbnail.isEmpty()
-        ? compactVideo.thumbnail.recommendedQuality(QSize(200, 200))->url
+        ? compactVideo.thumbnail.recommendedQuality(QSize(205, 205))->url
         : "https://img.youtube.com/vi/" + result.videoId + "/mqdefault.jpg";
 
     return result;
@@ -55,7 +55,7 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::DisplayAd& displayAd, b
         .lengthText = "Ad",
         .metadataText = displayAd.bodyText.text,
         .sourceIconUrl = g_metadata.image,
-        .thumbnailUrl = displayAd.image.recommendedQuality(QSize(200, 200))->url,
+        .thumbnailUrl = displayAd.image.recommendedQuality(QSize(205, 205))->url,
         .title = QString(displayAd.titleText.text).replace("\r\n", " ")
     };
 
@@ -93,12 +93,12 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::LockupViewModel& lockup
         result.uploaderId = owner->id;
         result.uploaderText = owner->name;
         result.uploaderUrlPrefix = "https://www.youtube.com/channel/";
-        if (const InnertubeObjects::GenericThumbnail* recAvatar = owner->icon.recommendedQuality(QSize(200, 200)))
+        if (const InnertubeObjects::GenericThumbnail* recAvatar = owner->icon.recommendedQuality(QSize(205, 205)))
             result.uploaderAvatarUrl = recAvatar->url;
     }
 
     result.thumbnailUrl = useThumbnailFromData && !lockup.contentImage.image.isEmpty()
-        ? lockup.contentImage.image.recommendedQuality(QSize(200, 200))->url
+        ? lockup.contentImage.image.recommendedQuality(QSize(205, 205))->url
         : "https://img.youtube.com/vi/" + result.videoId + "/mqdefault.jpg";
 
     return result;
@@ -116,7 +116,7 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::Reel& reel, bool useThu
     };
 
     result.thumbnailUrl = useThumbnailFromData && !reel.thumbnail.isEmpty()
-        ? reel.thumbnail.recommendedQuality(QSize(200, 200))->url
+        ? reel.thumbnail.recommendedQuality(QSize(205, 205))->url
         : "https://img.youtube.com/vi/" + result.videoId + "/mqdefault.jpg";
 
     return result;
@@ -134,7 +134,7 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::ShortsLockupViewModel& 
     };
 
     result.thumbnailUrl = useThumbnailFromData && !shortsLockup.thumbnail.isEmpty()
-        ? shortsLockup.thumbnail.recommendedQuality(QSize(200, 200))->url
+        ? shortsLockup.thumbnail.recommendedQuality(QSize(205, 205))->url
         : "https://img.youtube.com/vi/" + result.videoId + "/mqdefault.jpg";
 
     return result;
@@ -163,14 +163,14 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::Video& video, bool useT
         result.uploaderId = ownerId;
         result.uploaderText = video.ownerText.text;
         result.uploaderUrlPrefix = "https://www.youtube.com/channel/";
-        if (const InnertubeObjects::GenericThumbnail* recAvatar = video.channelThumbnailSupportedRenderers.thumbnail.recommendedQuality(QSize(200, 200)))
+        if (const InnertubeObjects::GenericThumbnail* recAvatar = video.channelThumbnailSupportedRenderers.thumbnail.recommendedQuality(QSize(205, 205)))
             result.uploaderAvatarUrl = recAvatar->url;
         for (const InnertubeObjects::MetadataBadge& badge : video.ownerBadges)
             result.uploaderBadges.append(convertBadge(badge));
     }
 
     result.thumbnailUrl = useThumbnailFromData && !video.thumbnail.isEmpty()
-        ? video.thumbnail.recommendedQuality(QSize(200, 200))->url
+        ? video.thumbnail.recommendedQuality(QSize(205, 205))->url
         : "https://img.youtube.com/vi/" + result.videoId + "/mqdefault.jpg";
 
     return result;
@@ -190,7 +190,7 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::VideoDisplayButtonGroup
     {
         if (const QJsonValue urlEndpoint = video.channelEndpoint["urlEndpoint"]; urlEndpoint.isObject())
             result.uploaderId = urlEndpoint["url"].toString();
-        if (const InnertubeObjects::GenericThumbnail* recAvatar = video.channelThumbnail.recommendedQuality(QSize(200, 200)))
+        if (const InnertubeObjects::GenericThumbnail* recAvatar = video.channelThumbnail.recommendedQuality(QSize(205, 205)))
             result.uploaderAvatarUrl = recAvatar->url;
         result.uploaderText = video.shortBylineText.text;
     }
@@ -210,7 +210,7 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::VideoDisplayButtonGroup
     }
 
     result.thumbnailUrl = useThumbnailFromData && !video.thumbnail.isEmpty()
-        ? video.thumbnail.recommendedQuality(QSize(200, 200))->url
+        ? video.thumbnail.recommendedQuality(QSize(205, 205))->url
         : "https://img.youtube.com/vi/" + result.videoId + "/mqdefault.jpg";
 
     return result;
