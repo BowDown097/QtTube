@@ -19,7 +19,7 @@ namespace QtTube
     struct PluginInterface
     {
         virtual ~PluginInterface() = default;
-        virtual HomeReply* getHome() { return HomeReply::create(); }
+        virtual HomeReply* getHome(std::any data = {}) { return HomeReply::create(); }
         virtual void init() = 0;
     };
 

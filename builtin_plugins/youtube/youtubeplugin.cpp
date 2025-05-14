@@ -16,17 +16,22 @@ DECLARE_QTTUBE_PLUGIN(YouTubePlugin, g_metadata, YouTubeSettings, YouTubeAuth)
 YouTubeAuth* g_auth = static_cast<YouTubeAuth*>(auth());
 YouTubeSettings* g_settings = static_cast<YouTubeSettings*>(settings());
 
-QtTube::HomeReply* YouTubePlugin::getHome()
+QtTube::HomeReply* YouTubePlugin::getHome(std::any data)
 {
     QtTube::HomeReply* pluginReply = QtTube::HomeReply::create();
 
+    QString continuationToken;
+    if (QString* ctoken = std::any_cast<QString>(&data))
+        continuationToken = *ctoken;
+
     if (InnerTube::instance()->hasAuthenticated())
     {
-        InnertubeReply<InnertubeEndpoints::BrowseHome>* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseHome>();
+        InnertubeReply<InnertubeEndpoints::BrowseHome>* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseHome>(continuationToken);
         QObject::connect(tubeReply, &InnertubeReply<InnertubeEndpoints::BrowseHome>::exception, [pluginReply](const InnertubeException& ex) {
             emit pluginReply->exception(convertException(ex));
         });
         QObject::connect(tubeReply, &InnertubeReply<InnertubeEndpoints::BrowseHome>::finished, [pluginReply](const InnertubeEndpoints::BrowseHome& endpoint) {
+            pluginReply->continuationData = endpoint.continuationToken;
             emit pluginReply->finished(getHomeData(endpoint));
         });
     }
@@ -46,9 +51,14 @@ QtTube::HomeReply* YouTubePlugin::getHome()
         });
         QObject::connect(tubeReply, &InnertubeReply<InnertubeEndpoints::BrowseHome>::finishedRaw, [pluginReply](const QJsonValue& data) {
             if (const auto endpoint = InnerTube::tryCreate<InnertubeEndpoints::BrowseHome>(data))
+            {
+                pluginReply->continuationData = endpoint->continuationToken;
                 emit pluginReply->finished(getHomeData(endpoint.value()));
+            }
             else
+            {
                 emit pluginReply->exception(convertException(endpoint.error()));
+            }
         });
     }
 

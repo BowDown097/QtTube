@@ -1,4 +1,5 @@
 #pragma once
+#include <any>
 #include <QException>
 #include <wobjectimpl.h>
 
@@ -24,6 +25,8 @@ namespace QtTube
     {
         W_OBJECT(PluginReply)
     public:
+        std::any continuationData;
+
         void exception(const QtTube::PluginException& ex) W_SIGNAL(exception, ex)
         void finished(const T& object) W_SIGNAL(finished, object)
 
@@ -42,6 +45,8 @@ namespace QtTube
     {
         W_OBJECT(PluginReply<void>)
     public:
+        std::any continuationData;
+
         void exception(const QtTube::PluginException& ex) W_SIGNAL(exception, ex)
         void finished() W_SIGNAL(finished)
 
