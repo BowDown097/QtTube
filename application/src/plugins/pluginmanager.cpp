@@ -82,7 +82,7 @@ std::optional<PluginData> PluginManager::loadPlugin(const QFileInfo& fileInfo)
     return data;
 }
 
-QList<const PluginData*> PluginManager::plugins() const
+const QList<const PluginData*> PluginManager::plugins() const
 {
     QList<const PluginData*> out;
     out.reserve(m_plugins.size());

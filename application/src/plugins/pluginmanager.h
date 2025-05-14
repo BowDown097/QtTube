@@ -42,7 +42,7 @@ class PluginManager
 {
 public:
     const PluginData* findPlugin(const QString& name) const;
-    QList<const PluginData*> plugins() const;
+    const QList<const PluginData*> plugins() const;
     void reloadPlugins();
 private:
     std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_plugins;
