@@ -1,16 +1,85 @@
 #include "conversion.h"
-#include "youtubeplugin.h"
+#include "innertube/innertubereply.h"
 
 QtTube::PluginVideoBadge convertBadge(const InnertubeObjects::MetadataBadge& badge)
 {
-    return QtTube::PluginVideoBadge {
-        .tooltip = badge.tooltip
-    };
+    return QtTube::PluginVideoBadge { .tooltip = badge.tooltip };
 }
 
 QtTube::PluginException convertException(const InnertubeException& ex)
 {
     return QtTube::PluginException(ex.message(), static_cast<QtTube::PluginException::Severity>(ex.severity()));
+}
+
+QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(
+    const InnertubeObjects::HomeRichShelf& hrShelf, bool useThumbnailFromData)
+{
+    QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
+    videoShelf.isDividerHidden = hrShelf.isBottomDividerHidden;
+    videoShelf.subtitle = hrShelf.subtitle.text;
+    videoShelf.title = hrShelf.title.text;
+    if (const InnertubeObjects::GenericThumbnail* bestThumb = hrShelf.thumbnail.bestQuality())
+        videoShelf.iconUrl = bestThumb->url;
+
+    for (const auto& itemVariant : hrShelf.contents)
+    {
+        std::visit([&videoShelf, useThumbnailFromData](auto&& item) {
+            using ItemType = std::remove_cvref_t<decltype(item)>;
+            if constexpr (!innertube_is_any_v<ItemType, InnertubeObjects::MiniGameCardViewModel, InnertubeObjects::Post>)
+                addVideo(videoShelf.contents, item, useThumbnailFromData);
+        }, itemVariant);
+    }
+
+    return videoShelf;
+}
+
+QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(
+    const InnertubeObjects::HorizontalVideoShelf& hShelf, bool useThumbnailFromData)
+{
+    QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
+    videoShelf.title = hShelf.title.text;
+    if (const InnertubeObjects::GenericThumbnail* bestThumb = hShelf.thumbnail.bestQuality())
+        videoShelf.iconUrl = bestThumb->url;
+
+    for (const InnertubeObjects::Video& video : hShelf.content.items)
+        addVideo(videoShelf.contents, video, useThumbnailFromData);
+
+    return videoShelf;
+}
+
+QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::ReelShelf& rShelf)
+{
+    QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
+    videoShelf.title = rShelf.title.text;
+    for (const InnertubeObjects::ShortsLockupViewModel& reel : rShelf.items)
+        addVideo(videoShelf.contents, reel);
+    return videoShelf;
+}
+
+QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::StandardVideoShelf& sShelf)
+{
+    QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
+    videoShelf.title = sShelf.title.text;
+    if (const InnertubeObjects::GenericThumbnail* bestThumb = sShelf.thumbnail.bestQuality())
+        videoShelf.iconUrl = bestThumb->url;
+
+    for (const InnertubeObjects::Video& video : sShelf.content)
+        addVideo(videoShelf.contents, video);
+
+    return videoShelf;
+}
+
+QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::VerticalVideoShelf& vShelf)
+{
+    QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
+    videoShelf.title = vShelf.title.text;
+    if (const InnertubeObjects::GenericThumbnail* bestThumb = vShelf.thumbnail.bestQuality())
+        videoShelf.iconUrl = bestThumb->url;
+
+    for (const InnertubeObjects::Video& video : vShelf.content.items)
+        addVideo(videoShelf.contents, video);
+
+    return videoShelf;
 }
 
 QtTube::PluginVideo convertVideo(const InnertubeObjects::CompactVideo& compactVideo, bool useThumbnailFromData)

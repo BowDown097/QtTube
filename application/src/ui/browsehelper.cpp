@@ -13,12 +13,6 @@
 
 using namespace InnertubeEndpoints;
 
-BrowseHelper* BrowseHelper::instance()
-{
-    std::call_once(m_onceFlag, [] { m_instance = new BrowseHelper; });
-    return m_instance;
-}
-
 void BrowseHelper::browseChannel(ContinuableListWidget* widget, int index, const InnertubeEndpoints::ChannelResponse& resp)
 {
     QJsonValue tabRenderer = resp.contents["twoColumnBrowseResultsRenderer"]["tabs"][index]["tabRenderer"];
@@ -49,7 +43,7 @@ void BrowseHelper::browseChannel(ContinuableListWidget* widget, int index, const
     }
     catch (const InnertubeException& ie)
     {
-        browseFailed("channel tab", nullptr, ie);
+        browseFailedInnertube("channel tab", nullptr, ie);
     }
 }
 
@@ -64,7 +58,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<BrowseHistory>(query);
     connect(reply, &InnertubeReply<BrowseHistory>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailed, this, "history", widget));
+        std::bind_front(&BrowseHelper::browseFailedInnertube, this, "history", widget));
     connect(reply, &InnertubeReply<BrowseHistory>::finished, this, [this, widget](const BrowseHistory& endpoint) {
         UIUtils::addRangeToList(widget, endpoint.response.videos);
         widget->continuationToken = endpoint.continuationToken;
@@ -75,46 +69,13 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
 void BrowseHelper::browseHome(ContinuableListWidget* widget, const QString& continuationToken)
 {
     widget->setPopulatingFlag(true);
-
     for (const PluginData* plugin : qtTubeApp->plugins().plugins())
     {
         QtTube::HomeReply* reply = plugin->interface->getHome(continuationToken);
-        connect(reply, &QtTube::HomeReply::exception, this, [widget](const QtTube::PluginException& ex) {
-            widget->setPopulatingFlag(false);
-            if (ex.severity() == QtTube::PluginException::Severity::Normal)
-                QMessageBox::critical(nullptr, "Failed to get home data", ex.message());
-            else
-                qWarning() << "Failed to get home data:" << ex.message();
-        });
-        connect(reply, &QtTube::HomeReply::finished, this, [reply, widget](const QtTube::HomeData& data) {
-            for (const QtTube::HomeDataItem& item : data)
-            {
-                if (const auto* shelf = std::get_if<QtTube::PluginShelf<QtTube::PluginVideo>>(&item))
-                {
-                    if (shelf->contents.isEmpty())
-                        continue;
-
-                    UIUtils::addShelfTitleToList(widget, shelf->title);
-
-                    for (const QtTube::PluginVideo& video : shelf->contents)
-                    {
-                        UIUtils::addVideoToList(widget, video);
-                        QCoreApplication::processEvents();
-                    }
-
-                    if (!shelf->isDividerHidden)
-                        UIUtils::addSeparatorToList(widget);
-                }
-                else if (const auto* video = std::get_if<QtTube::PluginVideo>(&item))
-                {
-                    UIUtils::addVideoToList(widget, *video);
-                }
-
-                QCoreApplication::processEvents();
-            }
-            widget->setPopulatingFlag(false);
-            widget->continuationToken = std::any_cast<QString>(reply->continuationData);
-        });
+        connect(reply, &QtTube::HomeReply::exception, this,
+            std::bind_front(&BrowseHelper::browseFailedPlugin, this, "home", widget));
+        connect(reply, &QtTube::HomeReply::finished, this,
+            std::bind_front(&BrowseHelper::setupHome, this, widget, reply));
     }
 }
 
@@ -123,7 +84,7 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
     connect(reply, &InnertubeReply<GetNotificationMenu>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailed, this, "notification", widget));
+        std::bind_front(&BrowseHelper::browseFailedInnertube, this, "notification", widget));
     connect(reply, &InnertubeReply<GetNotificationMenu>::finished, this, [this, widget](const GetNotificationMenu& endpoint) {
         UIUtils::addRangeToList(widget, endpoint.response.notifications);
         widget->continuationToken = endpoint.continuationToken;
@@ -143,7 +104,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<BrowseSubscriptions>();
     connect(reply, &InnertubeReply<BrowseSubscriptions>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailed, this, "subscriptions", widget));
+        std::bind_front(&BrowseHelper::browseFailedInnertube, this, "subscriptions", widget));
     connect(reply, &InnertubeReply<BrowseSubscriptions>::finished, this, [this, widget](const BrowseSubscriptions& endpoint) {
         UIUtils::addRangeToList(widget, endpoint.response.videos);
         widget->continuationToken = endpoint.continuationToken;
@@ -151,16 +112,17 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
     });
 }
 
-void BrowseHelper::browseTrending(ContinuableListWidget* widget)
+void BrowseHelper::browseTrending(ContinuableListWidget* widget, const QString& continuationToken)
 {
     widget->setPopulatingFlag(true);
-    auto reply = InnerTube::instance()->get<BrowseTrending>();
-    connect(reply, &InnertubeReply<BrowseTrending>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailed, this, "trending", widget));
-    connect(reply, &InnertubeReply<BrowseTrending>::finished, this, [this, widget](const BrowseTrending& endpoint) {
-        setupTrending(widget, endpoint.response);
-        widget->setPopulatingFlag(false);
-    });
+    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
+    {
+        QtTube::TrendingReply* reply = plugin->interface->getTrending(continuationToken);
+        connect(reply, &QtTube::TrendingReply::exception, this,
+            std::bind_front(&BrowseHelper::browseFailedPlugin, this, "trending", widget));
+        connect(reply, &QtTube::TrendingReply::finished, this,
+            std::bind_front(&BrowseHelper::setupTrending, this, widget, reply));
+    }
 }
 
 void BrowseHelper::continueChannel(ContinuableListWidget* widget, const QJsonValue& contents)
@@ -187,7 +149,7 @@ void BrowseHelper::search(ContinuableListWidget* widget, const QString& query,
     widget->setPopulatingFlag(true);
     auto reply = InnerTube::instance()->get<Search>(query, "", compiledParams);
     connect(reply, &InnertubeReply<Search>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailed, this, "search", widget));
+        std::bind_front(&BrowseHelper::browseFailedInnertube, this, "search", widget));
     connect(reply, &InnertubeReply<Search>::finished, this, [this, widget](const Search& endpoint) {
         widget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(endpoint.response.estimatedResults)));
         setupSearch(widget, endpoint.response);
@@ -196,15 +158,26 @@ void BrowseHelper::search(ContinuableListWidget* widget, const QString& query,
     });
 }
 
-void BrowseHelper::browseFailed(const QString& title, ContinuableListWidget* widget, const InnertubeException& ie)
+void BrowseHelper::browseFailedInnertube(const QString& title, ContinuableListWidget* widget, const InnertubeException& ex)
 {
     if (widget)
         widget->setPopulatingFlag(false);
 
-    if (ie.severity() == InnertubeException::Severity::Normal)
-        QMessageBox::critical(nullptr, "Failed to get " + title + " data", ie.message());
+    if (ex.severity() == InnertubeException::Severity::Normal)
+        QMessageBox::critical(nullptr, "Failed to get " + title + " data", ex.message());
     else
-        qWarning().nospace() << "Failed to get " << title << " data: " << ie.message();
+        qWarning().nospace() << "Failed to get " << title << " data: " << ex.message();
+}
+
+void BrowseHelper::browseFailedPlugin(const QString& title, ContinuableListWidget* widget, const QtTube::PluginException& ex)
+{
+    if (widget)
+        widget->setPopulatingFlag(false);
+
+    if (ex.severity() == QtTube::PluginException::Severity::Normal)
+        QMessageBox::critical(nullptr, "Failed to get " + title + " data", ex.message());
+    else
+        qWarning().nospace() << "Failed to get " << title << " data:" << ex.message();
 }
 
 void BrowseHelper::removeTrailingSeparator(QListWidget* list)
@@ -217,74 +190,33 @@ void BrowseHelper::removeTrailingSeparator(QListWidget* list)
 
 // TODO: make reel shelf widget, and expandable list widget, replace applicable code
 
-void BrowseHelper::setupHome(QListWidget* widget, const InnertubeEndpoints::HomeResponse& response)
+void BrowseHelper::setupHome(ContinuableListWidget* widget, QtTube::HomeReply* reply, const QtTube::HomeData& data)
 {
-    // non-authenticated users will be under the IOS_UNPLUGGED client,
-    // which serves thumbnails in an odd aspect ratio.
-    bool useThumbnailFromData = InnerTube::instance()->hasAuthenticated();
-
-    for (const InnertubeEndpoints::HomeResponseItem& item : response.contents)
+    for (const QtTube::HomeDataItem& item : data)
     {
-        if (const auto* adSlot = std::get_if<InnertubeObjects::AdSlot>(&item))
+        if (const auto* shelf = std::get_if<QtTube::PluginShelf<QtTube::PluginVideo>>(&item))
         {
-            UIUtils::addVideoToList(widget, *adSlot, useThumbnailFromData);
-        }
-        if (const auto* horizontalShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
-        {
-            UIUtils::addShelfTitleToList(widget, horizontalShelf->title.text);
+            UIUtils::addShelfTitleToList(widget, shelf->title);
 
-            for (const InnertubeObjects::Video& video : horizontalShelf->content.items)
+            for (const QtTube::PluginVideo& video : shelf->contents)
             {
-                UIUtils::addVideoToList(widget, video, useThumbnailFromData);
+                UIUtils::addVideoToList(widget, video);
                 QCoreApplication::processEvents();
             }
 
-            UIUtils::addSeparatorToList(widget);
+            if (!shelf->isDividerHidden)
+                UIUtils::addSeparatorToList(widget);
         }
-        else if (const auto* lockup = std::get_if<InnertubeObjects::LockupViewModel>(&item))
+        else if (const auto* video = std::get_if<QtTube::PluginVideo>(&item))
         {
-            UIUtils::addVideoToList(widget, *lockup, useThumbnailFromData);
-        }
-        else if (const auto* richShelf = std::get_if<InnertubeObjects::HomeRichShelf>(&item))
-        {
-            if (qtTubeApp->settings().hideShorts && std::ranges::any_of(richShelf->contents, [](const auto& item) {
-                    return std::holds_alternative<InnertubeObjects::ShortsLockupViewModel>(item);
-                }))
-            {
-                continue;
-            }
-
-            if (std::ranges::any_of(richShelf->contents, [](const auto& item) {
-                    return std::holds_alternative<InnertubeObjects::MiniGameCardViewModel>(item);
-                }))
-            {
-                continue;
-            }
-
-            UIUtils::addShelfTitleToList(widget, richShelf->title.text);
-
-            for (const auto& itemVariant : richShelf->contents)
-            {
-                std::visit([widget, useThumbnailFromData](auto&& item) {
-                    using ItemType = std::remove_cvref_t<decltype(item)>;
-                    if constexpr (std::same_as<ItemType, InnertubeObjects::Post>)
-                        UIUtils::addPostToList(widget, item);
-                    else if constexpr (!std::same_as<ItemType, InnertubeObjects::MiniGameCardViewModel>)
-                        UIUtils::addVideoToList(widget, item, useThumbnailFromData);
-                }, itemVariant);
-
-                QCoreApplication::processEvents();
-            }
-
-            UIUtils::addSeparatorToList(widget);
-        }
-        else if (const auto* video = std::get_if<InnertubeObjects::Video>(&item))
-        {
-            UIUtils::addVideoToList(widget, *video, useThumbnailFromData);
+            UIUtils::addVideoToList(widget, *video);
         }
 
         QCoreApplication::processEvents();
     }
+
+    widget->setPopulatingFlag(false);
+    widget->continuationToken = std::any_cast<QString>(reply->continuationData);
 }
 
 void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response)
@@ -325,32 +257,7 @@ void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::Se
     }
 }
 
-void BrowseHelper::setupTrending(QListWidget* widget, const InnertubeEndpoints::TrendingResponse& response)
+void BrowseHelper::setupTrending(ContinuableListWidget* widget, QtTube::TrendingReply* reply, const QtTube::TrendingData& data)
 {
-    for (const InnertubeEndpoints::TrendingResponseItem& item : response.contents)
-    {
-        if (const auto* horizontalShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
-        {
-            UIUtils::addShelfTitleToList(widget, horizontalShelf->title.text);
-            UIUtils::addRangeToList(widget, horizontalShelf->content.items);
-            UIUtils::addSeparatorToList(widget);
-        }
-        else if (const auto* reelShelf = std::get_if<InnertubeObjects::ReelShelf>(&item))
-        {
-            if (qtTubeApp->settings().hideShorts)
-                continue;
-
-            UIUtils::addShelfTitleToList(widget, reelShelf->title.text);
-            UIUtils::addRangeToList(widget, reelShelf->items);
-            UIUtils::addSeparatorToList(widget);
-        }
-        else if (const auto* standardShelf = std::get_if<InnertubeObjects::StandardVideoShelf>(&item))
-        {
-            UIUtils::addShelfTitleToList(widget, standardShelf->title.text);
-            UIUtils::addRangeToList(widget, standardShelf->content);
-            UIUtils::addSeparatorToList(widget);
-        }
-
-        removeTrailingSeparator(widget);
-    }
+    setupHome(widget, reply, data); // these are convertible, but this will need to be replaced if ever need be
 }

@@ -15,6 +15,7 @@ namespace QtTube
     {
         virtual ~PluginInterface() = default;
         virtual HomeReply* getHome(std::any data = {}) { return HomeReply::create(); }
+        virtual TrendingReply* getTrending(std::any data = {}) { return TrendingReply::create(); }
         virtual void init() = 0;
     };
 

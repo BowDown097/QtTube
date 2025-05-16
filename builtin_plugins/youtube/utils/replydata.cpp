@@ -1,25 +1,12 @@
 #include "replydata.h"
 #include "conversion.h"
 #include "innertube.h"
-#include "youtubeplugin.h"
 
-template<typename T, typename U>
-void addVideo(QList<U>& videoList, const T& video, bool useThumbnailFromData)
+template<typename T, typename... Ts>
+void addShelf(QList<T>& shelfList, const QtTube::PluginShelf<Ts...>& shelf)
 {
-    if constexpr (std::same_as<T, InnertubeObjects::AdSlot>)
-    {
-        if (!g_settings->videoIsFiltered(video))
-        {
-            std::visit([useThumbnailFromData, &videoList](auto&& v) {
-                videoList.append(convertVideo(v, useThumbnailFromData));
-            }, video.fulfillmentContent.fulfilledLayout.renderingContent);
-        }
-    }
-    else
-    {
-        if (!g_settings->videoIsFiltered(video))
-            videoList.append(convertVideo(video, useThumbnailFromData));
-    }
+    if (!shelf.contents.isEmpty())
+        shelfList.append(shelf);
 }
 
 QtTube::HomeData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
@@ -33,49 +20,32 @@ QtTube::HomeData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
     for (const InnertubeEndpoints::HomeResponseItem& item : endpoint.response.contents)
     {
         if (const auto* adSlot = std::get_if<InnertubeObjects::AdSlot>(&item))
-        {
             addVideo(result, *adSlot, useThumbnailFromData);
-        }
+        else if (const auto* hrShelf = std::get_if<InnertubeObjects::HomeRichShelf>(&item))
+            addShelf(result, convertShelf(*hrShelf, useThumbnailFromData));
         else if (const auto* hShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
-        {
-            QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
-            videoShelf.title = hShelf->title.text;
-            if (const InnertubeObjects::GenericThumbnail* bestThumb = hShelf->thumbnail.bestQuality())
-                videoShelf.iconUrl = bestThumb->url;
-
-            for (const InnertubeObjects::Video& video : hShelf->content.items)
-                addVideo(videoShelf.contents, video, useThumbnailFromData);
-
-            result.append(videoShelf);
-        }
+            addShelf(result, convertShelf(*hShelf, useThumbnailFromData));
         else if (const auto* lockup = std::get_if<InnertubeObjects::LockupViewModel>(&item))
-        {
             addVideo(result, *lockup, useThumbnailFromData);
-        }
-        else if (const auto* rShelf = std::get_if<InnertubeObjects::HomeRichShelf>(&item))
-        {
-            QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
-            videoShelf.isDividerHidden = rShelf->isBottomDividerHidden;
-            videoShelf.subtitle = rShelf->subtitle.text;
-            videoShelf.title = rShelf->title.text;
-            if (const InnertubeObjects::GenericThumbnail* bestThumb = rShelf->thumbnail.bestQuality())
-                videoShelf.iconUrl = bestThumb->url;
-
-            for (const auto& itemVariant : rShelf->contents)
-            {
-                std::visit([&videoShelf, useThumbnailFromData](auto&& item) {
-                    using ItemType = std::remove_cvref_t<decltype(item)>;
-                    if constexpr (!innertube_is_any_v<ItemType, InnertubeObjects::MiniGameCardViewModel, InnertubeObjects::Post>)
-                        addVideo(videoShelf.contents, item, useThumbnailFromData);
-                }, itemVariant);
-            }
-
-            result.append(videoShelf);
-        }
         else if (const auto* video = std::get_if<InnertubeObjects::Video>(&item))
-        {
             addVideo(result, *video, useThumbnailFromData);
-        }
+    }
+
+    return result;
+}
+
+QtTube::TrendingData getTrendingData(const InnertubeEndpoints::BrowseTrending& endpoint)
+{
+    QtTube::TrendingData result;
+
+    for (const InnertubeEndpoints::TrendingResponseItem& item : endpoint.response.contents)
+    {
+        if (const auto* hShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
+            addShelf(result, convertShelf(*hShelf));
+        else if (const auto* rShelf = std::get_if<InnertubeObjects::ReelShelf>(&item))
+            addShelf(result, convertShelf(*rShelf));
+        else if (const auto* sShelf = std::get_if<InnertubeObjects::StandardVideoShelf>(&item))
+            addShelf(result, convertShelf(*sShelf));
     }
 
     return result;

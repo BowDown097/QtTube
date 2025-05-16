@@ -1,8 +1,8 @@
 #pragma once
 #include "innertube.h"
+#include "qttube-plugin/components/replytypes.h"
 #include "utils/uiutils.h"
 #include "ui/widgets/continuablelistwidget.h"
-#include <mutex>
 #include <QMessageBox>
 #include <QScrollBar>
 
@@ -10,7 +10,7 @@ class BrowseHelper : public QObject
 {
     Q_OBJECT
 public:
-    static BrowseHelper* instance();
+    static BrowseHelper* instance() { static BrowseHelper _instance; return &_instance; }
     explicit BrowseHelper(QObject* parent = nullptr) : QObject(parent) {}
 
     void browseChannel(ContinuableListWidget* widget, int index, const InnertubeEndpoints::ChannelResponse& resp);
@@ -18,7 +18,7 @@ public:
     void browseHome(ContinuableListWidget* widget, const QString& continuationToken = "");
     void browseNotificationMenu(ContinuableListWidget* widget);
     void browseSubscriptions(ContinuableListWidget* widget);
-    void browseTrending(ContinuableListWidget* widget);
+    void browseTrending(ContinuableListWidget* widget, const QString& continuationToken = "");
     void continueChannel(ContinuableListWidget* widget, const QJsonValue& contents);
     void search(ContinuableListWidget* widget, const QString& query,
                 int dateF = -1, int typeF = -1, int durF = -1, int featF = -1, int sort = -1);
@@ -62,11 +62,9 @@ public:
         }
     }
 private slots:
-    void browseFailed(const QString& title, ContinuableListWidget* widget, const InnertubeException& ie);
+    void browseFailedInnertube(const QString& title, ContinuableListWidget* widget, const InnertubeException& ex);
+    void browseFailedPlugin(const QString& title, ContinuableListWidget* widget, const QtTube::PluginException& ex);
 private:
-    static inline BrowseHelper* m_instance;
-    static inline std::once_flag m_onceFlag;
-
     template<EndpointWithData E>
     E browseRequest(const QString& continuationToken, const QString& data = "")
     {
@@ -77,9 +75,9 @@ private:
     }
 
     void removeTrailingSeparator(QListWidget* list);
-    void setupHome(QListWidget* widget, const InnertubeEndpoints::HomeResponse& response);
+    void setupHome(ContinuableListWidget* widget, QtTube::HomeReply* reply, const QtTube::HomeData& data);
     void setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response);
-    void setupTrending(QListWidget* widget, const InnertubeEndpoints::TrendingResponse& response);
+    void setupTrending(ContinuableListWidget* widget, QtTube::TrendingReply* reply, const QtTube::TrendingData& data);
 
     const QMap<int, QString> featureMap = {
         { 0, "isLive" },

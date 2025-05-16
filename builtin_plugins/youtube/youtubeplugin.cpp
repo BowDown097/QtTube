@@ -16,6 +16,9 @@ DECLARE_QTTUBE_PLUGIN(YouTubePlugin, g_metadata, YouTubeSettings, YouTubeAuth)
 YouTubeAuth* g_auth = static_cast<YouTubeAuth*>(auth());
 YouTubeSettings* g_settings = static_cast<YouTubeSettings*>(settings());
 
+using InnertubeHomeReply = InnertubeReply<InnertubeEndpoints::BrowseHome>;
+using InnertubeTrendingReply = InnertubeReply<InnertubeEndpoints::BrowseTrending>;
+
 QtTube::HomeReply* YouTubePlugin::getHome(std::any data)
 {
     QtTube::HomeReply* pluginReply = QtTube::HomeReply::create();
@@ -26,18 +29,18 @@ QtTube::HomeReply* YouTubePlugin::getHome(std::any data)
 
     if (InnerTube::instance()->hasAuthenticated())
     {
-        InnertubeReply<InnertubeEndpoints::BrowseHome>* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseHome>(continuationToken);
-        QObject::connect(tubeReply, &InnertubeReply<InnertubeEndpoints::BrowseHome>::exception, [pluginReply](const InnertubeException& ex) {
+        InnertubeHomeReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseHome>(continuationToken);
+        QObject::connect(tubeReply, &InnertubeHomeReply::exception, [pluginReply](const InnertubeException& ex) {
             emit pluginReply->exception(convertException(ex));
         });
-        QObject::connect(tubeReply, &InnertubeReply<InnertubeEndpoints::BrowseHome>::finished, [pluginReply](const InnertubeEndpoints::BrowseHome& endpoint) {
+        QObject::connect(tubeReply, &InnertubeHomeReply::finished, [pluginReply](const InnertubeEndpoints::BrowseHome& endpoint) {
             pluginReply->continuationData = endpoint.continuationToken;
             emit pluginReply->finished(getHomeData(endpoint));
         });
     }
     else
     {
-        InnertubeReply<InnertubeEndpoints::BrowseHome>* tubeReply = InnerTube::instance()->getRaw<InnertubeEndpoints::BrowseHome>({
+        InnertubeHomeReply* tubeReply = InnerTube::instance()->getRaw<InnertubeEndpoints::BrowseHome>({
             { "context", QJsonObject {
                 { "client", QJsonObject {
                     { "clientName", static_cast<int>(InnertubeClient::ClientType::IOS_UNPLUGGED) },
@@ -46,10 +49,10 @@ QtTube::HomeReply* YouTubePlugin::getHome(std::any data)
             }}
         });
 
-        QObject::connect(tubeReply, &InnertubeReply<InnertubeEndpoints::BrowseHome>::exception, [pluginReply](const InnertubeException& ex) {
+        QObject::connect(tubeReply, &InnertubeHomeReply::exception, [pluginReply](const InnertubeException& ex) {
             emit pluginReply->exception(convertException(ex));
         });
-        QObject::connect(tubeReply, &InnertubeReply<InnertubeEndpoints::BrowseHome>::finishedRaw, [pluginReply](const QJsonValue& data) {
+        QObject::connect(tubeReply, &InnertubeHomeReply::finishedRaw, [pluginReply](const QJsonValue& data) {
             if (const auto endpoint = InnerTube::tryCreate<InnertubeEndpoints::BrowseHome>(data))
             {
                 pluginReply->continuationData = endpoint->continuationToken;
@@ -61,6 +64,21 @@ QtTube::HomeReply* YouTubePlugin::getHome(std::any data)
             }
         });
     }
+
+    return pluginReply;
+}
+
+QtTube::TrendingReply* YouTubePlugin::getTrending(std::any data)
+{
+    QtTube::TrendingReply* pluginReply = QtTube::TrendingReply::create();
+
+    InnertubeTrendingReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseTrending>();
+    QObject::connect(tubeReply, &InnertubeTrendingReply::exception, [pluginReply](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(tubeReply, &InnertubeTrendingReply::finished, [pluginReply](const InnertubeEndpoints::BrowseTrending& endpoint) {
+        emit pluginReply->finished(getTrendingData(endpoint));
+    });
 
     return pluginReply;
 }
