@@ -19,6 +19,8 @@ protected:
 private:
     int continuationThreshold = 10;
     bool populating{};
+public slots:
+    void clear();
 private slots:
     void scrollValueChanged(int value);
 signals:

@@ -10,6 +10,12 @@ ContinuableListWidget::ContinuableListWidget(QWidget* parent) : QListWidget(pare
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &ContinuableListWidget::scrollValueChanged);
 }
 
+void ContinuableListWidget::clear()
+{
+    continuationToken.clear();
+    QListWidget::clear();
+}
+
 void ContinuableListWidget::scrollValueChanged(int value)
 {
     if (count() > 0 && value >= verticalScrollBar()->maximum() - continuationThreshold &&
