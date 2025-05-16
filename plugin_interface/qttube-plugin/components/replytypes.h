@@ -5,17 +5,13 @@
 
 namespace QtTube
 {
-    using HomeDataItem = std::variant<PluginVideo, PluginShelf<PluginVideo>>;
-    using HomeData = QList<HomeDataItem>;
-    using TrendingDataItem = std::variant<PluginVideo, PluginShelf<PluginVideo>>;
-    using TrendingData = QList<TrendingDataItem>;
+    using BrowseDataItem = std::variant<PluginVideo, PluginShelf<PluginVideo>>;
+    using BrowseData = QList<BrowseDataItem>;
 }
 
-W_REGISTER_ARGTYPE(QtTube::HomeData)
-// W_REGISTER_ARGTYPE(QtTube::TrendingData) /* this is equal to HomeData, so we don't register it */
+W_REGISTER_ARGTYPE(QtTube::BrowseData)
 
 namespace QtTube
 {
-    using HomeReply = PluginReply<HomeData>;
-    using TrendingReply = PluginReply<TrendingData>;
+    using BrowseReply = PluginReply<BrowseData>;
 }

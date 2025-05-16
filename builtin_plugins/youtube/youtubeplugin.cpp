@@ -19,9 +19,9 @@ YouTubeSettings* g_settings = static_cast<YouTubeSettings*>(settings());
 using InnertubeHomeReply = InnertubeReply<InnertubeEndpoints::BrowseHome>;
 using InnertubeTrendingReply = InnertubeReply<InnertubeEndpoints::BrowseTrending>;
 
-QtTube::HomeReply* YouTubePlugin::getHome(std::any data)
+QtTube::BrowseReply* YouTubePlugin::getHome(std::any data)
 {
-    QtTube::HomeReply* pluginReply = QtTube::HomeReply::create();
+    QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
 
     QString continuationToken;
     if (QString* ctoken = std::any_cast<QString>(&data))
@@ -68,9 +68,9 @@ QtTube::HomeReply* YouTubePlugin::getHome(std::any data)
     return pluginReply;
 }
 
-QtTube::TrendingReply* YouTubePlugin::getTrending(std::any data)
+QtTube::BrowseReply* YouTubePlugin::getTrending(std::any data)
 {
-    QtTube::TrendingReply* pluginReply = QtTube::TrendingReply::create();
+    QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
 
     InnertubeTrendingReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseTrending>();
     QObject::connect(tubeReply, &InnertubeTrendingReply::exception, [pluginReply](const InnertubeException& ex) {

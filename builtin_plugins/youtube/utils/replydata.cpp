@@ -9,9 +9,9 @@ void addShelf(QList<T>& shelfList, const QtTube::PluginShelf<Ts...>& shelf)
         shelfList.append(shelf);
 }
 
-QtTube::HomeData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
+QtTube::BrowseData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
 {
-    QtTube::HomeData result;
+    QtTube::BrowseData result;
 
     // non-authenticated users will be under the IOS_UNPLUGGED client,
     // which serves thumbnails in an odd aspect ratio.
@@ -34,9 +34,9 @@ QtTube::HomeData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
     return result;
 }
 
-QtTube::TrendingData getTrendingData(const InnertubeEndpoints::BrowseTrending& endpoint)
+QtTube::BrowseData getTrendingData(const InnertubeEndpoints::BrowseTrending& endpoint)
 {
-    QtTube::TrendingData result;
+    QtTube::BrowseData result;
 
     for (const InnertubeEndpoints::TrendingResponseItem& item : endpoint.response.contents)
     {

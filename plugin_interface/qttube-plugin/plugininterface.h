@@ -14,8 +14,8 @@ namespace QtTube
     struct PluginInterface
     {
         virtual ~PluginInterface() = default;
-        virtual HomeReply* getHome(std::any data = {}) { return HomeReply::create(); }
-        virtual TrendingReply* getTrending(std::any data = {}) { return TrendingReply::create(); }
+        virtual BrowseReply* getHome(std::any data = {}) { return BrowseReply::create(); }
+        virtual BrowseReply* getTrending(std::any data = {}) { return BrowseReply::create(); }
         virtual void init() = 0;
     };
 

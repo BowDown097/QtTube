@@ -75,9 +75,8 @@ private:
     }
 
     void removeTrailingSeparator(QListWidget* list);
-    void setupHome(ContinuableListWidget* widget, QtTube::HomeReply* reply, const QtTube::HomeData& data);
+    void setupBrowse(ContinuableListWidget* widget, QtTube::BrowseReply* reply, const QtTube::BrowseData& data);
     void setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response);
-    void setupTrending(ContinuableListWidget* widget, QtTube::TrendingReply* reply, const QtTube::TrendingData& data);
 
     const QMap<int, QString> featureMap = {
         { 0, "isLive" },

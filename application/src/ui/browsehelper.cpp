@@ -71,11 +71,11 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget, const QString& cont
     widget->setPopulatingFlag(true);
     for (const PluginData* plugin : qtTubeApp->plugins().plugins())
     {
-        QtTube::HomeReply* reply = plugin->interface->getHome(continuationToken);
-        connect(reply, &QtTube::HomeReply::exception, this,
+        QtTube::BrowseReply* reply = plugin->interface->getHome(continuationToken);
+        connect(reply, &QtTube::BrowseReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailedPlugin, this, "home", widget));
-        connect(reply, &QtTube::HomeReply::finished, this,
-            std::bind_front(&BrowseHelper::setupHome, this, widget, reply));
+        connect(reply, &QtTube::BrowseReply::finished, this,
+            std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
     }
 }
 
@@ -117,11 +117,11 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget, const QString& 
     widget->setPopulatingFlag(true);
     for (const PluginData* plugin : qtTubeApp->plugins().plugins())
     {
-        QtTube::TrendingReply* reply = plugin->interface->getTrending(continuationToken);
-        connect(reply, &QtTube::TrendingReply::exception, this,
+        QtTube::BrowseReply* reply = plugin->interface->getTrending(continuationToken);
+        connect(reply, &QtTube::BrowseReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailedPlugin, this, "trending", widget));
-        connect(reply, &QtTube::TrendingReply::finished, this,
-            std::bind_front(&BrowseHelper::setupTrending, this, widget, reply));
+        connect(reply, &QtTube::BrowseReply::finished, this,
+            std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
     }
 }
 
@@ -188,11 +188,9 @@ void BrowseHelper::removeTrailingSeparator(QListWidget* list)
                 itemWidget->deleteLater();
 }
 
-// TODO: make reel shelf widget, and expandable list widget, replace applicable code
-
-void BrowseHelper::setupHome(ContinuableListWidget* widget, QtTube::HomeReply* reply, const QtTube::HomeData& data)
+void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTube::BrowseReply* reply, const QtTube::BrowseData& data)
 {
-    for (const QtTube::HomeDataItem& item : data)
+    for (const QtTube::BrowseDataItem& item : data)
     {
         if (const auto* shelf = std::get_if<QtTube::PluginShelf<QtTube::PluginVideo>>(&item))
         {
@@ -255,9 +253,4 @@ void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::Se
             QCoreApplication::processEvents();
         }
     }
-}
-
-void BrowseHelper::setupTrending(ContinuableListWidget* widget, QtTube::TrendingReply* reply, const QtTube::TrendingData& data)
-{
-    setupHome(widget, reply, data); // these are convertible, but this will need to be replaced if ever need be
 }
