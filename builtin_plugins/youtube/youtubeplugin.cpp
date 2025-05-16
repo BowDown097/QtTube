@@ -17,6 +17,7 @@ YouTubeAuth* g_auth = static_cast<YouTubeAuth*>(auth());
 YouTubeSettings* g_settings = static_cast<YouTubeSettings*>(settings());
 
 using InnertubeHomeReply = InnertubeReply<InnertubeEndpoints::BrowseHome>;
+using InnertubeSubsReply = InnertubeReply<InnertubeEndpoints::BrowseSubscriptions>;
 using InnertubeTrendingReply = InnertubeReply<InnertubeEndpoints::BrowseTrending>;
 
 QtTube::BrowseReply* YouTubePlugin::getHome(std::any data)
@@ -64,6 +65,26 @@ QtTube::BrowseReply* YouTubePlugin::getHome(std::any data)
             }
         });
     }
+
+    return pluginReply;
+}
+
+QtTube::BrowseReply* YouTubePlugin::getSubFeed(std::any data)
+{
+    QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
+
+    QString continuationToken;
+    if (QString* ctoken = std::any_cast<QString>(&data))
+        continuationToken = *ctoken;
+
+    InnertubeSubsReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseSubscriptions>(continuationToken);
+    QObject::connect(tubeReply, &InnertubeSubsReply::exception, [pluginReply](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(tubeReply, &InnertubeSubsReply::finished, [pluginReply](const InnertubeEndpoints::BrowseSubscriptions& endpoint) {
+        pluginReply->continuationData = endpoint.continuationToken;
+        emit pluginReply->finished(getSubscriptionsData(endpoint));
+    });
 
     return pluginReply;
 }

@@ -66,12 +66,12 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
     });
 }
 
-void BrowseHelper::browseHome(ContinuableListWidget* widget, const QString& continuationToken)
+void BrowseHelper::browseHome(ContinuableListWidget* widget)
 {
     widget->setPopulatingFlag(true);
     for (const PluginData* plugin : qtTubeApp->plugins().plugins())
     {
-        QtTube::BrowseReply* reply = plugin->interface->getHome(continuationToken);
+        QtTube::BrowseReply* reply = plugin->interface->getHome(widget->continuationToken);
         connect(reply, &QtTube::BrowseReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailedPlugin, this, "home", widget));
         connect(reply, &QtTube::BrowseReply::finished, this,
@@ -102,22 +102,22 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
     }
 
     widget->setPopulatingFlag(true);
-    auto reply = InnerTube::instance()->get<BrowseSubscriptions>();
-    connect(reply, &InnertubeReply<BrowseSubscriptions>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailedInnertube, this, "subscriptions", widget));
-    connect(reply, &InnertubeReply<BrowseSubscriptions>::finished, this, [this, widget](const BrowseSubscriptions& endpoint) {
-        UIUtils::addRangeToList(widget, endpoint.response.videos);
-        widget->continuationToken = endpoint.continuationToken;
-        widget->setPopulatingFlag(false);
-    });
+    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
+    {
+        QtTube::BrowseReply* reply = plugin->interface->getSubFeed(widget->continuationToken);
+        connect(reply, &QtTube::BrowseReply::exception, this,
+            std::bind_front(&BrowseHelper::browseFailedPlugin, this, "subscriptions", widget));
+        connect(reply, &QtTube::BrowseReply::finished, this,
+            std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+    }
 }
 
-void BrowseHelper::browseTrending(ContinuableListWidget* widget, const QString& continuationToken)
+void BrowseHelper::browseTrending(ContinuableListWidget* widget)
 {
     widget->setPopulatingFlag(true);
     for (const PluginData* plugin : qtTubeApp->plugins().plugins())
     {
-        QtTube::BrowseReply* reply = plugin->interface->getTrending(continuationToken);
+        QtTube::BrowseReply* reply = plugin->interface->getTrending(widget->continuationToken);
         connect(reply, &QtTube::BrowseReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailedPlugin, this, "trending", widget));
         connect(reply, &QtTube::BrowseReply::finished, this,
@@ -178,14 +178,6 @@ void BrowseHelper::browseFailedPlugin(const QString& title, ContinuableListWidge
         QMessageBox::critical(nullptr, "Failed to get " + title + " data", ex.message());
     else
         qWarning().nospace() << "Failed to get " << title << " data:" << ex.message();
-}
-
-void BrowseHelper::removeTrailingSeparator(QListWidget* list)
-{
-    if (QListWidgetItem* item = list->item(list->count()))
-        if (QWidget* itemWidget = list->itemWidget(item))
-            if (qobject_cast<QFrame*>(itemWidget))
-                itemWidget->deleteLater();
 }
 
 void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTube::BrowseReply* reply, const QtTube::BrowseData& data)

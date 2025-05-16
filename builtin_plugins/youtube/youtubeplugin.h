@@ -6,6 +6,7 @@
 class YouTubePlugin : public QtTube::PluginInterface
 {
     QtTube::BrowseReply* getHome(std::any data = {}) override;
+    QtTube::BrowseReply* getSubFeed(std::any data = {}) override;
     QtTube::BrowseReply* getTrending(std::any data = {}) override;
     void init() override;
 };

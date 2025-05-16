@@ -15,10 +15,10 @@ public:
 
     void browseChannel(ContinuableListWidget* widget, int index, const InnertubeEndpoints::ChannelResponse& resp);
     void browseHistory(ContinuableListWidget* widget, const QString& query = "");
-    void browseHome(ContinuableListWidget* widget, const QString& continuationToken = "");
+    void browseHome(ContinuableListWidget* widget);
     void browseNotificationMenu(ContinuableListWidget* widget);
     void browseSubscriptions(ContinuableListWidget* widget);
-    void browseTrending(ContinuableListWidget* widget, const QString& continuationToken = "");
+    void browseTrending(ContinuableListWidget* widget);
     void continueChannel(ContinuableListWidget* widget, const QJsonValue& contents);
     void search(ContinuableListWidget* widget, const QString& query,
                 int dateF = -1, int typeF = -1, int durF = -1, int featF = -1, int sort = -1);
@@ -31,7 +31,11 @@ public:
 
         if constexpr (std::same_as<E, InnertubeEndpoints::BrowseHome>)
         {
-            browseHome(widget, widget->continuationToken);
+            browseHome(widget);
+        }
+        else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseSubscriptions>)
+        {
+            browseSubscriptions(widget);
         }
         else
         {
@@ -39,7 +43,7 @@ public:
 
             try
             {
-                E newData = browseRequest<E>(widget->continuationToken, data);
+                E newData = InnerTube::instance()->getBlocking<E>(data, widget->continuationToken);
                 if constexpr (std::same_as<E, InnertubeEndpoints::Search>)
                     setupSearch(widget, newData.response);
                 else if constexpr (std::same_as<E, InnertubeEndpoints::GetNotificationMenu>)
@@ -65,16 +69,6 @@ private slots:
     void browseFailedInnertube(const QString& title, ContinuableListWidget* widget, const InnertubeException& ex);
     void browseFailedPlugin(const QString& title, ContinuableListWidget* widget, const QtTube::PluginException& ex);
 private:
-    template<EndpointWithData E>
-    E browseRequest(const QString& continuationToken, const QString& data = "")
-    {
-        if constexpr (std::same_as<E, InnertubeEndpoints::BrowseSubscriptions>)
-            return InnerTube::instance()->getBlocking<E>(continuationToken);
-        else
-            return InnerTube::instance()->getBlocking<E>(data, continuationToken);
-    }
-
-    void removeTrailingSeparator(QListWidget* list);
     void setupBrowse(ContinuableListWidget* widget, QtTube::BrowseReply* reply, const QtTube::BrowseData& data);
     void setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response);
 

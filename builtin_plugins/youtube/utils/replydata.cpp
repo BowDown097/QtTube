@@ -34,6 +34,14 @@ QtTube::BrowseData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
     return result;
 }
 
+QtTube::BrowseData getSubscriptionsData(const InnertubeEndpoints::BrowseSubscriptions& endpoint)
+{
+    QtTube::BrowseData result;
+    for (const InnertubeObjects::Video& video : endpoint.response.videos)
+        addVideo(result, video);
+    return result;
+}
+
 QtTube::BrowseData getTrendingData(const InnertubeEndpoints::BrowseTrending& endpoint)
 {
     QtTube::BrowseData result;
