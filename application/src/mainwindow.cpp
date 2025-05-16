@@ -109,6 +109,7 @@ void MainWindow::browse()
         BrowseHelper::instance()->browseHome(ui->homeWidget);
         break;
     case 1:
+        ui->trendingWidget->toggleListGridLayout();
         BrowseHelper::instance()->browseTrending(ui->trendingWidget);
         break;
     case 2:
