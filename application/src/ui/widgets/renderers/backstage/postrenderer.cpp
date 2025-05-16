@@ -59,7 +59,7 @@ void PostRenderer::setData(const InnertubeObjects::Post& post)
     channelId = post.authorEndpoint["browseEndpoint"]["browseId"].toString();
     postId = post.postId;
 
-    channelLabel->setInfo(channelId, post.authorText.text, {});
+    channelLabel->setInfo(channelId, post.authorText.text);
     contentText->setText(InnertubeStringFormatter::formatSimple(post.contentText, false));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
         ? post.voteCount.text : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));

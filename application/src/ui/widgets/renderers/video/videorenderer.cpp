@@ -162,7 +162,7 @@ void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup,
         watchPreloadData->channelName = owner->name;
 
         channelLabel->show();
-        channelLabel->setInfo(owner->id, owner->name, {});
+        channelLabel->setInfo(owner->id, owner->name);
     }
 
     thumbnail->setLengthText(lockup.lengthText());
@@ -327,7 +327,7 @@ void VideoRenderer::setData(const QtTube::PluginVideo& video)
     if (!video.uploaderId.isEmpty())
     {
         channelLabel->show();
-        channelLabel->setInfo(video.uploaderId, video.uploaderText, /*video.uploaderBadges*/{});
+        channelLabel->setInfo(video.uploaderId, video.uploaderText, video.uploaderBadges);
     }
 
     thumbnail->setLengthText(video.lengthText);

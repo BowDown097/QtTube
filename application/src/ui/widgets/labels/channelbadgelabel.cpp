@@ -31,3 +31,9 @@ void ChannelBadgeLabel::setData(const InnertubeObjects::MetadataBadge& badge)
     setText(badge.style == "BADGE_STYLE_TYPE_VERIFIED_ARTIST" ? "♪" : "✔");
     setToolTip(badge.tooltip);
 }
+
+void ChannelBadgeLabel::setData(const QtTube::PluginVideoBadge& badge)
+{
+    setText(badge.label);
+    setToolTip(badge.tooltip);
+}

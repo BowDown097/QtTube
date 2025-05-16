@@ -3,7 +3,10 @@
 
 QtTube::PluginVideoBadge convertBadge(const InnertubeObjects::MetadataBadge& badge)
 {
-    return QtTube::PluginVideoBadge { .tooltip = badge.tooltip };
+    return QtTube::PluginVideoBadge {
+        .label = badge.style == "BADGE_STYLE_TYPE_VERIFIED_ARTIST" ? "♪" : "✔",
+        .tooltip = badge.tooltip
+    };
 }
 
 QtTube::PluginException convertException(const InnertubeException& ex)

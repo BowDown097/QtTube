@@ -1,4 +1,5 @@
 #pragma once
+#include "qttube-plugin/objects/video.h"
 #include "tubelabel.h"
 #include <QJsonValue>
 
@@ -13,7 +14,9 @@ public:
     explicit ChannelLabel(QWidget* parent = nullptr);
     void addStretch();
     void setInfo(const QString& channelId, const QString& channelName, const QList<InnertubeObjects::MetadataBadge>& badges);
+    void setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTube::PluginVideoBadge>& badges);
     void setInfo(const QJsonValue& endpoint, const QString& name);
+    void setInfo(const QString& uploaderId, const QString& uploaderName);
 private:
     QHBoxLayout* badgeLayout;
     QJsonValue channelEndpoint;

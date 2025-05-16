@@ -55,7 +55,7 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     showLessText = post.collapseButton.text.text;
     surface = post.surface;
 
-    channelLabel->setInfo(channelId, post.authorText.text, {});
+    channelLabel->setInfo(channelId, post.authorText.text);
     contentText->setText(InnertubeStringFormatter::formatSimple(post.contentText, false));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
         ? post.voteCount.text : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));

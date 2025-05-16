@@ -75,12 +75,25 @@ void ChannelLabel::reset()
 void ChannelLabel::setInfo(const QString& channelId, const QString& channelName,
                            const QList<InnertubeObjects::MetadataBadge>& badges)
 {
-    this->channelId = channelId;
-
-    reset();
-    text->setText(channelName);
+    setInfo(channelId, channelName);
 
     for (const InnertubeObjects::MetadataBadge& badge : badges)
+    {
+        ChannelBadgeLabel* badgeLabel = new ChannelBadgeLabel(this);
+        badgeLabel->setData(badge);
+        badgeLayout->addWidget(badgeLabel);
+    }
+
+    if (badgeLayout->count() > 0)
+        badgeLayout->addStretch();
+}
+
+void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName,
+                           const QList<QtTube::PluginVideoBadge>& badges)
+{
+    setInfo(uploaderId, uploaderName);
+
+    for (const QtTube::PluginVideoBadge& badge : badges)
     {
         ChannelBadgeLabel* badgeLabel = new ChannelBadgeLabel(this);
         badgeLabel->setData(badge);
@@ -97,6 +110,13 @@ void ChannelLabel::setInfo(const QJsonValue& endpoint, const QString& name)
 
     reset();
     text->setText(name);
+}
+
+void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName)
+{
+    this->channelId = uploaderId;
+    reset();
+    text->setText(uploaderName);
 }
 
 void ChannelLabel::showContextMenu(const QPoint& pos)
