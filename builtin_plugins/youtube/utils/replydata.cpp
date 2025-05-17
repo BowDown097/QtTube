@@ -9,7 +9,15 @@ void addShelf(QList<T>& shelfList, const QtTube::PluginShelf<Ts...>& shelf)
         shelfList.append(shelf);
 }
 
-QtTube::BrowseData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
+QtTube::BrowseData getHistoryData(const InnertubeEndpoints::HistoryResponse& response)
+{
+    QtTube::BrowseData result;
+    for (const InnertubeObjects::Video& video : response.videos)
+        addVideo(result, video);
+    return result;
+}
+
+QtTube::BrowseData getHomeData(const InnertubeEndpoints::HomeResponse& response)
 {
     QtTube::BrowseData result;
 
@@ -17,7 +25,7 @@ QtTube::BrowseData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
     // which serves thumbnails in an odd aspect ratio.
     bool useThumbnailFromData = InnerTube::instance()->hasAuthenticated();
 
-    for (const InnertubeEndpoints::HomeResponseItem& item : endpoint.response.contents)
+    for (const InnertubeEndpoints::HomeResponseItem& item : response.contents)
     {
         if (const auto* adSlot = std::get_if<InnertubeObjects::AdSlot>(&item))
             addVideo(result, *adSlot, useThumbnailFromData);
@@ -34,19 +42,19 @@ QtTube::BrowseData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint)
     return result;
 }
 
-QtTube::BrowseData getSubscriptionsData(const InnertubeEndpoints::BrowseSubscriptions& endpoint)
+QtTube::BrowseData getSubscriptionsData(const InnertubeEndpoints::SubscriptionsResponse& response)
 {
     QtTube::BrowseData result;
-    for (const InnertubeObjects::Video& video : endpoint.response.videos)
+    for (const InnertubeObjects::Video& video : response.videos)
         addVideo(result, video);
     return result;
 }
 
-QtTube::BrowseData getTrendingData(const InnertubeEndpoints::BrowseTrending& endpoint)
+QtTube::BrowseData getTrendingData(const InnertubeEndpoints::TrendingResponse& response)
 {
     QtTube::BrowseData result;
 
-    for (const InnertubeEndpoints::TrendingResponseItem& item : endpoint.response.contents)
+    for (const InnertubeEndpoints::TrendingResponseItem& item : response.contents)
     {
         if (const auto* hShelf = std::get_if<InnertubeObjects::HorizontalVideoShelf>(&item))
             addShelf(result, convertShelf(*hShelf));

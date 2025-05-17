@@ -56,14 +56,14 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
     }
 
     widget->setPopulatingFlag(true);
-    auto reply = InnerTube::instance()->get<BrowseHistory>(query);
-    connect(reply, &InnertubeReply<BrowseHistory>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailedInnertube, this, "history", widget));
-    connect(reply, &InnertubeReply<BrowseHistory>::finished, this, [this, widget](const BrowseHistory& endpoint) {
-        UIUtils::addRangeToList(widget, endpoint.response.videos);
-        widget->continuationToken = endpoint.continuationToken;
-        widget->setPopulatingFlag(false);
-    });
+    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
+    {
+        QtTube::BrowseReply* reply = plugin->interface->getHistory(query, widget->continuationToken);
+        connect(reply, &QtTube::BrowseReply::exception, this,
+            std::bind_front(&BrowseHelper::browseFailedPlugin, this, "history", widget));
+        connect(reply, &QtTube::BrowseReply::finished, this,
+            std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+    }
 }
 
 void BrowseHelper::browseHome(ContinuableListWidget* widget)

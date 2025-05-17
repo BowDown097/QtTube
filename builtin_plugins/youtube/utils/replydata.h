@@ -1,9 +1,11 @@
 #pragma once
-#include "innertube/endpoints/browse/browsehome.h"
-#include "innertube/endpoints/browse/browsesubscriptions.h"
-#include "innertube/endpoints/browse/browsetrending.h"
+#include "innertube/responses/browse/historyresponse.h"
+#include "innertube/responses/browse/homeresponse.h"
+#include "innertube/responses/browse/subscriptionsresponse.h"
+#include "innertube/responses/browse/trendingresponse.h"
 #include "qttube-plugin/components/replytypes.h"
 
-QtTube::BrowseData getHomeData(const InnertubeEndpoints::BrowseHome& endpoint);
-QtTube::BrowseData getSubscriptionsData(const InnertubeEndpoints::BrowseSubscriptions& endpoint);
-QtTube::BrowseData getTrendingData(const InnertubeEndpoints::BrowseTrending& endpoint);
+QtTube::BrowseData getHistoryData(const InnertubeEndpoints::HistoryResponse& response);
+QtTube::BrowseData getHomeData(const InnertubeEndpoints::HomeResponse& response);
+QtTube::BrowseData getSubscriptionsData(const InnertubeEndpoints::SubscriptionsResponse& response);
+QtTube::BrowseData getTrendingData(const InnertubeEndpoints::TrendingResponse& response);
