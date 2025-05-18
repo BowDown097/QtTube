@@ -12,6 +12,7 @@
 #include "ui/widgets/download/downloadmanager.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
+#include <QButtonGroup>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QStandardPaths>
@@ -27,7 +28,10 @@ Build date: %6
 
 SettingsForm::~SettingsForm() { delete ui; }
 
-SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::SettingsForm)
+SettingsForm::SettingsForm(QWidget* parent)
+    : QtTube::PluginSettingsWindow(parent),
+      pluginActiveButtonGroup(new QButtonGroup(this)),
+      ui(new Ui::SettingsForm)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -103,6 +107,7 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     ui->deArrowTitles->setChecked(store.deArrowTitles);
     toggleDeArrowSettings(store.deArrow);
 
+    connect(pluginActiveButtonGroup, &QButtonGroup::buttonToggled, this, &SettingsForm::pluginActiveButtonToggled);
     connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
     connect(ui->deArrow, &QCheckBox::toggled, this, &SettingsForm::toggleDeArrowSettings);
     connect(ui->downloadPathButton, &QPushButton::clicked, this, &SettingsForm::selectDownloadPath);
@@ -113,31 +118,13 @@ SettingsForm::SettingsForm(QWidget* parent) : QWidget(parent), ui(new Ui::Settin
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool c) { ui->filterLength->setEnabled(c); });
     connect(ui->importButton, &QPushButton::clicked, this, &SettingsForm::openImportWizard);
     connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredQuality->setEnabled(!c); });
-    connect(ui->saveButton, &QPushButton::clicked, this, &SettingsForm::saveSettings);
     connect(ui->showFilteredChannels, &QPushButton::clicked, this, &SettingsForm::showChannelFilterTable);
     connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &SettingsForm::currentChanged);
     connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
 
-    for (QPushButton* pushButton : findChildren<QPushButton*>())
-        if (pushButton != ui->saveButton && pushButton != ui->importButton && pushButton != ui->exportButton)
-            connect(pushButton, &QPushButton::clicked, this, &SettingsForm::enableSaveButton);
-
-    for (QRadioButton* radioButton : findChildren<QRadioButton*>())
-        if (radioButton->parentWidget() != ui->dataSourcesGroup)
-            connect(radioButton, &QRadioButton::clicked, this, &SettingsForm::enableSaveButton);
-
-    for (QCheckBox* checkBox : findChildren<QCheckBox*>())
-        connect(checkBox, &QCheckBox::clicked, this, &SettingsForm::enableSaveButton);
-
-    for (QSpinBox* spinBox : findChildren<QSpinBox*>())
-        connect(spinBox, qOverload<int>(&QSpinBox::valueChanged), this, &SettingsForm::enableSaveButton);
-
-    for (QComboBox* comboBox : findChildren<QComboBox*>())
-        connect(comboBox, qOverload<int>(&QComboBox::currentIndexChanged), this, &SettingsForm::enableSaveButton);
-
-    for (QLineEdit* lineEdit : findChildren<QLineEdit*>())
-        connect(lineEdit, &QLineEdit::textEdited, this, &SettingsForm::enableSaveButton);
+    setupSaveButton(ui->saveButton, true,
+        { ui->exportButton, ui->grayjayRadio, ui->importButton, ui->newpipeRadio, ui->pipedRadio, ui->takeoutRadio });
 }
 
 void SettingsForm::checkDownloadPath(const QString& text)
@@ -184,35 +171,27 @@ void SettingsForm::clearCache()
     QMessageBox::information(this, "Cleared", "Cache directory cleared successfully.");
 }
 
-void SettingsForm::closeEvent(QCloseEvent* event)
-{
-    if (ui->saveButton->isEnabled())
-    {
-        QMessageBox::StandardButton unsavedResponse = QMessageBox::warning(this,
-            "Unsaved changes", "You have unsaved changes! Would you like to save them?",
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-        if (unsavedResponse == QMessageBox::Yes)
-            saveSettings();
-    }
-
-    QWidget::closeEvent(event);
-}
-
 void SettingsForm::currentChanged(int index)
 {
-    if (ui->tabWidget->tabText(index) != "Plugins")
+    if (ui->tabWidget->tabText(index) != "Plugins" || !pluginActiveButtonGroup->buttons().isEmpty())
         return;
 
-    ui->pluginsListWidget->clear();
+    if (const QString& activePluginSetting = qtTubeApp->settings().activePlugin; !activePluginSetting.isEmpty())
+    {
+        if (PluginData* plugin = qtTubeApp->plugins().findPlugin(activePluginSetting))
+        {
+            if (PluginData* activePlugin = qtTubeApp->plugins().activePlugin(); activePlugin && activePlugin != plugin)
+                activePlugin->active = false;
+            plugin->active = true;
+        }
+    }
 
-    const QList<const PluginData*> plugins = qtTubeApp->plugins().plugins();
-    for (const PluginData* plugin : plugins)
-        UIUtils::addWidgetToList(ui->pluginsListWidget, new PluginWidget(plugin));
-}
-
-void SettingsForm::enableSaveButton()
-{
-    ui->saveButton->setEnabled(true);
+    for (PluginData* plugin : qtTubeApp->plugins().loadedPlugins())
+    {
+        PluginWidget* pluginWidget = new PluginWidget(plugin);
+        UIUtils::addWidgetToList(ui->pluginsListWidget, pluginWidget);
+        pluginActiveButtonGroup->addButton(pluginWidget->activeButton());
+    }
 }
 
 void SettingsForm::handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox)
@@ -222,12 +201,6 @@ void SettingsForm::handleSponsorCategory(QStringList& categories, const QString&
         categories.append(category);
     else if (!checkBox->isChecked() && categoryIndex != -1)
         categories.removeAt(categoryIndex);
-}
-
-void SettingsForm::keyPressEvent(QKeyEvent* event)
-{
-    if (event->key() == Qt::Key_Escape)
-        close();
 }
 
 /*
@@ -280,10 +253,22 @@ void SettingsForm::openImportWizard()
     }
 }
 
+void SettingsForm::pluginActiveButtonToggled(QAbstractButton* button, bool checked)
+{
+    if (PluginWidget* pluginWidget = qobject_cast<PluginWidget*>(button->parent()))
+    {
+        pluginWidget->data()->active = true;
+        qtTubeApp->settings().activePlugin = pluginWidget->data()->fileInfo.fileName();
+    }
+}
+
+bool SettingsForm::savePending() const
+{
+    return ui->saveButton->isEnabled();
+}
+
 void SettingsForm::saveSettings()
 {
-    ui->saveButton->setEnabled(false);
-
     if (QString downloadPath = ui->downloadPathEdit->text(); QFileInfo(downloadPath).isDir())
         DownloadManager::instance()->setDirectory(QDir(downloadPath));
 

@@ -30,6 +30,7 @@ struct QLibraryDeleter
 
 struct PluginData
 {
+    bool active{};
     QtTube::PluginAuth* auth{};
     QFileInfo fileInfo;
     std::unique_ptr<QLibrary, QLibraryDeleter> handle;
@@ -41,11 +42,12 @@ struct PluginData
 class PluginManager
 {
 public:
-    const PluginData* findPlugin(const QString& name) const;
-    const QList<const PluginData*> plugins() const;
+    PluginData* activePlugin();
+    PluginData* findPlugin(const QString& name);
+    const QList<PluginData*> loadedPlugins();
     void reloadPlugins();
 private:
-    std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_plugins;
+    std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
 
     bool checkPluginTargetVersion(const QFileInfo& fileInfo);
     std::optional<PluginData> loadPlugin(const QFileInfo& fileInfo);

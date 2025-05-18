@@ -5,7 +5,7 @@
 
 constexpr QLatin1String LoadFailedError("Could not load plugin from %1: %2.");
 constexpr QLatin1String MetadataNotFoundError("Could not find metadata function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
-constexpr QLatin1String NameConflictError("The name of the plugin from %1 conflicts with that of the plugin from %2 (%3).");
+constexpr QLatin1String NameConflictError("The name of the plugin from %1 (%2) conflicts with that of the plugin from %3 (%4).");
 constexpr QLatin1String NewInstanceNotFoundError("Could not find initialization function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
 constexpr QLatin1String TargetVersionMismatchWarning("The target version of the plugin from %1 (%2) does not match this version of " QTTUBE_APP_NAME " (" QTTUBE_VERSION_NAME "). This plugin may not work. Load this plugin anyway?");
 constexpr QLatin1String TargetVersionNotFoundError("Could not find target version function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
@@ -15,6 +15,17 @@ R pluginError(const QString& error, R&& returnValue)
 {
     QMessageBox::critical(nullptr, "Plugin Error", error);
     return returnValue;
+}
+
+PluginData* PluginManager::activePlugin()
+{
+    auto it = std::ranges::find_if(m_loadedPlugins, [](const std::pair<const QString, PluginData>& p) {
+        return p.second.active;
+    });
+    if (it != m_loadedPlugins.end())
+        return &it->second;
+    else
+        return nullptr;
 }
 
 bool PluginManager::checkPluginTargetVersion(const QFileInfo& fileInfo)
@@ -38,9 +49,9 @@ bool PluginManager::checkPluginTargetVersion(const QFileInfo& fileInfo)
     return true;
 }
 
-const PluginData* PluginManager::findPlugin(const QString& name) const
+PluginData* PluginManager::findPlugin(const QString& name)
 {
-    if (auto it = m_plugins.find(name); it != m_plugins.end())
+    if (auto it = m_loadedPlugins.find(name); it != m_loadedPlugins.end())
         return &it->second;
     else
         return nullptr;
@@ -82,41 +93,53 @@ std::optional<PluginData> PluginManager::loadPlugin(const QFileInfo& fileInfo)
     return data;
 }
 
-const QList<const PluginData*> PluginManager::plugins() const
+const QList<PluginData*> PluginManager::loadedPlugins()
 {
-    QList<const PluginData*> out;
-    out.reserve(m_plugins.size());
-    for (const auto& [_, lp] : m_plugins)
+    QList<PluginData*> out;
+    out.reserve(m_loadedPlugins.size());
+    for (auto& [_, lp] : m_loadedPlugins)
         out.append(&lp);
     return out;
 }
 
 void PluginManager::reloadPlugins()
 {
-    m_plugins.clear();
+    QString presentlyActivePluginName;
+    if (const PluginData* plugin = activePlugin())
+        presentlyActivePluginName = plugin->fileInfo.fileName();
+
+    m_loadedPlugins.clear();
 
     QList<QFileInfo> pluginsToLoad;
     for (QDirIterator it(qApp->applicationDirPath() + QDir::separator() + "plugins", QDir::Files); it.hasNext();)
-        if (QFileInfo fileInfo(it.next()); QLibrary::isLibrary(fileInfo.absoluteFilePath()))
+    {
+        QFileInfo fileInfo(it.next());
+        if (presentlyActivePluginName.isEmpty())
+            presentlyActivePluginName = fileInfo.fileName();
+        if (QLibrary::isLibrary(fileInfo.absoluteFilePath()))
             pluginsToLoad.append(fileInfo);
+    }
 
     for (const QFileInfo& fileInfo : pluginsToLoad)
     {
         if (std::optional<PluginData> plugin = loadPlugin(fileInfo))
         {
-            if (auto it = m_plugins.find(plugin->metadata->name); it == m_plugins.end())
+            if (auto it = m_loadedPlugins.find(plugin->metadata->name); it == m_loadedPlugins.end())
             {
+                if (fileInfo.fileName() == presentlyActivePluginName)
+                    plugin->active = true;
                 if (plugin->auth)
                     plugin->auth->init();
                 if (plugin->settings)
                     plugin->settings->init();
                 plugin->interface->init();
-                m_plugins.emplace(plugin->metadata->name, std::move(plugin.value()));
+                m_loadedPlugins.emplace(plugin->metadata->name, std::move(plugin.value()));
             }
             else
             {
-                QMessageBox::critical(nullptr, "Plugin Error",
-                    NameConflictError.arg(fileInfo.fileName(), it->second.fileInfo.fileName(), plugin->metadata->name));
+                QMessageBox::critical(nullptr, "Plugin Error", NameConflictError.arg(
+                    fileInfo.fileName(), plugin->metadata->name,
+                    it->second.fileInfo.fileName(), it->second.metadata->name));
             }
         }
     }

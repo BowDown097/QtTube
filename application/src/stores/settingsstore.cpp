@@ -17,6 +17,7 @@ void SettingsStore::initialize()
     QSettings settings(configPath(), QSettings::IniFormat);
 
     // general
+    activePlugin = settings.value("activePlugin").toString();
     appStyle = settings.value("appStyle", "Default").toString();
     autoHideTopBar = settings.value("autoHideTopBar", true).toBool();
     condensedCounts = settings.value("condensedCounts", false).toBool();
@@ -76,6 +77,7 @@ void SettingsStore::save()
     QSettings settings(configPath(), QSettings::IniFormat);
 
     // general
+    settings.setValue("activePlugin", activePlugin);
     settings.setValue("appStyle", appStyle);
     settings.setValue("autoHideTopBar", autoHideTopBar);
     settings.setValue("condensedCounts", condensedCounts);

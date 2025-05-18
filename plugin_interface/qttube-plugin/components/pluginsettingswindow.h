@@ -10,6 +10,7 @@ namespace QtTube
         Q_OBJECT
     public:
         explicit PluginSettingsWindow(QWidget* parent = nullptr) : QWidget(parent) {}
+        virtual ~PluginSettingsWindow() = default;
         virtual bool savePending() const = 0;
         virtual void saveSettings() = 0;
     protected:

@@ -56,7 +56,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
     }
 
     widget->setPopulatingFlag(true);
-    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         QtTube::BrowseReply* reply = plugin->interface->getHistory(query, widget->continuationToken);
         connect(reply, &QtTube::BrowseReply::exception, this,
@@ -69,7 +69,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
 void BrowseHelper::browseHome(ContinuableListWidget* widget)
 {
     widget->setPopulatingFlag(true);
-    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         QtTube::BrowseReply* reply = plugin->interface->getHome(widget->continuationToken);
         connect(reply, &QtTube::BrowseReply::exception, this,
@@ -82,7 +82,7 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
 void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 {
     widget->setPopulatingFlag(true);
-    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         QtTube::NotificationsReply* reply = plugin->interface->getNotifications(widget->continuationToken);
         connect(reply, &QtTube::NotificationsReply::exception, this,
@@ -101,7 +101,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
     }
 
     widget->setPopulatingFlag(true);
-    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         QtTube::BrowseReply* reply = plugin->interface->getSubFeed(widget->continuationToken);
         connect(reply, &QtTube::BrowseReply::exception, this,
@@ -114,7 +114,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 void BrowseHelper::browseTrending(ContinuableListWidget* widget)
 {
     widget->setPopulatingFlag(true);
-    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         QtTube::BrowseReply* reply = plugin->interface->getTrending(widget->continuationToken);
         connect(reply, &QtTube::BrowseReply::exception, this,

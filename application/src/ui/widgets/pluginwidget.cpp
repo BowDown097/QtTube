@@ -3,56 +3,62 @@
 #include <QBoxLayout>
 #include <QDesktopServices>
 #include <QPushButton>
+#include <QRadioButton>
 
-PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
+PluginWidget::PluginWidget(PluginData* data, QWidget* parent)
     : QWidget(parent),
-      authorLabel(new TubeLabel(this)),
-      buttonsLayout(new QHBoxLayout),
-      descriptionLabel(new TubeLabel(this)),
-      imageLabel(new TubeLabel(this)),
-      layout(new QHBoxLayout(this)),
-      metadataLayout(new QVBoxLayout),
-      nameLabel(new TubeLabel(this))
+      m_activeButton(new QRadioButton(this)),
+      m_authorLabel(new TubeLabel(this)),
+      m_buttonsLayout(new QHBoxLayout),
+      m_data(data),
+      m_descriptionLabel(new TubeLabel(this)),
+      m_imageLabel(new TubeLabel(this)),
+      m_layout(new QHBoxLayout(this)),
+      m_metadataLayout(new QVBoxLayout),
+      m_nameLabel(new TubeLabel(this))
 {
-    authorLabel->setElideMode(Qt::ElideRight);
-    authorLabel->setFont(QFont(authorLabel->font().toString(), authorLabel->font().pointSize() - 2));
-    authorLabel->setText(data->metadata->author);
+    m_activeButton->setChecked(data->active);
 
-    descriptionLabel->setElideMode(Qt::ElideRight);
-    descriptionLabel->setMaximumLines(2);
-    descriptionLabel->setWordWrap(true);
-    descriptionLabel->setText(data->metadata->description);
+    m_authorLabel->setElideMode(Qt::ElideRight);
+    m_authorLabel->setFont(QFont(m_authorLabel->font().toString(), m_authorLabel->font().pointSize() - 2));
+    m_authorLabel->setText(data->metadata->author);
 
-    imageLabel->setFixedSize(48, 48);
-    imageLabel->setScaledContents(true);
+    m_descriptionLabel->setElideMode(Qt::ElideRight);
+    m_descriptionLabel->setMaximumLines(2);
+    m_descriptionLabel->setWordWrap(true);
+    m_descriptionLabel->setText(data->metadata->description);
 
-    nameLabel->setElideMode(Qt::ElideRight);
-    nameLabel->setFont(QFont(nameLabel->font().toString(), nameLabel->font().pointSize(), QFont::Bold));
-    nameLabel->setText(data->metadata->name);
+    m_imageLabel->setFixedSize(48, 48);
+    m_imageLabel->setScaledContents(true);
 
-    layout->addWidget(imageLabel);
-    layout->addLayout(metadataLayout);
+    m_nameLabel->setElideMode(Qt::ElideRight);
+    m_nameLabel->setFont(QFont(m_nameLabel->font().toString(), m_nameLabel->font().pointSize(), QFont::Bold));
+    m_nameLabel->setText(data->metadata->name);
 
-    metadataLayout->addWidget(nameLabel);
-    metadataLayout->addWidget(authorLabel);
-    metadataLayout->addWidget(descriptionLabel);
-    metadataLayout->addLayout(buttonsLayout);
-    metadataLayout->addStretch();
+    m_layout->addWidget(m_activeButton);
+    m_layout->addWidget(m_imageLabel);
+    m_layout->addLayout(m_metadataLayout);
+
+    m_metadataLayout->addWidget(m_nameLabel);
+    m_metadataLayout->addWidget(m_authorLabel);
+    m_metadataLayout->addWidget(m_descriptionLabel);
+    m_metadataLayout->addLayout(m_buttonsLayout);
+    m_metadataLayout->addStretch();
 
     if (data->metadata->image)
-        imageLabel->setImage(QUrl(data->metadata->image), TubeLabel::Cached | TubeLabel::KeepAspectRatio);
+        m_imageLabel->setImage(QUrl(data->metadata->image), TubeLabel::Cached | TubeLabel::KeepAspectRatio);
 
     if (data->metadata->url)
     {
-        nameLabel->setClickable(true);
-        nameLabel->setUnderlineOnHover(true);
-        connect(nameLabel, &TubeLabel::clicked, std::bind(&QDesktopServices::openUrl, QUrl(data->metadata->url)));
+        m_nameLabel->setClickable(true);
+        m_nameLabel->setUnderlineOnHover(true);
+        connect(m_nameLabel, &TubeLabel::clicked, std::bind(&QDesktopServices::openUrl, QUrl(data->metadata->url)));
     }
 
     if (data->settings->window())
     {
         QPushButton* openSettingsButton = new QPushButton("Open settings", this);
-        buttonsLayout->addWidget(openSettingsButton);
+        m_buttonsLayout->addWidget(openSettingsButton);
         connect(openSettingsButton, &QPushButton::clicked, this, [data] {
             QWidget* window = data->settings->window();
             window->setAttribute(Qt::WA_DeleteOnClose);
@@ -60,5 +66,5 @@ PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
         });
     }
 
-    buttonsLayout->addStretch();
+    m_buttonsLayout->addStretch();
 }
