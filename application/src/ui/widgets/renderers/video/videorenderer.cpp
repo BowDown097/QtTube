@@ -332,8 +332,9 @@ void VideoRenderer::setData(const QtTube::PluginVideo& video)
 
     thumbnail->setLengthText(video.lengthText);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
+    thumbnail->setSourceIconUrl(video.sourceMetadata->image);
 
-    if (video.videoUrlPrefix.contains("youtube.com"))
+    if (strcmp(video.sourceMetadata->name, "YouTube") == 0)
         setThumbnail(video.thumbnailUrl);
     else
         thumbnail->setUrl(video.thumbnailUrl);
