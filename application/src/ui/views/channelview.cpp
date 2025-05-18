@@ -1,5 +1,4 @@
 #include "channelview.h"
-#include "http.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/browsehelper.h"
@@ -16,10 +15,10 @@ ChannelView::~ChannelView()
 }
 
 ChannelView::ChannelView(const QString& channelId)
-    : channelBanner(new QLabel(this)),
+    : channelBanner(new TubeLabel(this)),
       channelHeaderContainer(new QWidget(this)),
       channelHeaderLayout(new QHBoxLayout(channelHeaderContainer)),
-      channelIcon(new QLabel(this)),
+      channelIcon(new TubeLabel(this)),
       channelName(new TubeLabel(this)),
       channelTabs(new QTabWidget(this)),
       handleAndVideos(new TubeLabel(this)),
@@ -142,17 +141,10 @@ void ChannelView::prepareAvatarAndBanner(const InnertubeObjects::ResponsiveImage
         MainWindow::topbar()->setVisible(banner.isEmpty());
     }
 
-    if (const InnertubeObjects::GenericThumbnail* recAvatar = avatar.recommendedQuality(QSize(48, 48)))
-    {
-        HttpReply* iconReply = Http::instance().get(recAvatar->url);
-        connect(iconReply, &HttpReply::finished, this, &ChannelView::setIcon);
-    }
-
     if (const InnertubeObjects::GenericThumbnail* bestBanner = banner.bestQuality())
-    {
-        HttpReply* bannerReply = Http::instance().get(bestBanner->url);
-        connect(bannerReply, &HttpReply::finished, this, &ChannelView::setBanner);
-    }
+        channelBanner->setImage(bestBanner->url);
+    if (const InnertubeObjects::GenericThumbnail* recAvatar = avatar.recommendedQuality(QSize(48, 48)))
+        channelIcon->setImage(recAvatar->url);
 }
 
 void ChannelView::prepareHeader(const InnertubeObjects::ChannelC4Header& c4Header)
@@ -201,18 +193,4 @@ void ChannelView::prepareHeader(const InnertubeObjects::ChannelPageHeader& pageH
         mainWindow->setWindowTitle(pageHeader.title.text.content + " - " + QTTUBE_APP_NAME);
 
     prepareAvatarAndBanner(pageHeader.image.avatar.image, pageHeader.banner.image);
-}
-
-void ChannelView::setBanner(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    channelBanner->setPixmap(pixmap);
-}
-
-void ChannelView::setIcon(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    channelIcon->setPixmap(pixmap);
 }

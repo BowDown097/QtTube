@@ -1,5 +1,7 @@
 #include "tubelabel.h"
 #include "innertube/objects/innertubestring.h"
+#include "utils/httputils.h"
+#include "utils/uiutils.h"
 #include <QStyle>
 #include <QStyleOption>
 #include <QTextBlock>
@@ -240,7 +242,34 @@ void TubeLabel::mouseReleaseEvent(QMouseEvent* event)
 
 void TubeLabel::resizeEvent(QResizeEvent* event)
 {
-    setText(m_rawText);
+    if (!m_isImage)
+        setText(m_rawText);
+    else if (hasScaledContents() && m_imageFlags & ImageFlag::Cached)
+        updateMarginsForImageAR();
+
+    QLabel::resizeEvent(event);
+}
+
+void TubeLabel::setImage(const QUrl& url, ImageFlags flags)
+{
+    if (!url.isValid())
+        return;
+
+    m_imageFlags = flags;
+    m_isImage = true;
+    m_lineRects.clear();
+    m_rawText.clear();
+
+    HttpReply* reply = flags & ImageFlag::Cached ? HttpUtils::cachedInstance().get(url) : Http::instance().get(url);
+    connect(reply, &HttpReply::finished, this, &TubeLabel::setImageData);
+}
+
+void TubeLabel::setImageData(const HttpReply& reply)
+{
+    QPixmap pixmap;
+    pixmap.loadFromData(reply.body());
+    setPixmap(pixmap);
+    emit imageSet();
 }
 
 void TubeLabel::setMaximumLines(int lines)
@@ -250,12 +279,29 @@ void TubeLabel::setMaximumLines(int lines)
         setText(m_rawText);
 }
 
+void TubeLabel::setPixmap(const QPixmap& pixmap)
+{
+    m_isImage = true;
+    m_lineRects.clear();
+    m_rawText.clear();
+
+    if (hasScaledContents() && m_imageFlags & ImageFlag::KeepAspectRatio)
+    {
+        m_imagePixmapHeight = pixmap.height();
+        m_imagePixmapWidth = pixmap.width();
+        updateMarginsForImageAR();
+    }
+
+    QLabel::setPixmap(m_imageFlags & ImageFlag::Rounded ? UIUtils::pixmapRounded(pixmap) : pixmap);
+}
+
 void TubeLabel::setText(const QString& text)
 {
+    m_isImage = false;
+    m_rawText = text;
+
     if (maximumHeight() == m_calculatedMaximumHeight)
         setMaximumHeight(QWIDGETSIZE_MAX);
-
-    m_rawText = text;
 
     if (text.isEmpty() || m_maximumLines == 0) [[unlikely]]
     {
@@ -313,4 +359,21 @@ void TubeLabel::setText(const QString& text)
 int TubeLabel::textLineWidth() const
 {
     return maximumWidth() != QWIDGETSIZE_MAX ? std::max(width(), maximumWidth()) : width();
+}
+
+void TubeLabel::updateMarginsForImageAR()
+{
+    if (m_imagePixmapHeight <= 0 || m_imagePixmapWidth <= 0 || width() <= 0 || height() <= 0)
+        return;
+
+    if (width() * m_imagePixmapHeight > height() * m_imagePixmapWidth)
+    {
+        int m = (width() - (m_imagePixmapWidth * height() / m_imagePixmapHeight)) / 2;
+        setContentsMargins(m, 0, m, 0);
+    }
+    else
+    {
+        int m = (height() - (m_imagePixmapHeight * width() / m_imagePixmapWidth)) / 2;
+        setContentsMargins(0, m, 0, m);
+    }
 }

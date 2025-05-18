@@ -11,7 +11,6 @@ struct Video;
 }
 
 class QHBoxLayout;
-class QLabel;
 class QVBoxLayout;
 
 class BackstagePostRenderer : public BasePostRenderer
@@ -35,6 +34,5 @@ private:
     void setQuiz(const InnertubeObjects::Quiz& quiz);
     void setVideo(const InnertubeObjects::Video& video);
 private slots:
-    void setImageLabelData(QLabel* imageLabel, const HttpReply& reply);
     void toggleReadMore();
 };

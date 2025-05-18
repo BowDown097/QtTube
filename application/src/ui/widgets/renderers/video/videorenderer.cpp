@@ -337,7 +337,7 @@ void VideoRenderer::setData(const QtTube::PluginVideo& video)
     if (strcmp(video.sourceMetadata->name, "YouTube") == 0)
         setThumbnail(video.thumbnailUrl);
     else
-        thumbnail->setUrl(video.thumbnailUrl);
+        thumbnail->setImage(video.thumbnailUrl);
 
     titleLabel->setText(video.title);
     titleLabel->setToolTip(video.title);
@@ -355,7 +355,7 @@ void VideoRenderer::setDeArrowData(const QString& thumbFallbackUrl, const HttpRe
 {
     if (!reply.isSuccessful())
     {
-        thumbnail->setUrl(thumbFallbackUrl);
+        thumbnail->setImage(thumbFallbackUrl);
         return;
     }
 
@@ -378,9 +378,9 @@ void VideoRenderer::setDeArrowData(const QString& thumbFallbackUrl, const HttpRe
     }
 
     if (qtTubeApp->settings().deArrowThumbs && validReplacement(thumbs))
-        thumbnail->setUrl(QStringLiteral("https://dearrow-thumb.ajay.app/api/v1/getThumbnail?videoID=%1&timestamp=%2").arg(videoId).arg(thumbs[0]["timestamp"].toDouble()));
+        thumbnail->setImage(QStringLiteral("https://dearrow-thumb.ajay.app/api/v1/getThumbnail?videoID=%1&timestamp=%2").arg(videoId).arg(thumbs[0]["timestamp"].toDouble()));
     else
-        thumbnail->setUrl(thumbFallbackUrl);
+        thumbnail->setImage(thumbFallbackUrl);
 }
 
 void VideoRenderer::setThumbnail(const QString& url)
@@ -392,7 +392,7 @@ void VideoRenderer::setThumbnail(const QString& url)
     }
     else
     {
-        thumbnail->setUrl(url);
+        thumbnail->setImage(url);
     }
 }
 

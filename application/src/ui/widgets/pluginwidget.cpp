@@ -1,6 +1,5 @@
 #include "pluginwidget.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "utils/httputils.h"
 #include <QBoxLayout>
 #include <QDesktopServices>
 #include <QPushButton>
@@ -10,7 +9,7 @@ PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
       authorLabel(new TubeLabel(this)),
       buttonsLayout(new QHBoxLayout),
       descriptionLabel(new TubeLabel(this)),
-      imageLabel(new QLabel(this)),
+      imageLabel(new TubeLabel(this)),
       layout(new QHBoxLayout(this)),
       metadataLayout(new QVBoxLayout),
       nameLabel(new TubeLabel(this))
@@ -25,6 +24,7 @@ PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
     descriptionLabel->setText(data->metadata->description);
 
     imageLabel->setFixedSize(48, 48);
+    imageLabel->setScaledContents(true);
 
     nameLabel->setElideMode(Qt::ElideRight);
     nameLabel->setFont(QFont(nameLabel->font().toString(), nameLabel->font().pointSize(), QFont::Bold));
@@ -39,13 +39,10 @@ PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
     metadataLayout->addLayout(buttonsLayout);
     metadataLayout->addStretch();
 
-    if (data->metadata->image[0] != '\0')
-    {
-        HttpReply* reply = HttpUtils::cachedInstance().get(QUrl(data->metadata->image));
-        connect(reply, &HttpReply::finished, this, &PluginWidget::setImage);
-    }
+    if (data->metadata->image)
+        imageLabel->setImage(QUrl(data->metadata->image), TubeLabel::Cached | TubeLabel::KeepAspectRatio);
 
-    if (data->metadata->url[0] != '\0')
+    if (data->metadata->url)
     {
         nameLabel->setClickable(true);
         nameLabel->setUnderlineOnHover(true);
@@ -64,11 +61,4 @@ PluginWidget::PluginWidget(const PluginData* data, QWidget* parent)
     }
 
     buttonsLayout->addStretch();
-}
-
-void PluginWidget::setImage(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }

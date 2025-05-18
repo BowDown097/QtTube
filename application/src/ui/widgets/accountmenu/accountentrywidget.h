@@ -2,9 +2,8 @@
 #include "ui/widgets/clickablewidget.h"
 
 struct CredentialSet;
-class HttpReply;
 class QHBoxLayout;
-class QLabel;
+class TubeLabel;
 
 class AccountEntryWidget : public ClickableWidget<QWidget>
 {
@@ -12,9 +11,7 @@ class AccountEntryWidget : public ClickableWidget<QWidget>
 public:
     explicit AccountEntryWidget(const CredentialSet& credSet, QWidget* parent = nullptr);
 private:
-    QLabel* avatarLabel;
+    TubeLabel* avatarLabel;
     QHBoxLayout* layout;
-    QLabel* nameLabel;
-private slots:
-    void setAvatar(const HttpReply& reply);
+    TubeLabel* nameLabel;
 };

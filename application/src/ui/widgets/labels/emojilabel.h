@@ -1,8 +1,6 @@
 #pragma once
 #include "tubelabel.h"
 
-class HttpReply;
-
 class EmojiLabel : public TubeLabel
 {
     Q_OBJECT
@@ -16,6 +14,4 @@ public:
 private:
     QString m_primaryShortcut;
     QStringList m_searchTerms;
-private slots:
-    void setIcon(const HttpReply& reply);
 };

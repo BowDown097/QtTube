@@ -6,7 +6,6 @@
 #include "innertube.h"
 #include "qttubeapplication.h"
 #include "ui/forms/settings/settingsform.h"
-#include "utils/httputils.h"
 #include "utils/uiutils.h"
 #include <QApplication>
 #include <QMouseEvent>
@@ -122,13 +121,6 @@ void TopBar::scaleAppropriately()
     }
 }
 
-void TopBar::setAvatar(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    avatarButton->setPixmap(UIUtils::pixmapRounded(pixmap));
-}
-
 void TopBar::setUpAvatarButton()
 {
     scaleAppropriately();
@@ -136,12 +128,9 @@ void TopBar::setUpAvatarButton()
     connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
     {
         qtTubeApp->creds().updateAccount(endpoint);
-        if (const InnertubeObjects::GenericThumbnail* recAvatar =
-            endpoint.response.header.accountPhoto.recommendedQuality(avatarButton->size()))
-        {
-            HttpReply* photoReply = HttpUtils::cachedInstance().get(recAvatar->url);
-            connect(photoReply, &HttpReply::finished, this, &TopBar::setAvatar);
-        }
+        const InnertubeObjects::ResponsiveImage& accountPhoto = endpoint.response.header.accountPhoto;
+        if (const InnertubeObjects::GenericThumbnail* recAvatar = accountPhoto.recommendedQuality(avatarButton->size()))
+            avatarButton->setImage(recAvatar->url, TubeLabel::Cached | TubeLabel::Rounded);
     });
 }
 

@@ -1,5 +1,4 @@
 #include "browsechannelrenderer.h"
-#include "http.h"
 #include "innertube/objects/channel/channel.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
@@ -64,10 +63,7 @@ void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
     }
 
     if (const InnertubeObjects::GenericThumbnail* recAvatar = channel.thumbnail.recommendedQuality(QSize(80, 80)))
-    {
-        HttpReply* reply = Http::instance().get("https:" + recAvatar->url);
-        QObject::connect(reply, &HttpReply::finished, this, &BrowseChannelRenderer::setThumbnail);
-    }
+        thumbLabel->setImage("https:" + recAvatar->url);
 
     // "google lied to you!" - kanye west
     // subscriberCountText and videoCountText may be what they say, but they also may not.
@@ -94,11 +90,4 @@ void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
         else
             metadataLabel->setText(result.first);
     });
-}
-
-void BrowseChannelRenderer::setThumbnail(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    thumbLabel->setPixmap(pixmap);
 }

@@ -3,11 +3,10 @@
 
 namespace InnertubeEndpoints { struct AccountMenu; }
 
-class HttpReply;
 class IconLabel;
 class QHBoxLayout;
-class QLabel;
 class QVBoxLayout;
+class TubeLabel;
 
 class AccountMenuWidget : public QWidget
 {
@@ -16,9 +15,9 @@ public:
     explicit AccountMenuWidget(QWidget* parent = nullptr);
 private:
     QVBoxLayout* accountLayout;
-    QLabel* accountNameLabel;
-    QLabel* avatar;
-    QLabel* handleLabel;
+    TubeLabel* accountNameLabel;
+    TubeLabel* avatar;
+    TubeLabel* handleLabel;
     QHBoxLayout* headerLayout;
     QVBoxLayout* layout;
     IconLabel* signOutLabel;
@@ -28,7 +27,6 @@ public slots:
     void initialize(const InnertubeEndpoints::AccountMenu& endpoint);
 private slots:
     void gotoChannel(const QString& channelId);
-    void setAvatar(const HttpReply& reply);
     void triggerSignOut();
 signals:
     void accountSwitcherRequested();

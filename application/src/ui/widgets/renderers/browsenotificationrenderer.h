@@ -3,7 +3,6 @@
 
 namespace QtTube { struct PluginNotification; }
 
-class HttpReply;
 class QHBoxLayout;
 class QVBoxLayout;
 class TubeLabel;
@@ -21,7 +20,4 @@ private:
     TubeLabel* sentTimeLabel;
     QVBoxLayout* textVbox;
     TubeLabel* thumbLabel;
-public slots:
-    void setChannelIcon(const HttpReply& reply);
-    void setThumbnail(const HttpReply& reply);
 };

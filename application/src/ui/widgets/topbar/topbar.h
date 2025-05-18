@@ -3,7 +3,6 @@
 #include "topbarbell.h"
 #include "ui/widgets/labels/tubelabel.h"
 
-class HttpReply;
 class QPropertyAnimation;
 class QPushButton;
 
@@ -32,7 +31,6 @@ public slots:
     void trySignIn();
     void updateNotificationCount(int value = -1);
 private slots:
-    void setAvatar(const HttpReply& reply);
     void setUpAvatarButton();
     void setUpNotifications();
     void showSettings();

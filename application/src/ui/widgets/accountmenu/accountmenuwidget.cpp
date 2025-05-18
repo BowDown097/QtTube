@@ -3,17 +3,15 @@
 #include "mainwindow.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
-#include "utils/httputils.h"
 #include "utils/tubeutils.h"
-#include "utils/uiutils.h"
 #include <QBoxLayout>
 
 AccountMenuWidget::AccountMenuWidget(QWidget* parent)
     : QWidget(parent),
       accountLayout(new QVBoxLayout),
-      accountNameLabel(new QLabel(this)),
-      avatar(new QLabel(this)),
-      handleLabel(new QLabel(this)),
+      accountNameLabel(new TubeLabel(this)),
+      avatar(new TubeLabel(this)),
+      handleLabel(new TubeLabel(this)),
       headerLayout(new QHBoxLayout),
       layout(new QVBoxLayout(this)),
       signOutLabel(new IconLabel("sign-out", "Sign out", QMargins(), QSize(24, 24), this)),
@@ -51,10 +49,7 @@ void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoi
     handleLabel->setText(header.channelHandle);
 
     if (const InnertubeObjects::GenericThumbnail* recAvatar = header.accountPhoto.recommendedQuality(avatar->size()))
-    {
-        HttpReply* avatarReply = HttpUtils::cachedInstance().get(QUrl(recAvatar->url));
-        connect(avatarReply, &HttpReply::finished, this, &AccountMenuWidget::setAvatar);
-    }
+        avatar->setImage(recAvatar->url, TubeLabel::Cached | TubeLabel::Rounded);
 
     QString channelId = TubeUtils::getUcidFromUrl("https://www.youtube.com/" + header.channelHandle);
     connect(yourChannelLabel, &IconLabel::clicked, this, std::bind(&AccountMenuWidget::gotoChannel, this, channelId));
@@ -68,13 +63,6 @@ void AccountMenuWidget::gotoChannel(const QString& channelId)
     hide();
     ViewController::loadChannel(channelId);
     emit closeRequested();
-}
-
-void AccountMenuWidget::setAvatar(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    avatar->setPixmap(UIUtils::pixmapRounded(pixmap));
 }
 
 void AccountMenuWidget::triggerSignOut()

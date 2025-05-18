@@ -1,11 +1,10 @@
 #pragma once
-#include "ui/widgets/clickablewidget.h"
-#include <QLabel>
+#include "ui/widgets/labels/tubelabel.h"
 
 class HttpReply;
 class QProgressBar;
 
-class VideoThumbnailWidget : public ClickableWidget<QLabel>
+class VideoThumbnailWidget : public TubeLabel
 {
     Q_OBJECT
 public:
@@ -13,15 +12,11 @@ public:
     void setLengthText(const QString& text) { m_lengthLabel->setText(text); }
     void setProgress(int progress, int length);
     void setSourceIconUrl(const char* sourceIconUrl);
-    void setUrl(const QString& url);
 protected:
     void resizeEvent(QResizeEvent* event) override;
 private:
     bool m_hasSourceIcon{};
     QLabel* m_lengthLabel;
     QProgressBar* m_progressBar;
-    QLabel* m_sourceIconLabel;
-private slots:
-    void setData(const HttpReply& reply);
-    void setSourceIconData(const HttpReply& reply);
+    TubeLabel* m_sourceIconLabel;
 };

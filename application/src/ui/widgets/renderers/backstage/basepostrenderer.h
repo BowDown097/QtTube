@@ -2,7 +2,6 @@
 #include <QWidget>
 
 class ChannelLabel;
-class HttpReply;
 class IconLabel;
 class TubeLabel;
 
@@ -25,6 +24,5 @@ protected slots:
     void copyPostUrl();
     void linkActivated(const QString& url);
     void navigateChannel();
-    void setChannelIcon(const HttpReply& reply);
     void showPublishedTimeContextMenu(const QPoint& pos);
 };

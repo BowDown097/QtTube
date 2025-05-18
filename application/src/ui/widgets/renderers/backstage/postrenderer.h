@@ -4,7 +4,6 @@
 namespace InnertubeObjects { struct BackstageImage; struct Poll; struct Quiz; }
 
 class QHBoxLayout;
-class QLabel;
 class QVBoxLayout;
 
 namespace InnertubeObjects { struct Post; }
@@ -25,6 +24,4 @@ private:
     void setImage(const InnertubeObjects::BackstageImage& image);
     void setPoll(const InnertubeObjects::Poll& poll);
     void setQuiz(const InnertubeObjects::Quiz& quiz);
-private slots:
-    void setImageLabelData(QLabel* imageLabel, const HttpReply& reply);
 };

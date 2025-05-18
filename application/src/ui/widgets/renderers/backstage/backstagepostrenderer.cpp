@@ -1,5 +1,4 @@
 #include "backstagepostrenderer.h"
-#include "http.h"
 #include "innertube/objects/backstage/backstagepost.h"
 #include "qttubeapplication.h"
 #include "ui/widgets/labels/channellabel.h"
@@ -64,11 +63,8 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     readMoreLabel->setVisible(contentText->heightForWidth(width() - channelIconLabel->width()) > contentText->maximumHeight());
     replyLabel->setText(post.actionButtons.replyButton.text.text);
 
-    if (const InnertubeObjects::GenericThumbnail* avatar = post.authorThumbnail.bestQuality())
-    {
-        HttpReply* reply = Http::instance().get("https:" + avatar->url);
-        connect(reply, &HttpReply::finished, this, &BackstagePostRenderer::setChannelIcon);
-    }
+    if (const InnertubeObjects::GenericThumbnail* avatar = post.authorThumbnail.recommendedQuality(channelIconLabel->size()))
+        channelIconLabel->setImage("https:" + avatar->url, TubeLabel::Rounded);
 
     if (auto image = std::get_if<InnertubeObjects::BackstageImage>(&post.backstageAttachment))
         setImage(*image);
@@ -85,7 +81,7 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
 
 void BackstagePostRenderer::setImage(const InnertubeObjects::BackstageImage& image)
 {
-    QLabel* imageLabel = new QLabel(this);
+    TubeLabel* imageLabel = new TubeLabel(this);
     imageLabel->setMaximumWidth(width());
     imageLabel->setScaledContents(true);
     imageLabel->setMaximumHeight(surface == "BACKSTAGE_SURFACE_TYPE_STREAM" ? 638 : 420);
@@ -97,18 +93,9 @@ void BackstagePostRenderer::setImage(const InnertubeObjects::BackstageImage& ima
 
     if (const InnertubeObjects::GenericThumbnail* bestImage = image.image.bestQuality())
     {
-        HttpReply* reply = Http::instance().get(bestImage->url);
-        connect(reply, &HttpReply::finished, this,
-                std::bind_front(&BackstagePostRenderer::setImageLabelData, this, imageLabel));
+        connect(imageLabel, &TubeLabel::imageSet, this, &BackstagePostRenderer::adjustSize);
+        imageLabel->setImage(bestImage->url);
     }
-}
-
-void BackstagePostRenderer::setImageLabelData(QLabel* imageLabel, const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    imageLabel->setPixmap(pixmap);
-    adjustSize();
 }
 
 void BackstagePostRenderer::setPoll(const InnertubeObjects::Poll& poll)

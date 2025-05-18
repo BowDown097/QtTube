@@ -129,12 +129,17 @@ namespace ChannelBrowser
             QHBoxLayout* perksHeader = new QHBoxLayout(perksHeaderWrapper);
             perksHeader->setContentsMargins(0, 0, 0, 0);
 
-            QLabel* badgeLabel = new QLabel;
+            TubeLabel* badgeLabel = new TubeLabel;
             badgeLabel->setFixedSize(18, 18);
-            UIUtils::setThumbnail(badgeLabel, perks["badge"]["thumbnails"]);
-            perksHeader->addWidget(badgeLabel);
+            badgeLabel->setScaledContents(true);
+
+            InnertubeObjects::ResponsiveImage badge(perks["badge"]["thumbnails"]);
+            if (const InnertubeObjects::GenericThumbnail* recBadge = badge.recommendedQuality(badgeLabel->size()))
+                badgeLabel->setImage(recBadge->url);
 
             TubeLabel* membershipTitle = new TubeLabel(InnertubeObjects::InnertubeString(perks["title"]));
+
+            perksHeader->addWidget(badgeLabel);
             perksHeader->addWidget(membershipTitle);
 
             UIUtils::addWidgetToList(widget, perksHeaderWrapper);
@@ -200,11 +205,15 @@ namespace ChannelBrowser
                             TubeLabel* loyaltyBadgeLabel = new TubeLabel(InnertubeObjects::InnertubeString(loyaltyBadge["title"]));
                             loyaltyBadgeLayout->addWidget(loyaltyBadgeLabel);
 
-                            QLabel* loyaltyBadgeIcon = new QLabel;
+                            TubeLabel* loyaltyBadgeIcon = new TubeLabel;
                             loyaltyBadgeIcon->setFixedSize(18, 18);
-                            UIUtils::setThumbnail(loyaltyBadgeIcon, loyaltyBadge["icon"]["thumbnails"]);
-                            loyaltyBadgeLayout->addWidget(loyaltyBadgeIcon);
+                            loyaltyBadgeIcon->setScaledContents(true);
 
+                            InnertubeObjects::ResponsiveImage icon(loyaltyBadge["icon"]["thumbnails"]);
+                            if (const InnertubeObjects::GenericThumbnail* recIcon = icon.recommendedQuality(loyaltyBadgeIcon->size()))
+                                loyaltyBadgeIcon->setImage(recIcon->url);
+
+                            loyaltyBadgeLayout->addWidget(loyaltyBadgeIcon);
                             perkInfo->addWidget(loyaltyBadgeWrapper);
                         }
                     }
@@ -217,9 +226,14 @@ namespace ChannelBrowser
                         const QJsonArray images = perkRenderer["images"].toArray();
                         for (const QJsonValue& v2 : images)
                         {
-                            QLabel* thumbnailLabel = new QLabel;
+                            TubeLabel* thumbnailLabel = new TubeLabel;
                             thumbnailLabel->setFixedSize(32, 32);
-                            UIUtils::setThumbnail(thumbnailLabel, v2["thumbnails"]);
+                            thumbnailLabel->setScaledContents(true);
+
+                            InnertubeObjects::ResponsiveImage thumbnail(v2["thumbnails"]);
+                            if (const InnertubeObjects::GenericThumbnail* recThumb = thumbnail.recommendedQuality(thumbnailLabel->size()))
+                                thumbnailLabel->setImage(recThumb->url);
+
                             imagesLayout->addWidget(thumbnailLabel);
                         }
 

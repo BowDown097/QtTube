@@ -1,15 +1,13 @@
 #include "textmessage.h"
 #include "innertube/objects/images/responsiveimage.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "utils/httputils.h"
 #include "utils/innertubestringformatter.h"
-#include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QJsonArray>
 
 TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     : QWidget(parent),
-      authorIcon(new QLabel(this)),
+      authorIcon(new TubeLabel(this)),
       authorLabel(new TubeLabel(renderer["authorName"]["simpleText"].toString(), this)),
       contentLayout(new QVBoxLayout),
       headerLayout(new QHBoxLayout),
@@ -26,11 +24,8 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     layout->addSpacerItem(new QSpacerItem(6, 0));
 
     InnertubeObjects::ResponsiveImage authorPhoto(renderer["authorPhoto"]["thumbnails"]);
-    if (const InnertubeObjects::GenericThumbnail* bestPhoto = authorPhoto.bestQuality())
-    {
-        HttpReply* iconReply = HttpUtils::cachedInstance().get(bestPhoto->url);
-        connect(iconReply, &HttpReply::finished, this, &TextMessage::setAuthorIcon);
-    }
+    if (const InnertubeObjects::GenericThumbnail* recPhoto = authorPhoto.recommendedQuality(authorIcon->size()))
+        authorIcon->setImage(recPhoto->url, TubeLabel::Cached | TubeLabel::Rounded);
 
     contentLayout->setContentsMargins(0, 0, 0, 0);
     contentLayout->setSpacing(0);
@@ -81,11 +76,4 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     connect(fmt, &InnertubeStringFormatter::finished, fmt, &InnertubeStringFormatter::deleteLater);
     connect(fmt, &InnertubeStringFormatter::readyRead, messageLabel, &TubeLabel::setText);
     fmt->setData(message, false);
-}
-
-void TextMessage::setAuthorIcon(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    authorIcon->setPixmap(UIUtils::pixmapRounded(pixmap));
 }

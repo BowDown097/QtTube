@@ -1,5 +1,4 @@
 #include "postrenderer.h"
-#include "http.h"
 #include "innertube/objects/backstage/post.h"
 #include "qttubeapplication.h"
 #include "ui/widgets/labels/channellabel.h"
@@ -7,7 +6,6 @@
 #include "ui/widgets/labels/tubelabel.h"
 #include "utils/innertubestringformatter.h"
 #include "utils/stringutils.h"
-#include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QPushButton>
 
@@ -66,11 +64,8 @@ void PostRenderer::setData(const InnertubeObjects::Post& post)
     publishedTimeLabel->setText(post.publishedTimeText.text);
     replyLabel->setText(post.actionButtons.replyButton.text.text);
 
-    if (const InnertubeObjects::GenericThumbnail* avatar = post.authorThumbnail.bestQuality())
-    {
-        HttpReply* reply = Http::instance().get("https:" + avatar->url);
-        connect(reply, &HttpReply::finished, this, &PostRenderer::setChannelIcon);
-    }
+    if (const InnertubeObjects::GenericThumbnail* avatar = post.authorThumbnail.recommendedQuality(channelIconLabel->size()))
+        channelIconLabel->setImage("https:" + avatar->url, TubeLabel::Rounded);
 
     if (auto image = std::get_if<InnertubeObjects::BackstageImage>(&post.backstageAttachment))
         setImage(*image);
@@ -95,24 +90,14 @@ void PostRenderer::setData(const InnertubeObjects::Post& post)
 
 void PostRenderer::setImage(const InnertubeObjects::BackstageImage& image)
 {
-    QLabel* imageLabel = new QLabel(this);
+    TubeLabel* imageLabel = new TubeLabel(this);
     imageLabel->setFixedWidth(116);
     imageLabel->setScaledContents(true);
     imageLabel->setMaximumHeight(116);
     body->addWidget(imageLabel);
 
     if (const InnertubeObjects::GenericThumbnail* bestImage = image.image.bestQuality())
-    {
-        HttpReply* reply = Http::instance().get(bestImage->url);
-        connect(reply, &HttpReply::finished, this, std::bind_front(&PostRenderer::setImageLabelData, this, imageLabel));
-    }
-}
-
-void PostRenderer::setImageLabelData(QLabel* imageLabel, const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    imageLabel->setPixmap(pixmap);
+        imageLabel->setImage(bestImage->url);
 }
 
 void PostRenderer::setPoll(const InnertubeObjects::Poll& poll)

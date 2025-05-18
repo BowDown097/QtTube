@@ -79,7 +79,6 @@ namespace UIUtils
     QString resolveThemedIconName(const QString& name, const QPalette& pal = {});
     void setAppStyle(const QString& styleName, bool dark);
     void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
-    void setThumbnail(QLabel* label, const QJsonValue& thumbnails);
 
     template<typename T>
     void addItemToList(QListWidget* list, const T& item)

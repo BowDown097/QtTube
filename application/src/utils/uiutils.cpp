@@ -1,5 +1,4 @@
 #include "uiutils.h"
-#include "http.h"
 #include "innertube/objects/ad/adslot.h"
 #include "innertube/objects/backstage/backstagepost.h"
 #include "innertube/objects/channel/channel.h"
@@ -348,24 +347,5 @@ namespace UIUtils
     {
         for (int i : indexes)
             widget->setTabEnabled(i, enabled);
-    }
-
-    void setThumbnail(QLabel* label, const QJsonValue& thumbnails)
-    {
-        label->setMinimumSize(1, 1);
-        label->setScaledContents(true);
-
-        InnertubeObjects::ResponsiveImage image(thumbnails);
-        const InnertubeObjects::GenericThumbnail* best = image.bestQuality();
-        if (!best)
-            return;
-
-        HttpReply* reply = Http::instance().get(QUrl(best->url));
-        QObject::connect(reply, &HttpReply::finished, reply, [label](const HttpReply& reply)
-        {
-            QPixmap pixmap;
-            pixmap.loadFromData(reply.body());
-            label->setPixmap(pixmap);
-        });
     }
 }

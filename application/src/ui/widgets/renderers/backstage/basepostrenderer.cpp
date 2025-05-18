@@ -1,5 +1,4 @@
 #include "basepostrenderer.h"
-#include "httpreply.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/iconlabel.h"
@@ -65,13 +64,6 @@ void BasePostRenderer::linkActivated(const QString& url)
 void BasePostRenderer::navigateChannel()
 {
     ViewController::loadChannel(channelId);
-}
-
-void BasePostRenderer::setChannelIcon(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    channelIconLabel->setPixmap(UIUtils::pixmapRounded(pixmap));
 }
 
 void BasePostRenderer::showPublishedTimeContextMenu(const QPoint& pos)

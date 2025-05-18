@@ -48,7 +48,6 @@ private slots:
     void openLiveChat(const InnertubeObjects::LiveChat& conversationBar);
     void processNext(const InnertubeEndpoints::Next& endpoint);
     void processPlayer(const InnertubeEndpoints::Player& endpoint);
-    void setChannelIcon(const HttpReply& reply);
     void setDislikes(const HttpReply& reply);
 signals:
     void loadFailed(const InnertubeException& ie);

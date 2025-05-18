@@ -2,9 +2,7 @@
 #include "plugins/pluginmanager.h"
 #include <QWidget>
 
-class HttpReply;
 class QHBoxLayout;
-class QLabel;
 class QVBoxLayout;
 class TubeLabel;
 
@@ -17,10 +15,8 @@ private:
     TubeLabel* authorLabel;
     QHBoxLayout* buttonsLayout;
     TubeLabel* descriptionLabel;
-    QLabel* imageLabel;
+    TubeLabel* imageLabel;
     QHBoxLayout* layout;
     QVBoxLayout* metadataLayout;
     TubeLabel* nameLabel;
-private slots:
-    void setImage(const HttpReply& reply);
 };

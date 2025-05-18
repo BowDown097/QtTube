@@ -1,5 +1,4 @@
 #include "videothumbnailwidget.h"
-#include "utils/httputils.h"
 #include <QProgressBar>
 
 constexpr QLatin1String LengthStylesheet("background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0 1px");
@@ -9,10 +8,10 @@ constexpr QLatin1String ProgressStylesheet(R"(
 )");
 
 VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
-    : ClickableWidget<QLabel>(parent),
+    : TubeLabel(parent),
       m_lengthLabel(new QLabel(this)),
       m_progressBar(new QProgressBar(this)),
-      m_sourceIconLabel(new QLabel(this))
+      m_sourceIconLabel(new TubeLabel(this))
 {
     setClickable(true);
     setMinimumSize(1, 1);
@@ -28,6 +27,7 @@ VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
 
     m_sourceIconLabel->hide();
     m_sourceIconLabel->setFixedSize(fontMetrics().height(), fontMetrics().height());
+    m_sourceIconLabel->setScaledContents(true);
 }
 
 void VideoThumbnailWidget::resizeEvent(QResizeEvent* event)
@@ -53,38 +53,17 @@ void VideoThumbnailWidget::resizeEvent(QResizeEvent* event)
     m_progressBar->setFixedWidth(event->size().width());
 }
 
-void VideoThumbnailWidget::setData(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    setPixmap(pixmap);
-}
-
 void VideoThumbnailWidget::setProgress(int progress, int length)
 {
     m_progressBar->setMaximum(length);
     m_progressBar->setValue(progress);
 }
 
-void VideoThumbnailWidget::setSourceIconData(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    m_sourceIconLabel->setPixmap(pixmap.scaled(m_sourceIconLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-}
-
 void VideoThumbnailWidget::setSourceIconUrl(const char* sourceIconUrl)
 {
-    if (QUrl url(sourceIconUrl); url.isValid())
+    if (sourceIconUrl)
     {
         m_hasSourceIcon = true;
-        HttpReply* reply = HttpUtils::cachedInstance().get(url);
-        connect(reply, &HttpReply::finished, this, &VideoThumbnailWidget::setSourceIconData);
+        m_sourceIconLabel->setImage(QUrl(sourceIconUrl), TubeLabel::Cached | TubeLabel::KeepAspectRatio);
     }
-}
-
-void VideoThumbnailWidget::setUrl(const QString& url)
-{
-    HttpReply* reply = Http::instance().get(url);
-    connect(reply, &HttpReply::finished, this, &VideoThumbnailWidget::setData);
 }

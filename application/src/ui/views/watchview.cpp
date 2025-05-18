@@ -235,11 +235,8 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
         ui->dislikeLabel->setStyleSheet("color: #167ac6");
     }
 
-    if (const InnertubeObjects::GenericThumbnail* recThumbnail = secondaryInfo.owner.thumbnail.recommendedQuality(QSize(48, 48)))
-    {
-        HttpReply* reply = Http::instance().get(recThumbnail->url);
-        connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
-    }
+    if (const InnertubeObjects::GenericThumbnail* recThumbnail = secondaryInfo.owner.thumbnail.recommendedQuality(ui->channelIcon->size()))
+        ui->channelIcon->setImage(recThumbnail->url);
 
     const InnertubeObjects::ButtonViewModel& likeViewModel = likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel.defaultButtonViewModel;
     ui->likeLabel->setProperty("fullCount", StringUtils::extractDigits(likeViewModel.accessibilityText));
@@ -291,13 +288,8 @@ void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
 void WatchView::processPreloadData(PreloadData::WatchView* preload)
 {
     if (preload->channelAvatar.has_value())
-    {
-        if (const InnertubeObjects::GenericThumbnail* recAvatar = preload->channelAvatar->recommendedQuality(QSize(48, 48)))
-        {
-            HttpReply* reply = Http::instance().get(recAvatar->url);
-            connect(reply, &HttpReply::finished, this, &WatchView::setChannelIcon);
-        }
-    }
+        if (const InnertubeObjects::GenericThumbnail* recAvatar = preload->channelAvatar->recommendedQuality(ui->channelIcon->size()))
+            ui->channelIcon->setImage(recAvatar->url);
 
     if (preload->channelId.has_value() && preload->channelName.has_value())
         ui->channelLabel->setInfo(preload->channelId.value(), preload->channelName.value(), preload->channelBadges);
@@ -322,13 +314,6 @@ void WatchView::resizeEvent(QResizeEvent* event)
     ui->scrollArea->setMaximumWidth(width);
     ui->showMoreLabel->setFixedWidth(width);
     ui->titleLabel->setFixedWidth(width);
-}
-
-void WatchView::setChannelIcon(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    ui->channelIcon->setPixmap(pixmap);
 }
 
 void WatchView::setDislikes(const HttpReply& reply)

@@ -11,9 +11,7 @@ namespace InnertubeObjects
     struct ResponsiveImage;
 }
 
-class HttpReply;
 class QHBoxLayout;
-class QLabel;
 class QTabWidget;
 class QVBoxLayout;
 class SubscribeWidget;
@@ -27,10 +25,10 @@ public:
     ~ChannelView();
     void hotLoadChannel(const QString& channelId);
 private:
-    QLabel* channelBanner;
+    TubeLabel* channelBanner;
     QWidget* channelHeaderContainer;
     QHBoxLayout* channelHeaderLayout;
-    QLabel* channelIcon;
+    TubeLabel* channelIcon;
     QString channelId;
     TubeLabel* channelName;
     QTabWidget* channelTabs;
@@ -48,6 +46,4 @@ private:
                        const QList<InnertubeObjects::EntityMutation>& mutations);
 private slots:
     void loadTab(const InnertubeEndpoints::ChannelResponse& response, int index);
-    void setBanner(const HttpReply& reply);
-    void setIcon(const HttpReply& reply);
 };

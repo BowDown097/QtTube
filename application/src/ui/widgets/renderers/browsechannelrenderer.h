@@ -5,7 +5,6 @@
 namespace InnertubeObjects { struct Channel; struct MetadataBadge; struct SubscribeButton; }
 
 class ChannelLabel;
-class HttpReply;
 class QHBoxLayout;
 class QVBoxLayout;
 class SubscribeWidget;
@@ -26,8 +25,6 @@ private:
     QVBoxLayout* textVbox;
     TubeLabel* thumbLabel;
     ChannelLabel* titleLabel;
-public slots:
-    void setThumbnail(const HttpReply& reply);
 private slots:
     void navigateChannel();
 };

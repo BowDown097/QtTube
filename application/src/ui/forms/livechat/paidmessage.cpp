@@ -1,9 +1,8 @@
 #include "paidmessage.h"
+#include "innertube/objects/images/responsiveimage.h"
 #include "innertube/objects/innertubestring.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "utils/httputils.h"
 #include "utils/innertubestringformatter.h"
-#include "utils/uiutils.h"
 #include <QBoxLayout>
 
 constexpr QLatin1String HeaderStylesheet(R"(
@@ -25,7 +24,7 @@ constexpr QLatin1String MessageStylesheet(R"(
 PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     : QWidget(parent),
       amountLabel(new TubeLabel(renderer["purchaseAmountText"]["simpleText"].toString(), this)),
-      authorIcon(new QLabel(this)),
+      authorIcon(new TubeLabel(this)),
       authorLabel(new TubeLabel(renderer["authorName"]["simpleText"].toString(), this)),
       header(new QWidget(this)),
       headerLayout(new QHBoxLayout(header)),
@@ -50,8 +49,9 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     headerLayout->addWidget(authorIcon);
     headerLayout->addSpacerItem(new QSpacerItem(6, 0));
 
-    HttpReply* iconReply = HttpUtils::cachedInstance().get(renderer["authorPhoto"]["thumbnails"][0]["url"].toString());
-    connect(iconReply, &HttpReply::finished, this, &PaidMessage::setAuthorIcon);
+    InnertubeObjects::ResponsiveImage authorPhoto(renderer["authorPhoto"]["thumbnails"]);
+    if (const InnertubeObjects::GenericThumbnail* recThumb = authorPhoto.recommendedQuality(authorIcon->size()))
+        authorIcon->setImage(recThumb->url, TubeLabel::Cached | TubeLabel::Rounded);
 
     innerHeaderLayout->setContentsMargins(0, 0, 0, 0);
     innerHeaderLayout->setSpacing(0);
@@ -81,11 +81,4 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     connect(fmt, &InnertubeStringFormatter::finished, fmt, &InnertubeStringFormatter::deleteLater);
     connect(fmt, &InnertubeStringFormatter::readyRead, messageLabel, &TubeLabel::setText);
     fmt->setData(message, false);
-}
-
-void PaidMessage::setAuthorIcon(const HttpReply& reply)
-{
-    QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
-    authorIcon->setPixmap(UIUtils::pixmapRounded(pixmap));
 }
