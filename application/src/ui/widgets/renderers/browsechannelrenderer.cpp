@@ -1,5 +1,5 @@
 #include "browsechannelrenderer.h"
-#include "httpreply.h"
+#include "http.h"
 #include "innertube/objects/channel/channel.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
@@ -61,6 +61,12 @@ void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
     else
     {
         descriptionLabel->setText(channel.descriptionSnippet.text);
+    }
+
+    if (const InnertubeObjects::GenericThumbnail* recAvatar = channel.thumbnail.recommendedQuality(QSize(80, 80)))
+    {
+        HttpReply* reply = Http::instance().get("https:" + recAvatar->url);
+        QObject::connect(reply, &HttpReply::finished, this, &BrowseChannelRenderer::setThumbnail);
     }
 
     // "google lied to you!" - kanye west

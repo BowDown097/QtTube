@@ -20,6 +20,4 @@ private:
     QProgressBar* m_progressBar;
 private slots:
     void setData(const HttpReply& reply);
-signals:
-    void thumbnailSet();
 };

@@ -37,13 +37,9 @@ void VideoThumbnailWidget::resizeEvent(QResizeEvent* event)
 
 void VideoThumbnailWidget::setData(const HttpReply& reply)
 {
-    if (reply.statusCode() != 200)
-        return;
-
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     setPixmap(pixmap);
-    emit thumbnailSet();
 }
 
 void VideoThumbnailWidget::setProgress(int progress, int length)

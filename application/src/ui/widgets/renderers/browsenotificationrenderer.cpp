@@ -35,8 +35,6 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
 
 void BrowseNotificationRenderer::setChannelIcon(const HttpReply& reply)
 {
-    if (reply.statusCode() != 200)
-        return;
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     channelIconLabel->setPixmap(pixmap);
@@ -56,8 +54,6 @@ void BrowseNotificationRenderer::setData(const QtTube::PluginNotification& notif
 
 void BrowseNotificationRenderer::setThumbnail(const HttpReply& reply)
 {
-    if (reply.statusCode() != 200)
-        return;
     QPixmap pixmap;
     pixmap.loadFromData(reply.body());
     thumbLabel->setPixmap(pixmap);

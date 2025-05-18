@@ -74,12 +74,6 @@ namespace UIUtils
         BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
         renderer->setData(channel);
         addWidgetToList(list, renderer);
-
-        if (const InnertubeObjects::GenericThumbnail* recAvatar = channel.thumbnail.recommendedQuality(QSize(80, 80)))
-        {
-            HttpReply* reply = Http::instance().get("https:" + recAvatar->url);
-            QObject::connect(reply, &HttpReply::finished, renderer, &BrowseChannelRenderer::setThumbnail);
-        }
     }
 
     void addNotificationToList(QListWidget* list, const QtTube::PluginNotification& notification)
