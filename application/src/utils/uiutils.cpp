@@ -3,7 +3,6 @@
 #include "innertube/objects/ad/adslot.h"
 #include "innertube/objects/backstage/backstagepost.h"
 #include "innertube/objects/channel/channel.h"
-#include "innertube/objects/notification/notification.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
 #include "mainwindow.h"
@@ -83,21 +82,11 @@ namespace UIUtils
         }
     }
 
-    void addNotificationToList(QListWidget* list, const InnertubeObjects::Notification& notification)
+    void addNotificationToList(QListWidget* list, const QtTube::PluginNotification& notification)
     {
         BrowseNotificationRenderer* renderer = new BrowseNotificationRenderer;
         renderer->setData(notification);
         addWidgetToList(list, renderer);
-
-        if (const InnertubeObjects::GenericThumbnail* recAvatar = notification.channelIcon.recommendedQuality(QSize(48, 48)))
-        {
-            HttpReply* iconReply = Http::instance().get(recAvatar->url);
-            QObject::connect(iconReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setChannelIcon);
-        }
-
-        // notification.videoThumbnail returns images with black bars, so we're going to use mqdefault instead
-        HttpReply* thumbReply = Http::instance().get("https://i.ytimg.com/vi/" + notification.videoId + "/mqdefault.jpg");
-        QObject::connect(thumbReply, &HttpReply::finished, renderer, &BrowseNotificationRenderer::setThumbnail);
     }
 
     void addPostToList(QListWidget* list, const InnertubeObjects::Post& post)

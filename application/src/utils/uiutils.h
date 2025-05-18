@@ -11,14 +11,13 @@ struct BackstagePost;
 struct Channel;
 struct InnertubeString;
 struct LockupViewModel;
-struct Notification;
 struct Post;
 struct Reel;
 struct ShortsLockupViewModel;
 struct Video;
 }
 
-namespace QtTube { struct PluginVideo; }
+namespace QtTube { struct PluginNotification; struct PluginVideo; }
 
 class QLabel;
 class QLayout;
@@ -50,7 +49,7 @@ namespace UIUtils
     void addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post);
     void addBoldLabelToList(QListWidget* list, const QString& text);
     void addChannelToList(QListWidget* list, const InnertubeObjects::Channel& channel);
-    void addNotificationToList(QListWidget* list, const InnertubeObjects::Notification& notification);
+    void addNotificationToList(QListWidget* list, const QtTube::PluginNotification& notification);
     void addPostToList(QListWidget* list, const InnertubeObjects::Post& post);
     QListWidgetItem* addResizingWidgetToList(QListWidget* list, QWidget* widget);
     void addSeparatorToList(QListWidget* list);
@@ -90,7 +89,7 @@ namespace UIUtils
             addBackstagePostToList(list, item);
         else if constexpr (std::same_as<T, ITO::Channel>)
             addChannelToList(list, item);
-        else if constexpr (std::same_as<T, ITO::Notification>)
+        else if constexpr (std::same_as<T, QtTube::PluginNotification>)
             addNotificationToList(list, item);
         else if constexpr (std::same_as<T, ITO::Post>)
             addPostToList(list, item);

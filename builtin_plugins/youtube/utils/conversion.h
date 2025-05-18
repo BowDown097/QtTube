@@ -1,5 +1,6 @@
 #pragma once
 #include "innertube/innertubeexception.h"
+#include "innertube/objects/notification/notification.h"
 #include "innertube/objects/shelves/reelshelf.h"
 #include "innertube/objects/video/compactvideo.h"
 #include "innertube/objects/video/reel.h"
@@ -7,6 +8,7 @@
 #include "youtubeplugin.h"
 
 QtTube::PluginException convertException(const InnertubeException& ex);
+QtTube::PluginNotification convertNotification(const InnertubeObjects::Notification& notification);
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(
     const InnertubeObjects::HomeRichShelf& hrShelf, bool useThumbnailFromData = true);
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(

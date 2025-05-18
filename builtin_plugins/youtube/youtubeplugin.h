@@ -7,6 +7,7 @@ class YouTubePlugin : public QtTube::PluginInterface
 {
     QtTube::BrowseReply* getHistory(const QString& query = {}, std::any continuationData = {}) override;
     QtTube::BrowseReply* getHome(std::any continuationData = {}) override;
+    QtTube::NotificationsReply* getNotifications(std::any continuationData = {}) override;
     QtTube::BrowseReply* getSubFeed(std::any continuationData = {}) override;
     QtTube::BrowseReply* getTrending(std::any continuationData = {}) override;
     void init() override;

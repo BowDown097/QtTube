@@ -14,6 +14,44 @@ QtTube::PluginException convertException(const InnertubeException& ex)
     return QtTube::PluginException(ex.message(), static_cast<QtTube::PluginException::Severity>(ex.severity()));
 }
 
+QtTube::PluginNotification convertNotification(const InnertubeObjects::Notification& notification)
+{
+    QtTube::PluginNotification result = {
+        .body = notification.shortMessage,
+        .notificationId = notification.notificationId,
+        .sentTimeText = notification.sentTimeText,
+        .sourceIconUrl = g_metadata.image
+    };
+
+    if (const InnertubeObjects::GenericThumbnail* channelThumb = notification.channelIcon.recommendedQuality(QSize(48, 48)))
+        result.channelAvatarUrl = channelThumb->url;
+
+    // TODO: see if there's other endpoints (there probably is)
+    if (const QJsonValue getCommentsFromInboxCommand = notification.navigationEndpoint["getCommentsFromInboxCommand"];
+        getCommentsFromInboxCommand.isObject())
+    {
+        // may extend this later, hence why it's its own block
+        result.targetId = getCommentsFromInboxCommand["videoId"].toString();
+        result.targetType = QtTube::PluginNotification::TargetType::Video;
+        result.targetUrlPrefix = "https://www.youtube.com/watch?v=";
+
+        // notification.videoThumbnail returns images with black bars, so we're going to use mqdefault instead
+        result.thumbnailUrl = "https://i.ytimg.com/vi/" + result.targetId + "/mqdefault.jpg";
+    }
+    else if (const QJsonValue watchEndpoint = notification.navigationEndpoint["watchEndpoint"];
+             watchEndpoint.isObject())
+    {
+        result.targetId = watchEndpoint["videoId"].toString();
+        result.targetType = QtTube::PluginNotification::TargetType::Video;
+        result.targetUrlPrefix = "https://www.youtube.com/watch?v=";
+
+        // notification.videoThumbnail returns images with black bars, so we're going to use mqdefault instead
+        result.thumbnailUrl = "https://i.ytimg.com/vi/" + result.targetId + "/mqdefault.jpg";
+    }
+
+    return result;
+}
+
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(
     const InnertubeObjects::HomeRichShelf& hrShelf, bool useThumbnailFromData)
 {

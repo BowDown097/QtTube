@@ -82,15 +82,14 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
 void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 {
     widget->setPopulatingFlag(true);
-    auto reply = InnerTube::instance()->get<GetNotificationMenu>("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX");
-    connect(reply, &InnertubeReply<GetNotificationMenu>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailedInnertube, this, "notification", widget));
-    connect(reply, &InnertubeReply<GetNotificationMenu>::finished, this, [this, widget](const GetNotificationMenu& endpoint) {
-        UIUtils::addRangeToList(widget, endpoint.response.notifications);
-        widget->continuationToken = endpoint.continuationToken;
-        MainWindow::topbar()->updateNotificationCount(0);
-        widget->setPopulatingFlag(false);
-    });
+    for (const PluginData* plugin : qtTubeApp->plugins().plugins())
+    {
+        QtTube::NotificationsReply* reply = plugin->interface->getNotifications(widget->continuationToken);
+        connect(reply, &QtTube::NotificationsReply::exception, this,
+            std::bind_front(&BrowseHelper::browseFailedPlugin, this, "notification", widget));
+        connect(reply, &QtTube::NotificationsReply::finished, this,
+            std::bind_front(&BrowseHelper::setupNotifications, this, widget, reply));
+    }
 }
 
 void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
@@ -207,6 +206,15 @@ void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTube::BrowseRepl
 
     widget->setPopulatingFlag(false);
     widget->continuationToken = std::any_cast<QString>(reply->continuationData);
+}
+
+void BrowseHelper::setupNotifications(
+    ContinuableListWidget* widget, QtTube::NotificationsReply* reply, const QtTube::NotificationsData& data)
+{
+    UIUtils::addRangeToList(widget, data);
+    widget->continuationToken = std::any_cast<QString>(reply->continuationData);
+    MainWindow::topbar()->updateNotificationCount(0);
+    widget->setPopulatingFlag(false);
 }
 
 void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response)

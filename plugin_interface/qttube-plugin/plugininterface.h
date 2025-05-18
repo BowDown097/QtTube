@@ -17,6 +17,7 @@ namespace QtTube
         virtual BrowseReply* getHistory(
             const QString& query = {}, std::any continuationData = {}) { return BrowseReply::create(); }
         virtual BrowseReply* getHome(std::any continuationData = {}) { return BrowseReply::create(); }
+        virtual NotificationsReply* getNotifications(std::any continuationData = {}) { return NotificationsReply::create(); }
         virtual BrowseReply* getSubFeed(std::any continuationData = {}) { return BrowseReply::create(); }
         virtual BrowseReply* getTrending(std::any continuationData = {}) { return BrowseReply::create(); }
         virtual void init() = 0;

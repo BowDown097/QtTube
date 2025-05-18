@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 
-namespace InnertubeObjects { struct Notification; }
+namespace QtTube { struct PluginNotification; }
 
 class HttpReply;
 class QHBoxLayout;
@@ -13,12 +13,12 @@ class BrowseNotificationRenderer : public QWidget
     Q_OBJECT
 public:
     explicit BrowseNotificationRenderer(QWidget* parent = nullptr);
-    void setData(const InnertubeObjects::Notification& notification);
+    void setData(const QtTube::PluginNotification& notification);
 private:
-    TubeLabel* channelIcon;
+    TubeLabel* bodyLabel;
+    TubeLabel* channelIconLabel;
     QHBoxLayout* hbox;
-    TubeLabel* sentTimeText;
-    TubeLabel* shortMessage;
+    TubeLabel* sentTimeLabel;
     QVBoxLayout* textVbox;
     TubeLabel* thumbLabel;
 public slots:

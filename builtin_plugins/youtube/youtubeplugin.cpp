@@ -17,6 +17,7 @@ YouTubeAuth* g_auth = static_cast<YouTubeAuth*>(auth());
 YouTubeSettings* g_settings = static_cast<YouTubeSettings*>(settings());
 
 using InnertubeHistoryReply = InnertubeReply<InnertubeEndpoints::BrowseHistory>;
+using InnertubeNotificationsReply = InnertubeReply<InnertubeEndpoints::GetNotificationMenu>;
 using InnertubeHomeReply = InnertubeReply<InnertubeEndpoints::BrowseHome>;
 using InnertubeSubsReply = InnertubeReply<InnertubeEndpoints::BrowseSubscriptions>;
 using InnertubeTrendingReply = InnertubeReply<InnertubeEndpoints::BrowseTrending>;
@@ -86,6 +87,27 @@ QtTube::BrowseReply* YouTubePlugin::getHome(std::any continuationData)
             }
         });
     }
+
+    return pluginReply;
+}
+
+QtTube::NotificationsReply* YouTubePlugin::getNotifications(std::any continuationData)
+{
+    QtTube::NotificationsReply* pluginReply = QtTube::NotificationsReply::create();
+
+    QString continuationToken;
+    if (QString* ctoken = std::any_cast<QString>(&continuationData))
+        continuationToken = *ctoken;
+
+    InnertubeNotificationsReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::GetNotificationMenu>(
+        "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", continuationToken);
+    QObject::connect(tubeReply, &InnertubeNotificationsReply::exception, [pluginReply](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(tubeReply, &InnertubeNotificationsReply::finished, [pluginReply](const InnertubeEndpoints::GetNotificationMenu& endpoint) {
+        pluginReply->continuationData = endpoint.continuationToken;
+        emit pluginReply->finished(getNotificationsData(endpoint.response));
+    });
 
     return pluginReply;
 }

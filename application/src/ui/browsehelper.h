@@ -37,6 +37,10 @@ public:
         {
             browseSubscriptions(widget);
         }
+        else if constexpr (std::same_as<E, InnertubeEndpoints::GetNotificationMenu>)
+        {
+            browseNotificationMenu(widget);
+        }
         else
         {
             widget->setPopulatingFlag(true);
@@ -46,8 +50,6 @@ public:
                 E newData = InnerTube::instance()->getBlocking<E>(data, widget->continuationToken);
                 if constexpr (std::same_as<E, InnertubeEndpoints::Search>)
                     setupSearch(widget, newData.response);
-                else if constexpr (std::same_as<E, InnertubeEndpoints::GetNotificationMenu>)
-                    UIUtils::addRangeToList(widget, newData.response.notifications);
                 else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseChannel>)
                     continueChannel(widget, newData.response.contents);
                 else
@@ -70,6 +72,8 @@ private slots:
     void browseFailedPlugin(const QString& title, ContinuableListWidget* widget, const QtTube::PluginException& ex);
 private:
     void setupBrowse(ContinuableListWidget* widget, QtTube::BrowseReply* reply, const QtTube::BrowseData& data);
+    void setupNotifications(
+        ContinuableListWidget* widget, QtTube::NotificationsReply* reply, const QtTube::NotificationsData& data);
     void setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response);
 
     const QMap<int, QString> featureMap = {

@@ -42,6 +42,14 @@ QtTube::BrowseData getHomeData(const InnertubeEndpoints::HomeResponse& response)
     return result;
 }
 
+QtTube::NotificationsData getNotificationsData(const InnertubeEndpoints::NotificationMenuResponse& response)
+{
+    QtTube::NotificationsData result;
+    for (const InnertubeObjects::Notification& notification : response.notifications)
+        result.append(convertNotification(notification));
+    return result;
+}
+
 QtTube::BrowseData getSubscriptionsData(const InnertubeEndpoints::SubscriptionsResponse& response)
 {
     QtTube::BrowseData result;
