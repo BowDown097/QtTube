@@ -3,6 +3,8 @@
 
 namespace QtTube
 {
+    struct PluginMetadata;
+
     struct PluginVideoBadge
     {
         QString label;
@@ -15,7 +17,7 @@ namespace QtTube
         QString lengthText;
         QString metadataText;
         int progressSecs{};
-        QString sourceIconUrl;
+        PluginMetadata* sourceMetadata;
         QString thumbnailUrl;
         QString title;
         QString uploaderAvatarUrl;
