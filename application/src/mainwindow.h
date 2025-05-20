@@ -29,7 +29,6 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 private slots:
-    void performFilteredSearch();
     void reloadCurrentTab();
     void returnFromSearch();
     void returnFromWatchHistorySearch();

@@ -1,4 +1,5 @@
 #pragma once
+#include "qttube-plugin/objects/channel.h"
 #include <QPointer>
 #include <QWidget>
 
@@ -16,6 +17,7 @@ class BrowseChannelRenderer : public QWidget
 public:
     explicit BrowseChannelRenderer(QWidget* parent = nullptr);
     void setData(const InnertubeObjects::Channel& channel);
+    void setData(const QtTube::PluginChannel& channel);
 private:
     QString channelId;
     TubeLabel* descriptionLabel;

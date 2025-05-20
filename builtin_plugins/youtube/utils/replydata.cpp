@@ -2,13 +2,6 @@
 #include "conversion.h"
 #include "innertube.h"
 
-template<typename T, typename... Ts>
-void addShelf(QList<T>& shelfList, const QtTube::PluginShelf<Ts...>& shelf)
-{
-    if (!shelf.contents.isEmpty())
-        shelfList.append(shelf);
-}
-
 QtTube::BrowseData getHistoryData(const InnertubeEndpoints::HistoryResponse& response)
 {
     QtTube::BrowseData result;
@@ -46,7 +39,24 @@ QtTube::NotificationsData getNotificationsData(const InnertubeEndpoints::Notific
 {
     QtTube::NotificationsData result;
     for (const InnertubeObjects::Notification& notification : response.notifications)
-        result.append(convertNotification(notification));
+        addNotification(result, convertNotification(notification));
+    return result;
+}
+
+QtTube::BrowseData getSearchData(const InnertubeEndpoints::SearchResponse& response)
+{
+    QtTube::BrowseData result;
+    for (const InnertubeEndpoints::SearchResponseItem& item : response.contents)
+    {
+        if (const auto* channel = std::get_if<InnertubeObjects::Channel>(&item))
+            addChannel(result, convertChannel(*channel));
+        else if (const auto* rShelf = std::get_if<InnertubeObjects::ReelShelf>(&item); rShelf && !g_settings->hideSearchShelves)
+            addShelf(result, convertShelf(*rShelf));
+        else if (const auto* vShelf = std::get_if<InnertubeObjects::VerticalVideoShelf>(&item); vShelf && !g_settings->hideSearchShelves)
+            addShelf(result, convertShelf(*vShelf));
+        else if (const auto* video = std::get_if<InnertubeObjects::Video>(&item))
+            addVideo(result, *video);
+    }
     return result;
 }
 

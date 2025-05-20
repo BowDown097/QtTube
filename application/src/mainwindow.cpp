@@ -136,17 +136,6 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     QMainWindow::keyPressEvent(event);
 }
 
-void MainWindow::performFilteredSearch()
-{
-    ui->searchWidget->clear();
-    int dateIndex = qobject_cast<QComboBox*>(ui->additionalWidgets->itemAt(1)->widget())->currentIndex();
-    int typeIndex = qobject_cast<QComboBox*>(ui->additionalWidgets->itemAt(2)->widget())->currentIndex();
-    int durIndex = qobject_cast<QComboBox*>(ui->additionalWidgets->itemAt(3)->widget())->currentIndex();
-    int featIndex = qobject_cast<QComboBox*>(ui->additionalWidgets->itemAt(4)->widget())->currentIndex();
-    int sortIndex = qobject_cast<QComboBox*>(ui->additionalWidgets->itemAt(5)->widget())->currentIndex();
-    BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery, dateIndex, typeIndex, durIndex, featIndex, sortIndex);
-}
-
 void MainWindow::reloadCurrentTab()
 {
     if (ui->centralwidget->currentIndex() != 0 || !ui->tabWidget->isTabEnabled(ui->tabWidget->currentIndex()))
@@ -157,11 +146,18 @@ void MainWindow::reloadCurrentTab()
             return;
 
     if (ui->tabWidget->currentIndex() <= 3)
+    {
         browse();
+    }
     else if (ui->tabWidget->currentIndex() == 4)
-        performFilteredSearch();
-    else if (ui->tabWidget->currentIndex() == 5)
+    {
+        ui->searchWidget->clear();
+        BrowseHelper::instance()->search(ui->searchWidget, ui->additionalWidgets, lastSearchQuery);
+    }
+    else
+    {
         searchWatchHistory();
+    }
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
@@ -283,34 +279,6 @@ void MainWindow::searchByQuery(const QString& query)
     else if (WatchView* watchView = qobject_cast<WatchView*>(ui->centralwidget->currentWidget()))
         watchView->deleteLater();
 
-    TubeLabel* filtersLabel = new TubeLabel("Filters:", this);
-    ui->additionalWidgets->addWidget(filtersLabel);
-
-    QComboBox* dateCmb = new QComboBox(this);
-    dateCmb->setPlaceholderText("Upload date");
-    dateCmb->addItems({"Last hour", "Today", "This week", "This month", "This year"});
-    ui->additionalWidgets->addWidget(dateCmb);
-
-    QComboBox* typeCmb = new QComboBox(this);
-    typeCmb->setPlaceholderText("Type");
-    typeCmb->addItems({"Video", "Channel", "Playlist", "Movie"});
-    ui->additionalWidgets->addWidget(typeCmb);
-
-    QComboBox* durCmb = new QComboBox(this);
-    durCmb->setPlaceholderText("Duration");
-    durCmb->addItems({"Under 4 minutes", "Over 20 minutes", "4-20 minutes"});
-    ui->additionalWidgets->addWidget(durCmb);
-
-    QComboBox* featCmb = new QComboBox(this);
-    featCmb->setPlaceholderText("Features");
-    featCmb->addItems({"Live", "4K", "HD", "Subtitles/CC", "Creative Commons", "360°", "VR180", "3D", "HDR", "Location", "Purchased"});
-    ui->additionalWidgets->addWidget(featCmb);
-
-    QComboBox* sortCmb = new QComboBox(this);
-    sortCmb->setPlaceholderText("Sort by");
-    sortCmb->addItems({"Relevance", "Rating", "Upload date", "View count"});
-    ui->additionalWidgets->addWidget(sortCmb);
-
     if (ui->tabWidget->currentIndex() == 4)
     {
         ui->searchWidget->clear();
@@ -326,13 +294,7 @@ void MainWindow::searchByQuery(const QString& query)
     }
 
     lastSearchQuery = query;
-    BrowseHelper::instance()->search(ui->searchWidget, lastSearchQuery);
-
-    connect(dateCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, &MainWindow::performFilteredSearch);
-    connect(typeCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, &MainWindow::performFilteredSearch);
-    connect(durCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, &MainWindow::performFilteredSearch);
-    connect(featCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, &MainWindow::performFilteredSearch);
-    connect(sortCmb, qOverload<int>(&QComboBox::currentIndexChanged), this, &MainWindow::performFilteredSearch);
+    BrowseHelper::instance()->search(ui->searchWidget, ui->additionalWidgets, lastSearchQuery);
 }
 
 void MainWindow::searchWatchHistory()

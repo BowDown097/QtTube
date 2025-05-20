@@ -91,3 +91,31 @@ void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
             metadataLabel->setText(result.first);
     });
 }
+
+void BrowseChannelRenderer::setData(const QtTube::PluginChannel& channel)
+{
+    this->channelId = channel.channelId;
+    // subscribeWidget->setData(channel);
+    thumbLabel->setImage(channel.channelAvatarUrl);
+    titleLabel->setInfo(channelId, channel.channelName, channel.channelBadges);
+
+    if (channel.description.isEmpty())
+    {
+        textVbox->removeWidget(descriptionLabel);
+        descriptionLabel->deleteLater();
+    }
+    else
+    {
+        descriptionLabel->setText(channel.description);
+    }
+
+    if (channel.metadataText.isEmpty())
+    {
+        textVbox->removeWidget(metadataLabel);
+        metadataLabel->deleteLater();
+    }
+    else
+    {
+        metadataLabel->setText(channel.metadataText);
+    }
+}

@@ -1,9 +1,9 @@
 #include "browsehelper.h"
 #include "channelbrowser.h"
 #include "mainwindow.h"
-#include "protobuf/protobufcompiler.h"
 #include "qttubeapplication.h"
-#include <ranges>
+#include <QBoxLayout>
+#include <QComboBox>
 
 // TODO: incrementally switch everything over to using the plugin interface.
 // once all of this stuff is said and done,
@@ -130,31 +130,36 @@ void BrowseHelper::continueChannel(ContinuableListWidget* widget, const QJsonVal
     ChannelBrowser::continuation(widget, contents);
 }
 
-void BrowseHelper::search(ContinuableListWidget* widget, const QString& query,
-                          int dateF, int typeF, int durF, int featF, int sort)
+QList<std::pair<QString, int>> BrowseHelper::getActiveFilters(QHBoxLayout* additionalWidgets)
 {
-    QByteArray compiledParams;
-    QVariantMap filter, params;
-    if (sort != -1) params.insert("sort", sort);
-    if (dateF != -1) filter.insert("uploadDate", dateF + 1);
-    if (typeF != -1) filter.insert("type", typeF + 1);
-    if (durF != -1) filter.insert("duration", durF + 1);
-    if (featF != -1) filter.insert(featureMap[featF], true);
-    if (!filter.isEmpty()) params.insert("filter", filter);
+    if (!additionalWidgets || additionalWidgets->count() == 0)
+        return {};
 
-    if (!params.isEmpty())
-        compiledParams = ProtobufCompiler::compileEncoded(params, searchMsgFields);
+    QList<QComboBox*> combos;
+    for (int i = 0; i < additionalWidgets->count(); ++i)
+        if (QComboBox* combo = qobject_cast<QComboBox*>(additionalWidgets->itemAt(i)->widget()))
+            combos.append(combo);
 
+    QList<std::pair<QString, int>> activeFilters;
+    for (QComboBox* combo : std::as_const(combos))
+        if (int index = combo->currentIndex(); index != -1)
+            activeFilters.append(std::make_pair(combo->placeholderText(), index));
+
+    return activeFilters;
+}
+
+void BrowseHelper::search(ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query)
+{
     widget->setPopulatingFlag(true);
-    auto reply = InnerTube::instance()->get<Search>(query, "", compiledParams);
-    connect(reply, &InnertubeReply<Search>::exception, this,
-        std::bind_front(&BrowseHelper::browseFailedInnertube, this, "search", widget));
-    connect(reply, &InnertubeReply<Search>::finished, this, [this, widget](const Search& endpoint) {
-        widget->addItem(QStringLiteral("About %1 results").arg(QLocale::system().toString(endpoint.response.estimatedResults)));
-        setupSearch(widget, endpoint.response);
-        widget->continuationToken = endpoint.continuationToken;
-        widget->setPopulatingFlag(false);
-    });
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    {
+        QtTube::BrowseReply* reply = plugin->interface->getSearch(
+            query, getActiveFilters(additionalWidgets), widget->continuationToken);
+        connect(reply, &QtTube::BrowseReply::exception, this,
+            std::bind_front(&BrowseHelper::browseFailedPlugin, this, "search", widget));
+        connect(reply, &QtTube::BrowseReply::finished, this,
+            std::bind_front(&BrowseHelper::setupSearch, this, widget, additionalWidgets, query, plugin, reply));
+    }
 }
 
 void BrowseHelper::browseFailedInnertube(const QString& title, ContinuableListWidget* widget, const InnertubeException& ex)
@@ -183,7 +188,12 @@ void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTube::BrowseRepl
 {
     for (const QtTube::BrowseDataItem& item : data)
     {
-        if (const auto* shelf = std::get_if<QtTube::PluginShelf<QtTube::PluginVideo>>(&item))
+        if (const auto* channel = std::get_if<QtTube::PluginChannel>(&item))
+        {
+            UIUtils::addChannelToList(widget, *channel);
+            QCoreApplication::processEvents();
+        }
+        else if (const auto* shelf = std::get_if<QtTube::PluginShelf<QtTube::PluginVideo>>(&item))
         {
             UIUtils::addShelfTitleToList(widget, shelf->title);
 
@@ -217,40 +227,32 @@ void BrowseHelper::setupNotifications(
     widget->setPopulatingFlag(false);
 }
 
-void BrowseHelper::setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response)
+void BrowseHelper::setupSearch(
+    ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query,
+    const PluginData* plugin, QtTube::BrowseReply* reply, const QtTube::BrowseData& data)
 {
-    for (const InnertubeEndpoints::SearchResponseItem& item : response.contents)
+    if (additionalWidgets && additionalWidgets->count() == 0)
     {
-        if (const auto* channel = std::get_if<InnertubeObjects::Channel>(&item))
+        const QList<std::pair<QString, QStringList>> searchFilters = plugin->interface->searchFilters();
+        if (!searchFilters.empty())
         {
-            UIUtils::addChannelToList(widget, *channel);
-            QCoreApplication::processEvents();
-        }
-        else if (const auto* reelShelf = std::get_if<InnertubeObjects::ReelShelf>(&item))
-        {
-            if (qtTubeApp->settings().hideSearchShelves || qtTubeApp->settings().hideShorts)
-                continue;
+            TubeLabel* filtersLabel = new TubeLabel("Filters:");
+            additionalWidgets->addWidget(filtersLabel);
 
-            UIUtils::addSeparatorToList(widget);
-            UIUtils::addShelfTitleToList(widget, reelShelf->title.text);
-            UIUtils::addRangeToList(widget, reelShelf->items);
-            UIUtils::addSeparatorToList(widget);
-        }
-        else if (const auto* verticalShelf = std::get_if<InnertubeObjects::VerticalVideoShelf>(&item))
-        {
-            if (qtTubeApp->settings().hideSearchShelves)
-                continue;
+            for (const auto& [category, filters] : searchFilters)
+            {
+                QComboBox* filterCombo = new QComboBox;
+                filterCombo->setPlaceholderText(category);
+                filterCombo->addItems(filters);
+                additionalWidgets->addWidget(filterCombo);
 
-            UIUtils::addSeparatorToList(widget);
-            UIUtils::addShelfTitleToList(widget, verticalShelf->title.text);
-            UIUtils::addRangeToList(widget,
-                verticalShelf->content.items | std::views::take(verticalShelf->content.collapsedItemCount));
-            UIUtils::addSeparatorToList(widget);
-        }
-        else if (const auto* video = std::get_if<InnertubeObjects::Video>(&item))
-        {
-            UIUtils::addVideoToList(widget, *video);
-            QCoreApplication::processEvents();
+                connect(filterCombo, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this] {
+                    widget->clear();
+                    search(widget, additionalWidgets, query);
+                });
+            }
         }
     }
+
+    setupBrowse(widget, reply, data);
 }

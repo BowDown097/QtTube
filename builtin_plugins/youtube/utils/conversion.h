@@ -1,5 +1,6 @@
 #pragma once
 #include "innertube/innertubeexception.h"
+#include "innertube/objects/channel/channel.h"
 #include "innertube/objects/notification/notification.h"
 #include "innertube/objects/shelves/reelshelf.h"
 #include "innertube/objects/video/compactvideo.h"
@@ -7,6 +8,8 @@
 #include "innertube/responses/browse/homeresponse.h"
 #include "youtubeplugin.h"
 
+QtTube::PluginBadge convertBadge(const InnertubeObjects::MetadataBadge& badge);
+QtTube::PluginChannel convertChannel(const InnertubeObjects::Channel& channel);
 QtTube::PluginException convertException(const InnertubeException& ex);
 QtTube::PluginNotification convertNotification(const InnertubeObjects::Notification& notification);
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(
@@ -23,6 +26,27 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::Reel& reel, bool useThu
 QtTube::PluginVideo convertVideo(const InnertubeObjects::ShortsLockupViewModel& shortsLockup, bool useThumbnailFromData);
 QtTube::PluginVideo convertVideo(const InnertubeObjects::Video& video, bool useThumbnailFromData);
 QtTube::PluginVideo convertVideo(const InnertubeObjects::VideoDisplayButtonGroup& video, bool useThumbnailFromData);
+
+template<typename T>
+void addChannel(QList<T>& channelList, const QtTube::PluginChannel& channel)
+{
+    if (!g_settings->channelIsFiltered(channel.channelId))
+        channelList.append(channel);
+}
+
+template<typename T>
+void addNotification(QList<T>& notificationList, const QtTube::PluginNotification& notification)
+{
+    if (!g_settings->channelIsFiltered(notification.channelId))
+        notificationList.append(notification);
+}
+
+template<typename T, typename... Ts>
+void addShelf(QList<T>& shelfList, const QtTube::PluginShelf<Ts...>& shelf)
+{
+    if (!shelf.contents.isEmpty())
+        shelfList.append(shelf);
+}
 
 template<typename T, typename U>
 void addVideo(QList<U>& videoList, const T& video, bool useThumbnailFromData = true)

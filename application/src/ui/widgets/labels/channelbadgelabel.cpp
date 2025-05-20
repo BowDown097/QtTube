@@ -32,7 +32,7 @@ void ChannelBadgeLabel::setData(const InnertubeObjects::MetadataBadge& badge)
     setToolTip(badge.tooltip);
 }
 
-void ChannelBadgeLabel::setData(const QtTube::PluginVideoBadge& badge)
+void ChannelBadgeLabel::setData(const QtTube::PluginBadge& badge)
 {
     setText(badge.label);
     setToolTip(badge.tooltip);

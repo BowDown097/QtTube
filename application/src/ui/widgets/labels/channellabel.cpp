@@ -88,12 +88,11 @@ void ChannelLabel::setInfo(const QString& channelId, const QString& channelName,
         badgeLayout->addStretch();
 }
 
-void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName,
-                           const QList<QtTube::PluginVideoBadge>& badges)
+void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTube::PluginBadge>& badges)
 {
     setInfo(uploaderId, uploaderName);
 
-    for (const QtTube::PluginVideoBadge& badge : badges)
+    for (const QtTube::PluginBadge& badge : badges)
     {
         ChannelBadgeLabel* badgeLabel = new ChannelBadgeLabel(this);
         badgeLabel->setData(badge);

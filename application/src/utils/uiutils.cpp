@@ -75,6 +75,13 @@ namespace UIUtils
         addWidgetToList(list, renderer);
     }
 
+    void addChannelToList(QListWidget* list, const QtTube::PluginChannel& channel)
+    {
+        BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
+        renderer->setData(channel);
+        addWidgetToList(list, renderer);
+    }
+
     void addNotificationToList(QListWidget* list, const QtTube::PluginNotification& notification)
     {
         BrowseNotificationRenderer* renderer = new BrowseNotificationRenderer;

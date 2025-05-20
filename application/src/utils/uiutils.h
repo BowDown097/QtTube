@@ -17,7 +17,7 @@ struct ShortsLockupViewModel;
 struct Video;
 }
 
-namespace QtTube { struct PluginNotification; struct PluginVideo; }
+namespace QtTube { struct PluginChannel; struct PluginNotification; struct PluginVideo; }
 
 class QLabel;
 class QLayout;
@@ -49,6 +49,7 @@ namespace UIUtils
     void addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post);
     void addBoldLabelToList(QListWidget* list, const QString& text);
     void addChannelToList(QListWidget* list, const InnertubeObjects::Channel& channel);
+    void addChannelToList(QListWidget* list, const QtTube::PluginChannel& channel);
     void addNotificationToList(QListWidget* list, const QtTube::PluginNotification& notification);
     void addPostToList(QListWidget* list, const InnertubeObjects::Post& post);
     QListWidgetItem* addResizingWidgetToList(QListWidget* list, QWidget* widget);

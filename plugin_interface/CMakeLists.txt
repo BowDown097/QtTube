@@ -21,6 +21,8 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/pluginsettingswindow.h
             qttube-plugin/components/reply.h
             qttube-plugin/components/replytypes.h
+            qttube-plugin/objects/badge.h
+            qttube-plugin/objects/channel.h
             qttube-plugin/objects/notification.h
             qttube-plugin/objects/shelf.h
             qttube-plugin/objects/video.h)

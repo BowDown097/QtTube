@@ -1,6 +1,7 @@
 #include "youtubeplugin.h"
 #include "innertube.h"
 #include "localcache.h"
+#include "protobuf/protobufcompiler.h"
 #include "utils/conversion.h"
 #include "utils/replydata.h"
 
@@ -16,21 +17,89 @@ DECLARE_QTTUBE_PLUGIN(YouTubePlugin, g_metadata, YouTubeSettings, YouTubeAuth)
 YouTubeAuth* g_auth = static_cast<YouTubeAuth*>(auth());
 YouTubeSettings* g_settings = static_cast<YouTubeSettings*>(settings());
 
+const QMap<int, QString> g_featureMap = {
+    { 0, "isLive" },
+    { 1, "is4K" },
+    { 2, "isHD" },
+    { 3, "hasSubtitles" },
+    { 4, "isCreativeCommons" },
+    { 5, "is360Degree" },
+    { 6, "isVR180" },
+    { 7, "is3D" },
+    { 8, "isHDR" },
+    { 9, "hasLocation" },
+    { 10, "isPurchased" },
+};
+
+const QVariantMap g_searchMsgFields = {
+    { "sort", QVariantList{1, 0} },
+    {
+        "filter", QVariantList{2, 2, QVariantMap{
+            { "uploadDate", QVariantList{1, 0} },
+            { "type", QVariantList{2, 0} },
+            { "duration", QVariantList{3, 0} },
+            { "isHD", QVariantList{4, 0} },
+            { "hasSubtitles", QVariantList{5, 0} },
+            { "isCreativeCommons", QVariantList{6, 0} },
+            { "is3D", QVariantList{7, 0} },
+            { "isLive", QVariantList{8, 0} },
+            { "isPurchased", QVariantList{9, 0} },
+            { "is4K", QVariantList{14, 0} },
+            { "is360Degree", QVariantList{15, 0} },
+            { "hasLocation", QVariantList{23, 0} },
+            { "isHDR", QVariantList{25, 0} },
+            { "isVR180", QVariantList{26, 0} }
+        }}
+    }
+};
+
 using InnertubeHistoryReply = InnertubeReply<InnertubeEndpoints::BrowseHistory>;
 using InnertubeNotificationsReply = InnertubeReply<InnertubeEndpoints::GetNotificationMenu>;
 using InnertubeHomeReply = InnertubeReply<InnertubeEndpoints::BrowseHome>;
+using InnertubeSearchReply = InnertubeReply<InnertubeEndpoints::Search>;
 using InnertubeSubsReply = InnertubeReply<InnertubeEndpoints::BrowseSubscriptions>;
 using InnertubeTrendingReply = InnertubeReply<InnertubeEndpoints::BrowseTrending>;
+
+QByteArray YouTubePlugin::compileSearchParams(const QList<std::pair<QString, int>>& activeFilters)
+{
+    QVariantMap filterParams, params;
+    for (const auto& [category, index] : activeFilters)
+    {
+        if (category == "Upload date")
+            filterParams.insert("uploadDate", index + 1);
+        else if (category == "Type")
+            filterParams.insert("type", index + 1);
+        else if (category == "Duration")
+            filterParams.insert("duration", index + 1);
+        else if (category == "Features")
+            filterParams.insert(g_featureMap[index], true);
+        else if (category == "Sort by")
+            params.insert("sort", index);
+    }
+
+    if (!filterParams.isEmpty())
+        params.insert("filter", filterParams);
+
+    QByteArray compiledParams;
+    if (!params.isEmpty())
+        compiledParams = ProtobufCompiler::compileEncoded(params, g_searchMsgFields);
+
+    return compiledParams;
+}
+
+QString YouTubePlugin::getContinuationToken(std::any continuationData)
+{
+    QString continuationToken;
+    if (QString* ctoken = std::any_cast<QString>(&continuationData))
+        continuationToken = *ctoken;
+    return continuationToken;
+}
 
 QtTube::BrowseReply* YouTubePlugin::getHistory(const QString& query, std::any continuationData)
 {
     QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
 
-    QString continuationToken;
-    if (QString* ctoken = std::any_cast<QString>(&continuationData))
-        continuationToken = *ctoken;
-
-    InnertubeHistoryReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseHistory>(query, continuationToken);
+    InnertubeHistoryReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseHistory>(query, getContinuationToken(continuationData));
     QObject::connect(tubeReply, &InnertubeHistoryReply::exception, [pluginReply](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
@@ -46,13 +115,9 @@ QtTube::BrowseReply* YouTubePlugin::getHome(std::any continuationData)
 {
     QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
 
-    QString continuationToken;
-    if (QString* ctoken = std::any_cast<QString>(&continuationData))
-        continuationToken = *ctoken;
-
     if (InnerTube::instance()->hasAuthenticated())
     {
-        InnertubeHomeReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseHome>(continuationToken);
+        InnertubeHomeReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseHome>(getContinuationToken(continuationData));
         QObject::connect(tubeReply, &InnertubeHomeReply::exception, [pluginReply](const InnertubeException& ex) {
             emit pluginReply->exception(convertException(ex));
         });
@@ -95,12 +160,8 @@ QtTube::NotificationsReply* YouTubePlugin::getNotifications(std::any continuatio
 {
     QtTube::NotificationsReply* pluginReply = QtTube::NotificationsReply::create();
 
-    QString continuationToken;
-    if (QString* ctoken = std::any_cast<QString>(&continuationData))
-        continuationToken = *ctoken;
-
     InnertubeNotificationsReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::GetNotificationMenu>(
-        "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", continuationToken);
+        "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", getContinuationToken(continuationData));
     QObject::connect(tubeReply, &InnertubeNotificationsReply::exception, [pluginReply](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
@@ -112,15 +173,29 @@ QtTube::NotificationsReply* YouTubePlugin::getNotifications(std::any continuatio
     return pluginReply;
 }
 
+QtTube::BrowseReply* YouTubePlugin::getSearch(
+    const QString& query, const QList<std::pair<QString, int>>& activeFilters, std::any continuationData)
+{
+    QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
+
+    InnertubeSearchReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::Search>(
+        query, getContinuationToken(continuationData), compileSearchParams(activeFilters));
+    QObject::connect(tubeReply, &InnertubeSearchReply::exception, [pluginReply](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(tubeReply, &InnertubeSearchReply::finished, [pluginReply](const InnertubeEndpoints::Search& endpoint) {
+        pluginReply->continuationData = endpoint.continuationToken;
+        emit pluginReply->finished(getSearchData(endpoint.response));
+    });
+
+    return pluginReply;
+}
+
 QtTube::BrowseReply* YouTubePlugin::getSubFeed(std::any continuationData)
 {
     QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
 
-    QString continuationToken;
-    if (QString* ctoken = std::any_cast<QString>(&continuationData))
-        continuationToken = *ctoken;
-
-    InnertubeSubsReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseSubscriptions>(continuationToken);
+    InnertubeSubsReply* tubeReply = InnerTube::instance()->get<InnertubeEndpoints::BrowseSubscriptions>(getContinuationToken(continuationData));
     QObject::connect(tubeReply, &InnertubeSubsReply::exception, [pluginReply](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });

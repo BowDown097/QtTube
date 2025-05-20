@@ -6,6 +6,9 @@
 #include <QMessageBox>
 #include <QScrollBar>
 
+struct PluginData;
+class QHBoxLayout;
+
 class BrowseHelper : public QObject
 {
     Q_OBJECT
@@ -20,8 +23,7 @@ public:
     void browseSubscriptions(ContinuableListWidget* widget);
     void browseTrending(ContinuableListWidget* widget);
     void continueChannel(ContinuableListWidget* widget, const QJsonValue& contents);
-    void search(ContinuableListWidget* widget, const QString& query,
-                int dateF = -1, int typeF = -1, int durF = -1, int featF = -1, int sort = -1);
+    void search(ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query);
 
     template<EndpointWithData E>
     void continuation(ContinuableListWidget* widget, const QString& data = "", int threshold = 10)
@@ -41,6 +43,10 @@ public:
         {
             browseNotificationMenu(widget);
         }
+        else if constexpr (std::same_as<E, InnertubeEndpoints::Search>)
+        {
+            search(widget, nullptr, data);
+        }
         else
         {
             widget->setPopulatingFlag(true);
@@ -48,9 +54,7 @@ public:
             try
             {
                 E newData = InnerTube::instance()->getBlocking<E>(data, widget->continuationToken);
-                if constexpr (std::same_as<E, InnertubeEndpoints::Search>)
-                    setupSearch(widget, newData.response);
-                else if constexpr (std::same_as<E, InnertubeEndpoints::BrowseChannel>)
+                if constexpr (std::same_as<E, InnertubeEndpoints::BrowseChannel>)
                     continueChannel(widget, newData.response.contents);
                 else
                     UIUtils::addRangeToList(widget, newData.response.videos);
@@ -71,43 +75,11 @@ private slots:
     void browseFailedInnertube(const QString& title, ContinuableListWidget* widget, const InnertubeException& ex);
     void browseFailedPlugin(const QString& title, ContinuableListWidget* widget, const QtTube::PluginException& ex);
 private:
+    QList<std::pair<QString, int>> getActiveFilters(QHBoxLayout* additionalWidgets);
     void setupBrowse(ContinuableListWidget* widget, QtTube::BrowseReply* reply, const QtTube::BrowseData& data);
     void setupNotifications(
         ContinuableListWidget* widget, QtTube::NotificationsReply* reply, const QtTube::NotificationsData& data);
-    void setupSearch(QListWidget* widget, const InnertubeEndpoints::SearchResponse& response);
-
-    const QMap<int, QString> featureMap = {
-        { 0, "isLive" },
-        { 1, "is4K" },
-        { 2, "isHD" },
-        { 3, "hasSubtitles" },
-        { 4, "isCreativeCommons" },
-        { 5, "is360Degree" },
-        { 6, "isVR180" },
-        { 7, "is3D" },
-        { 8, "isHDR" },
-        { 9, "hasLocation" },
-        { 10, "isPurchased" },
-    };
-    const QVariantMap searchMsgFields = {
-        { "sort", QVariantList{1, 0} },
-        {
-            "filter", QVariantList{2, 2, QVariantMap{
-                { "uploadDate", QVariantList{1, 0} },
-                { "type", QVariantList{2, 0} },
-                { "duration", QVariantList{3, 0} },
-                { "isHD", QVariantList{4, 0} },
-                { "hasSubtitles", QVariantList{5, 0} },
-                { "isCreativeCommons", QVariantList{6, 0} },
-                { "is3D", QVariantList{7, 0} },
-                { "isLive", QVariantList{8, 0} },
-                { "isPurchased", QVariantList{9, 0} },
-                { "is4K", QVariantList{14, 0} },
-                { "is360Degree", QVariantList{15, 0} },
-                { "hasLocation", QVariantList{23, 0} },
-                { "isHDR", QVariantList{25, 0} },
-                { "isVR180", QVariantList{26, 0} }
-            }}
-        }
-    };
+    void setupSearch(
+        ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query,
+        const PluginData* plugin, QtTube::BrowseReply* reply, const QtTube::BrowseData& data);
 };

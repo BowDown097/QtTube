@@ -14,13 +14,23 @@ namespace QtTube
     struct PluginInterface
     {
         virtual ~PluginInterface() = default;
+
         virtual BrowseReply* getHistory(
-            const QString& query = {}, std::any continuationData = {}) { return BrowseReply::create(); }
+            const QString& query = {},
+            std::any continuationData = {}) { return BrowseReply::create(); }
         virtual BrowseReply* getHome(std::any continuationData = {}) { return BrowseReply::create(); }
         virtual NotificationsReply* getNotifications(std::any continuationData = {}) { return NotificationsReply::create(); }
+        virtual BrowseReply* getSearch(
+            const QString& query = {},
+            const QList<std::pair<QString, int>>& activeFilters = {}, // mapped as category -> index
+            std::any continuationData = {}) { return BrowseReply::create(); }
         virtual BrowseReply* getSubFeed(std::any continuationData = {}) { return BrowseReply::create(); }
         virtual BrowseReply* getTrending(std::any continuationData = {}) { return BrowseReply::create(); }
+
         virtual void init() = 0;
+
+        // mapped as category -> filters
+        virtual const QList<std::pair<QString, QStringList>> searchFilters() const { return {}; }
     };
 
     struct PluginMetadata

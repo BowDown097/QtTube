@@ -1,27 +1,22 @@
 #pragma once
+#include "badge.h"
 #include <QTime>
 
 namespace QtTube
 {
     struct PluginMetadata;
 
-    struct PluginVideoBadge
-    {
-        QString label;
-        QString tooltip;
-    };
-
     struct PluginVideo
     {
-        QList<PluginVideoBadge> badges; // or tags
         QString lengthText;
         QString metadataText;
         int progressSecs{};
         PluginMetadata* sourceMetadata;
+        QList<PluginBadge> tags; // or badges
         QString thumbnailUrl;
         QString title;
         QString uploaderAvatarUrl;
-        QList<PluginVideoBadge> uploaderBadges;
+        QList<PluginBadge> uploaderBadges;
         QString uploaderId;
         QString uploaderText;
         QString uploaderUrlPrefix;

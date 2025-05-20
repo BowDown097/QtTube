@@ -1,12 +1,52 @@
 #include "conversion.h"
 #include "innertube/innertubereply.h"
+#include "utils/tubeutils.h"
 
-QtTube::PluginVideoBadge convertBadge(const InnertubeObjects::MetadataBadge& badge)
+QtTube::PluginBadge convertBadge(const InnertubeObjects::MetadataBadge& badge)
 {
-    return QtTube::PluginVideoBadge {
+    return QtTube::PluginBadge {
         .label = badge.style == "BADGE_STYLE_TYPE_VERIFIED_ARTIST" ? "♪" : "✔",
         .tooltip = badge.tooltip
     };
+}
+
+QtTube::PluginChannel convertChannel(const InnertubeObjects::Channel& channel)
+{
+    QtTube::PluginChannel result = {
+        .channelId = channel.channelId,
+        .channelName = channel.title.text,
+        .channelUrlPrefix = "https://www.youtube.com/channel/",
+        .description = channel.descriptionSnippet.text,
+        .sourceMetadata = &g_metadata
+    };
+
+    if (const InnertubeObjects::GenericThumbnail* recAvatar = channel.thumbnail.recommendedQuality(QSize(80, 80)))
+        result.channelAvatarUrl = "https:" + recAvatar->url;
+    for (const InnertubeObjects::MetadataBadge& badge : channel.ownerBadges)
+        result.channelBadges.append(convertBadge(badge));
+
+    // "google lied to you!" - kanye west
+    // subscriberCountText and videoCountText may be what they say, but they also may not.
+    // either one can actually be the channel handle (but never both), so we have to check for that.
+    const QString* subscriberCountText = &channel.subscriberCountText.text;
+    const QString* metadataText = &channel.videoCountText.text;
+    if (subscriberCountText->startsWith('@'))
+        std::swap(subscriberCountText, metadataText);
+
+    result.metadataText = *metadataText;
+    result.subscribeButton.countText = *subscriberCountText;
+
+    if (const auto* subscribeButton = std::get_if<InnertubeObjects::SubscribeButton>(&channel.subscribeButton))
+    {
+        result.subscribeButton.enabled = subscribeButton->enabled;
+        result.subscribeButton.subscribed = subscribeButton->subscribed;
+        result.subscribeButton.subscribeData = subscribeButton->onSubscribeEndpoints[0]["subscribeEndpoint"];
+        result.subscribeButton.unsubscribeData = subscribeButton->onUnsubscribeEndpoints
+            [0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"]
+            ["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
+    }
+
+    return result;
 }
 
 QtTube::PluginException convertException(const InnertubeException& ex)
