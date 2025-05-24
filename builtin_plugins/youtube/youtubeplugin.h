@@ -16,6 +16,10 @@ public:
     QtTube::BrowseReply* getSubFeed(std::any continuationData = {}) override;
     QtTube::BrowseReply* getTrending(std::any continuationData = {}) override;
 
+    QtTube::PluginReply<void>* setNotificationPreference(std::any data = {}) override;
+    QtTube::PluginReply<void>* subscribe(std::any data = {}) override;
+    QtTube::PluginReply<void>* unsubscribe(std::any data = {}) override;
+
     void init() override;
 
     const QList<std::pair<QString, QStringList>> searchFilters() const override

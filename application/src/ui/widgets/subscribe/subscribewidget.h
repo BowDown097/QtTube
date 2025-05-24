@@ -2,6 +2,7 @@
 #include "innertube/objects/channel/subscribebutton.h"
 #include "innertube/objects/viewmodels/buttonviewmodel.h"
 #include "innertube/objects/viewmodels/subscribebuttonviewmodel.h"
+#include "qttube-plugin/objects/channel.h"
 #include <QPointer>
 #include <QWidget>
 
@@ -14,6 +15,7 @@ class SubscribeWidget : public QWidget
 {
 public:
     explicit SubscribeWidget(QWidget* parent = nullptr);
+    void setData(const QtTube::PluginChannel& channel);
     void setSubscribeButton(const InnertubeObjects::Button& button);
     void setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
@@ -23,6 +25,7 @@ public:
     QHBoxLayout* layout;
     QPointer<TubeLabel> subscribersCountLabel;
 private:
+    bool originIsInnertube{};
     NotificationBell* notificationBell;
     SubscribeLabel* subscribeLabel;
 };

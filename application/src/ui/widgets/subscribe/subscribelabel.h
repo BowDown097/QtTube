@@ -2,6 +2,7 @@
 #include "innertube/objects/channel/subscribebutton.h"
 #include "innertube/objects/viewmodels/buttonviewmodel.h"
 #include "innertube/objects/viewmodels/subscribebuttonviewmodel.h"
+#include "qttube-plugin/objects/channel.h"
 #include "ui/widgets/clickablewidget.h"
 #include <QLabel>
 
@@ -10,6 +11,7 @@ class SubscribeLabel : public ClickableWidget<QLabel>
     Q_OBJECT
 public:
     explicit SubscribeLabel(QWidget* parent = nullptr);
+    void setData(const QtTube::PluginChannel& channel);
     void setSubscribeButton(const InnertubeObjects::Button& button);
     void setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
@@ -23,12 +25,13 @@ protected:
     void leaveEvent(QEvent* event) override;
 private:
     bool subscribed{};
-    QJsonValue subscribeEndpoint;
     QString subscribeText;
     QString subscribedText;
     QString unsubscribeDialogText;
-    QJsonValue unsubscribeEndpoint;
     QString unsubscribeText;
+
+    std::any subscribeData;
+    std::any unsubscribeData;
 
     void toggleSubscriptionStatus(const QString& styleSheet, const QString& newText);
 private slots:

@@ -27,6 +27,10 @@ namespace QtTube
         virtual BrowseReply* getSubFeed(std::any continuationData = {}) { return BrowseReply::create(); }
         virtual BrowseReply* getTrending(std::any continuationData = {}) { return BrowseReply::create(); }
 
+        virtual PluginReply<void>* setNotificationPreference(std::any data = {}) { return PluginReply<void>::create(); }
+        virtual PluginReply<void>* subscribe(std::any data = {}) { return PluginReply<void>::create(); }
+        virtual PluginReply<void>* unsubscribe(std::any data = {}) { return PluginReply<void>::create(); }
+
         virtual void init() = 0;
 
         // mapped as category -> filters

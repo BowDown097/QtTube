@@ -36,25 +36,52 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
 
     connect(subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
     {
-        notificationBell->setVisualNotificationState(NotificationBell::PreferenceListState::Personalized);
+        if (originIsInnertube)
+            notificationBell->setVisualState(NotificationBell::PreferenceListState::Personalized);
+        else if (qsizetype defaultState = notificationBell->defaultEnabledStateIndex(); defaultState >= 0)
+            notificationBell->setVisualState(defaultState);
         notificationBell->setVisible(subscribed);
     });
 }
 
+void SubscribeWidget::setData(const QtTube::PluginChannel& channel)
+{
+    originIsInnertube = false;
+    subscribeLabel->setData(channel);
+    subscribeLabel->show();
+
+    if (channel.subscribeButton.countText.isEmpty())
+    {
+        layout->removeWidget(subscribersCountLabel);
+        subscribersCountLabel->deleteLater();
+    }
+    else
+    {
+        subscribersCountLabel->setText(channel.subscribeButton.countText);
+        subscribersCountLabel->adjustSize();
+    }
+
+    notificationBell->setData(channel.subscribeButton.notificationBell);
+    notificationBell->setVisible(channel.subscribeButton.subscribed);
+}
+
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::Button& button)
 {
+    originIsInnertube = true;
     subscribeLabel->setSubscribeButton(button);
     subscribeLabel->show();
 }
 
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel)
 {
+    originIsInnertube = true;
     subscribeLabel->setSubscribeButton(buttonViewModel);
     subscribeLabel->show();
 }
 
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
 {
+    originIsInnertube = true;
     if (!subscribeButton.enabled)
         return;
 
@@ -71,6 +98,7 @@ void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButtonViewModel& subscribeViewModel,
                                          bool subscribed)
 {
+    originIsInnertube = true;
     if (subscribeViewModel.disableSubscribeButton)
         return;
 

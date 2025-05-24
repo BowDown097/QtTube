@@ -1,6 +1,5 @@
 #include "conversion.h"
 #include "innertube/innertubereply.h"
-#include "utils/tubeutils.h"
 
 QtTube::PluginBadge convertBadge(const InnertubeObjects::MetadataBadge& badge)
 {
@@ -34,16 +33,62 @@ QtTube::PluginChannel convertChannel(const InnertubeObjects::Channel& channel)
         std::swap(subscriberCountText, metadataText);
 
     result.metadataText = *metadataText;
-    result.subscribeButton.countText = *subscriberCountText;
+    result.subscribeButton.countText = subscriberCountText->left(subscriberCountText->lastIndexOf(' '));
+
+    result.subscribeButton.subscribeText = "Subscribe";
+    result.subscribeButton.subscribedText = "Subscribed";
 
     if (const auto* subscribeButton = std::get_if<InnertubeObjects::SubscribeButton>(&channel.subscribeButton))
     {
         result.subscribeButton.enabled = subscribeButton->enabled;
         result.subscribeButton.subscribed = subscribeButton->subscribed;
         result.subscribeButton.subscribeData = subscribeButton->onSubscribeEndpoints[0]["subscribeEndpoint"];
-        result.subscribeButton.unsubscribeData = subscribeButton->onUnsubscribeEndpoints
-            [0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"]
-            ["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
+
+        result.subscribeButton.subscribeText = subscribeButton->unsubscribedButtonText.text;
+        result.subscribeButton.subscribedText = subscribeButton->subscribedButtonText.text;
+        result.subscribeButton.unsubscribeText = subscribeButton->unsubscribeButtonText.text;
+
+        const QJsonValue unsubscribeDialog = subscribeButton->onUnsubscribeEndpoints
+            [0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"];
+        result.subscribeButton.unsubscribeData =
+            unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
+        result.subscribeButton.unsubscribeDialogText =
+            InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
+
+        QtTube::PluginNotificationBell& notifBell = result.subscribeButton.notificationBell;
+        const InnertubeObjects::NotificationPreferenceButton& notifButton = subscribeButton->notificationPreferenceButton;
+
+        for (qsizetype i = 0; i < notifButton.popup.items.size(); ++i)
+        {
+            const InnertubeObjects::MenuServiceItem& item = notifButton.popup.items[i];
+            if (item.isSelected && notifBell.defaultEnabledStateIndex == -1)
+                notifBell.activeStateIndex = i;
+
+            QtTube::PluginNotificationState state = {
+                .data = item.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString(),
+                .name = item.text.text
+            };
+
+            if (item.iconType == "NOTIFICATIONS_ACTIVE")
+            {
+                state.representation = QtTube::PluginNotificationState::Representation::All;
+            }
+            else if (item.iconType == "NOTIFICATIONS_NONE")
+            {
+                notifBell.defaultEnabledStateIndex = i;
+                state.representation = QtTube::PluginNotificationState::Representation::Neutral;
+            }
+            else if (item.iconType == "NOTIFICATIONS_OFF")
+            {
+                state.representation = QtTube::PluginNotificationState::Representation::None;
+            }
+            else
+            {
+                continue;
+            }
+
+            notifBell.states.append(state);
+        }
     }
 
     return result;
