@@ -35,24 +35,21 @@ QtTube::PluginChannel convertChannel(const InnertubeObjects::Channel& channel)
     result.metadataText = *metadataText;
     result.subscribeButton.countText = subscriberCountText->left(subscriberCountText->lastIndexOf(' '));
 
-    result.subscribeButton.subscribeText = "Subscribe";
-    result.subscribeButton.subscribedText = "Subscribed";
-
     if (const auto* subscribeButton = std::get_if<InnertubeObjects::SubscribeButton>(&channel.subscribeButton))
     {
         result.subscribeButton.enabled = subscribeButton->enabled;
         result.subscribeButton.subscribed = subscribeButton->subscribed;
         result.subscribeButton.subscribeData = subscribeButton->onSubscribeEndpoints[0]["subscribeEndpoint"];
 
-        result.subscribeButton.subscribeText = subscribeButton->unsubscribedButtonText.text;
-        result.subscribeButton.subscribedText = subscribeButton->subscribedButtonText.text;
-        result.subscribeButton.unsubscribeText = subscribeButton->unsubscribeButtonText.text;
+        result.subscribeButton.localization.subscribeText = subscribeButton->unsubscribedButtonText.text;
+        result.subscribeButton.localization.subscribedText = subscribeButton->subscribedButtonText.text;
+        result.subscribeButton.localization.unsubscribeText = subscribeButton->unsubscribeButtonText.text;
 
         const QJsonValue unsubscribeDialog = subscribeButton->onUnsubscribeEndpoints
             [0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"];
         result.subscribeButton.unsubscribeData =
             unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
-        result.subscribeButton.unsubscribeDialogText =
+        result.subscribeButton.localization.unsubscribeDialogText =
             InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
 
         QtTube::PluginNotificationBell& notifBell = result.subscribeButton.notificationBell;

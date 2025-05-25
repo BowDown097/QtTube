@@ -24,16 +24,14 @@ protected:
 #endif
     void leaveEvent(QEvent* event) override;
 private:
-    bool subscribed{};
-    QString subscribeText;
-    QString subscribedText;
-    QString unsubscribeDialogText;
-    QString unsubscribeText;
-
+    QtTube::PluginSubscribeButton::ColorPalette colorPalette;
+    QtTube::PluginSubscribeButton::Localization localization;
     std::any subscribeData;
+    bool subscribed{};
     std::any unsubscribeData;
 
-    void toggleSubscriptionStatus(const QString& styleSheet, const QString& newText);
+    void setStyle(bool subscribed, bool hovered);
+    void toggleSubscriptionStatus(bool subscribed, const QString& newText);
 private slots:
     void trySubscribe();
 signals:

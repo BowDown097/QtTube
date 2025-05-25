@@ -25,19 +25,41 @@ namespace QtTube
 
     struct PluginSubscribeButton
     {
-        // plain data
+        struct ColorPalette
+        {
+            QString subscribeBackground = "red";
+            QString subscribeBorder = "transparent";
+            QString subscribeForeground = "#fefefe";
+
+            QString subscribeHoveredBackground = "#d90a17";
+            QString subscribeHoveredBorder = "transparent";
+            QString subscribeHoveredForeground = "#fefefe";
+
+            QString subscribedBackground;
+            QString subscribedBorder = "#555";
+            QString subscribedForeground;
+
+            QString unsubscribeBackground;
+            QString unsubscribeBorder = "#555";
+            QString unsubscribeForeground;
+        };
+
+        struct Localization
+        {
+            QString subscribeText;
+            QString subscribedText;
+            QString unsubscribeDialogText;
+            QString unsubscribeText;
+        };
+
+        ColorPalette colorPalette;
         QString countText;
         bool enabled{};
+        Localization localization;
         PluginNotificationBell notificationBell;
         bool subscribed{};
         std::any subscribeData;
         std::any unsubscribeData;
-
-        // localization data
-        QString subscribeText;
-        QString subscribedText;
-        QString unsubscribeDialogText;
-        QString unsubscribeText;
     };
 
     struct PluginChannel
