@@ -6,19 +6,19 @@
 class YouTubePlugin : public QtTube::PluginInterface
 {
 public:
-    QtTube::BrowseReply* getHistory(const QString& query = {}, std::any continuationData = {}) override;
-    QtTube::BrowseReply* getHome(std::any continuationData = {}) override;
-    QtTube::NotificationsReply* getNotifications(std::any continuationData = {}) override;
+    QtTube::BrowseReply* getHistory(const QString& query, std::any continuationData) override;
+    QtTube::BrowseReply* getHome(std::any continuationData) override;
+    QtTube::NotificationsReply* getNotifications(std::any continuationData) override;
     QtTube::BrowseReply* getSearch(
-        const QString& query = {},
-        const QList<std::pair<QString, int>>& activeFilters = {},
-        std::any continuationData = {}) override;
-    QtTube::BrowseReply* getSubFeed(std::any continuationData = {}) override;
-    QtTube::BrowseReply* getTrending(std::any continuationData = {}) override;
+        const QString& query,
+        const QList<std::pair<QString, int>>& activeFilters,
+        std::any continuationData) override;
+    QtTube::BrowseReply* getSubFeed(std::any continuationData) override;
+    QtTube::BrowseReply* getTrending(std::any continuationData) override;
 
-    QtTube::PluginReply<void>* setNotificationPreference(std::any data = {}) override;
-    QtTube::PluginReply<void>* subscribe(std::any data = {}) override;
-    QtTube::PluginReply<void>* unsubscribe(std::any data = {}) override;
+    QtTube::PluginReply<void>* setNotificationPreference(std::any data) override;
+    QtTube::PluginReply<void>* subscribe(std::any data) override;
+    QtTube::PluginReply<void>* unsubscribe(std::any data) override;
 
     void init() override;
 
@@ -34,7 +34,6 @@ public:
     }
 private:
     QByteArray compileSearchParams(const QList<std::pair<QString, int>>& activeFilters);
-    QString getContinuationToken(std::any continuationData);
 };
 
 extern YouTubeAuth* g_auth;

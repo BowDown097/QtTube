@@ -15,21 +15,19 @@ namespace QtTube
     {
         virtual ~PluginInterface() = default;
 
-        virtual BrowseReply* getHistory(
-            const QString& query = {},
-            std::any continuationData = {}) { return BrowseReply::create(); }
-        virtual BrowseReply* getHome(std::any continuationData = {}) { return BrowseReply::create(); }
-        virtual NotificationsReply* getNotifications(std::any continuationData = {}) { return NotificationsReply::create(); }
+        virtual BrowseReply* getHistory(const QString& query, std::any continuationData) { return BrowseReply::create(); }
+        virtual BrowseReply* getHome(std::any continuationData) { return BrowseReply::create(); }
+        virtual NotificationsReply* getNotifications(std::any continuationData) { return NotificationsReply::create(); }
         virtual BrowseReply* getSearch(
-            const QString& query = {},
-            const QList<std::pair<QString, int>>& activeFilters = {}, // mapped as category -> index
-            std::any continuationData = {}) { return BrowseReply::create(); }
-        virtual BrowseReply* getSubFeed(std::any continuationData = {}) { return BrowseReply::create(); }
-        virtual BrowseReply* getTrending(std::any continuationData = {}) { return BrowseReply::create(); }
+            const QString& query,
+            const QList<std::pair<QString, int>>& activeFilters, // mapped as category -> index
+            std::any continuationData) { return BrowseReply::create(); }
+        virtual BrowseReply* getSubFeed(std::any continuationData) { return BrowseReply::create(); }
+        virtual BrowseReply* getTrending(std::any continuationData) { return BrowseReply::create(); }
 
-        virtual PluginReply<void>* setNotificationPreference(std::any data = {}) { return PluginReply<void>::create(); }
-        virtual PluginReply<void>* subscribe(std::any data = {}) { return PluginReply<void>::create(); }
-        virtual PluginReply<void>* unsubscribe(std::any data = {}) { return PluginReply<void>::create(); }
+        virtual PluginReply<void>* setNotificationPreference(std::any data) { return PluginReply<void>::create(); }
+        virtual PluginReply<void>* subscribe(std::any data) { return PluginReply<void>::create(); }
+        virtual PluginReply<void>* unsubscribe(std::any data) { return PluginReply<void>::create(); }
 
         virtual void init() = 0;
 
