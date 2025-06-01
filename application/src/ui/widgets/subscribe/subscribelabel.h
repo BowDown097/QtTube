@@ -31,7 +31,7 @@ private:
     std::any unsubscribeData;
 
     void setStyle(bool subscribed, bool hovered);
-    void toggleSubscriptionStatus(bool subscribed, const QString& newText);
+    void toggleSubscriptionStatus();
 private slots:
     void trySubscribe();
 signals:

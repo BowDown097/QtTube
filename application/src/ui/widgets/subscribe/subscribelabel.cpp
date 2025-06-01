@@ -161,11 +161,11 @@ void SubscribeLabel::setSubscribeButton(
     setText(subscribed ? localization.subscribedText : localization.subscribeText);
 }
 
-void SubscribeLabel::toggleSubscriptionStatus(bool subscribed, const QString& newText)
+void SubscribeLabel::toggleSubscriptionStatus()
 {
-    setStyle(subscribed, false);
-    setText(newText);
     subscribed = !subscribed;
+    setStyle(subscribed, false);
+    setText(subscribed ? localization.subscribedText : localization.subscribeText);
     emit subscribeStatusChanged(subscribed);
 }
 
@@ -185,7 +185,7 @@ void SubscribeLabel::trySubscribe()
 
     if (subscribed && QMessageBox::question(nullptr, localization.unsubscribeText, localization.unsubscribeDialogText) == QMessageBox::StandardButton::Yes)
     {
-        toggleSubscriptionStatus(false, localization.subscribeText);
+        toggleSubscriptionStatus();
         if (const QJsonValue* unsubscribeEndpoint = std::any_cast<QJsonValue>(&unsubscribeData))
             InnerTube::instance()->subscribe(*unsubscribeEndpoint, false);
         else if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
@@ -193,7 +193,7 @@ void SubscribeLabel::trySubscribe()
     }
     else if (!subscribed)
     {
-        toggleSubscriptionStatus(true, localization.subscribedText);
+        toggleSubscriptionStatus();
         if (const QJsonValue* subscribeEndpoint = std::any_cast<QJsonValue>(&subscribeData))
             InnerTube::instance()->subscribe(*subscribeEndpoint, true);
         else if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
