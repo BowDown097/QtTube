@@ -2,7 +2,7 @@
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/download/downloadmanager.h"
 #include "watchview_ui.h"
-#include "http.h"
+#include "httprequest.h"
 #include "innertube.h"
 #include "mainwindow.h"
 #include "preloaddata.h"
@@ -245,7 +245,7 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
 
     if (qtTubeApp->settings().returnDislikes)
     {
-        HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + nextResp.videoId);
+        HttpReply* reply = HttpRequest().get("https://returnyoutubedislikeapi.com/votes?videoId=" + nextResp.videoId);
         connect(reply, &HttpReply::finished, this, &WatchView::setDislikes);
     }
     else
@@ -325,7 +325,7 @@ void WatchView::setDislikes(const HttpReply& reply)
         return;
     }
 
-    QJsonDocument doc = QJsonDocument::fromJson(reply.body());
+    QJsonDocument doc = QJsonDocument::fromJson(reply.readAll());
     qint64 dislikes = doc["dislikes"].toVariant().toLongLong();
     qint64 likes = QLocale::system().toLongLong(ui->likeLabel->property("fullCount").toString());
 
@@ -391,14 +391,14 @@ void WatchView::updateMetadata(const QString& videoId)
 
         ui->description->setText(InnertubeStringFormatter::formatSimple(endpoint.response.description, false));
         ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
-                                   ? endpoint.response.likeCountEntity.likeCountIfIndifferent
-                                   : endpoint.response.likeCountEntity.expandedLikeCountIfIndifferent);
+            ? endpoint.response.likeCountEntity.likeCountIfIndifferent
+            : endpoint.response.likeCountEntity.expandedLikeCountIfIndifferent);
         ui->titleLabel->setText(endpoint.response.title.text);
         ui->viewCount->setText(endpoint.response.viewCount.viewCount.text);
 
         if (qtTubeApp->settings().returnDislikes)
         {
-            HttpReply* reply = Http::instance().get("https://returnyoutubedislikeapi.com/votes?videoId=" + videoId);
+            HttpReply* reply = HttpRequest().get("https://returnyoutubedislikeapi.com/votes?videoId=" + videoId);
             connect(reply, &HttpReply::finished, this, &WatchView::setDislikes);
         }
     }

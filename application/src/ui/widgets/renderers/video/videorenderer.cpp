@@ -1,5 +1,5 @@
 #include "videorenderer.h"
-#include "http.h"
+#include "httprequest.h"
 #include "innertube.h"
 #include "innertube/objects/video/reel.h"
 #include "qttubeapplication.h"
@@ -359,7 +359,7 @@ void VideoRenderer::setDeArrowData(const QString& thumbFallbackUrl, const HttpRe
         return;
     }
 
-    QJsonValue obj = QJsonDocument::fromJson(reply.body()).object();
+    QJsonValue obj = QJsonDocument::fromJson(reply.readAll()).object();
     const QJsonArray titles = obj["titles"].toArray();
     const QJsonArray thumbs = obj["thumbnails"].toArray();
 
@@ -387,8 +387,8 @@ void VideoRenderer::setThumbnail(const QString& url)
 {
     if (qtTubeApp->settings().deArrow)
     {
-        HttpReply* arrowReply = Http::instance().get("https://sponsor.ajay.app/api/branding?videoID=" + videoId);
-        connect(arrowReply, &HttpReply::finished, this, std::bind_front(&VideoRenderer::setDeArrowData, this, url));
+        HttpReply* reply = HttpRequest().get("https://sponsor.ajay.app/api/branding?videoID=" + videoId);
+        connect(reply, &HttpReply::finished, this, std::bind_front(&VideoRenderer::setDeArrowData, this, url));
     }
     else
     {

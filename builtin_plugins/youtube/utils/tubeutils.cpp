@@ -1,5 +1,5 @@
 #include "tubeutils.h"
-#include "http.h"
+#include "httprequest.h"
 #include "innertube.h"
 #include "protobuf/protobufutil.h"
 #include <QRandomGenerator>
@@ -7,6 +7,28 @@
 
 namespace TubeUtils
 {
+    QMap<QByteArray, QByteArray> getNeededHeaders()
+    {
+        InnertubeAuthStore* authStore = InnerTube::instance()->authStore();
+        InnertubeContext* context = InnerTube::instance()->context();
+        QMap<QByteArray, QByteArray> headers;
+
+        if (authStore->populated())
+        {
+            headers.insert("Authorization", authStore->generateSAPISIDHash().toUtf8());
+            headers.insert("Cookie", authStore->toCookieString().toUtf8());
+            headers.insert("X-Goog-AuthUser", "0");
+        }
+
+        headers.insert("Content-Type", "application/json");
+        headers.insert("X-Goog-Visitor-Id", context->client.visitorData.toLatin1());
+        headers.insert("X-YOUTUBE-CLIENT-NAME", QByteArray::number(static_cast<int>(context->client.clientType)));
+        headers.insert("X-YOUTUBE-CLIENT-VERSION", context->client.clientVersion.toLatin1());
+        headers.insert("X-ORIGIN", "https://www.youtube.com");
+
+        return headers;
+    }
+
     void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp)
     {
         InnertubeClient itc = InnerTube::instance()->context()->client;
@@ -56,25 +78,6 @@ namespace TubeUtils
         outPlaybackQuery.setQueryItems(map);
         outPlaybackUrl.setQuery(outPlaybackQuery);
 
-        Http http;
-        http.setMaxRetries(0);
-        setNeededHeaders(http, InnerTube::instance()->context(), InnerTube::instance()->authStore());
-        http.get(outPlaybackUrl);
-    }
-
-    void setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore)
-    {
-        if (authStore->populated())
-        {
-            http.addRequestHeader("Authorization", authStore->generateSAPISIDHash().toUtf8());
-            http.addRequestHeader("Cookie", authStore->toCookieString().toUtf8());
-            http.addRequestHeader("X-Goog-AuthUser", "0");
-        }
-
-        http.addRequestHeader("Content-Type", "application/json");
-        http.addRequestHeader("X-Goog-Visitor-Id", context->client.visitorData.toLatin1());
-        http.addRequestHeader("X-YOUTUBE-CLIENT-NAME", QByteArray::number(static_cast<int>(context->client.clientType)));
-        http.addRequestHeader("X-YOUTUBE-CLIENT-VERSION", context->client.clientVersion.toLatin1());
-        http.addRequestHeader("X-ORIGIN", "https://www.youtube.com");
+        HttpRequest().withHeaders(getNeededHeaders()).get(outPlaybackUrl);
     }
 }

@@ -19,7 +19,7 @@
 
 TopBar::TopBar(QWidget* parent)
     : QWidget(parent),
-      animation(new QPropertyAnimation(this, "geometry")),
+      animation(new QPropertyAnimation(this, "geometry", this)),
       avatarButton(new TubeLabel(this)),
       logo(new TubeLabel(this)),
       notificationBell(new TopBarBell(this)),

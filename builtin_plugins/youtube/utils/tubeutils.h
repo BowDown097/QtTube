@@ -1,13 +1,10 @@
 #pragma once
+#include <QMap>
 
 namespace InnertubeEndpoints { struct PlayerResponse; }
 
-class Http;
-class InnertubeAuthStore;
-struct InnertubeContext;
-
 namespace TubeUtils
 {
+    QMap<QByteArray, QByteArray> getNeededHeaders();
     void reportPlayback(const InnertubeEndpoints::PlayerResponse& playerResp);
-    void setNeededHeaders(Http& http, InnertubeContext* context, InnertubeAuthStore* authStore);
 }

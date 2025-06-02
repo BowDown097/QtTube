@@ -1,5 +1,6 @@
 #include "innertubestringformatter.h"
-#include "utils/httputils.h"
+#include "httprequest.h"
+#include "qttubeapplication.h"
 #include <QLabel>
 #include <QUrlQuery>
 
@@ -31,9 +32,9 @@ void InnertubeStringFormatter::insertEmoji(const QJsonValue& emoji)
 
     if (!m_data.contains(placeholder))
     {
-        HttpReply* emojiReply = HttpUtils::cachedInstance().get(url);
-        connect(emojiReply, &HttpReply::finished, this,
-                std::bind_front(&InnertubeStringFormatter::replaceEmojiPlaceholder, this, placeholder));
+        HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching).get(url);
+        connect(reply, &HttpReply::finished, this,
+            std::bind_front(&InnertubeStringFormatter::replaceEmojiPlaceholder, this, placeholder));
     }
 
     m_data += placeholder;
@@ -120,7 +121,7 @@ void InnertubeStringFormatter::insertNavigationEndpoint(
 void InnertubeStringFormatter::replaceEmojiPlaceholder(const QString& placeholder, const HttpReply& reply)
 {
     m_pendingEmojis -= m_data.count(placeholder);
-    m_data.replace(placeholder, EmojiPlaceholder.arg(reply.header("content-type"), reply.body().toBase64()));
+    m_data.replace(placeholder, EmojiPlaceholder.arg(reply.header("content-type"), reply.readAll().toBase64()));
     emit readyRead(m_data);
 
     if (m_pendingEmojis == 0)

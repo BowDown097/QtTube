@@ -1,6 +1,6 @@
 #include "tubelabel.h"
+#include "httprequest.h"
 #include "innertube/objects/innertubestring.h"
-#include "utils/httputils.h"
 #include "utils/uiutils.h"
 #include <QStyle>
 #include <QStyleOption>
@@ -260,14 +260,14 @@ void TubeLabel::setImage(const QUrl& url, ImageFlags flags)
     m_lineRects.clear();
     m_rawText.clear();
 
-    HttpReply* reply = flags & ImageFlag::Cached ? HttpUtils::cachedInstance().get(url) : Http::instance().get(url);
+    HttpReply* reply = HttpRequest().withDiskCache(flags & ImageFlag::Cached).get(url);
     connect(reply, &HttpReply::finished, this, &TubeLabel::setImageData);
 }
 
 void TubeLabel::setImageData(const HttpReply& reply)
 {
     QPixmap pixmap;
-    pixmap.loadFromData(reply.body());
+    pixmap.loadFromData(reply.readAll());
     setPixmap(pixmap);
     emit imageSet();
 }
