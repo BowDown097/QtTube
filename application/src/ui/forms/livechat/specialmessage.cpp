@@ -15,7 +15,7 @@ SpecialMessage::SpecialMessage(const QJsonValue& renderer, QWidget* parent, cons
     : QWidget(parent),
       header(new TubeLabel(this)),
       layout(new QVBoxLayout(this)),
-      subtext(new TubeLabel(InnertubeObjects::InnertubeString(renderer[subtextKey]), this))
+      subtext(new TubeLabel(InnertubeObjects::InnertubeString(renderer[subtextKey]).text, this))
 {
     setAutoFillBackground(true);
     setStyleSheet(Stylesheet.arg(background));

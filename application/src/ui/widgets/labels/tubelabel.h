@@ -57,7 +57,7 @@ private:
     void calculateAndSetLineRects();
     std::unique_ptr<QTextDocument> createTextDocument(const QString& text, int textWidth) const;
     int textLineWidth() const;
-    void updateMarginsForImageAR();
+    void updateMarginsForImageAspectRatio();
 private slots:
     void setImageData(const HttpReply& reply);
 signals:

@@ -137,7 +137,7 @@ namespace ChannelBrowser
             if (const InnertubeObjects::GenericThumbnail* recBadge = badge.recommendedQuality(badgeLabel->size()))
                 badgeLabel->setImage(recBadge->url);
 
-            TubeLabel* membershipTitle = new TubeLabel(InnertubeObjects::InnertubeString(perks["title"]));
+            TubeLabel* membershipTitle = new TubeLabel(InnertubeObjects::InnertubeString(perks["title"]).text);
 
             perksHeader->addWidget(badgeLabel);
             perksHeader->addWidget(membershipTitle);
@@ -184,7 +184,7 @@ namespace ChannelBrowser
                     if (!perkRenderer.isObject())
                         continue;
 
-                    TubeLabel* titleLabel = new TubeLabel(InnertubeObjects::InnertubeString(perkRenderer["title"]));
+                    TubeLabel* titleLabel = new TubeLabel(InnertubeObjects::InnertubeString(perkRenderer["title"]).text);
                     titleLabel->setFont(QFont(titleLabel->font().toString(), -1, QFont::Bold));
                     perkInfo->addWidget(titleLabel);
 
@@ -202,7 +202,7 @@ namespace ChannelBrowser
                             QHBoxLayout* loyaltyBadgeLayout = new QHBoxLayout(loyaltyBadgeWrapper);
                             loyaltyBadgeLayout->setContentsMargins(0, 0, 0, 0);
 
-                            TubeLabel* loyaltyBadgeLabel = new TubeLabel(InnertubeObjects::InnertubeString(loyaltyBadge["title"]));
+                            TubeLabel* loyaltyBadgeLabel = new TubeLabel(InnertubeObjects::InnertubeString(loyaltyBadge["title"]).text);
                             loyaltyBadgeLayout->addWidget(loyaltyBadgeLabel);
 
                             TubeLabel* loyaltyBadgeIcon = new TubeLabel;

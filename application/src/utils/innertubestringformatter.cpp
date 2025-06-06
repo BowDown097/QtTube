@@ -121,7 +121,9 @@ void InnertubeStringFormatter::insertNavigationEndpoint(
 void InnertubeStringFormatter::replaceEmojiPlaceholder(const QString& placeholder, const HttpReply& reply)
 {
     m_pendingEmojis -= m_data.count(placeholder);
-    m_data.replace(placeholder, EmojiPlaceholder.arg(reply.header("content-type"), reply.readAll().toBase64()));
+    m_data.replace(placeholder, EmojiPlaceholder.arg(
+        reply.header(QNetworkRequest::ContentTypeHeader),
+        reply.readAll().toBase64()));
     emit readyRead(m_data);
 
     if (m_pendingEmojis == 0)

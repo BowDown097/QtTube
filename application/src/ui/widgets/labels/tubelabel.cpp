@@ -245,7 +245,7 @@ void TubeLabel::resizeEvent(QResizeEvent* event)
     if (!m_isImage)
         setText(m_rawText);
     else if (hasScaledContents() && m_imageFlags & ImageFlag::Cached)
-        updateMarginsForImageAR();
+        updateMarginsForImageAspectRatio();
 
     QLabel::resizeEvent(event);
 }
@@ -289,7 +289,7 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
     {
         m_imagePixmapHeight = pixmap.height();
         m_imagePixmapWidth = pixmap.width();
-        updateMarginsForImageAR();
+        updateMarginsForImageAspectRatio();
     }
 
     QLabel::setPixmap(m_imageFlags & ImageFlag::Rounded ? UIUtils::pixmapRounded(pixmap) : pixmap);
@@ -311,48 +311,44 @@ void TubeLabel::setText(const QString& text)
     }
 
     QFontMetrics fm(font());
-    if (!wordWrap())
-    {
-        QLabel::setText(fm.elidedText(text, m_elideMode, textLineWidth()));
-        calculateAndSetLineRects();
-        return;
-    }
-
-    QTextLayout textLayout(text, font());
-    textLayout.beginLayout();
-
     QString outText;
-    int lineNum = 1, y{};
 
-    for (QTextLine line = textLayout.createLine(); line.isValid(); line = textLayout.createLine(), ++lineNum)
+    if (wordWrap())
     {
-        line.setLineWidth(textLineWidth());
-        y += line.height();
+        QTextLayout textLayout(text, font());
+        textLayout.beginLayout();
 
-        if (maximumHeight() >= y + line.height() && (m_maximumLines < 1 || lineNum < m_maximumLines))
+        int lineNum = 1, y = 0;
+        for (QTextLine line = textLayout.createLine(); line.isValid(); line = textLayout.createLine(), ++lineNum)
         {
-        #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-            outText += QStringView(text).sliced(line.textStart(), line.textLength());
-        #else
-            outText += text.midRef(line.textStart(), line.textLength());
-        #endif
+            line.setLineWidth(textLineWidth());
+            y += line.height();
+
+            if (maximumHeight() >= y + line.height() && (m_maximumLines <= 0 || lineNum < m_maximumLines))
+            {
+                outText.append(text.data() + line.textStart(), line.textLength());
+            }
+            else
+            {
+                outText += fm.elidedText(text.mid(line.textStart()), m_elideMode, line.width());
+                break;
+            }
         }
-        else
+
+        textLayout.endLayout();
+
+        if (m_maximumLines > 0)
         {
-            outText += fm.elidedText(text.mid(line.textStart()), m_elideMode, line.width());
-            break;
+            m_calculatedMaximumHeight = y;
+            setMaximumHeight(m_calculatedMaximumHeight);
         }
     }
+    else
+    {
+        outText = fm.elidedText(text, m_elideMode, textLineWidth());
+    }
 
-    textLayout.endLayout();
     QLabel::setText(outText);
-
-    if (m_maximumLines > 0)
-    {
-        m_calculatedMaximumHeight = y;
-        setMaximumHeight(m_calculatedMaximumHeight);
-    }
-
     calculateAndSetLineRects();
 }
 
@@ -361,7 +357,7 @@ int TubeLabel::textLineWidth() const
     return maximumWidth() != QWIDGETSIZE_MAX ? std::max(width(), maximumWidth()) : width();
 }
 
-void TubeLabel::updateMarginsForImageAR()
+void TubeLabel::updateMarginsForImageAspectRatio()
 {
     if (m_imagePixmapHeight <= 0 || m_imagePixmapWidth <= 0 || width() <= 0 || height() <= 0)
         return;
