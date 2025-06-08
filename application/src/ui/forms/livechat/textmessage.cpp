@@ -1,7 +1,7 @@
 #include "textmessage.h"
 #include "innertube/objects/images/responsiveimage.h"
+#include "innertube/objects/innertubestring.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "utils/innertubestringformatter.h"
 #include <QBoxLayout>
 #include <QJsonArray>
 
@@ -66,14 +66,12 @@ TextMessage::TextMessage(const QJsonValue& renderer, QWidget* parent)
     headerLayout->setSpacing(5);
     contentLayout->addLayout(headerLayout);
 
-    messageLabel->setFixedWidth(parent->width() - 70);
-    messageLabel->setTextFormat(Qt::RichText);
-    messageLabel->setWordWrap(true);
-    contentLayout->addWidget(messageLabel);
-
-    InnertubeObjects::InnertubeString message(renderer["message"]);
-    InnertubeStringFormatter* fmt = new InnertubeStringFormatter;
-    connect(fmt, &InnertubeStringFormatter::finished, fmt, &InnertubeStringFormatter::deleteLater);
-    connect(fmt, &InnertubeStringFormatter::readyRead, messageLabel, &TubeLabel::setText);
-    fmt->setData(message, false);
+    if (InnertubeObjects::InnertubeString message(renderer["message"]); !message.runs.isEmpty())
+    {
+        messageLabel->setFixedWidth(parent->width() - 70);
+        messageLabel->setTextFormat(Qt::RichText);
+        messageLabel->setWordWrap(true);
+        messageLabel->setText(message.toRichText(false), true, TubeLabel::Cached);
+        contentLayout->addWidget(messageLabel);
+    }
 }

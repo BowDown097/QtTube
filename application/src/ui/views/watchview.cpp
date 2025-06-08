@@ -12,7 +12,6 @@
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
 #include "ui/widgets/watchnextfeed.h"
-#include "utils/innertubestringformatter.h"
 #include "utils/osutils.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
@@ -258,10 +257,10 @@ void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
     if (!dateText.startsWith("Premier") && !dateText.startsWith("St") && !dateText.startsWith("Sched"))
         dateText.prepend("Published on ");
     if (!primaryInfo.superTitleLink.text.isEmpty())
-        dateText += " | " + InnertubeStringFormatter::formatSimple(primaryInfo.superTitleLink, true);
+        dateText += " | " + primaryInfo.superTitleLink.toRichText(true);
 
     ui->date->setText(dateText);
-    ui->description->setText(InnertubeStringFormatter::formatSimple(unattributeDescription(secondaryInfo.attributedDescription), false));
+    ui->description->setText(unattributeDescription(secondaryInfo.attributedDescription).toRichText(false));
     ui->description->setVisible(!ui->description->text().isEmpty());
     ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumHeight());
     ui->feed->setData(endpoint);
@@ -389,7 +388,7 @@ void WatchView::updateMetadata(const QString& videoId)
         else
             ui->date->setText(endpoint.response.dateText);
 
-        ui->description->setText(InnertubeStringFormatter::formatSimple(endpoint.response.description, false));
+        ui->description->setText(endpoint.response.description.toRichText(false));
         ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
             ? endpoint.response.likeCountEntity.likeCountIfIndifferent
             : endpoint.response.likeCountEntity.expandedLikeCountIfIndifferent);

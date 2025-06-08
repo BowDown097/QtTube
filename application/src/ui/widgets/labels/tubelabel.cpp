@@ -240,6 +240,48 @@ void TubeLabel::mouseReleaseEvent(QMouseEvent* event)
     QLabel::mouseReleaseEvent(event); // clazy:exclude=skipped-base-method
 }
 
+void TubeLabel::processRemoteImages(QString text, ImageFlags flags)
+{
+    static QRegularExpression imgTagRegex(R"~(<img[^>]+src="((?:https?:)?//[^"]+)")~");
+    QRegularExpressionMatchIterator it = imgTagRegex.globalMatch(text);
+
+    m_remoteImageDataMap.clear();
+    m_remoteImageReplyMap.clear();
+
+    while (it.hasNext())
+    {
+        QRegularExpressionMatch match = it.next();
+        QString url = match.captured(1);
+        if (url.startsWith("//"))
+            url.prepend("https:");
+
+        HttpReply* reply = HttpRequest().withDiskCache(flags & ImageFlag::Cached).get(url);
+        connect(reply, &HttpReply::finished, this, std::bind_front(&TubeLabel::remoteImageDownloaded, this, text));
+        m_remoteImageReplyMap[reply] = std::move(match);
+    }
+}
+
+void TubeLabel::remoteImageDownloaded(QString text, const HttpReply& reply)
+{
+    QByteArray mimeType = reply.header(QNetworkRequest::ContentTypeHeader);
+    if (mimeType.isEmpty()) // use image/png as fallback, i guess
+        mimeType = "image/png";
+
+    auto it = m_remoteImageReplyMap.find(&reply);
+    m_remoteImageDataMap.emplaceBack(
+        std::move(it->second), QStringLiteral("data:%1;base64,%2").arg(mimeType, reply.readAll().toBase64()));
+    m_remoteImageReplyMap.erase(it);
+
+    if (m_remoteImageReplyMap.empty())
+    {
+        std::ranges::sort(m_remoteImageDataMap, std::greater{}, [](const auto& p) { return p.first.capturedStart(); });
+        for (auto it = m_remoteImageDataMap.begin(); it != m_remoteImageDataMap.end(); it = m_remoteImageDataMap.erase(it))
+            text.replace(it->first.capturedStart(1), it->first.capturedLength(1), it->second);
+    }
+
+    QLabel::setText(text);
+}
+
 void TubeLabel::resizeEvent(QResizeEvent* event)
 {
     if (!m_isImage)
@@ -295,7 +337,7 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
     QLabel::setPixmap(m_imageFlags & ImageFlag::Rounded ? UIUtils::pixmapRounded(pixmap) : pixmap);
 }
 
-void TubeLabel::setText(const QString& text)
+void TubeLabel::setText(const QString& text, bool processRemoteImages, ImageFlags remoteImageFlags)
 {
     m_isImage = false;
     m_rawText = text;
@@ -350,6 +392,9 @@ void TubeLabel::setText(const QString& text)
 
     QLabel::setText(outText);
     calculateAndSetLineRects();
+
+    if (processRemoteImages && Qt::mightBeRichText(outText))
+        TubeLabel::processRemoteImages(outText, remoteImageFlags);
 }
 
 int TubeLabel::textLineWidth() const

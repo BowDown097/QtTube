@@ -103,7 +103,6 @@ set(SOURCE_FILES
     src/ui/widgets/webengineplayer/playerinterceptor.cpp
     src/ui/widgets/webengineplayer/webchannelinterface.cpp
     src/ui/widgets/webengineplayer/webengineplayer.cpp
-    src/utils/innertubestringformatter.cpp
     src/utils/osutils.cpp
     src/utils/stringutils.cpp
     src/utils/tubeutils.cpp
@@ -198,7 +197,6 @@ set(HEADERS
     src/ui/widgets/webengineplayer/playerinterceptor.h
     src/ui/widgets/webengineplayer/webchannelinterface.h
     src/ui/widgets/webengineplayer/webengineplayer.h
-    src/utils/innertubestringformatter.h
     src/utils/osutils.h
     src/utils/stringutils.h
     src/utils/tubeutils.h

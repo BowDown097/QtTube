@@ -7,7 +7,6 @@
 #include "ui/widgets/renderers/backstage/backstagepollrenderer.h"
 #include "ui/widgets/renderers/backstage/backstagequizrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
-#include "utils/innertubestringformatter.h"
 #include "utils/stringutils.h"
 #include <QBoxLayout>
 
@@ -55,7 +54,7 @@ void BackstagePostRenderer::setData(const InnertubeObjects::BackstagePost& post)
     surface = post.surface;
 
     channelLabel->setInfo(channelId, post.authorText.text);
-    contentText->setText(InnertubeStringFormatter::formatSimple(post.contentText, false));
+    contentText->setText(post.contentText.toRichText(false));
     likeLabel->setText(qtTubeApp->settings().condensedCounts
         ? post.voteCount.text : StringUtils::extractDigits(post.actionButtons.likeButton.accessibilityLabel));
     publishedTimeLabel->setText(post.publishedTimeText.text);

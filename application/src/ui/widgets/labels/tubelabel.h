@@ -1,6 +1,7 @@
 #pragma once
 #include "ui/widgets/clickablewidget.h"
 #include <QLabel>
+#include <QRegularExpression>
 
 class HttpReply;
 namespace InnertubeObjects { struct InnertubeString; }
@@ -26,7 +27,7 @@ public:
     void setImage(const QUrl& url, ImageFlags flags = ImageFlag::NoImageFlags);
     void setMaximumLines(int lines);
     void setPixmap(const QPixmap& pixmap);
-    void setText(const QString& text);
+    void setText(const QString& text, bool processRemoteImages = false, ImageFlags remoteImageFlags = ImageFlag::NoImageFlags);
 
     QRect alignedRect(QRect rect) const;
     QRect boundingRect() const;
@@ -53,12 +54,16 @@ private:
     QList<QRect> m_lineRects;
     int m_maximumLines = -1;
     QString m_rawText;
+    QList<std::pair<QRegularExpressionMatch, QString>> m_remoteImageDataMap;
+    std::unordered_map<const HttpReply*, QRegularExpressionMatch> m_remoteImageReplyMap;
 
     void calculateAndSetLineRects();
     std::unique_ptr<QTextDocument> createTextDocument(const QString& text, int textWidth) const;
+    void processRemoteImages(QString text, ImageFlags flags);
     int textLineWidth() const;
     void updateMarginsForImageAspectRatio();
 private slots:
+    void remoteImageDownloaded(QString text, const HttpReply& reply);
     void setImageData(const HttpReply& reply);
 signals:
     void imageSet();
