@@ -160,7 +160,8 @@ void WatchView::processData(const QtTube::VideoData& data)
 
         if (data.likeDislikeRatio > 0)
         {
-            ui->constructLikeBar();
+            if (!ui->likeBar)
+                ui->constructLikeBar();
             ui->likeBar->setValue(data.likeDislikeRatio * 100);
         }
     }
