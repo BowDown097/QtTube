@@ -1,39 +1,21 @@
 #include "watchview.h"
 #include "ui/views/viewcontroller.h"
-#include "ui/widgets/download/downloadmanager.h"
 #include "watchview_ui.h"
-#include "httprequest.h"
-#include "innertube.h"
 #include "mainwindow.h"
-#include "preloaddata.h"
 #include "qttubeapplication.h"
-#include "ui/forms/livechat/livechatwindow.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
 #include "ui/widgets/watchnextfeed.h"
 #include "utils/osutils.h"
-#include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QDesktopServices>
-#include <QJsonDocument>
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTimer>
 #include <QUrlQuery>
-
-WatchView::~WatchView()
-{
-    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
-    OSUtils::suspendIdleSleep(false);
-
-    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
-        mainWindow->setWindowTitle(QTTUBE_APP_NAME);
-
-    delete ui;
-}
 
 WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchView* preload, QWidget* parent)
     : QWidget(parent), ui(new Ui::WatchView)
@@ -49,16 +31,26 @@ WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchVie
     if (preload)
         processPreloadData(preload);
 
-    auto next = InnerTube::instance()->get<InnertubeEndpoints::Next>(videoId);
-    connect(next, &InnertubeReply<InnertubeEndpoints::Next>::finished, this, &WatchView::processNext);
-    connect(next, &InnertubeReply<InnertubeEndpoints::Next>::exception, this, &WatchView::loadFailed);
-
-    auto player = InnerTube::instance()->get<InnertubeEndpoints::Player>(videoId);
-    connect(player, &InnertubeReply<InnertubeEndpoints::Player>::finished, this, &WatchView::processPlayer);
-    connect(player, &InnertubeReply<InnertubeEndpoints::Player>::exception, this, &WatchView::loadFailed);
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    {
+        QtTube::VideoReply* reply = plugin->interface->getVideo(videoId, {});
+        connect(reply, &QtTube::VideoReply::exception, this, &WatchView::loadFailed);
+        connect(reply, &QtTube::VideoReply::finished, this, &WatchView::processData);
+    }
 
     ui->player->play(videoId, progress);
     connect(ui->description, &TubeLabel::linkActivated, this, &WatchView::descriptionLinkActivated);
+}
+
+WatchView::~WatchView()
+{
+    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
+    OSUtils::suspendIdleSleep(false);
+
+    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
+        mainWindow->setWindowTitle(QTTUBE_APP_NAME);
+
+    delete ui;
 }
 
 void WatchView::descriptionLinkActivated(const QString& url)
@@ -111,18 +103,96 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress, PreloadData::
     if (preload)
         processPreloadData(preload);
 
-    auto next = InnerTube::instance()->get<InnertubeEndpoints::Next>(videoId);
-    connect(next, &InnertubeReply<InnertubeEndpoints::Next>::finished, this, &WatchView::processNext);
-    connect(next, &InnertubeReply<InnertubeEndpoints::Next>::exception, this, &WatchView::loadFailed);
-
-    auto player = InnerTube::instance()->get<InnertubeEndpoints::Player>(videoId);
-    connect(player, &InnertubeReply<InnertubeEndpoints::Player>::finished, this, &WatchView::processPlayer);
-    connect(player, &InnertubeReply<InnertubeEndpoints::Player>::exception, this, &WatchView::loadFailed);
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    {
+        QtTube::VideoReply* reply = plugin->interface->getVideo(videoId, {});
+        connect(reply, &QtTube::VideoReply::exception, this, &WatchView::loadFailed);
+        connect(reply, &QtTube::VideoReply::finished, this, &WatchView::processData);
+    }
 
     ui->player->play(videoId, progress);
 }
 
-void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButtonViewModel& toggleButton)
+void WatchView::processData(const QtTube::VideoData& data)
+{
+    videoId = data.videoId;
+    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
+        mainWindow->setWindowTitle(data.titleText + " - " + QTTUBE_APP_NAME);
+
+    ui->channelIcon->setImage(data.channel.channelAvatarUrl);
+    ui->channelLabel->setInfo(data.channel.channelId, data.channel.channelName, data.channel.channelBadges);
+    ui->date->setText(data.dateText);
+    ui->subscribeWidget->setData(data.channel);
+    ui->titleLabel->setText(data.titleText);
+    ui->viewCount->setText(data.viewCountText);
+
+    ui->description->setText(data.descriptionText);
+    ui->description->setVisible(!data.descriptionText.isEmpty());
+    ui->showMoreLabel->setVisible(
+        ui->description->heightForWidth(ui->description->width()) >
+        ui->description->maximumHeight());
+
+    ui->topLevelButtons->addStretch();
+
+    if (data.ratingsAvailable)
+    {
+        ui->likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
+        ui->likeLabel->setText(data.likeCountText);
+        ui->topLevelButtons->addWidget(ui->likeLabel);
+        connect(ui->likeLabel, &IconLabel::clicked, this,
+            std::bind(&WatchView::rate, this, true, data.likeData.like, data.likeData.removeLike));
+        if (data.likeStatus == QtTube::VideoData::LikeStatus::Liked)
+        {
+            ui->likeLabel->setIcon("like-toggled");
+            ui->likeLabel->setStyleSheet("color: #167ac6");
+        }
+
+        ui->dislikeLabel = new IconLabel("dislike");
+        ui->dislikeLabel->setText(data.dislikeCountText);
+        ui->topLevelButtons->addWidget(ui->dislikeLabel);
+        connect(ui->dislikeLabel, &IconLabel::clicked, this,
+            std::bind(&WatchView::rate, this, false, data.likeData.dislike, data.likeData.removeDislike));
+        if (data.likeStatus == QtTube::VideoData::LikeStatus::Disliked)
+        {
+            ui->dislikeLabel->setIcon("dislike-toggled");
+            ui->dislikeLabel->setStyleSheet("color: #167ac6");
+        }
+
+        if (data.likeDislikeRatio > 0)
+        {
+            ui->constructLikeBar();
+            ui->likeBar->setValue(data.likeDislikeRatio * 100);
+        }
+    }
+
+    if (data.isLiveContent)
+    {
+        metadataUpdateTimer = new QTimer(this);
+        metadataUpdateTimer->setInterval(60000);
+        connect(metadataUpdateTimer, &QTimer::timeout, this, std::bind(&WatchView::updateMetadata, this, data.videoId));
+        metadataUpdateTimer->start();
+    }
+
+    ui->feed->setData(data.recommendedVideos, data.continuations);
+}
+
+void WatchView::processPreloadData(PreloadData::WatchView* preload)
+{
+    ui->channelIcon->setImage(preload->channelAvatarUrl);
+    ui->titleLabel->setText(preload->title);
+    if (!preload->channelId.isEmpty() && !preload->channelName.isEmpty())
+    {
+        std::visit([preload, this](auto&& v) {
+            ui->channelLabel->setInfo(preload->channelId, preload->channelName, v);
+        }, preload->channelBadges);
+    }
+    if (!preload->title.isEmpty())
+    {
+        ui->titleLabel->setText(preload->title);
+    }
+}
+
+void WatchView::rate(bool like, const std::any& addData, const std::any& removeData)
 {
     IconLabel* senderLabel = qobject_cast<IconLabel*>(sender());
 
@@ -136,8 +206,8 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButtonVie
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count + 1));
 
-        QJsonValue command = toggleButton.defaultButtonViewModel.onTap["serialCommand"]["commands"][1]["innertubeCommand"];
-        InnerTube::instance()->like(command["likeEndpoint"], like);
+        if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+            plugin->interface->rate(videoId, like, false, addData);
     }
     else
     {
@@ -146,154 +216,9 @@ void WatchView::likeOrDislike(bool like, const InnertubeObjects::ToggleButtonVie
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count - 1));
 
-        QJsonValue command = toggleButton.toggledButtonViewModel.onTap["serialCommand"]["commands"][1]["innertubeCommand"];
-        InnerTube::instance()->like(command["likeEndpoint"], like);
+        if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+            plugin->interface->rate(videoId, like, true, removeData);
     }
-}
-
-void WatchView::openLiveChat(const InnertubeObjects::LiveChat& conversationBar)
-{
-    LiveChatWindow* liveChatWindow = new LiveChatWindow;
-    liveChatWindow->setAttribute(Qt::WA_DeleteOnClose);
-    liveChatWindow->show();
-    liveChatWindow->initialize(conversationBar.continuations.front(), conversationBar.isReplay, ui->player);
-}
-
-void WatchView::processNext(const InnertubeEndpoints::Next& endpoint)
-{
-    const InnertubeEndpoints::NextResponse& nextResp = endpoint.response;
-    const InnertubeObjects::VideoPrimaryInfo& primaryInfo = nextResp.contents.results.primaryInfo;
-    const InnertubeObjects::VideoSecondaryInfo& secondaryInfo = nextResp.contents.results.secondaryInfo;
-    channelId = secondaryInfo.owner.navigationEndpoint["browseEndpoint"]["browseId"].toString();
-
-    ui->channelLabel->setInfo(channelId, secondaryInfo.owner.title.text, secondaryInfo.owner.badges);
-
-    ui->subscribeWidget->setSubscribeButton(secondaryInfo.subscribeButton);
-    ui->subscribeWidget->setSubscriberCount(secondaryInfo.owner.subscriberCountText.text, secondaryInfo.subscribeButton.channelId);
-    ui->subscribeWidget->subscribersCountLabel->show();
-    ui->viewCount->setText(qtTubeApp->settings().condensedCounts && !primaryInfo.viewCount.isLive
-                               ? primaryInfo.viewCount.extraShortViewCount.text + " views"
-                               : primaryInfo.viewCount.viewCount.text);
-
-    /* none of these items have functionality rn
-    for (const InnertubeObjects::MenuFlexibleItem& fi : primaryInfo.videoActions.flexibleItems)
-    {
-        // these will never be implemented
-        if (fi.topLevelButton.iconName == "CONTENT_CUT" || fi.topLevelButton.iconName == "MONEY_HEART")
-            continue;
-
-        ui->topLevelButtons->addWidget(new IconLabel(
-            fi.topLevelButton.iconName.toLower(),
-            fi.topLevelButton.title,
-            ui->topLevelButtons->count() > 0 ? QMargins(15, 0, 0, 0) : QMargins(5, 0, 0, 0)
-        ));
-    }
-    */
-
-    IconLabel* shareLabel = new IconLabel("share", "Share", QMargins(5, 0, 0, 0));
-    ui->topLevelButtons->addWidget(shareLabel);
-    connect(shareLabel, &IconLabel::clicked, ui->player, &WatchViewPlayer::showSharePanel);
-
-    if (!primaryInfo.viewCount.isLive)
-    {
-        IconLabel* downloadLabel = new IconLabel("download", "Download", QMargins(15, 0, 0, 0));
-        ui->topLevelButtons->addWidget(downloadLabel);
-        connect(downloadLabel, &IconLabel::clicked, this,
-                std::bind(&DownloadManager::append, DownloadManager::instance(), nextResp.videoId));
-    }
-
-    if (const std::optional<InnertubeObjects::LiveChat>& conversationBar = nextResp.contents.conversationBar)
-    {
-        IconLabel* liveChatLabel = new IconLabel("live-chat", "Chat", QMargins(15, 0, 0, 0));
-        ui->topLevelButtons->addWidget(liveChatLabel);
-        connect(liveChatLabel, &IconLabel::clicked, this,
-                std::bind(&WatchView::openLiveChat, this, conversationBar.value()));
-    }
-
-    ui->topLevelButtons->addStretch();
-
-    const InnertubeObjects::LikeDislikeViewModel& likeDislikeViewModel = primaryInfo.videoActions.segmentedLikeDislikeButtonViewModel;
-
-    ui->likeLabel = new IconLabel("like", QMargins(0, 0, 15, 0));
-    ui->topLevelButtons->addWidget(ui->likeLabel);
-    connect(ui->likeLabel, &IconLabel::clicked, this,
-            std::bind(&WatchView::likeOrDislike, this, true, likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel));
-    if (likeDislikeViewModel.likeButtonViewModel.likeStatus == "LIKE")
-    {
-        ui->likeLabel->setIcon("like-toggled");
-        ui->likeLabel->setStyleSheet("color: #167ac6");
-    }
-
-    ui->dislikeLabel = new IconLabel("dislike");
-    ui->topLevelButtons->addWidget(ui->dislikeLabel);
-    connect(ui->dislikeLabel, &IconLabel::clicked, this,
-            std::bind(&WatchView::likeOrDislike, this, false, likeDislikeViewModel.dislikeButtonViewModel.toggleButtonViewModel));
-    if (likeDislikeViewModel.likeButtonViewModel.likeStatus == "DISLIKE")
-    {
-        ui->dislikeLabel->setIcon("dislike-toggled");
-        ui->dislikeLabel->setStyleSheet("color: #167ac6");
-    }
-
-    if (const InnertubeObjects::GenericThumbnail* recThumbnail = secondaryInfo.owner.thumbnail.recommendedQuality(ui->channelIcon->size()))
-        ui->channelIcon->setImage(recThumbnail->url);
-
-    const InnertubeObjects::ButtonViewModel& likeViewModel = likeDislikeViewModel.likeButtonViewModel.toggleButtonViewModel.defaultButtonViewModel;
-    ui->likeLabel->setProperty("fullCount", StringUtils::extractDigits(likeViewModel.accessibilityText));
-    ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
-        ? likeViewModel.title : ui->likeLabel->property("fullCount").toString());
-
-    if (qtTubeApp->settings().returnDislikes)
-    {
-        HttpReply* reply = HttpRequest().get("https://returnyoutubedislikeapi.com/votes?videoId=" + nextResp.videoId);
-        connect(reply, &HttpReply::finished, this, &WatchView::setDislikes);
-    }
-    else
-    {
-        ui->dislikeLabel->setText("Dislike");
-    }
-
-    // Add "Published on" before date of normal videos to replicate Hitchhiker style and add super title after the date
-    QString dateText = primaryInfo.dateText.text;
-    if (!dateText.startsWith("Premier") && !dateText.startsWith("St") && !dateText.startsWith("Sched"))
-        dateText.prepend("Published on ");
-    if (!primaryInfo.superTitleLink.text.isEmpty())
-        dateText += " | " + primaryInfo.superTitleLink.toRichText(true);
-
-    ui->date->setText(dateText);
-    ui->description->setText(unattributeDescription(secondaryInfo.attributedDescription).toRichText(false));
-    ui->description->setVisible(!ui->description->text().isEmpty());
-    ui->showMoreLabel->setVisible(ui->description->heightForWidth(ui->description->width()) > ui->description->maximumHeight());
-    ui->feed->setData(endpoint);
-}
-
-void WatchView::processPlayer(const InnertubeEndpoints::Player& endpoint)
-{
-    const InnertubeEndpoints::PlayerResponse& playerResp = endpoint.response;
-    ui->player->startTracking(playerResp);
-    ui->titleLabel->setText(playerResp.videoDetails.title);
-
-    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
-        mainWindow->setWindowTitle(playerResp.videoDetails.title + " - " + QTTUBE_APP_NAME);
-
-    if (playerResp.videoDetails.isLive || playerResp.videoDetails.isUpcoming)
-    {
-        metadataUpdateTimer = new QTimer(this);
-        metadataUpdateTimer->setInterval(60000);
-        connect(metadataUpdateTimer, &QTimer::timeout, this, std::bind(&WatchView::updateMetadata, this, playerResp.videoDetails.videoId));
-        metadataUpdateTimer->start();
-    }
-}
-
-void WatchView::processPreloadData(PreloadData::WatchView* preload)
-{
-    if (preload->channelAvatar.has_value())
-        if (const InnertubeObjects::GenericThumbnail* recAvatar = preload->channelAvatar->recommendedQuality(ui->channelIcon->size()))
-            ui->channelIcon->setImage(recAvatar->url);
-
-    if (preload->channelId.has_value() && preload->channelName.has_value())
-        ui->channelLabel->setInfo(preload->channelId.value(), preload->channelName.value(), preload->channelBadges);
-    if (preload->title.has_value())
-        ui->titleLabel->setText(preload->title.value());
 }
 
 void WatchView::resizeEvent(QResizeEvent* event)
@@ -315,95 +240,28 @@ void WatchView::resizeEvent(QResizeEvent* event)
     ui->titleLabel->setFixedWidth(width);
 }
 
-void WatchView::setDislikes(const HttpReply& reply)
-{
-    if (!reply.isSuccessful())
-    {
-        if (ui->dislikeLabel->text().isEmpty())
-            ui->dislikeLabel->setText("Dislike");
-        return;
-    }
-
-    QJsonDocument doc = QJsonDocument::fromJson(reply.readAll());
-    qint64 dislikes = doc["dislikes"].toVariant().toLongLong();
-    qint64 likes = QLocale::system().toLongLong(ui->likeLabel->property("fullCount").toString());
-
-    if (likes != 0)
-    {
-        ui->likeBar->setMaximum(likes + dislikes);
-        ui->likeBar->setValue(likes);
-    }
-
-    ui->likeBar->show();
-
-#ifdef QTTUBE_HAS_ICU
-    if (qtTubeApp->settings().condensedCounts)
-    {
-        ui->dislikeLabel->setText(StringUtils::condensedNumericString(dislikes));
-        return;
-    }
-#endif
-
-    ui->dislikeLabel->setText(QLocale::system().toString(dislikes));
-}
-
-// most logic courtesy of https://github.com/Rehike/Rehike
-InnertubeObjects::InnertubeString WatchView::unattributeDescription(const InnertubeObjects::DynamicText& attributedDescription)
-{
-    const QString& content = attributedDescription.content;
-    if (!attributedDescription.commandRuns.isArray())
-        return InnertubeObjects::InnertubeString(content);
-
-    const QJsonArray commandRuns = attributedDescription.commandRuns.toArray();
-    InnertubeObjects::InnertubeString out;
-    int start = 0;
-
-    for (const QJsonValue& commandRun : commandRuns)
-    {
-        int length = commandRun["length"].toInt();
-        int startIndex = commandRun["startIndex"].toInt();
-
-        if (QString beforeText = content.mid(start, startIndex - start); !beforeText.isEmpty())
-            out.runs.append(InnertubeObjects::InnertubeRun(beforeText));
-
-        QString linkText = content.mid(startIndex, length);
-        out.runs.append(InnertubeObjects::InnertubeRun(linkText, commandRun["onTap"]["innertubeCommand"]));
-
-        start = startIndex + length;
-    }
-
-    if (QString lastText = content.mid(start); !lastText.isEmpty())
-        out.runs.append(InnertubeObjects::InnertubeRun(lastText));
-
-    return out;
-}
-
 void WatchView::updateMetadata(const QString& videoId)
 {
-    try
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::UpdatedMetadata>(videoId);
-        if (size_t superTitleIndex = ui->date->text().indexOf(" | "); superTitleIndex != -1)
-            ui->date->setText(endpoint.response.dateText + ui->date->text().mid(superTitleIndex));
-        else
-            ui->date->setText(endpoint.response.dateText);
+        QtTube::VideoReply* reply = plugin->interface->getVideo(videoId, {});
+        connect(reply, &QtTube::VideoReply::exception, this, [this](const QtTube::PluginException& ex) {
+            qDebug() << ex.message() << "Stream/premiere could have ended - killing update timer.";
+            metadataUpdateTimer->deleteLater();
+        });
+        connect(reply, &QtTube::VideoReply::finished, this, [this](const QtTube::VideoData& data) {
+            ui->date->setText(data.dateText);
+            ui->description->setText(data.descriptionText);
+            ui->titleLabel->setText(data.titleText);
+            ui->viewCount->setText(data.viewCountText);
 
-        ui->description->setText(endpoint.response.description.toRichText(false));
-        ui->likeLabel->setText(qtTubeApp->settings().condensedCounts
-            ? endpoint.response.likeCountEntity.likeCountIfIndifferent
-            : endpoint.response.likeCountEntity.expandedLikeCountIfIndifferent);
-        ui->titleLabel->setText(endpoint.response.title.text);
-        ui->viewCount->setText(endpoint.response.viewCount.viewCount.text);
-
-        if (qtTubeApp->settings().returnDislikes)
-        {
-            HttpReply* reply = HttpRequest().get("https://returnyoutubedislikeapi.com/votes?videoId=" + videoId);
-            connect(reply, &HttpReply::finished, this, &WatchView::setDislikes);
-        }
-    }
-    catch (const InnertubeException& ie)
-    {
-        qDebug() << ie.message() << "Stream/premiere could have ended - killing update timer.";
-        metadataUpdateTimer->deleteLater();
+            if (data.ratingsAvailable)
+            {
+                ui->dislikeLabel->setText(data.dislikeCountText);
+                ui->likeLabel->setText(data.likeCountText);
+                if (data.likeDislikeRatio > 0)
+                    ui->likeBar->setValue(data.likeDislikeRatio * 100);
+            }
+        });
     }
 }

@@ -270,14 +270,6 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE innertube-qt QtTube::PluginInterface Qt::Network Qt::Sql Qt::WebEngineWidgets Qt::Widgets)
 
-## Optional
-find_package(ICU COMPONENTS i18n uc)
-if(ICU_FOUND)
-    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_ICU)
-    target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ICU_INCLUDE_DIRS})
-    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${ICU_LIBRARIES})
-endif()
-
 ## Platform-specific
 if(UNIX AND NOT APPLE)
     find_package(X11 QUIET)

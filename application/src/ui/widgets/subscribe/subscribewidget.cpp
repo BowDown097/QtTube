@@ -30,6 +30,7 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
     notificationBell->hide();
     layout->addWidget(notificationBell);
 
+    subscribersCountLabel->hide();
     subscribersCountLabel->setFixedHeight(24);
     subscribersCountLabel->setStyleSheet(SubscribersCountStylesheet);
     layout->addWidget(subscribersCountLabel);
@@ -57,6 +58,7 @@ void SubscribeWidget::setData(const QtTube::PluginChannel& channel)
     }
     else
     {
+        subscribersCountLabel->show();
         subscribersCountLabel->setText(channel.subscribeButton.countText);
         subscribersCountLabel->adjustSize();
     }
@@ -119,6 +121,7 @@ void SubscribeWidget::setSubscriberCount(QString subscriberCountText, const QStr
     TubeUtils::getSubCount(channelId, subscriberCountText).then([this](const std::pair<QString, bool>& result) {
         if (subscribersCountLabel)
         {
+            subscribersCountLabel->show();
             subscribersCountLabel->setText(result.first);
             subscribersCountLabel->adjustSize();
         }

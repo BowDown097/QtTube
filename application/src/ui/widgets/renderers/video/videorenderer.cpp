@@ -93,7 +93,8 @@ void VideoRenderer::setData(const InnertubeObjects::CompactVideo& compactVideo,
 
     if (InnertubeObjects::BasicChannel owner = compactVideo.owner(); !owner.id.isEmpty())
     {
-        watchPreloadData->channelAvatar = owner.icon;
+        if (const InnertubeObjects::GenericThumbnail* recIcon = owner.icon.recommendedQuality(QSize(48, 48)))
+            watchPreloadData->channelAvatarUrl = recIcon->url;
         watchPreloadData->channelBadges = compactVideo.ownerBadges;
         watchPreloadData->channelId = owner.id;
         watchPreloadData->channelName = owner.name;
@@ -157,7 +158,8 @@ void VideoRenderer::setData(const InnertubeObjects::LockupViewModel& lockup,
 
     if (std::optional<InnertubeObjects::BasicChannel> owner = lockup.owner())
     {
-        watchPreloadData->channelAvatar = owner->icon;
+        if (const InnertubeObjects::GenericThumbnail* recIcon = owner->icon.recommendedQuality(QSize(48, 48)))
+            watchPreloadData->channelAvatarUrl = recIcon->url;
         watchPreloadData->channelId = owner->id;
         watchPreloadData->channelName = owner->name;
 
@@ -266,12 +268,15 @@ void VideoRenderer::setData(const InnertubeObjects::Video& video,
     titleLabel->setToolTip(title);
 
     watchPreloadData.reset(new PreloadData::WatchView {
-        .channelAvatar = video.channelThumbnailSupportedRenderers.thumbnail,
         .channelBadges = video.ownerBadges,
         .channelId = ownerId,
         .channelName = video.ownerText.text,
         .title = title
     });
+
+    const InnertubeObjects::ResponsiveImage& thumbnail = video.channelThumbnailSupportedRenderers.thumbnail;
+    if (const InnertubeObjects::GenericThumbnail* recThumb = thumbnail.recommendedQuality(QSize(48, 48)))
+        watchPreloadData->channelAvatarUrl = recThumb->url;
 }
 
 void VideoRenderer::setData(const InnertubeObjects::VideoDisplayButtonGroup& video,
@@ -283,7 +288,8 @@ void VideoRenderer::setData(const InnertubeObjects::VideoDisplayButtonGroup& vid
 
     if (video.channelEndpoint.isObject())
     {
-        watchPreloadData->channelAvatar = video.channelThumbnail;
+        if (const InnertubeObjects::GenericThumbnail* recAvatar = video.channelThumbnail.recommendedQuality(QSize(48, 48)))
+            watchPreloadData->channelAvatarUrl = recAvatar->url;
         watchPreloadData->channelName = video.shortBylineText.text;
 
         channelLabel->show();
@@ -343,8 +349,8 @@ void VideoRenderer::setData(const QtTube::PluginVideo& video)
     titleLabel->setToolTip(video.title);
 
     watchPreloadData.reset(new PreloadData::WatchView {
-        //.channelAvatar = video.uploaderAvatarUrl,
-        //.channelBadges = video.uploaderBadges,
+        .channelAvatarUrl = video.uploaderAvatarUrl,
+        .channelBadges = video.uploaderBadges,
         .channelId = video.uploaderId,
         .channelName = video.uploaderText,
         .title = video.title

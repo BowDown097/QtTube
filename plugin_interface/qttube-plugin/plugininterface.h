@@ -24,6 +24,13 @@ namespace QtTube
             std::any continuationData) { return BrowseReply::create(); }
         virtual BrowseReply* getSubFeed(std::any continuationData) { return BrowseReply::create(); }
         virtual BrowseReply* getTrending(std::any continuationData) { return BrowseReply::create(); }
+        virtual VideoReply* getVideo(const QString& videoId, std::any continuationData) { return VideoReply::create(); }
+
+        virtual PluginReply<void>* rate(
+            const QString& videoId,
+            bool like,
+            bool removing,
+            std::any data) { return PluginReply<void>::create(); }
 
         virtual PluginReply<void>* setNotificationPreference(std::any data) { return PluginReply<void>::create(); }
         virtual PluginReply<void>* subscribe(std::any data) { return PluginReply<void>::create(); }

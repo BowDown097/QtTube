@@ -1,16 +1,15 @@
 #pragma once
 #include "innertube/objects/channel/metadatabadge.h"
-#include "innertube/objects/images/responsiveimage.h"
-#include <optional>
+#include "qttube-plugin/objects/badge.h"
 
 namespace PreloadData
 {
     struct WatchView
     {
-        std::optional<InnertubeObjects::ResponsiveImage> channelAvatar;
-        QList<InnertubeObjects::MetadataBadge> channelBadges;
-        std::optional<QString> channelId;
-        std::optional<QString> channelName;
-        std::optional<QString> title;
+        QString channelAvatarUrl;
+        std::variant<QList<InnertubeObjects::MetadataBadge>, QList<QtTube::PluginBadge>> channelBadges;
+        QString channelId;
+        QString channelName;
+        QString title;
     };
 }

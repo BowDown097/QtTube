@@ -5,11 +5,14 @@
 #include "innertube/objects/shelves/reelshelf.h"
 #include "innertube/objects/video/compactvideo.h"
 #include "innertube/objects/video/reel.h"
+#include "innertube/objects/video/watchnext/secondaryinfo/videoowner.h"
 #include "innertube/responses/browse/homeresponse.h"
 #include "youtubeplugin.h"
 
 QtTube::PluginBadge convertBadge(const InnertubeObjects::MetadataBadge& badge);
 QtTube::PluginChannel convertChannel(const InnertubeObjects::Channel& channel);
+QtTube::PluginChannel convertChannel(
+    const InnertubeObjects::VideoOwner& owner, const InnertubeObjects::SubscribeButton& subscribeButton);
 QtTube::PluginException convertException(const InnertubeException& ex);
 QtTube::PluginNotification convertNotification(const InnertubeObjects::Notification& notification);
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(
@@ -19,6 +22,8 @@ QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::ReelShelf& rShelf);
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::StandardVideoShelf& sShelf);
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::VerticalVideoShelf& vShelf);
+QtTube::PluginSubscribeButton convertSubscribeButton(
+    const InnertubeObjects::SubscribeButton& subscribeButton, const QString& countText);
 QtTube::PluginVideo convertVideo(const InnertubeObjects::CompactVideo& compactVideo, bool useThumbnailFromData);
 QtTube::PluginVideo convertVideo(const InnertubeObjects::DisplayAd& displayAd, bool useThumbnailFromData);
 QtTube::PluginVideo convertVideo(const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData);

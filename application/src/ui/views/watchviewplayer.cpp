@@ -76,12 +76,6 @@ void WatchViewPlayer::showSharePanel()
         m_player->showSharePanel();
 }
 
-void WatchViewPlayer::startTracking(const InnertubeEndpoints::PlayerResponse& playerResp)
-{
-    if (m_player)
-        m_player->setPlayerResponse(playerResp);
-}
-
 QWidget* WatchViewPlayer::widget()
 {
     return m_player;

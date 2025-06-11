@@ -3,8 +3,6 @@
 #include <QWebEngineScript>
 #include <QWidget>
 
-namespace InnertubeEndpoints { struct PlayerResponse; }
-
 class FullScreenWindow;
 class InnertubeAuthStore;
 struct InnertubeContext;
@@ -20,7 +18,6 @@ public:
     explicit WebEnginePlayer(QWidget* parent = nullptr);
     void setAuthStore(InnertubeAuthStore* authStore);
     void setContext(InnertubeContext* context);
-    void setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp);
     void showSharePanel();
 private:
     std::unique_ptr<FullScreenWindow> m_fullScreenWindow;

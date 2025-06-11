@@ -45,6 +45,7 @@ public:
     QHBoxLayout* topLevelButtons;
     TubeLabel* viewCount;
 
+    void constructLikeBar();
     void setupUi(QWidget* watchView);
 private:
     void setupDate(QWidget* watchView);

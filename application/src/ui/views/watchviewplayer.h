@@ -3,7 +3,6 @@
 #include <QSize>
 
 class WebEnginePlayer;
-namespace InnertubeEndpoints { struct PlayerResponse; }
 
 class WatchViewPlayer : public QObject
 {
@@ -16,7 +15,6 @@ public:
     void play(const QString& videoId, int progress = 0);
     void seek(int progress);
     void showSharePanel();
-    void startTracking(const InnertubeEndpoints::PlayerResponse& playerResp);
     QWidget* widget();
 
     QSize size() const { return m_size; }

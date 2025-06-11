@@ -15,6 +15,9 @@ public:
         std::any continuationData) override;
     QtTube::BrowseReply* getSubFeed(std::any continuationData) override;
     QtTube::BrowseReply* getTrending(std::any continuationData) override;
+    QtTube::VideoReply* getVideo(const QString& videoId, std::any continuationData) override;
+
+    QtTube::PluginReply<void>* rate(const QString& videoId, bool like, bool removing, std::any data) override;
 
     QtTube::PluginReply<void>* setNotificationPreference(std::any data) override;
     QtTube::PluginReply<void>* subscribe(std::any data) override;

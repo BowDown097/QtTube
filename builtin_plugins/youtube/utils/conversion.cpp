@@ -33,60 +33,27 @@ QtTube::PluginChannel convertChannel(const InnertubeObjects::Channel& channel)
         std::swap(subscriberCountText, metadataText);
 
     result.metadataText = *metadataText;
-    result.subscribeButton.countText = subscriberCountText->left(subscriberCountText->lastIndexOf(' '));
-
     if (const auto* subscribeButton = std::get_if<InnertubeObjects::SubscribeButton>(&channel.subscribeButton))
-    {
-        result.subscribeButton.enabled = subscribeButton->enabled;
-        result.subscribeButton.subscribed = subscribeButton->subscribed;
-        result.subscribeButton.subscribeData = subscribeButton->onSubscribeEndpoints[0]["subscribeEndpoint"];
+        result.subscribeButton = convertSubscribeButton(*subscribeButton, *subscriberCountText);
 
-        result.subscribeButton.localization.subscribeText = subscribeButton->unsubscribedButtonText.text;
-        result.subscribeButton.localization.subscribedText = subscribeButton->subscribedButtonText.text;
-        result.subscribeButton.localization.unsubscribeText = subscribeButton->unsubscribeButtonText.text;
+    return result;
+}
 
-        const QJsonValue unsubscribeDialog = subscribeButton->onUnsubscribeEndpoints
-            [0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"];
-        result.subscribeButton.unsubscribeData =
-            unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
-        result.subscribeButton.localization.unsubscribeDialogText =
-            InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
+QtTube::PluginChannel convertChannel(
+    const InnertubeObjects::VideoOwner& owner, const InnertubeObjects::SubscribeButton& subscribeButton)
+{
+    QtTube::PluginChannel result = {
+        .channelId = owner.navigationEndpoint["browseEndpoint"]["browseId"].toString(),
+        .channelName = owner.title.text,
+        .channelUrlPrefix = "https://www.youtube.com/channel/",
+        .sourceMetadata = &g_metadata
+    };
 
-        QtTube::PluginNotificationBell& notifBell = result.subscribeButton.notificationBell;
-        const InnertubeObjects::NotificationPreferenceButton& notifButton = subscribeButton->notificationPreferenceButton;
-
-        for (qsizetype i = 0; i < notifButton.popup.items.size(); ++i)
-        {
-            const InnertubeObjects::MenuServiceItem& item = notifButton.popup.items[i];
-            if (item.isSelected && notifBell.defaultEnabledStateIndex == -1)
-                notifBell.activeStateIndex = i;
-
-            QtTube::PluginNotificationState state = {
-                .data = item.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString(),
-                .name = item.text.text
-            };
-
-            if (item.iconType == "NOTIFICATIONS_ACTIVE")
-            {
-                state.representation = QtTube::PluginNotificationState::Representation::All;
-            }
-            else if (item.iconType == "NOTIFICATIONS_NONE")
-            {
-                notifBell.defaultEnabledStateIndex = i;
-                state.representation = QtTube::PluginNotificationState::Representation::Neutral;
-            }
-            else if (item.iconType == "NOTIFICATIONS_OFF")
-            {
-                state.representation = QtTube::PluginNotificationState::Representation::None;
-            }
-            else
-            {
-                continue;
-            }
-
-            notifBell.states.append(state);
-        }
-    }
+    if (const InnertubeObjects::GenericThumbnail* recAvatar = owner.thumbnail.recommendedQuality(QSize(48, 48)))
+        result.channelAvatarUrl = recAvatar->url;
+    for (const InnertubeObjects::MetadataBadge& badge : owner.badges)
+        result.channelBadges.append(convertBadge(badge));
+    result.subscribeButton = convertSubscribeButton(subscribeButton, owner.subscriberCountText.text);
 
     return result;
 }
@@ -203,6 +170,63 @@ QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::Ve
         addVideo(videoShelf.contents, video);
 
     return videoShelf;
+}
+
+QtTube::PluginSubscribeButton convertSubscribeButton(
+    const InnertubeObjects::SubscribeButton& subscribeButton, const QString& countText)
+{
+    const QJsonValue unsubscribeDialog = subscribeButton.onUnsubscribeEndpoints
+        [0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"];
+
+    QtTube::PluginSubscribeButton result = {
+        .countText = countText.left(countText.lastIndexOf(' ')),
+        .enabled = subscribeButton.enabled,
+        .localization = {
+            .subscribeText = subscribeButton.unsubscribedButtonText.text,
+            .subscribedText = subscribeButton.subscribedButtonText.text,
+            .unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text,
+            .unsubscribeText = subscribeButton.unsubscribeButtonText.text
+        },
+        .subscribed = subscribeButton.subscribed,
+        .subscribeData = subscribeButton.onSubscribeEndpoints[0]["subscribeEndpoint"],
+        .unsubscribeData = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"]
+    };
+
+    const InnertubeObjects::NotificationPreferenceButton& notifButton = subscribeButton.notificationPreferenceButton;
+
+    for (qsizetype i = 0; i < notifButton.popup.items.size(); ++i)
+    {
+        const InnertubeObjects::MenuServiceItem& item = notifButton.popup.items[i];
+        if (item.isSelected && result.notificationBell.defaultEnabledStateIndex == -1)
+            result.notificationBell.activeStateIndex = i;
+
+        QtTube::PluginNotificationState state = {
+            .data = item.serviceEndpoint["modifyChannelNotificationPreferenceEndpoint"]["params"].toString(),
+            .name = item.text.text
+        };
+
+        if (item.iconType == "NOTIFICATIONS_ACTIVE")
+        {
+            state.representation = QtTube::PluginNotificationState::Representation::All;
+        }
+        else if (item.iconType == "NOTIFICATIONS_NONE")
+        {
+            result.notificationBell.defaultEnabledStateIndex = i;
+            state.representation = QtTube::PluginNotificationState::Representation::Neutral;
+        }
+        else if (item.iconType == "NOTIFICATIONS_OFF")
+        {
+            state.representation = QtTube::PluginNotificationState::Representation::None;
+        }
+        else
+        {
+            continue;
+        }
+
+        result.notificationBell.states.append(state);
+    }
+
+    return result;
 }
 
 QtTube::PluginVideo convertVideo(const InnertubeObjects::CompactVideo& compactVideo, bool useThumbnailFromData)

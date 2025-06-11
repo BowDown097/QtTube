@@ -118,11 +118,6 @@ void WebEnginePlayer::setContext(InnertubeContext* context)
     m_interceptor->setContext(context);
 }
 
-void WebEnginePlayer::setPlayerResponse(const InnertubeEndpoints::PlayerResponse& resp)
-{
-    m_interceptor->setPlayerResponse(resp);
-}
-
 void WebEnginePlayer::seek(int progress)
 {
     m_view->page()->runJavaScript(QStringLiteral("document.getElementById('movie_player').seekTo(%1);").arg(progress));

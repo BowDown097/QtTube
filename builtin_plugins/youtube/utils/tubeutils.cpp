@@ -59,4 +59,35 @@ namespace TubeUtils
 
         HttpRequest().withHeaders(InnertubeEndpoints::EndpointMethods::getNeededHeaders(context, authStore)).get(outPlaybackUrl);
     }
+
+    // most logic courtesy of https://github.com/Rehike/Rehike
+    InnertubeObjects::InnertubeString unattribute(const InnertubeObjects::DynamicText& attributedDescription)
+    {
+        const QString& content = attributedDescription.content;
+        if (!attributedDescription.commandRuns.isArray())
+            return InnertubeObjects::InnertubeString(content);
+
+        const QJsonArray commandRuns = attributedDescription.commandRuns.toArray();
+        InnertubeObjects::InnertubeString out;
+        int start = 0;
+
+        for (const QJsonValue& commandRun : commandRuns)
+        {
+            int length = commandRun["length"].toInt();
+            int startIndex = commandRun["startIndex"].toInt();
+
+            if (QString beforeText = content.mid(start, startIndex - start); !beforeText.isEmpty())
+                out.runs.append(InnertubeObjects::InnertubeRun(beforeText));
+
+            QString linkText = content.mid(startIndex, length);
+            out.runs.append(InnertubeObjects::InnertubeRun(linkText, commandRun["onTap"]["innertubeCommand"]));
+
+            start = startIndex + length;
+        }
+
+        if (QString lastText = content.mid(start); !lastText.isEmpty())
+            out.runs.append(InnertubeObjects::InnertubeRun(lastText));
+
+        return out;
+    }
 }

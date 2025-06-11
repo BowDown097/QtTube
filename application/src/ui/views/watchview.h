@@ -1,27 +1,11 @@
 #pragma once
+#include "preloaddata.h"
+#include "qttube-plugin/components/replytypes.h"
 #include <QPointer>
 #include <QWidget>
 
-namespace InnertubeEndpoints
-{
-struct Next;
-struct Player;
-struct UpdatedMetadataResponse;
-}
-
-namespace InnertubeObjects
-{
-struct DynamicText;
-struct InnertubeString;
-struct LiveChat;
-struct ToggleButtonViewModel;
-}
-
-namespace PreloadData { struct WatchView; }
 namespace Ui { class WatchView; }
 
-class HttpReply;
-class InnertubeException;
 class QTimer;
 
 class WatchView : public QWidget
@@ -35,20 +19,16 @@ public:
 protected:
     void resizeEvent(QResizeEvent* event) override;
 private:
-    QString channelId;
     QPointer<QTimer> metadataUpdateTimer;
     Ui::WatchView* ui;
+    QString videoId;
 
     void processPreloadData(PreloadData::WatchView* preload);
-    InnertubeObjects::InnertubeString unattributeDescription(const InnertubeObjects::DynamicText& attributedDescription);
     void updateMetadata(const QString& videoId);
 private slots:
     void descriptionLinkActivated(const QString& url);
-    void likeOrDislike(bool like, const InnertubeObjects::ToggleButtonViewModel& toggleButton);
-    void openLiveChat(const InnertubeObjects::LiveChat& conversationBar);
-    void processNext(const InnertubeEndpoints::Next& endpoint);
-    void processPlayer(const InnertubeEndpoints::Player& endpoint);
-    void setDislikes(const HttpReply& reply);
+    void processData(const QtTube::VideoData& data);
+    void rate(bool like, const std::any& addData, const std::any& removeData);
 signals:
-    void loadFailed(const InnertubeException& ie);
+    void loadFailed(const QtTube::PluginException& ex);
 };

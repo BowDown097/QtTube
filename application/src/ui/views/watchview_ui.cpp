@@ -21,6 +21,15 @@ constexpr QLatin1String LikeBarStylesheet(R"(
     }
 )");
 
+void WatchView_Ui::constructLikeBar()
+{
+    likeBar = new QProgressBar;
+    likeBar->setFixedSize(155, 2);
+    likeBar->setMaximum(100);
+    likeBar->setStyleSheet(LikeBarStylesheet);
+    likeBarWrapper->addWidget(likeBar);
+}
+
 void WatchView_Ui::moveFeed(WatchViewPlayer::ScaleMode scaleMode)
 {
     feed->currentList()->verticalScrollBar()->setEnabled(scaleMode == WatchViewPlayer::ScaleMode::Scaled);
@@ -142,20 +151,10 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
     viewCount->setFont(QFont(qApp->font().toString(), qApp->font().pointSize() + 3));
     menuVbox->addWidget(viewCount);
 
-    if (qtTubeApp->settings().returnDislikes)
-    {
-        // i have to wrap the like bar for alignment to work... cringe!
-        likeBarWrapper = new QHBoxLayout;
-        likeBarWrapper->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-
-        likeBar = new QProgressBar(watchView);
-        likeBar->hide();
-        likeBar->setFixedSize(155, 2);
-        likeBar->setStyleSheet(LikeBarStylesheet);
-        likeBarWrapper->addWidget(likeBar);
-
-        menuVbox->addLayout(likeBarWrapper);
-    }
+    // wrapper for like bar to be inserted in if we need it, also needed for alignment to work
+    likeBarWrapper = new QHBoxLayout;
+    likeBarWrapper->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    menuVbox->addLayout(likeBarWrapper);
 
     topLevelButtons = new QHBoxLayout;
     topLevelButtons->setContentsMargins(0, 3, 0, 0);
@@ -196,7 +195,6 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
 
     subscribeWidget = new SubscribeWidget(watchView);
     subscribeWidget->layout->addStretch();
-    subscribeWidget->subscribersCountLabel->hide();
     primaryInfoVbox->addWidget(subscribeWidget);
 
     primaryInfoHbox->addLayout(primaryInfoVbox);

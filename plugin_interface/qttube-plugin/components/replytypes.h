@@ -11,13 +11,50 @@ namespace QtTube
     using BrowseData = QList<BrowseDataItem>;
     using NotificationsDataItem = PluginNotification;
     using NotificationsData = QList<NotificationsDataItem>;
+
+    struct VideoData
+    {
+        struct Continuations
+        {
+            std::any comments;
+            std::any recommended;
+        };
+
+        struct LikeData
+        {
+            std::any like;
+            std::any removeLike;
+            std::any dislike;
+            std::any removeDislike;
+        };
+
+        enum class LikeStatus { Liked, Disliked, Neutral };
+
+        PluginChannel channel;
+        Continuations continuations;
+        QString dateText;
+        QString descriptionText;
+        QString dislikeCountText;
+        bool isLiveContent{};
+        QString likeCountText;
+        LikeData likeData;
+        float likeDislikeRatio{};
+        LikeStatus likeStatus = LikeStatus::Neutral;
+        bool ratingsAvailable = true;
+        QList<PluginVideo> recommendedVideos;
+        QString titleText;
+        QString videoId;
+        QString viewCountText;
+    };
 }
 
 W_REGISTER_ARGTYPE(QtTube::BrowseData)
 W_REGISTER_ARGTYPE(QtTube::NotificationsData)
+W_REGISTER_ARGTYPE(QtTube::VideoData)
 
 namespace QtTube
 {
     using BrowseReply = PluginReply<BrowseData>;
     using NotificationsReply = PluginReply<NotificationsData>;
+    using VideoReply = PluginReply<VideoData>;
 }

@@ -72,9 +72,9 @@ namespace ViewController
             watchView->deleteLater();
             MainWindow::topbar()->setAlwaysShow(true);
         });
-        QObject::connect(watchView, &WatchView::loadFailed, [watchView](const InnertubeException& ie)
+        QObject::connect(watchView, &WatchView::loadFailed, [watchView](const QtTube::PluginException& ex)
         {
-            QMessageBox::critical(nullptr, "Failed to load video", ie.message());
+            QMessageBox::critical(nullptr, "Failed to load video", ex.message());
             watchView->deleteLater();
             MainWindow::topbar()->setAlwaysShow(true);
             MainWindow::topbar()->show();

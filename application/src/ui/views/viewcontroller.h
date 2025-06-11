@@ -1,7 +1,5 @@
 #pragma once
-#include <QString>
-
-namespace PreloadData { struct WatchView; }
+#include "preloaddata.h"
 
 namespace ViewController
 {
