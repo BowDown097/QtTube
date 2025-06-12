@@ -11,7 +11,7 @@ namespace QtTube
         QString lengthText;
         QString metadataText;
         int progressSecs{};
-        PluginMetadata* sourceMetadata;
+        PluginMetadata* sourceMetadata{};
         QList<PluginBadge> tags; // or badges
         QString thumbnailUrl;
         QString title;

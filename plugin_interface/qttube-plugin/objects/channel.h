@@ -71,7 +71,7 @@ namespace QtTube
         QString channelUrlPrefix;
         QString description;
         QString metadataText;
-        PluginMetadata* sourceMetadata;
+        PluginMetadata* sourceMetadata{};
         PluginSubscribeButton subscribeButton;
     };
 }

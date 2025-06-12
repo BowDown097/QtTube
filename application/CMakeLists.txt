@@ -76,6 +76,8 @@ set(SOURCE_FILES
     src/ui/widgets/labels/emojilabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
+    src/ui/widgets/modals/focusedmodal.cpp
+    src/ui/widgets/modals/sharemodal.cpp
     src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.cpp
     src/ui/widgets/renderers/backstage/backstagepollrenderer.cpp
     src/ui/widgets/renderers/backstage/backstagepostrenderer.cpp
@@ -170,6 +172,8 @@ set(HEADERS
     src/ui/widgets/labels/emojilabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
+    src/ui/widgets/modals/focusedmodal.h
+    src/ui/widgets/modals/sharemodal.h
     src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.h
     src/ui/widgets/renderers/backstage/backstagepollrenderer.h
     src/ui/widgets/renderers/backstage/backstagepostrenderer.h

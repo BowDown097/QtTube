@@ -1,10 +1,11 @@
 #include "watchview.h"
-#include "ui/views/viewcontroller.h"
 #include "watchview_ui.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
+#include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/iconlabel.h"
+#include "ui/widgets/modals/sharemodal.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
 #include "ui/widgets/watchnextfeed.h"
 #include "utils/osutils.h"
@@ -116,6 +117,8 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress, PreloadData::
 void WatchView::processData(const QtTube::VideoData& data)
 {
     videoId = data.videoId;
+    videoUrlPrefix = data.videoUrlPrefix;
+
     if (QMainWindow* mainWindow = UIUtils::getMainWindow())
         mainWindow->setWindowTitle(data.titleText + " - " + QTTUBE_APP_NAME);
 
@@ -131,6 +134,10 @@ void WatchView::processData(const QtTube::VideoData& data)
     ui->showMoreLabel->setVisible(
         ui->description->heightForWidth(ui->description->width()) >
         ui->description->maximumHeight());
+
+    IconLabel* shareLabel = new IconLabel("share", "Share", QMargins(5, 0, 0, 0));
+    ui->topLevelButtons->addWidget(shareLabel);
+    connect(shareLabel, &IconLabel::clicked, this, &WatchView::showShareModal);
 
     ui->topLevelButtons->addStretch();
 
@@ -239,6 +246,11 @@ void WatchView::resizeEvent(QResizeEvent* event)
     ui->scrollArea->setMaximumWidth(width);
     ui->showMoreLabel->setFixedWidth(width);
     ui->titleLabel->setFixedWidth(width);
+}
+
+void WatchView::showShareModal()
+{
+    new ShareModal(videoUrlPrefix, videoId, UIUtils::getMainWindow());
 }
 
 void WatchView::updateMetadata(const QString& videoId)

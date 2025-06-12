@@ -15,7 +15,7 @@ namespace QtTube
         QString channelUrlPrefix;
         QString notificationId;
         QString sentTimeText;
-        PluginMetadata* sourceMetadata;
+        PluginMetadata* sourceMetadata{};
         QString targetId;
         TargetType targetType;
         QString targetUrlPrefix;

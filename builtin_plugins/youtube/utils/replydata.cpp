@@ -128,7 +128,9 @@ QtTube::NotificationsData getNotificationsData(const InnertubeEndpoints::Notific
 void getPlayerData(QtTube::VideoData& data, const InnertubeEndpoints::PlayerResponse& response)
 {
     data.isLiveContent = response.videoDetails.isLive || response.videoDetails.isUpcoming;
+    data.sourceMetadata = &g_metadata;
     data.titleText = response.videoDetails.title;
+    data.videoUrlPrefix = "https://www.youtube.com/watch?v=";
 }
 
 QtTube::BrowseData getSearchData(const InnertubeEndpoints::SearchResponse& response)

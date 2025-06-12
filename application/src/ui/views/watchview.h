@@ -22,6 +22,7 @@ private:
     QPointer<QTimer> metadataUpdateTimer;
     Ui::WatchView* ui;
     QString videoId;
+    QString videoUrlPrefix;
 
     void processPreloadData(PreloadData::WatchView* preload);
     void updateMetadata(const QString& videoId);
@@ -29,6 +30,7 @@ private slots:
     void descriptionLinkActivated(const QString& url);
     void processData(const QtTube::VideoData& data);
     void rate(bool like, const std::any& addData, const std::any& removeData);
+    void showShareModal();
 signals:
     void loadFailed(const QtTube::PluginException& ex);
 };
