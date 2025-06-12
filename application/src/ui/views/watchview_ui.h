@@ -28,7 +28,7 @@ public:
     QFrame* frame;
     QVBoxLayout* frameLayout;
     QSpacerItem* infoSpacer;
-    QProgressBar* likeBar;
+    QProgressBar* likeBar{};
     QHBoxLayout* likeBarWrapper;
     IconLabel* likeLabel;
     QVBoxLayout* menuVbox;
