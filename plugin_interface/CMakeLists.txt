@@ -27,6 +27,7 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/objects/notification.h
             qttube-plugin/objects/shelf.h
             qttube-plugin/objects/video.h
+            qttube-plugin/objects/videodata.h
             qttube-plugin/objects/livechat/livechat.h
             qttube-plugin/objects/livechat/livechatbase.h
             qttube-plugin/objects/livechat/livechatreplay.h

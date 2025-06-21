@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/components/replytypes.h"
+#include "qttube-plugin/objects/videodata.h"
 #include <QTabWidget>
 
 class ContinuableListWidget;
