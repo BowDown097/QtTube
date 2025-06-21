@@ -16,7 +16,7 @@ class EmojiStore : public QObject
     Q_OBJECT
 public:
     static EmojiStore* instance() { static EmojiStore inst; return &inst; }
-    EmojiStore(QObject* parent = nullptr);
+    explicit EmojiStore(QObject* parent = nullptr);
 
     void add(const QString& group, const QList<QtTube::Emoji>& emojis, bool mergeIntoGroup);
 

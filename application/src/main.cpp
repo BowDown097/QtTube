@@ -1,6 +1,6 @@
 #include "qttubeapplication.h"
 #include "mainwindow.h"
-#include "ui/forms/livechat/livechatwindow.h"
+#include "ui/forms/livechatwindow.h"
 
 int main(int argc, char *argv[])
 {

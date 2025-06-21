@@ -31,11 +31,7 @@ set(SOURCE_FILES
     src/ui/browsehelper.cpp
     src/ui/channelbrowser.cpp
     src/ui/forms/emojimenu.cpp
-    src/ui/forms/livechat/giftredemptionmessage.cpp
-    src/ui/forms/livechat/livechatwindow.cpp
-    src/ui/forms/livechat/paidmessage.cpp
-    src/ui/forms/livechat/specialmessage.cpp
-    src/ui/forms/livechat/textmessage.cpp
+    src/ui/forms/livechatwindow.cpp
     src/ui/forms/settings/channelfiltertable.cpp
     src/ui/forms/settings/settingsform.cpp
     src/ui/forms/settings/termfilterview.cpp
@@ -76,6 +72,10 @@ set(SOURCE_FILES
     src/ui/widgets/labels/emojilabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
+    src/ui/widgets/livechat/giftredemptionmessage.cpp
+    src/ui/widgets/livechat/paidmessage.cpp
+    src/ui/widgets/livechat/specialmessage.cpp
+    src/ui/widgets/livechat/textmessage.cpp
     src/ui/widgets/modals/focusedmodal.cpp
     src/ui/widgets/modals/sharemodal.cpp
     src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.cpp
@@ -124,11 +124,7 @@ set(HEADERS
     src/ui/browsehelper.h
     src/ui/channelbrowser.h
     src/ui/forms/emojimenu.h
-    src/ui/forms/livechat/giftredemptionmessage.h
-    src/ui/forms/livechat/livechatwindow.h
-    src/ui/forms/livechat/paidmessage.h
-    src/ui/forms/livechat/specialmessage.h
-    src/ui/forms/livechat/textmessage.h
+    src/ui/forms/livechatwindow.h
     src/ui/forms/settings/channelfiltertable.h
     src/ui/forms/settings/settingsform.h
     src/ui/forms/settings/termfilterview.h
@@ -172,6 +168,10 @@ set(HEADERS
     src/ui/widgets/labels/emojilabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
+    src/ui/widgets/livechat/giftredemptionmessage.h
+    src/ui/widgets/livechat/paidmessage.h
+    src/ui/widgets/livechat/specialmessage.h
+    src/ui/widgets/livechat/textmessage.h
     src/ui/widgets/modals/focusedmodal.h
     src/ui/widgets/modals/sharemodal.h
     src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.h
@@ -210,7 +210,7 @@ set(HEADERS
 set(FORMS
     src/mainwindow.ui
     src/ui/forms/emojimenu.ui
-    src/ui/forms/livechat/livechatwindow.ui
+    src/ui/forms/livechatwindow.ui
     src/ui/forms/settings/channelfiltertable.ui
     src/ui/forms/settings/settingsform.ui
     src/ui/forms/settings/termfilterview.ui

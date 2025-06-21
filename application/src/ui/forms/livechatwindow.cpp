@@ -1,37 +1,25 @@
 #include "livechatwindow.h"
-#include "stores/emojistore.h"
 #include "ui_livechatwindow.h"
 #include "qttubeapplication.h"
+#include "stores/emojistore.h"
 #include "ui/forms/emojimenu.h"
 #include "ui/widgets/labels/tubelabel.h"
+#include "ui/widgets/livechat/giftredemptionmessage.h"
+#include "ui/widgets/livechat/paidmessage.h"
+#include "ui/widgets/livechat/specialmessage.h"
+#include "ui/widgets/livechat/textmessage.h"
 #include "utils/uiutils.h"
-#include "giftredemptionmessage.h"
-#include "paidmessage.h"
-#include "specialmessage.h"
-#include "textmessage.h"
 #include <QMessageBox>
 #include <QTimer>
 
 LiveChatWindow::LiveChatWindow(QWidget* parent)
     : QWidget(parent),
-      emojiMenu(new EmojiMenu),
-      emojiMenuLabel(new TubeLabel(this)),
       messagesTimer(new QTimer(this)),
       ui(new Ui::LiveChatWindow)
 {
     ui->setupUi(this);
-
-    emojiMenu->hide();
     ui->chatModeSwitcher->hide();
 
-    emojiMenuLabel->setClickable(true);
-    emojiMenuLabel->setFixedSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8);
-    emojiMenuLabel->setScaledContents(true);
-    emojiMenuLabel->setPixmap(UIUtils::pixmapThemed("emoji"));
-    ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
-
-    connect(emojiMenu, &EmojiMenu::emojiClicked, this, &LiveChatWindow::insertEmoji);
-    connect(emojiMenuLabel, &TubeLabel::clicked, emojiMenu, &EmojiMenu::show);
     connect(ui->messageBox, &QLineEdit::returnPressed, this, &LiveChatWindow::sendMessage);
     connect(ui->sendButton, &QPushButton::pressed, this, &LiveChatWindow::sendMessage);
 }
@@ -42,7 +30,6 @@ LiveChatWindow::~LiveChatWindow()
     if (populating)
         waitForPopulation();
 
-    emojiMenu->deleteLater();
     delete ui;
 }
 
@@ -86,11 +73,7 @@ void LiveChatWindow::chatModeChanged(const QString& name)
         }
 
         if (populating)
-        {
-            QEventLoop loop;
-            connect(this, &LiveChatWindow::getLiveChatFinished, &loop, &QEventLoop::quit);
-            loop.exec();
-        }
+            waitForPopulation();
 
         nextData = it->second;
         ui->listWidget->clear();
@@ -138,12 +121,25 @@ void LiveChatWindow::chatTick()
     }
 }
 
+void LiveChatWindow::createEmojiMenuWidgets()
+{
+    EmojiMenu* emojiMenu = new EmojiMenu(this, Qt::Window);
+    connect(emojiMenu, &EmojiMenu::emojiClicked, this, &LiveChatWindow::insertEmoji);
+
+    TubeLabel* emojiMenuLabel = new TubeLabel(this);
+    emojiMenuLabel->setClickable(true);
+    emojiMenuLabel->setFixedSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8);
+    emojiMenuLabel->setScaledContents(true);
+    emojiMenuLabel->setPixmap(UIUtils::pixmapThemed("emoji"));
+    ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
+    connect(emojiMenuLabel, &TubeLabel::clicked, emojiMenu, &EmojiMenu::show);
+}
+
 void LiveChatWindow::initialize(const QtTube::InitialLiveChatData& data, WatchViewPlayer* player)
 {
     nextData = data.data;
     if (data.isReplay)
     {
-        emojiMenuLabel->hide();
         ui->chatModeSwitcher->hide();
         ui->messageBox->hide();
         ui->sendButton->hide();
@@ -152,6 +148,7 @@ void LiveChatWindow::initialize(const QtTube::InitialLiveChatData& data, WatchVi
     }
     else
     {
+        createEmojiMenuWidgets();
         if (!data.platformEmojis.isEmpty())
             EmojiStore::instance()->add("Platform", data.platformEmojis, false);
         messagesTimer->start(data.updateIntervalMs);

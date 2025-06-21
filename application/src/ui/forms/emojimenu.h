@@ -15,7 +15,7 @@ class EmojiMenu : public QWidget
 {
     Q_OBJECT
 public:
-    explicit EmojiMenu(QWidget *parent = nullptr);
+    explicit EmojiMenu(QWidget* parent = nullptr, Qt::WindowFlags f = {});
     ~EmojiMenu();
 private:
     QList<std::pair<TubeLabel*, QList<EmojiLabel*>>> emojiGroupLabels;

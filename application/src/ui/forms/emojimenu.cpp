@@ -1,13 +1,14 @@
 #include "emojimenu.h"
-#include "stores/emojistore.h"
 #include "ui_emojimenu.h"
+#include "stores/emojistore.h"
 #include "ui/widgets/flowlayout.h"
 #include "ui/widgets/labels/emojilabel.h"
 #include <QTimer>
 
 EmojiMenu::~EmojiMenu() { delete ui; }
 
-EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
+EmojiMenu::EmojiMenu(QWidget* parent, Qt::WindowFlags f)
+    : QWidget(parent, f), ui(new Ui::EmojiMenu)
 {
     ui->setupUi(this);
     layout = new FlowLayout(ui->scrollAreaContents);
@@ -66,6 +67,7 @@ void EmojiMenu::filterEmojis()
 {
     const QString searchText = ui->emojiSearch->text();
     auto termFilter = [&searchText](const QString& term) { return term.contains(searchText, Qt::CaseInsensitive); };
+
     for (const auto& [groupLabel, emojiLabels] : std::as_const(emojiGroupLabels))
     {
         bool anyVisible = false;

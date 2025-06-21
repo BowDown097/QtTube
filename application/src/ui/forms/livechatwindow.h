@@ -8,9 +8,7 @@ namespace Ui {
 class LiveChatWindow;
 }
 
-class EmojiMenu;
 class QTimer;
-class TubeLabel;
 
 class LiveChatWindow : public QWidget
 {
@@ -18,11 +16,7 @@ class LiveChatWindow : public QWidget
 public:
     explicit LiveChatWindow(QWidget* parent = nullptr);
     ~LiveChatWindow();
-public slots:
-    void initialize(const QtTube::InitialLiveChatData& data, WatchViewPlayer* player);
 private:
-    EmojiMenu* emojiMenu;
-    TubeLabel* emojiMenuLabel;
     qint64 firstChatItemOffset{};
     qint64 lastChatItemOffset{};
     QTimer* messagesTimer;
@@ -35,9 +29,12 @@ private:
 
     void addChatItemToList(const QtTube::LiveChatItem& item);
     void addNewChatReplayItems(double progress, double previousProgress, bool seeked);
+    void createEmojiMenuWidgets();
     void processingEnd();
     void updateChatReplay(double progress, double previousProgress);
     void waitForPopulation();
+public slots:
+    void initialize(const QtTube::InitialLiveChatData& data, WatchViewPlayer* player);
 private slots:
     void chatModeChanged(const QString& name);
     void chatReplayTick(double progress, double previousProgress);
