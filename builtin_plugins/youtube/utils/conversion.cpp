@@ -63,6 +63,96 @@ QtTube::PluginException convertException(const InnertubeException& ex)
     return QtTube::PluginException(ex.message(), static_cast<QtTube::PluginException::Severity>(ex.severity()));
 }
 
+QtTube::LiveChatItem convertLiveChatItem(const QJsonValue& item)
+{
+    if (const QJsonValue textMessage = item["liveChatTextMessageRenderer"]; textMessage.isObject()) [[likely]]
+    {
+        QtTube::TextMessage result = {
+            .authorName = InnertubeObjects::InnertubeString(textMessage["authorName"]).text,
+            .content = InnertubeObjects::InnertubeString(textMessage["message"]).toRichText(false),
+        };
+
+        InnertubeObjects::ResponsiveImage authorPhoto(textMessage["authorPhoto"]["thumbnails"]);
+        if (const InnertubeObjects::GenericThumbnail* recPhoto = authorPhoto.recommendedQuality(QSize(32, 32)))
+            result.authorAvatarUrl = recPhoto->url;
+
+        if (const QJsonArray authorBadges = textMessage["authorBadges"].toArray(); !authorBadges.isEmpty())
+        {
+            bool isModerator = std::ranges::any_of(authorBadges, [](const QJsonValue& badge) {
+                return badge["liveChatAuthorBadgeRenderer"]["icon"]["iconType"].toString() == "MODERATOR";
+            });
+
+            // if not moderator, assume member (is there anything else?)
+            result.authorNameColor = isModerator ? "#5e84f1" : "#2ba640";
+        }
+
+        if (const QString timestampText = textMessage["timestampText"].toString(); !timestampText.isEmpty())
+        {
+            result.timestampText = timestampText;
+        }
+        else
+        {
+            quint64 timestampUsec = textMessage["timestampUsec"].toString().toULongLong();
+            result.timestampText = QDateTime::fromSecsSinceEpoch(timestampUsec / 1000000)
+                .toString(QLocale::system().timeFormat(QLocale::ShortFormat));
+        }
+
+        return result;
+    }
+    else if (const QJsonValue membershipItem = item["liveChatMembershipItemRenderer"]; membershipItem.isObject())
+    {
+        return QtTube::SpecialMessage {
+            .backgroundColor = "#0f9d58",
+            .content = InnertubeObjects::InnertubeString(membershipItem["headerSubtext"]).text,
+            .header = InnertubeObjects::InnertubeString(membershipItem["authorName"]).text
+        };
+    }
+    else if (const QJsonValue modeChangeMessage = item["liveChatModeChangeMessageRenderer"]; modeChangeMessage.isObject())
+    {
+        return QtTube::SpecialMessage {
+            .backgroundColor = "black",
+            .content = InnertubeObjects::InnertubeString(modeChangeMessage["subtext"]).text,
+            .contentStyle = QFont::StyleItalic,
+            .header = InnertubeObjects::InnertubeString(modeChangeMessage["text"]).text
+        };
+    }
+    else if (const QJsonValue paidMessage = item["liveChatPaidMessageRenderer"]; paidMessage.isObject())
+    {
+        QtTube::PaidMessage result = {
+            .authorName = InnertubeObjects::InnertubeString(paidMessage["authorName"]).text,
+            .content = InnertubeObjects::InnertubeString(paidMessage["message"]).toRichText(false),
+            .contentBackgroundColor = '#' + QString::number(paidMessage["bodyBackgroundColor"].toInteger(), 16),
+            .contentTextColor = '#' + QString::number(paidMessage["bodyTextColor"].toInteger(), 16),
+            .headerBackgroundColor = '#' + QString::number(paidMessage["headerBackgroundColor"].toInteger(), 16),
+            .headerTextColor = '#' + QString::number(paidMessage["headerTextColor"].toInteger(), 16),
+            .paidAmountText = InnertubeObjects::InnertubeString(paidMessage["purchaseAmountText"]).text
+        };
+
+        InnertubeObjects::ResponsiveImage authorPhoto(paidMessage["authorPhoto"]["thumbnails"]);
+        if (const InnertubeObjects::GenericThumbnail* recPhoto = authorPhoto.recommendedQuality(QSize(32, 32)))
+            result.authorAvatarUrl = recPhoto->url;
+
+        return result;
+    }
+    else if (const QJsonValue giftMessage = item["liveChatSponsorshipsGiftRedemptionAnnouncementRenderer"]; giftMessage.isObject())
+    {
+        return QtTube::GiftRedemptionMessage {
+            .authorName = InnertubeObjects::InnertubeString(giftMessage["authorName"]).text,
+            .content = InnertubeObjects::InnertubeString(giftMessage["message"]).text
+        };
+    }
+    else if (const QJsonValue engagement = item["liveChatViewerEngagementMessageRenderer"]; engagement.isObject())
+    {
+        return QtTube::SpecialMessage {
+            .backgroundColor = "black",
+            .content = InnertubeObjects::InnertubeString(engagement["message"]).text,
+            .header = InnertubeObjects::InnertubeString(engagement["text"]).text
+        };
+    }
+
+    return {};
+}
+
 QtTube::PluginNotification convertNotification(const InnertubeObjects::Notification& notification)
 {
     QtTube::PluginNotification result = {

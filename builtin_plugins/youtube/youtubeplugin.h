@@ -17,6 +17,10 @@ public:
     QtTube::BrowseReply* getTrending(std::any continuationData) override;
     QtTube::VideoReply* getVideo(const QString& videoId, std::any continuationData) override;
 
+    QtTube::LiveChatReply* getLiveChat(std::any data) override;
+    QtTube::LiveChatReplayReply* getLiveChatReplay(std::any data, qint64 videoOffsetMs) override;
+    QtTube::PluginReply<void>* sendLiveChatMessage(const QString& text) override;
+
     QtTube::PluginReply<void>* rate(const QString& videoId, bool like, bool removing, std::any data) override;
 
     QtTube::PluginReply<void>* setNotificationPreference(std::any data) override;

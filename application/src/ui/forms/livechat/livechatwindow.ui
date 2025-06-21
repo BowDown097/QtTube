@@ -20,23 +20,12 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QComboBox" name="chatModeSwitcher">
-       <item>
-        <property name="text">
-         <string>Top chat</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Live chat</string>
-        </property>
-       </item>
-      </widget>
+      <widget class="QComboBox" name="chatModeSwitcher"/>
      </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -60,10 +49,10 @@
       <string notr="true">QListWidget::item { background: transparent; }</string>
      </property>
      <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
      <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
      <property name="spacing">
       <number>5</number>

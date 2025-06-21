@@ -1,30 +1,28 @@
 #include "paidmessage.h"
-#include "innertube/objects/images/responsiveimage.h"
-#include "innertube/objects/innertubestring.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include <QBoxLayout>
 
 constexpr QLatin1String HeaderStylesheet(R"(
-    background: #%1;
+    background: %1;
     border-top: 1px solid transparent;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
-    color: #%2;
+    color: %2;
 )");
 
 constexpr QLatin1String MessageStylesheet(R"(
-    background: #%1;
+    background: %1;
     border-bottom: 1px solid transparent;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
-    color: #%2;
+    color: %2;
 )");
 
-PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
+PaidMessage::PaidMessage(const QtTube::PaidMessage& data, QWidget* parent)
     : QWidget(parent),
-      amountLabel(new TubeLabel(renderer["purchaseAmountText"]["simpleText"].toString(), this)),
+      amountLabel(new TubeLabel(data.paidAmountText, this)),
       authorIcon(new TubeLabel(this)),
-      authorLabel(new TubeLabel(renderer["authorName"]["simpleText"].toString(), this)),
+      authorLabel(new TubeLabel(data.authorName, this)),
       header(new QWidget(this)),
       headerLayout(new QHBoxLayout(header)),
       innerHeaderLayout(new QVBoxLayout),
@@ -35,22 +33,17 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     layout->setSpacing(0);
 
     header->setAutoFillBackground(true);
-    header->setStyleSheet(HeaderStylesheet
-        .arg(QString::number(renderer["headerBackgroundColor"].toVariant().toLongLong(), 16),
-             QString::number(renderer["headerTextColor"].toVariant().toLongLong(), 16)));
+    header->setStyleSheet(HeaderStylesheet.arg(data.headerBackgroundColor, data.headerTextColor));
     layout->addWidget(header);
 
     headerLayout->setContentsMargins(5, 0, 0, 0);
     headerLayout->setSpacing(0);
 
     authorIcon->setFixedSize(32, 32);
+    authorIcon->setImage(data.authorAvatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
     authorIcon->setScaledContents(true);
     headerLayout->addWidget(authorIcon);
     headerLayout->addSpacerItem(new QSpacerItem(6, 0));
-
-    InnertubeObjects::ResponsiveImage authorPhoto(renderer["authorPhoto"]["thumbnails"]);
-    if (const InnertubeObjects::GenericThumbnail* recThumb = authorPhoto.recommendedQuality(authorIcon->size()))
-        authorIcon->setImage(recThumb->url, TubeLabel::Cached | TubeLabel::Rounded);
 
     innerHeaderLayout->setContentsMargins(0, 0, 0, 0);
     innerHeaderLayout->setSpacing(0);
@@ -63,16 +56,14 @@ PaidMessage::PaidMessage(const QJsonValue& renderer, QWidget* parent)
     amountLabel->setWordWrap(true);
     innerHeaderLayout->addWidget(amountLabel);
 
-    if (InnertubeObjects::InnertubeString message(renderer["message"]); !message.runs.isEmpty())
+    if (!data.content.isEmpty())
     {
         messageLabel->setAlignment(Qt::AlignCenter);
         messageLabel->setAutoFillBackground(true);
-        messageLabel->setStyleSheet(MessageStylesheet
-            .arg(QString::number(renderer["bodyBackgroundColor"].toVariant().toLongLong(), 16),
-                 QString::number(renderer["bodyTextColor"].toVariant().toLongLong(), 16)));
+        messageLabel->setStyleSheet(MessageStylesheet.arg(data.contentBackgroundColor, data.contentTextColor));
         messageLabel->setTextFormat(Qt::RichText);
         messageLabel->setWordWrap(true);
-        messageLabel->setText(message.toRichText(false), true, TubeLabel::Cached);
+        messageLabel->setText(data.content, true, TubeLabel::Cached);
         layout->addWidget(messageLabel);
     }
 }

@@ -1,5 +1,4 @@
 #include "qttubeapplication.h"
-#include "innertube.h"
 #include "mainwindow.h"
 #include "ui/forms/livechat/livechatwindow.h"
 
@@ -47,19 +46,26 @@ int main(int argc, char *argv[])
     if (parser.isSet("chat"))
     {
         qtTubeApp->doInitialSetup();
-
-        auto endpoint = InnerTube::instance()->getBlocking<InnertubeEndpoints::Next>(parser.value("chat"));
-
-        if (const std::optional<InnertubeObjects::LiveChat>& conversationBar = endpoint.response.contents.conversationBar)
+        if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
         {
-            LiveChatWindow liveChatWindow;
-            liveChatWindow.show();
-            liveChatWindow.initialize(conversationBar->continuations.front(), conversationBar->isReplay, nullptr);
+            QtTube::VideoReply* videoReply = plugin->interface->getVideo(parser.value("chat"), {});
+            QObject::connect(videoReply, &QtTube::VideoReply::exception, [](const QtTube::PluginException& ex) {
+                qDebug() << "Could not open live chat:" << ex.message();
+                qtTubeApp->exit(EXIT_FAILURE);
+            });
+            QObject::connect(videoReply, &QtTube::VideoReply::finished, [](const QtTube::VideoData& data) {
+                if (data.initialLiveChatData.has_value())
+                {
+                    LiveChatWindow liveChatWindow;
+                    liveChatWindow.show();
+                    liveChatWindow.initialize(data.initialLiveChatData.value(), nullptr);
+                }
+            });
             return a.exec();
         }
         else
         {
-            qDebug() << "Video not found or live chat is not available.";
+            qDebug() << "No active plugin found.";
             exit(EXIT_FAILURE);
         }
     }

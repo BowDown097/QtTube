@@ -4,6 +4,7 @@
 #include "protobuf/protobufcompiler.h"
 #include "utils/conversion.h"
 #include "utils/replydata.h"
+#include "utils/stringutils.h"
 
 using namespace InnertubeEndpoints;
 
@@ -54,6 +55,9 @@ const QVariantMap g_searchMsgFields = {
         }}
     }
 };
+
+QJsonValue g_liveChatSendEndpoint;
+int g_liveChatSentMessages{};
 
 QByteArray YouTubePlugin::compileSearchParams(const QList<std::pair<QString, int>>& activeFilters)
 {
@@ -137,6 +141,37 @@ QtTube::BrowseReply* YouTubePlugin::getHome(std::any continuationData)
             }
         });
     }
+
+    return pluginReply;
+}
+
+QtTube::LiveChatReply* YouTubePlugin::getLiveChat(std::any data)
+{
+    QtTube::LiveChatReply* pluginReply = QtTube::LiveChatReply::create();
+
+    InnertubeReply<GetLiveChat>* tubeReply = InnerTube::instance()->get<GetLiveChat>(std::any_cast<QString>(data));
+    QObject::connect(tubeReply, &InnertubeReply<GetLiveChat>::exception, [pluginReply](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(tubeReply, &InnertubeReply<GetLiveChat>::finished, [pluginReply](const GetLiveChat& endpoint) {
+        emit pluginReply->finished(getLiveChatData(endpoint, g_liveChatSendEndpoint, g_liveChatSentMessages));
+    });
+
+    return pluginReply;
+}
+
+QtTube::LiveChatReplayReply* YouTubePlugin::getLiveChatReplay(std::any data, qint64 videoOffsetMs)
+{
+    QtTube::LiveChatReplayReply* pluginReply = QtTube::LiveChatReplayReply::create();
+
+    InnertubeReply<GetLiveChatReplay>* tubeReply = InnerTube::instance()->get<GetLiveChatReplay>(
+        std::any_cast<QString>(data), QString::number(videoOffsetMs));
+    QObject::connect(tubeReply, &InnertubeReply<GetLiveChatReplay>::exception, [pluginReply](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(tubeReply, &InnertubeReply<GetLiveChatReplay>::finished, [pluginReply](const GetLiveChatReplay& endpoint) {
+        emit pluginReply->finished(getLiveChatReplayData(endpoint));
+    });
 
     return pluginReply;
 }
@@ -289,6 +324,20 @@ QtTube::PluginReply<void>* YouTubePlugin::rate(const QString& videoId, bool like
         InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<Dislike>(videoId, std::any_cast<QString>(data));
         QObject::connect(tubeReply, &InnertubeReply<void>::finished, pluginReply, &QtTube::PluginReply<void>::finished);
     }
+
+    return pluginReply;
+}
+
+QtTube::PluginReply<void>* YouTubePlugin::sendLiveChatMessage(const QString& text)
+{
+    QtTube::PluginReply<void>* pluginReply = QtTube::PluginReply<void>::create();
+
+    const QString clientMessageId = g_liveChatSendEndpoint["clientIdPrefix"].toString() + QString::number(g_liveChatSentMessages++);
+    const QString params = g_liveChatSendEndpoint["params"].toString();
+    const QJsonArray textSegments = StringUtils::makeRichChatMessage(text);
+
+    InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<SendMessage>(textSegments, clientMessageId, params);
+    QObject::connect(tubeReply, &InnertubeReply<void>::finished, pluginReply, &QtTube::PluginReply<void>::finished);
 
     return pluginReply;
 }

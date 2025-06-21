@@ -1,4 +1,5 @@
 #include "watchview.h"
+#include "ui/forms/livechat/livechatwindow.h"
 #include "watchview_ui.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
@@ -114,6 +115,14 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress, PreloadData::
     ui->player->play(videoId, progress);
 }
 
+void WatchView::openLiveChat(const QtTube::InitialLiveChatData& data)
+{
+    LiveChatWindow* window = new LiveChatWindow;
+    window->setAttribute(Qt::WA_DeleteOnClose);
+    window->show();
+    window->initialize(data, ui->player);
+}
+
 void WatchView::processData(const QtTube::VideoData& data)
 {
     videoId = data.videoId;
@@ -138,6 +147,14 @@ void WatchView::processData(const QtTube::VideoData& data)
     IconLabel* shareLabel = new IconLabel("share", "Share", QMargins(5, 0, 0, 0));
     ui->topLevelButtons->addWidget(shareLabel);
     connect(shareLabel, &IconLabel::clicked, this, &WatchView::showShareModal);
+
+    if (data.initialLiveChatData.has_value())
+    {
+        IconLabel* liveChatLabel = new IconLabel("live-chat", "Chat", QMargins(15, 0, 0, 0));
+        ui->topLevelButtons->addWidget(liveChatLabel);
+        connect(liveChatLabel, &IconLabel::clicked, this,
+            std::bind(&WatchView::openLiveChat, this, data.initialLiveChatData.value()));
+    }
 
     ui->topLevelButtons->addStretch();
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <QJsonValue>
+#include "qttube-plugin/objects/livechat/items/textmessage.h"
 #include <QWidget>
 
 class QHBoxLayout;
@@ -9,7 +9,7 @@ class TubeLabel;
 class TextMessage : public QWidget
 {
 public:
-    TextMessage(const QJsonValue& renderer, QWidget* parent);
+    TextMessage(const QtTube::TextMessage& data, QWidget* parent);
 private:
     TubeLabel* authorIcon;
     TubeLabel* authorLabel;

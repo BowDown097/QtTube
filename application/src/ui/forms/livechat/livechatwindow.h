@@ -1,19 +1,14 @@
 #pragma once
+#include "qttube-plugin/components/replytypes.h"
+#include "qttube-plugin/objects/emoji.h"
 #include "ui/views/watchviewplayer.h"
-#include <QJsonArray>
 #include <QWidget>
 
 namespace Ui {
 class LiveChatWindow;
 }
 
-namespace InnertubeEndpoints
-{
-struct GetLiveChat;
-struct GetLiveChatReplay;
-}
-
-class QJsonArray;
+class EmojiMenu;
 class QTimer;
 class TubeLabel;
 
@@ -24,37 +19,33 @@ public:
     explicit LiveChatWindow(QWidget* parent = nullptr);
     ~LiveChatWindow();
 public slots:
-    void initialize(const QString& continuation, bool isReplay, WatchViewPlayer* player);
+    void initialize(const QtTube::InitialLiveChatData& data, WatchViewPlayer* player);
 private:
-    QJsonValue actionPanel;
-    QString currentContinuation;
-    double firstChatItemOffset{};
-    double lastChatItemOffset{};
-    QString liveChatReloadContinuation;
-    QTimer* messagesTimer;
-    int numSentMessages{};
-    bool populating{};
-    QJsonArray replayActions;
-    QString seekContinuation;
-    QString topChatReloadContinuation;
-
+    EmojiMenu* emojiMenu;
     TubeLabel* emojiMenuLabel;
+    qint64 firstChatItemOffset{};
+    qint64 lastChatItemOffset{};
+    QTimer* messagesTimer;
+    std::any nextData;
+    bool populating{};
+    QList<QtTube::LiveChatReplayItem> replayItems;
+    std::any seekData;
     Ui::LiveChatWindow* ui;
+    std::unordered_map<QString, std::any> viewOptions;
 
-    void addChatItemToList(const QJsonValue& item);
+    void addChatItemToList(const QtTube::LiveChatItem& item);
     void addNewChatReplayItems(double progress, double previousProgress, bool seeked);
     void processingEnd();
     void updateChatReplay(double progress, double previousProgress);
+    void waitForPopulation();
 private slots:
-    void chatModeIndexChanged(int index);
+    void chatModeChanged(const QString& name);
     void chatReplayTick(double progress, double previousProgress);
     void chatTick();
-    void insertEmoji(const QString& emoji);
-    void processChatData(const InnertubeEndpoints::GetLiveChat& liveChat);
-    void processChatReplayData(double progress, double previousProgress, bool seeked,
-                               const InnertubeEndpoints::GetLiveChatReplay& replay);
+    void insertEmoji(const QtTube::Emoji& emoji);
+    void processChatData(const QtTube::LiveChat& data);
+    void processChatReplayData(double progress, double previousProgress, bool seeked, const QtTube::LiveChatReplay& data);
     void sendMessage();
-    void showEmojiMenu();
 signals:
     void getLiveChatFinished();
 };

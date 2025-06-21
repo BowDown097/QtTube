@@ -26,6 +26,10 @@ namespace QtTube
         virtual BrowseReply* getTrending(std::any continuationData) { return BrowseReply::create(); }
         virtual VideoReply* getVideo(const QString& videoId, std::any continuationData) { return VideoReply::create(); }
 
+        virtual LiveChatReply* getLiveChat(std::any data) { return LiveChatReply::create(); }
+        virtual LiveChatReplayReply* getLiveChatReplay(std::any data, qint64 videoOffsetMs) { return LiveChatReplayReply::create(); }
+        virtual PluginReply<void>* sendLiveChatMessage(const QString& text) { return PluginReply<void>::create(); }
+
         virtual PluginReply<void>* rate(
             const QString& videoId,
             bool like,

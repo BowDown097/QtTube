@@ -1,13 +1,12 @@
 #include "giftredemptionmessage.h"
-#include "innertube/objects/innertubestring.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include <QBoxLayout>
 
-GiftRedemptionMessage::GiftRedemptionMessage(const QJsonValue& renderer, QWidget* parent)
+GiftRedemptionMessage::GiftRedemptionMessage(const QtTube::GiftRedemptionMessage& data, QWidget* parent)
     : QWidget(parent),
-      authorLabel(new TubeLabel(renderer["authorName"]["simpleText"].toString(), this)),
+      authorLabel(new TubeLabel(data.authorName, this)),
       layout(new QHBoxLayout(this)),
-      messageLabel(new TubeLabel(" " + InnertubeObjects::InnertubeString(renderer["message"]).text, this))
+      messageLabel(new TubeLabel(" " + data.content, this))
 {
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);

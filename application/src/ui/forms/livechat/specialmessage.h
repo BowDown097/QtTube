@@ -1,5 +1,5 @@
 #pragma once
-#include <QJsonValue>
+#include "qttube-plugin/objects/livechat/items/specialmessage.h"
 #include <QWidget>
 
 class QVBoxLayout;
@@ -8,9 +8,7 @@ class TubeLabel;
 class SpecialMessage : public QWidget
 {
 public:
-    explicit SpecialMessage(const QJsonValue& renderer, QWidget* parent = nullptr,
-                            const QString& headerKey = "text", const QString& subtextKey = "subtext",
-                            bool subtextItalic = true, const QString& background = "black");
+    explicit SpecialMessage(const QtTube::SpecialMessage& data, QWidget* parent = nullptr);
 private:
     TubeLabel* header;
     QVBoxLayout* layout;

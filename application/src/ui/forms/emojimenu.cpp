@@ -1,56 +1,82 @@
 #include "emojimenu.h"
+#include "stores/emojistore.h"
 #include "ui_emojimenu.h"
 #include "ui/widgets/flowlayout.h"
 #include "ui/widgets/labels/emojilabel.h"
-#include "ytemoji.h"
+#include <QTimer>
 
 EmojiMenu::~EmojiMenu() { delete ui; }
 
 EmojiMenu::EmojiMenu(QWidget* parent) : QWidget(parent), ui(new Ui::EmojiMenu)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-
-    connect(ui->emojiSearch, &QLineEdit::textEdited, this, &EmojiMenu::filterEmojis);
-
     layout = new FlowLayout(ui->scrollAreaContents);
 
-    for (const ytemoji::YouTubeEmoji& ytEmoji : ytemoji::instance()->youtubeEmojis())
-    {
-        EmojiLabel* emoji = new EmojiLabel(ytEmoji.shortcut, ytEmoji.image, ui->scrollAreaContents);
-        layout->addWidget(emoji);
-        connect(emoji, &EmojiLabel::clicked, this, std::bind(&EmojiMenu::emojiClicked, this, emoji->primaryShortcut()));
-    }
+    connect(ui->emojiSearch, &QLineEdit::textEdited, this, &EmojiMenu::beginSearch);
 
-    for (const ytemoji::UnicodeEmoji& uniEmoji : ytemoji::instance()->unicodeEmojis())
+    if (!EmojiStore::instance()->hasBuiltinEmojis())
     {
-        // TODO: implement shortcut-less emojis (i think just skin tone ones)
-        if (uniEmoji.shortcuts.isEmpty())
-            continue;
-
-        EmojiLabel* emoji = new EmojiLabel(uniEmoji.shortcuts, uniEmoji.searchTerms, uniEmoji.image, ui->scrollAreaContents);
-        layout->addWidget(emoji);
-        connect(emoji, &EmojiLabel::clicked, this, std::bind(&EmojiMenu::emojiClicked, this, emoji->primaryShortcut()));
+        connect(EmojiStore::instance(), &EmojiStore::gotBuiltinEmojis, this, [this] {
+            add(EmojiStore::instance()->emojiGroups());
+        });
     }
+    else
+    {
+        add(EmojiStore::instance()->emojiGroups());
+    }
+}
+
+void EmojiMenu::add(const QList<EmojiGroup>& emojiGroups)
+{
+    for (const EmojiGroup& emojiGroup : emojiGroups)
+    {
+        TubeLabel* groupLabel = new TubeLabel(emojiGroup.name);
+        groupLabel->setProperty("onOwnLine", true);
+        layout->addWidget(groupLabel);
+
+        QList<EmojiLabel*> groupEmojiLabels;
+        groupEmojiLabels.reserve(emojiGroup.emojis.size());
+
+        for (const QtTube::Emoji& emoji : emojiGroup.emojis)
+        {
+            EmojiLabel* emojiLabel = new EmojiLabel(emoji);
+            layout->addWidget(emojiLabel);
+            connect(emojiLabel, &EmojiLabel::clicked, this, [this, emojiLabel] { emit emojiClicked(emojiLabel->data()); });
+            groupEmojiLabels.append(emojiLabel);
+        }
+
+        emojiGroupLabels.emplaceBack(groupLabel, groupEmojiLabels);
+    }
+}
+
+void EmojiMenu::beginSearch()
+{
+    static QTimer* debounceTimer = [this] {
+        QTimer* timer = new QTimer(this);
+        timer->setSingleShot(true);
+        timer->setInterval(150);
+        connect(timer, &QTimer::timeout, this, &EmojiMenu::filterEmojis);
+        return timer;
+    }();
+
+    debounceTimer->start();
 }
 
 void EmojiMenu::filterEmojis()
 {
-    const QList<EmojiLabel*> emojis = ui->scrollAreaContents->findChildren<EmojiLabel*>();
     const QString searchText = ui->emojiSearch->text();
+    auto termFilter = [&searchText](const QString& term) { return term.contains(searchText, Qt::CaseInsensitive); };
+    for (const auto& [groupLabel, emojiLabels] : std::as_const(emojiGroupLabels))
+    {
+        bool anyVisible = false;
 
-    if (!searchText.isEmpty())
-    {
-        for (EmojiLabel* label : emojis)
+        for (EmojiLabel* emojiLabel : std::as_const(emojiLabels))
         {
-            label->setVisible(std::ranges::any_of(label->searchTerms(), [label, &searchText](const QString& searchTerm) {
-                return searchTerm.contains(searchText);
-            }));
+            bool isVisible = searchText.isEmpty() || std::ranges::any_of(emojiLabel->searchTerms(), termFilter);
+            emojiLabel->setVisible(isVisible);
+            anyVisible |= isVisible;
         }
-    }
-    else
-    {
-        for (EmojiLabel* label : emojis)
-            label->setVisible(true);
+
+        groupLabel->setVisible(anyVisible);
     }
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include <QString>
 
+class QJsonArray;
+
 namespace StringUtils
 {
 #ifdef QTTUBE_HAS_ICU
@@ -8,4 +10,5 @@ namespace StringUtils
 #endif
 
     QString extractDigits(const QString& str, bool useLocale = true, bool reserve = true);
+    QJsonArray makeRichChatMessage(const QString& text);
 }

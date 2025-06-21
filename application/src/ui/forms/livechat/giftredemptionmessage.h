@@ -1,5 +1,5 @@
 #pragma once
-#include <QJsonValue>
+#include "qttube-plugin/objects/livechat/items/giftredemptionmessage.h"
 #include <QWidget>
 
 class QHBoxLayout;
@@ -8,7 +8,7 @@ class TubeLabel;
 class GiftRedemptionMessage : public QWidget
 {
 public:
-    GiftRedemptionMessage(const QJsonValue& renderer, QWidget* parent);
+    GiftRedemptionMessage(const QtTube::GiftRedemptionMessage& data, QWidget* parent);
 private:
     TubeLabel* authorLabel;
     QHBoxLayout* layout;

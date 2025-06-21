@@ -1,4 +1,6 @@
 #include "stringutils.h"
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QLocale>
 
 #ifdef QTTUBE_HAS_ICU
@@ -47,5 +49,42 @@ namespace StringUtils
 
         out.squeeze();
         return useLocale ? QLocale::system().toString(out.toLongLong()) : out;
+    }
+
+    QJsonArray makeRichChatMessage(const QString& text)
+    {
+        QJsonArray textSegments;
+
+        static QRegularExpression emojiRegex(R"(\{\{\{(.*?)\|\|(.*?)\|\|(.*?)\}\}\})");
+        QRegularExpressionMatchIterator it = emojiRegex.globalMatch(text);
+        qsizetype lastIndex = 0;
+
+        while (it.hasNext())
+        {
+            QRegularExpressionMatch match = it.next();
+            qsizetype start = match.capturedStart();
+            qsizetype end = match.capturedEnd();
+
+            // add preceding text as segment
+            if (start > lastIndex)
+            {
+                QString plainText = text.mid(lastIndex, start - lastIndex);
+                textSegments.append(QJsonObject {{ "text", plainText }});
+            }
+
+            // add emoji as segment
+            textSegments.append(QJsonObject {{ "emojiId", match.captured(2) }});
+
+            lastIndex = end;
+        }
+
+        // add any remaining text as segment
+        if (lastIndex < text.size())
+        {
+            QString plainText = text.mid(lastIndex);
+            textSegments.append(QJsonObject {{ "text", plainText }});
+        }
+
+        return textSegments;
     }
 }

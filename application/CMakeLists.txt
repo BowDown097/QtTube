@@ -23,9 +23,9 @@ set(SOURCE_FILES
     src/main.cpp
     src/mainwindow.cpp
     src/qttubeapplication.cpp
-    src/ytemoji.cpp
     src/plugins/pluginmanager.cpp
     src/stores/credentialsstore.cpp
+    src/stores/emojistore.cpp
     src/stores/genericstore.cpp
     src/stores/settingsstore.cpp
     src/ui/browsehelper.cpp
@@ -116,9 +116,9 @@ set(HEADERS
     src/eastereggs.h
     src/mainwindow.h
     src/qttubeapplication.h
-    src/ytemoji.h
     src/plugins/pluginmanager.h
     src/stores/credentialsstore.h
+    src/stores/emojistore.h
     src/stores/genericstore.h
     src/stores/settingsstore.h
     src/ui/browsehelper.h

@@ -14,6 +14,7 @@ QtTube::PluginChannel convertChannel(const InnertubeObjects::Channel& channel);
 QtTube::PluginChannel convertChannel(
     const InnertubeObjects::VideoOwner& owner, const InnertubeObjects::SubscribeButton& subscribeButton);
 QtTube::PluginException convertException(const InnertubeException& ex);
+QtTube::LiveChatItem convertLiveChatItem(const QJsonValue& item);
 QtTube::PluginNotification convertNotification(const InnertubeObjects::Notification& notification);
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(
     const InnertubeObjects::HomeRichShelf& hrShelf, bool useThumbnailFromData = true);

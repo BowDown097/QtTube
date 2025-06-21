@@ -24,6 +24,7 @@ private:
     QString videoId;
     QString videoUrlPrefix;
 
+    void openLiveChat(const QtTube::InitialLiveChatData& data);
     void processPreloadData(PreloadData::WatchView* preload);
     void updateMetadata(const QString& videoId);
 private slots:

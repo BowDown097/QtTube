@@ -1,4 +1,6 @@
 #pragma once
+#include "innertube/endpoints/live_chat/getlivechat.h"
+#include "innertube/endpoints/live_chat/getlivechatreplay.h"
 #include "innertube/responses/browse/historyresponse.h"
 #include "innertube/responses/browse/homeresponse.h"
 #include "innertube/responses/browse/subscriptionsresponse.h"
@@ -11,6 +13,8 @@
 
 QtTube::BrowseData getHistoryData(const InnertubeEndpoints::HistoryResponse& response);
 QtTube::BrowseData getHomeData(const InnertubeEndpoints::HomeResponse& response);
+QtTube::LiveChat getLiveChatData(const InnertubeEndpoints::GetLiveChat& endpoint, QJsonValue& sendEndpoint, int& sentMessages);
+QtTube::LiveChatReplay getLiveChatReplayData(const InnertubeEndpoints::GetLiveChatReplay& endpoint);
 void getNextData(QtTube::VideoData& data, const InnertubeEndpoints::NextResponse& response);
 QtTube::NotificationsData getNotificationsData(const InnertubeEndpoints::NotificationMenuResponse& response);
 void getPlayerData(QtTube::VideoData& data, const InnertubeEndpoints::PlayerResponse& response);

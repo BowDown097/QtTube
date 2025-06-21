@@ -129,6 +129,7 @@ int FlowLayout::doLayout(const QRect &rect, bool testOnly) const
     //! [9]
 
     //! [10]
+    bool onFirstVisibleItem = true;
     for (QLayoutItem *item : std::as_const(itemList)) {
         const QWidget *wid = item->widget();
         if (wid->isHidden())
@@ -145,7 +146,8 @@ int FlowLayout::doLayout(const QRect &rect, bool testOnly) const
         //! [10]
         //! [11]
         int nextX = x + item->sizeHint().width() + spaceX;
-        if (nextX - spaceX > effectiveRect.right() && lineHeight > 0) {
+        bool onOwnLine = wid->property("onOwnLine").toBool();
+        if ((nextX - spaceX > effectiveRect.right() && lineHeight > 0) || (!onFirstVisibleItem && onOwnLine)) {
             x = effectiveRect.x();
             y = y + lineHeight + spaceY;
             nextX = x + item->sizeHint().width() + spaceX;
@@ -157,7 +159,17 @@ int FlowLayout::doLayout(const QRect &rect, bool testOnly) const
 
         x = nextX;
         lineHeight = qMax(lineHeight, item->sizeHint().height());
+
+        if (onOwnLine) {
+            x = effectiveRect.x();
+            y = y + lineHeight + spaceY;
+            nextX = x;
+            lineHeight = 0;
+        }
+
+        onFirstVisibleItem = false;
     }
+
     return y + lineHeight - rect.y() + bottom;
 }
 //! [11]

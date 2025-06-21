@@ -1,17 +1,15 @@
 #pragma once
+#include "qttube-plugin/objects/emoji.h"
 #include "tubelabel.h"
 
 class EmojiLabel : public TubeLabel
 {
     Q_OBJECT
 public:
-    EmojiLabel(const QStringList& shortcuts, const QStringList& searchTerms, const QString& image, QWidget* parent = nullptr);
-    EmojiLabel(const QString& shortcut, const QString& image, QWidget* parent = nullptr)
-        : EmojiLabel(QStringList { shortcut }, QStringList { shortcut }, image, parent) {}
-
-    const QString& primaryShortcut() const { return m_primaryShortcut; }
+    explicit EmojiLabel(const QtTube::Emoji& data, QWidget* parent = nullptr);
+    const QtTube::Emoji& data() const { return m_data; }
     const QStringList& searchTerms() const { return m_searchTerms; }
 private:
-    QString m_primaryShortcut;
+    const QtTube::Emoji& m_data;
     QStringList m_searchTerms;
 };

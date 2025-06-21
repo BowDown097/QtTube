@@ -23,9 +23,17 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/replytypes.h
             qttube-plugin/objects/badge.h
             qttube-plugin/objects/channel.h
+            qttube-plugin/objects/emoji.h
             qttube-plugin/objects/notification.h
             qttube-plugin/objects/shelf.h
-            qttube-plugin/objects/video.h)
+            qttube-plugin/objects/video.h
+            qttube-plugin/objects/livechat/livechat.h
+            qttube-plugin/objects/livechat/livechatbase.h
+            qttube-plugin/objects/livechat/livechatreplay.h
+            qttube-plugin/objects/livechat/items/giftredemptionmessage.h
+            qttube-plugin/objects/livechat/items/paidmessage.h
+            qttube-plugin/objects/livechat/items/specialmessage.h
+            qttube-plugin/objects/livechat/items/textmessage.h)
 
 add_library(QtTube::PluginInterface ALIAS QtTube-PluginInterface)
 
