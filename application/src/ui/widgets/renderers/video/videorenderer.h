@@ -4,13 +4,9 @@
 
 namespace InnertubeObjects
 {
-struct CompactVideo;
-struct DisplayAd;
-struct LockupViewModel;
 struct Reel;
 struct ShortsLockupViewModel;
 struct Video;
-struct VideoDisplayButtonGroup;
 }
 
 namespace QtTube { struct PluginVideo; }
@@ -31,19 +27,11 @@ public:
 
     explicit VideoRenderer(QWidget* parent = nullptr);
 
-    void setData(const InnertubeObjects::CompactVideo& compactVideo,
-                 bool useThumbnailFromData = true);
-    void setData(const InnertubeObjects::DisplayAd& displayAd,
-                 bool useThumbnailFromData = true);
-    void setData(const InnertubeObjects::LockupViewModel& lockup,
-                 bool useThumbnailFromData = true);
     void setData(const InnertubeObjects::Reel& reel,
                  bool isInGrid = false, bool useThumbnailFromData = true);
     void setData(const InnertubeObjects::ShortsLockupViewModel& shortsLockup,
                  bool isInGrid = false, bool useThumbnailFromData = true);
     void setData(const InnertubeObjects::Video& video,
-                 bool useThumbnailFromData = true);
-    void setData(const InnertubeObjects::VideoDisplayButtonGroup& video,
                  bool useThumbnailFromData = true);
     void setData(const QtTube::PluginVideo& video);
 private:

@@ -3,9 +3,6 @@
 
 namespace InnertubeObjects
 {
-struct AdSlot;
-struct CompactVideo;
-struct LockupViewModel;
 struct Reel;
 struct ShortsLockupViewModel;
 struct Video;
@@ -39,7 +36,6 @@ public:
     bool deArrowTitles{};
     bool disable60Fps{};
     bool disablePlayerInfoPanels{};
-    QString downloadPath;
     QString externalPlayerPath;
     int filterLength{};
     bool filterLengthEnabled{};
@@ -47,7 +43,6 @@ public:
     QStringList filteredTerms;
     bool fullSubs{};
     bool h264Only{};
-    bool hideSearchShelves{};
     bool hideShorts{};
     bool hideStreams{};
     bool imageCaching{};
@@ -57,8 +52,6 @@ public:
     int preferredVolume{};
     bool qualityFromPlayer{};
     bool restoreAnnotations{};
-    bool returnDislikes{};
-    bool showSBToasts{};
     QStringList sponsorBlockCategories;
     bool vaapi{};
     bool volumeFromPlayer{};
@@ -69,9 +62,6 @@ public:
     bool channelIsFiltered(const QString& id) const;
     bool strHasFilteredTerm(const QString& str) const;
 
-    bool videoIsFiltered(const InnertubeObjects::AdSlot& adSlot) const;
-    bool videoIsFiltered(const InnertubeObjects::CompactVideo& compactVideo) const;
-    bool videoIsFiltered(const InnertubeObjects::LockupViewModel& lockup) const;
     bool videoIsFiltered(const InnertubeObjects::Reel& reel) const;
     bool videoIsFiltered(const InnertubeObjects::ShortsLockupViewModel& shortsLockup) const;
     bool videoIsFiltered(const InnertubeObjects::Video& video) const;

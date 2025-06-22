@@ -1,9 +1,8 @@
 #pragma once
 #include "plugins/pluginmanager.h"
-#include <QWidget>
+#include <QRadioButton>
 
 class QHBoxLayout;
-class QRadioButton;
 class QVBoxLayout;
 class TubeLabel;
 

@@ -1,5 +1,4 @@
 #include "continuablelistwidget.h"
-#include "innertube.h"
 #include "qttubeapplication.h"
 #include <QScrollBar>
 #include <QWheelEvent>
@@ -19,8 +18,7 @@ void ContinuableListWidget::clear()
 void ContinuableListWidget::scrollValueChanged(int value)
 {
     if (count() > 0 && value >= verticalScrollBar()->maximum() - continuationThreshold &&
-        !continuationToken.isEmpty() && !populating &&
-        !InnerTube::instance()->context()->client.visitorData.isEmpty())
+        !continuationToken.isEmpty() && !populating)
     {
         emit continuationReady();
     }

@@ -1,7 +1,5 @@
 #include "channellabel.h"
 #include "channelbadgelabel.h"
-#include "innertube.h"
-#include "qttubeapplication.h"
 #include "ui/views/viewcontroller.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
@@ -33,29 +31,6 @@ void ChannelLabel::addStretch()
 void ChannelLabel::copyChannelUrl()
 {
     UIUtils::copyToClipboard("https://www.youtube.com/channel/" + channelId);
-}
-
-void ChannelLabel::filterThis()
-{
-    if (qtTubeApp->settings().channelIsFiltered(channelId))
-        return;
-
-    auto channel = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId);
-
-    QString channelHandle;
-    if (auto c4 = std::get_if<InnertubeObjects::ChannelC4Header>(&channel.response.header))
-    {
-        channelHandle = c4->channelHandleText.text;
-    }
-    else if (auto page = std::get_if<InnertubeObjects::ChannelPageHeader>(&channel.response.header))
-    {
-        const QList<QList<InnertubeObjects::DynamicText>> metadataRows = page->metadata.metadataRows;
-        if (!metadataRows.empty() && !metadataRows[0].empty())
-            channelHandle = metadataRows[0][0].content;
-    }
-
-    qtTubeApp->settings().filteredChannels.append(channelId + "|" + channelHandle);
-    qtTubeApp->settings().save();
 }
 
 void ChannelLabel::navigate()
@@ -125,10 +100,6 @@ void ChannelLabel::showContextMenu(const QPoint& pos)
     QAction* copyUrlAction = new QAction("Copy channel page URL", this);
     connect(copyUrlAction, &QAction::triggered, this, &ChannelLabel::copyChannelUrl);
 
-    QAction* filterAction = new QAction("Filter this channel", this);
-    connect(filterAction, &QAction::triggered, this, &ChannelLabel::filterThis);
-
     menu->addAction(copyUrlAction);
-    menu->addAction(filterAction);
     menu->popup(mapToGlobal(pos));
 }

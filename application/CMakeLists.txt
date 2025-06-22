@@ -1,5 +1,5 @@
 # Qt packages
-find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Network Sql WebEngineWidgets Widgets)
+find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Network WebEngineWidgets Widgets)
 if(QTTUBE_QT_VERSION_MAJOR EQUAL 5 AND (UNIX AND NOT APPLE))
     find_package(Qt5 OPTIONAL_COMPONENTS X11Extras)
 endif()
@@ -32,23 +32,8 @@ set(SOURCE_FILES
     src/ui/channelbrowser.cpp
     src/ui/forms/emojimenu.cpp
     src/ui/forms/livechatwindow.cpp
-    src/ui/forms/settings/channelfiltertable.cpp
     src/ui/forms/settings/settingsform.cpp
     src/ui/forms/settings/termfilterview.cpp
-    src/ui/forms/settings/data-wizards/basicinfopage.cpp
-    src/ui/forms/settings/data-wizards/datawizard.cpp
-    src/ui/forms/settings/data-wizards/entityselecttablemodel.cpp
-    src/ui/forms/settings/data-wizards/intropage.cpp
-    src/ui/forms/settings/data-wizards/import/grayjayimportwizard.cpp
-    src/ui/forms/settings/data-wizards/import/newpipeimportwizard.cpp
-    src/ui/forms/settings/data-wizards/import/pipedimportwizard.cpp
-    src/ui/forms/settings/data-wizards/import/takeoutimportwizard.cpp
-    src/ui/forms/settings/data-wizards/import/shared/chooseentitiespage.cpp
-    src/ui/forms/settings/data-wizards/import/shared/choosesubspage.cpp
-    src/ui/forms/settings/data-wizards/import/shared/choosewatchhistorypage.cpp
-    src/ui/forms/settings/data-wizards/import/shared/importfileselectpage.cpp
-    src/ui/forms/settings/data-wizards/richtableview/richitemdelegate.cpp
-    src/ui/forms/settings/data-wizards/richtableview/richtableview.cpp
     src/ui/views/channelview.cpp
     src/ui/views/viewcontroller.cpp
     src/ui/views/watchview.cpp
@@ -65,8 +50,6 @@ set(SOURCE_FILES
     src/ui/widgets/accountmenu/accountentrywidget.cpp
     src/ui/widgets/accountmenu/accountmenuwidget.cpp
     src/ui/widgets/accountmenu/accountswitcherwidget.cpp
-    src/ui/widgets/download/downloadentity.cpp
-    src/ui/widgets/download/downloadmanager.cpp
     src/ui/widgets/labels/channelbadgelabel.cpp
     src/ui/widgets/labels/channellabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
@@ -124,24 +107,8 @@ set(HEADERS
     src/ui/channelbrowser.h
     src/ui/forms/emojimenu.h
     src/ui/forms/livechatwindow.h
-    src/ui/forms/settings/channelfiltertable.h
     src/ui/forms/settings/settingsform.h
     src/ui/forms/settings/termfilterview.h
-    src/ui/forms/settings/data-wizards/basicinfopage.h
-    src/ui/forms/settings/data-wizards/conclusionpage.h
-    src/ui/forms/settings/data-wizards/datawizard.h
-    src/ui/forms/settings/data-wizards/entityselecttablemodel.h
-    src/ui/forms/settings/data-wizards/intropage.h
-    src/ui/forms/settings/data-wizards/import/grayjayimportwizard.h
-    src/ui/forms/settings/data-wizards/import/newpipeimportwizard.h
-    src/ui/forms/settings/data-wizards/import/pipedimportwizard.h
-    src/ui/forms/settings/data-wizards/import/takeoutimportwizard.h
-    src/ui/forms/settings/data-wizards/import/shared/chooseentitiespage.h
-    src/ui/forms/settings/data-wizards/import/shared/choosesubspage.h
-    src/ui/forms/settings/data-wizards/import/shared/choosewatchhistorypage.h
-    src/ui/forms/settings/data-wizards/import/shared/importfileselectpage.h
-    src/ui/forms/settings/data-wizards/richtableview/richitemdelegate.h
-    src/ui/forms/settings/data-wizards/richtableview/richtableview.h
     src/ui/views/channelview.h
     src/ui/views/preloaddata.h
     src/ui/views/viewcontroller.h
@@ -160,8 +127,6 @@ set(HEADERS
     src/ui/widgets/accountmenu/accountentrywidget.h
     src/ui/widgets/accountmenu/accountmenuwidget.h
     src/ui/widgets/accountmenu/accountswitcherwidget.h
-    src/ui/widgets/download/downloadentity.h
-    src/ui/widgets/download/downloadmanager.h
     src/ui/widgets/labels/channelbadgelabel.h
     src/ui/widgets/labels/channellabel.h
     src/ui/widgets/labels/iconlabel.h
@@ -209,7 +174,6 @@ set(FORMS
     src/mainwindow.ui
     src/ui/forms/emojimenu.ui
     src/ui/forms/livechatwindow.ui
-    src/ui/forms/settings/channelfiltertable.ui
     src/ui/forms/settings/settingsform.ui
     src/ui/forms/settings/termfilterview.ui
 )
@@ -271,7 +235,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 # Include directories, libraries
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
-    innertube-qt QtTube::PluginInterface Qt::Network Qt::Sql Qt::WebEngineWidgets Qt::Widgets)
+    innertube-qt QtTube::PluginInterface Qt::Network Qt::WebEngineWidgets Qt::Widgets)
 
 ## Platform-specific
 if(UNIX AND NOT APPLE)

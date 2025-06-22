@@ -1,7 +1,9 @@
 #include "browsehelper.h"
 #include "channelbrowser.h"
+#include "innertube.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
+#include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QComboBox>
 
@@ -124,10 +126,16 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
     }
 }
 
-void BrowseHelper::continueChannel(ContinuableListWidget* widget, const QJsonValue& contents)
+void BrowseHelper::continueChannel(ContinuableListWidget* widget, const QString& channelId)
 {
-    widget->continuationToken.clear();
-    ChannelBrowser::continuation(widget, contents);
+    widget->setPopulatingFlag(true);
+    InnertubeReply<BrowseChannel>* reply = InnerTube::instance()->get<BrowseChannel>(channelId, widget->continuationToken);
+    connect(reply, &InnertubeReply<BrowseChannel>::exception, this,
+        std::bind_front(&BrowseHelper::browseFailedInnertube, this, "channel", widget));
+    connect(reply, &InnertubeReply<BrowseChannel>::finished, this, [widget](const BrowseChannel& endpoint) {
+        ChannelBrowser::continuation(widget, endpoint.response.contents);
+        widget->setPopulatingFlag(false);
+    });
 }
 
 QList<std::pair<QString, int>> BrowseHelper::getActiveFilters(QHBoxLayout* additionalWidgets)
@@ -221,7 +229,12 @@ void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTube::BrowseRepl
 void BrowseHelper::setupNotifications(
     ContinuableListWidget* widget, QtTube::NotificationsReply* reply, const QtTube::NotificationsData& data)
 {
-    UIUtils::addRangeToList(widget, data);
+    for (const QtTube::NotificationsDataItem& notification : data)
+    {
+        UIUtils::addNotificationToList(widget, notification);
+        QCoreApplication::processEvents();
+    }
+
     widget->continuationToken = std::any_cast<QString>(reply->continuationData);
     MainWindow::topbar()->updateNotificationCount(0);
     widget->setPopulatingFlag(false);

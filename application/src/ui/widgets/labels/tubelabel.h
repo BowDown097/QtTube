@@ -20,7 +20,6 @@ public:
     Q_DECLARE_FLAGS(ImageFlags, ImageFlag)
 
     explicit TubeLabel(QWidget* parent = nullptr);
-    explicit TubeLabel(const InnertubeObjects::InnertubeString& text, QWidget* parent = nullptr);
     explicit TubeLabel(const QString& text, QWidget* parent = nullptr);
 
     void setElideMode(Qt::TextElideMode mode) { m_elideMode = mode; }

@@ -16,6 +16,6 @@ namespace QtTube
     protected:
         void closeEvent(QCloseEvent* event) override;
         void keyPressEvent(QKeyEvent* event) override;
-        void setupSaveButton(QPushButton* saveButton, bool makeDynamic, QList<QWidget*> filteredWidgets);
+        void setupSaveButton(QPushButton* saveButton, bool makeDynamic, QList<QWidget*> filteredWidgets = {});
     };
 }

@@ -1,17 +1,11 @@
 #pragma once
 #include <initializer_list>
-#include <QCoreApplication>
 #include <QWidget>
-#include <variant>
 
 namespace InnertubeObjects
 {
-struct AdSlot;
 struct BackstagePost;
 struct Channel;
-struct InnertubeString;
-struct LockupViewModel;
-struct Post;
 struct Reel;
 struct ShortsLockupViewModel;
 struct Video;
@@ -19,7 +13,6 @@ struct Video;
 
 namespace QtTube { struct PluginChannel; struct PluginNotification; struct PluginVideo; }
 
-class QLabel;
 class QLayout;
 class QListWidget;
 class QListWidgetItem;
@@ -29,37 +22,16 @@ class VideoRenderer;
 
 namespace UIUtils
 {
-    namespace detail
-    {
-        template<typename...>
-        struct is_variant : std::false_type {};
-
-        template<typename... Types>
-        struct is_variant<std::variant<Types...>> : std::true_type {};
-
-        template<typename T>
-        inline constexpr bool is_variant_v = is_variant<T>::value;
-
-        template<class T, class... U>
-        inline constexpr bool is_any_v = std::disjunction_v<std::is_same<T, U>...>;
-    }
-
     extern QString g_defaultStyle;
 
     void addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post);
-    void addBoldLabelToList(QListWidget* list, const QString& text);
     void addChannelToList(QListWidget* list, const InnertubeObjects::Channel& channel);
     void addChannelToList(QListWidget* list, const QtTube::PluginChannel& channel);
     void addNotificationToList(QListWidget* list, const QtTube::PluginNotification& notification);
-    void addPostToList(QListWidget* list, const InnertubeObjects::Post& post);
     QListWidgetItem* addResizingWidgetToList(QListWidget* list, QWidget* widget);
     void addSeparatorToList(QListWidget* list);
     void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf);
     void addShelfTitleToList(QListWidget* list, const QString& title);
-    void addVideoToList(QListWidget* list, const InnertubeObjects::AdSlot& adSlot,
-                        bool useThumbnailFromData = true);
-    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup,
-                        bool useThumbnailFromData = true);
     void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel,
                         bool useThumbnailFromData = true);
     void addVideoToList(QListWidget* list, const InnertubeObjects::ShortsLockupViewModel& shortsLockup,
@@ -68,7 +40,6 @@ namespace UIUtils
                         bool useThumbnailFromData = true);
     void addVideoToList(QListWidget* list, const QtTube::PluginVideo& video);
     QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
-    void addWrappedLabelToList(QListWidget* list, const QString& text);
     void clearLayout(QLayout* layout);
     VideoRenderer* constructVideoRenderer(QListWidget* list);
     void copyToClipboard(const QString& text);
@@ -80,36 +51,6 @@ namespace UIUtils
     QString resolveThemedIconName(const QString& name, const QPalette& pal = {});
     void setAppStyle(const QString& styleName, bool dark);
     void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
-
-    template<typename T>
-    void addItemToList(QListWidget* list, const T& item)
-    {
-        namespace ITO = InnertubeObjects;
-        if constexpr (std::same_as<T, ITO::BackstagePost>)
-            addBackstagePostToList(list, item);
-        else if constexpr (std::same_as<T, ITO::Channel>)
-            addChannelToList(list, item);
-        else if constexpr (std::same_as<T, QtTube::PluginNotification>)
-            addNotificationToList(list, item);
-        else if constexpr (std::same_as<T, ITO::Post>)
-            addPostToList(list, item);
-        else if constexpr (std::same_as<T, ITO::InnertubeString>)
-            addShelfTitleToList(list, item.text);
-        else if constexpr (detail::is_any_v<T, ITO::LockupViewModel, ITO::Reel, ITO::ShortsLockupViewModel, ITO::Video>)
-            addVideoToList(list, item);
-    }
-
-    void addRangeToList(QListWidget* list, std::ranges::range auto&& range)
-    {
-        for (auto it = std::ranges::begin(range); it != std::ranges::end(range); ++it)
-        {
-            if constexpr (detail::is_variant_v<std::ranges::range_value_t<decltype(range)>>)
-                std::visit([list](auto&& item) { addItemToList(list, item); }, *it);
-            else
-                addItemToList(list, *it);
-            QCoreApplication::processEvents();
-        }
-    }
 
     template<typename T>
     T findParent(QWidget* widget)

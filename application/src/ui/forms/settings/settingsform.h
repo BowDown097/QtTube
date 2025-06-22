@@ -14,7 +14,7 @@ class SettingsForm : public QtTube::PluginSettingsWindow
     Q_OBJECT
 public:
     explicit SettingsForm(QWidget* parent = nullptr);
-    ~SettingsForm();
+    ~SettingsForm() override;
 
     bool savePending() const override;
     void saveSettings() override;
@@ -24,16 +24,11 @@ private:
 
     void handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox);
 private slots:
-    void checkDownloadPath(const QString& text);
     void checkExternalPlayer(const QString& text);
     void clearCache();
     void currentChanged(int index);
-    //void openExportWizard();
-    void openImportWizard();
     void pluginActiveButtonToggled(QAbstractButton* button, bool checked);
-    void selectDownloadPath();
     void selectExternalPlayer();
-    void showChannelFilterTable();
     void showTermFilterTable();
     void toggleDeArrowSettings(bool checked);
     void toggleWebPlayerSettings(bool checked);

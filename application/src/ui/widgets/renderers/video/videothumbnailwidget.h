@@ -1,7 +1,6 @@
 #pragma once
 #include "ui/widgets/labels/tubelabel.h"
 
-class HttpReply;
 class QProgressBar;
 
 class VideoThumbnailWidget : public TubeLabel

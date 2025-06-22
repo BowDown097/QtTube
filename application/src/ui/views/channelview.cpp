@@ -1,8 +1,10 @@
 #include "channelview.h"
+#include "innertube.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/browsehelper.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
+#include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QScrollBar>
 #include <ranges>
@@ -110,7 +112,8 @@ void ChannelView::loadChannel(const QString& channelId)
         grid->addWidget(list, 0, 0, 1, 1);
 
         connect(list, &ContinuableListWidget::continuationReady, this, [this, list] {
-            BrowseHelper::instance()->continuation<InnertubeEndpoints::BrowseChannel>(list, this->channelId);
+            if (!list->continuationToken.isEmpty())
+                BrowseHelper::instance()->continueChannel(list, this->channelId);
         });
 
         channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());

@@ -3,7 +3,7 @@
 #include <QPointer>
 #include <QWidget>
 
-namespace InnertubeObjects { struct Channel; struct MetadataBadge; struct SubscribeButton; }
+namespace InnertubeObjects { struct Channel; }
 
 class ChannelLabel;
 class QHBoxLayout;

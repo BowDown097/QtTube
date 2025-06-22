@@ -1,6 +1,6 @@
 #include "tubelabel.h"
 #include "httprequest.h"
-#include "innertube/objects/innertubestring.h"
+#include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include <QStyle>
 #include <QStyleOption>
@@ -12,11 +12,6 @@ TubeLabel::TubeLabel(QWidget* parent) : ClickableWidget<QLabel>(parent)
 {
     setMouseTracking(true);
     setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-}
-
-TubeLabel::TubeLabel(const InnertubeObjects::InnertubeString& text, QWidget* parent) : TubeLabel(parent)
-{
-    setText(text.text);
 }
 
 TubeLabel::TubeLabel(const QString& text, QWidget* parent) : TubeLabel(parent)
@@ -255,7 +250,7 @@ void TubeLabel::processRemoteImages(QString text, ImageFlags flags)
         if (url.startsWith("//"))
             url.prepend("https:");
 
-        HttpReply* reply = HttpRequest().withDiskCache(flags & ImageFlag::Cached).get(url);
+        HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && flags & ImageFlag::Cached).get(url);
         connect(reply, &HttpReply::finished, this, std::bind_front(&TubeLabel::remoteImageDownloaded, this, text));
         m_remoteImageReplyMap[reply] = std::move(match);
     }
@@ -286,7 +281,7 @@ void TubeLabel::resizeEvent(QResizeEvent* event)
 {
     if (!m_isImage)
         setText(m_rawText);
-    else if (hasScaledContents() && m_imageFlags & ImageFlag::Cached)
+    else if (hasScaledContents() && m_imageFlags & ImageFlag::KeepAspectRatio)
         updateMarginsForImageAspectRatio();
 
     QLabel::resizeEvent(event);
@@ -302,7 +297,7 @@ void TubeLabel::setImage(const QUrl& url, ImageFlags flags)
     m_lineRects.clear();
     m_rawText.clear();
 
-    HttpReply* reply = HttpRequest().withDiskCache(flags & ImageFlag::Cached).get(url);
+    HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && flags & ImageFlag::Cached).get(url);
     connect(reply, &HttpReply::finished, this, &TubeLabel::setImageData);
 }
 

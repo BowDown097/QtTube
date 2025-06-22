@@ -1,15 +1,9 @@
 #include "settingsform.h"
 #include "ui_settingsform.h"
-#include "channelfiltertable.h"
-#include "data-wizards/import/grayjayimportwizard.h"
-#include "data-wizards/import/newpipeimportwizard.h"
-#include "data-wizards/import/pipedimportwizard.h"
-#include "data-wizards/import/takeoutimportwizard.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "termfilterview.h"
 #include "ui/widgets/pluginwidget.h"
-#include "ui/widgets/download/downloadmanager.h"
 #include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QButtonGroup>
@@ -40,13 +34,6 @@ SettingsForm::SettingsForm(QWidget* parent)
         .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
     ui->qttubeLogo->setPixmap(UIUtils::iconThemed("qttube-full").pixmap(ui->qttubeLogo->size()));
 
-    ui->downloadPathEdit->setPlaceholderText(DownloadManager::instance()->directory().absolutePath());
-
-    ui->takeoutRadio->setProperty("id", 1);
-    ui->pipedRadio->setProperty("id", 2);
-    ui->grayjayRadio->setProperty("id", 3);
-    ui->newpipeRadio->setProperty("id", 4);
-
 #ifndef Q_OS_LINUX
     ui->vaapi->hide();
 #else
@@ -61,11 +48,9 @@ SettingsForm::SettingsForm(QWidget* parent)
     // general
     ui->autoHideTopBar->setChecked(store.autoHideTopBar);
     ui->condensedCounts->setChecked(store.condensedCounts);
-    ui->downloadPathEdit->setText(store.downloadPath);
     ui->fullSubs->setChecked(store.fullSubs);
     ui->imageCaching->setChecked(store.imageCaching);
     ui->preferLists->setChecked(store.preferLists);
-    ui->returnDislikes->setChecked(store.returnDislikes);
     // player
     ui->blockAds->setChecked(store.blockAds);
     ui->disable60Fps->setChecked(store.disable60Fps);
@@ -88,7 +73,6 @@ SettingsForm::SettingsForm(QWidget* parent)
     ui->filterLength->setEnabled(store.filterLengthEnabled);
     ui->filterLength->setValue(store.filterLength);
     ui->filterLengthCheck->setChecked(store.filterLengthEnabled);
-    ui->hideSearchShelves->setChecked(store.hideSearchShelves);
     ui->hideShorts->setChecked(store.hideShorts);
     ui->hideStreams->setChecked(store.hideStreams);
     // sponsorblock
@@ -100,7 +84,6 @@ SettingsForm::SettingsForm(QWidget* parent)
     ui->blockPreview->setChecked(store.sponsorBlockCategories.contains("preview"));
     ui->blockSelfPromo->setChecked(store.sponsorBlockCategories.contains("selfpromo"));
     ui->blockSponsor->setChecked(store.sponsorBlockCategories.contains("sponsor"));
-    ui->showSBToasts->setChecked(store.showSBToasts);
     // dearrow
     ui->deArrow->setChecked(store.deArrow);
     ui->deArrowThumbs->setChecked(store.deArrowThumbs);
@@ -110,29 +93,15 @@ SettingsForm::SettingsForm(QWidget* parent)
     connect(pluginActiveButtonGroup, &QButtonGroup::buttonToggled, this, &SettingsForm::pluginActiveButtonToggled);
     connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
     connect(ui->deArrow, &QCheckBox::toggled, this, &SettingsForm::toggleDeArrowSettings);
-    connect(ui->downloadPathButton, &QPushButton::clicked, this, &SettingsForm::selectDownloadPath);
-    connect(ui->downloadPathEdit, &QLineEdit::textEdited, this, &SettingsForm::checkDownloadPath);
-    //connect(ui->exportButton, &QPushButton::clicked, this, &SettingsForm::openExportWizard);
     connect(ui->externalPlayerButton, &QPushButton::clicked, this, &SettingsForm::selectExternalPlayer);
     connect(ui->externalPlayerEdit, &QLineEdit::textEdited, this, &SettingsForm::checkExternalPlayer);
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool c) { ui->filterLength->setEnabled(c); });
-    connect(ui->importButton, &QPushButton::clicked, this, &SettingsForm::openImportWizard);
     connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredQuality->setEnabled(!c); });
-    connect(ui->showFilteredChannels, &QPushButton::clicked, this, &SettingsForm::showChannelFilterTable);
     connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &SettingsForm::currentChanged);
     connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
 
-    setupSaveButton(ui->saveButton, true,
-        { ui->exportButton, ui->grayjayRadio, ui->importButton, ui->newpipeRadio, ui->pipedRadio, ui->takeoutRadio });
-}
-
-void SettingsForm::checkDownloadPath(const QString& text)
-{
-    if (QFileInfo(text).isDir())
-        ui->downloadPathEdit->setStyleSheet(QString());
-    else
-        ui->downloadPathEdit->setStyleSheet("background-color: red");
+    setupSaveButton(ui->saveButton, true);
 }
 
 void SettingsForm::checkExternalPlayer(const QString& text)
@@ -203,56 +172,6 @@ void SettingsForm::handleSponsorCategory(QStringList& categories, const QString&
         categories.removeAt(categoryIndex);
 }
 
-/*
-void SettingsForm::openExportWizard()
-{
-    const QList<QRadioButton*> radios = ui->groupBox->findChildren<QRadioButton*>();
-    if (auto it = std::ranges::find_if(radios, &QRadioButton::isChecked); it != radios.end())
-    {
-        QRadioButton* selectedRadio = *it;
-        switch (selectedRadio->property("id").toInt())
-        {
-        case 1:
-            TakeoutExportWizard().exec();
-            break;
-        case 2:
-            PipedExportWizard().exec();
-            break;
-        case 3:
-            GrayjayExportWizard().exec();
-            break;
-        case 4:
-            NewPipeExportWizard().exec();
-            break;
-        }
-    }
-}
-*/
-
-void SettingsForm::openImportWizard()
-{
-    const QList<QRadioButton*> radios = ui->dataSourcesGroup->findChildren<QRadioButton*>();
-    if (auto it = std::ranges::find_if(radios, &QRadioButton::isChecked); it != radios.end())
-    {
-        QRadioButton* selectedRadio = *it;
-        switch (selectedRadio->property("id").toInt())
-        {
-        case 1:
-            TakeoutImportWizard().exec();
-            break;
-        case 2:
-            PipedImportWizard().exec();
-            break;
-        case 3:
-            GrayjayImportWizard().exec();
-            break;
-        case 4:
-            NewPipeImportWizard().exec();
-            break;
-        }
-    }
-}
-
 void SettingsForm::pluginActiveButtonToggled(QAbstractButton* button, bool checked)
 {
     if (PluginWidget* pluginWidget = qobject_cast<PluginWidget*>(button->parent()))
@@ -269,9 +188,6 @@ bool SettingsForm::savePending() const
 
 void SettingsForm::saveSettings()
 {
-    if (QString downloadPath = ui->downloadPathEdit->text(); QFileInfo(downloadPath).isDir())
-        DownloadManager::instance()->setDirectory(QDir(downloadPath));
-
     SettingsStore& store = qtTubeApp->settings();
 
     // force show top bar if auto hiding has been turned off
@@ -283,11 +199,9 @@ void SettingsForm::saveSettings()
     store.autoHideTopBar = ui->autoHideTopBar->isChecked();
     store.condensedCounts = ui->condensedCounts->isChecked();
     store.darkTheme = ui->darkTheme->isChecked();
-    store.downloadPath = ui->downloadPathEdit->text();
     store.fullSubs = ui->fullSubs->isChecked();
     store.imageCaching = ui->imageCaching->isChecked();
     store.preferLists = ui->preferLists->isChecked();
-    store.returnDislikes = ui->returnDislikes->isChecked();
     // player
     store.blockAds = ui->blockAds->isChecked();
     store.disable60Fps = ui->disable60Fps->isChecked();
@@ -306,7 +220,6 @@ void SettingsForm::saveSettings()
     // filtering
     store.filterLength = ui->filterLength->value();
     store.filterLengthEnabled = ui->filterLengthCheck->isChecked();
-    store.hideSearchShelves = ui->hideSearchShelves->isChecked();
     store.hideShorts = ui->hideShorts->isChecked();
     store.hideStreams = ui->hideStreams->isChecked();
     // sponsorblock
@@ -318,7 +231,6 @@ void SettingsForm::saveSettings()
     handleSponsorCategory(store.sponsorBlockCategories, "preview", ui->blockPreview);
     handleSponsorCategory(store.sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
     handleSponsorCategory(store.sponsorBlockCategories, "sponsor", ui->blockSponsor);
-    store.showSBToasts = ui->showSBToasts->isChecked();
     // dearrow
     store.deArrow = ui->deArrow->isChecked();
     store.deArrowThumbs = ui->deArrowThumbs->isChecked();
@@ -329,12 +241,6 @@ void SettingsForm::saveSettings()
 
     UIUtils::setAppStyle(store.appStyle, store.darkTheme);
     QMessageBox::information(this, "Saved!", "Settings saved successfully.");
-}
-
-void SettingsForm::selectDownloadPath()
-{
-    if (QString downloadPath = QFileDialog::getExistingDirectory(this); !downloadPath.isNull())
-        ui->downloadPathEdit->setText(downloadPath);
 }
 
 void SettingsForm::selectExternalPlayer()
@@ -354,13 +260,6 @@ void SettingsForm::selectExternalPlayer()
         ui->externalPlayerEdit->setText(playerPath + " %U");
         toggleWebPlayerSettings(false);
     }
-}
-
-void SettingsForm::showChannelFilterTable()
-{
-    ChannelFilterTable* ft = new ChannelFilterTable;
-    ft->show();
-    ft->populateFromSettings();
 }
 
 void SettingsForm::showTermFilterTable()

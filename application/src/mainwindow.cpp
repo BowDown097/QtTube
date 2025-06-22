@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "innertube.h"
 #include "qttubeapplication.h"
 #include "stores/settingsstore.h"
 #include "ui/browsehelper.h"
@@ -46,19 +47,24 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
 
     connect(notificationMenu, &ContinuableListWidget::continuationReady, this, [this] {
-        BrowseHelper::instance()->continuation<InnertubeEndpoints::GetNotificationMenu>(notificationMenu, "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", 5);
+        if (!notificationMenu->continuationToken.isEmpty())
+            BrowseHelper::instance()->browseNotificationMenu(notificationMenu);
     });
     connect(ui->historyWidget, &ContinuableListWidget::continuationReady, this, [this] {
-        BrowseHelper::instance()->continuation<InnertubeEndpoints::BrowseHistory>(ui->historyWidget, lastSearchQuery);
+        if (!ui->historyWidget->continuationToken.isEmpty())
+            BrowseHelper::instance()->browseHistory(ui->historyWidget, lastSearchQuery);
     });
     connect(ui->homeWidget, &ContinuableListWidget::continuationReady, this, [this] {
-        BrowseHelper::instance()->continuation<InnertubeEndpoints::BrowseHome>(ui->homeWidget);
+        if (!ui->homeWidget->continuationToken.isEmpty())
+            BrowseHelper::instance()->browseHome(ui->homeWidget);
     });
     connect(ui->searchWidget, &ContinuableListWidget::continuationReady, this, [this] {
-        BrowseHelper::instance()->continuation<InnertubeEndpoints::Search>(ui->searchWidget, lastSearchQuery);
+        if (!ui->searchWidget->continuationToken.isEmpty())
+            BrowseHelper::instance()->search(ui->searchWidget, nullptr, lastSearchQuery);
     });
     connect(ui->subscriptionsWidget, &ContinuableListWidget::continuationReady, this, [this] {
-        BrowseHelper::instance()->continuation<InnertubeEndpoints::BrowseSubscriptions>(ui->subscriptionsWidget);
+        if (!ui->subscriptionsWidget->continuationToken.isEmpty())
+            BrowseHelper::instance()->browseSubscriptions(ui->subscriptionsWidget);
     });
 
     QAction* reloadShortcut = new QAction(this);

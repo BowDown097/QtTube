@@ -25,7 +25,6 @@ private:
     void reset();
 private slots:
     void copyChannelUrl();
-    void filterThis();
     void navigate();
     void showContextMenu(const QPoint& pos);
 };

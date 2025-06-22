@@ -1,5 +1,4 @@
 #include "uiutils.h"
-#include "innertube/objects/ad/adslot.h"
 #include "innertube/objects/backstage/backstagepost.h"
 #include "innertube/objects/channel/channel.h"
 #include "innertube/objects/video/reel.h"
@@ -9,7 +8,6 @@
 #include "ui/widgets/dynamiclistwidgetitem.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/backstage/backstagepostrenderer.h"
-#include "ui/widgets/renderers/backstage/postrenderer.h"
 #include "ui/widgets/renderers/browsechannelrenderer.h"
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
@@ -19,7 +17,6 @@
 #include <QLayout>
 #include <QPainter>
 #include <QStyleFactory>
-#include <QWindow>
 
 constexpr QLatin1String DarkStylesheet(R"(
     QLineEdit {
@@ -58,13 +55,6 @@ namespace UIUtils
         addResizingWidgetToList(list, renderer);
     }
 
-    void addBoldLabelToList(QListWidget* list, const QString& text)
-    {
-        QLabel* label = new QLabel(text);
-        label->setFont(QFont(label->font().toString(), -1, QFont::Bold));
-        addWidgetToList(list, label);
-    }
-
     void addChannelToList(QListWidget* list, const InnertubeObjects::Channel& channel)
     {
         if (qtTubeApp->settings().channelIsFiltered(channel.channelId))
@@ -87,21 +77,6 @@ namespace UIUtils
         BrowseNotificationRenderer* renderer = new BrowseNotificationRenderer;
         renderer->setData(notification);
         addWidgetToList(list, renderer);
-    }
-
-    void addPostToList(QListWidget* list, const InnertubeObjects::Post& post)
-    {
-        if (qtTubeApp->settings().channelIsFiltered(post.authorEndpoint["browseEndpoint"]["browseId"].toString()))
-            return;
-
-        PostRenderer* renderer = new PostRenderer;
-        renderer->setFixedSize(350, 200);
-        renderer->setData(post);
-
-        QListWidgetItem* item = new QListWidgetItem;
-        item->setSizeHint(renderer->size());
-        list->addItem(item);
-        list->setItemWidget(item, renderer);
     }
 
     QListWidgetItem* addResizingWidgetToList(QListWidget* list, QWidget* widget)
@@ -148,30 +123,6 @@ namespace UIUtils
         item->setSizeHint(hint);
         list->addItem(item);
         list->setItemWidget(item, shelfLabel);
-    }
-
-    void addVideoToList(QListWidget* list, const InnertubeObjects::AdSlot& adSlot,
-                        bool useThumbnailFromData)
-    {
-        if (qtTubeApp->settings().videoIsFiltered(adSlot))
-            return;
-
-        std::visit([list, useThumbnailFromData](auto&& v) {
-            VideoRenderer* renderer = constructVideoRenderer(list);
-            renderer->setData(v, useThumbnailFromData);
-            addWidgetToList(list, renderer);
-        }, adSlot.fulfillmentContent.fulfilledLayout.renderingContent);
-    }
-
-    void addVideoToList(QListWidget* list, const InnertubeObjects::LockupViewModel& lockup,
-                        bool useThumbnailFromData)
-    {
-        if (qtTubeApp->settings().videoIsFiltered(lockup))
-            return;
-
-        VideoRenderer* renderer = constructVideoRenderer(list);
-        renderer->setData(lockup, useThumbnailFromData);
-        addWidgetToList(list, renderer);
     }
 
     void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel,
@@ -221,13 +172,6 @@ namespace UIUtils
         list->addItem(item);
         list->setItemWidget(item, widget);
         return item;
-    }
-
-    void addWrappedLabelToList(QListWidget* list, const QString& text)
-    {
-        QLabel* label = new QLabel(text);
-        label->setWordWrap(true);
-        addWidgetToList(list, label);
     }
 
     void clearLayout(QLayout* layout)

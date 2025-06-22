@@ -1,9 +1,6 @@
 #include "settingsstore.h"
-#include "innertube/objects/ad/adslot.h"
-#include "innertube/objects/video/compactvideo.h"
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/video.h"
-#include "innertube/objects/viewmodels/lockupviewmodel.h"
 #include "innertube/objects/viewmodels/shortslockupviewmodel.h"
 #include <QSettings>
 
@@ -22,11 +19,9 @@ void SettingsStore::initialize()
     autoHideTopBar = settings.value("autoHideTopBar", true).toBool();
     condensedCounts = settings.value("condensedCounts", false).toBool();
     darkTheme = settings.value("darkTheme", false).toBool();
-    downloadPath = settings.value("downloadPath").toString();
     fullSubs = settings.value("fullSubs", false).toBool();
     imageCaching = settings.value("imageCaching", true).toBool();
     preferLists = settings.value("preferLists", false).toBool();
-    returnDislikes = settings.value("returnDislikes", true).toBool();
     // player
     blockAds = settings.value("player/blockAds", true).toBool();
     disable60Fps = settings.value("player/disable60Fps", false).toBool();
@@ -45,13 +40,11 @@ void SettingsStore::initialize()
     // filtering
     filterLength = settings.value("filtering/filterLength", 0).toInt();
     filterLengthEnabled = settings.value("filtering/filterLengthEnabled", false).toBool();
-    hideSearchShelves = settings.value("filtering/hideSearchShelves", true).toBool();
     hideShorts = settings.value("filtering/hideShorts", false).toBool();
     hideStreams = settings.value("filtering/hideStreams", false).toBool();
     readIntoStringList(settings, filteredChannels, "filtering/filteredChannels", "id");
     readIntoStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
     // sponsorblock
-    showSBToasts = settings.value("sponsorBlock/toasts", true).toBool();
     readIntoStringList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
     // dearrow
     deArrow = settings.value("deArrow/enabled", false).toBool();
@@ -82,11 +75,9 @@ void SettingsStore::save()
     settings.setValue("autoHideTopBar", autoHideTopBar);
     settings.setValue("condensedCounts", condensedCounts);
     settings.setValue("darkTheme", darkTheme);
-    settings.setValue("downloadPath", downloadPath);
     settings.setValue("fullSubs", fullSubs);
     settings.setValue("imageCaching", imageCaching);
     settings.setValue("preferLists", preferLists);
-    settings.setValue("returnDislikes", returnDislikes);
     // player
     settings.setValue("player/blockAds", blockAds);
     settings.setValue("player/disable60Fps", disable60Fps);
@@ -105,13 +96,11 @@ void SettingsStore::save()
     // filtering
     settings.setValue("filtering/filterLength", filterLength);
     settings.setValue("filtering/filterLengthEnabled", filterLengthEnabled);
-    settings.setValue("filtering/hideSearchShelves", hideSearchShelves);
     settings.setValue("filtering/hideShorts", hideShorts);
     settings.setValue("filtering/hideStreams", hideStreams);
     writeStringList(settings, filteredChannels, "filtering/filteredChannels", "id");
     writeStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
     // sponsorblock
-    settings.setValue("sponsorBlock/toasts", showSBToasts);
     writeStringList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
     // dearrow
     settings.setValue("deArrow/enabled", deArrow);
@@ -122,39 +111,6 @@ void SettingsStore::save()
 bool SettingsStore::strHasFilteredTerm(const QString& str) const
 {
     return std::ranges::any_of(filteredTerms, [&str](const QString& t) { return str.contains(t, Qt::CaseInsensitive); });
-}
-
-bool SettingsStore::videoIsFiltered(const InnertubeObjects::AdSlot& adSlot) const
-{
-    if (blockAds)
-        return true;
-
-    const auto& renderingContent = adSlot.fulfillmentContent.fulfilledLayout.renderingContent;
-
-    QString title;
-    if (const auto* displayAd = std::get_if<InnertubeObjects::DisplayAd>(&renderingContent))
-        title = displayAd->titleText.text;
-    else if (const auto* video = std::get_if<InnertubeObjects::VideoDisplayButtonGroup>(&renderingContent))
-        title = video->title.text;
-
-    return strHasFilteredTerm(title);
-}
-
-bool SettingsStore::videoIsFiltered(const InnertubeObjects::CompactVideo& compactVideo) const
-{
-    return channelIsFiltered(compactVideo.owner().id) || strHasFilteredTerm(compactVideo.title.text) ||
-           (filterLengthEnabled && !compactVideo.isLive() && QTime(0, 0).secsTo(compactVideo.length()) <= filterLength) ||
-           (hideStreams && compactVideo.isLive());
-}
-
-bool SettingsStore::videoIsFiltered(const InnertubeObjects::LockupViewModel& lockup) const
-{
-    if (std::optional<InnertubeObjects::BasicChannel> owner = lockup.owner(); channelIsFiltered(owner->id))
-        return true;
-
-    return strHasFilteredTerm(lockup.metadata.title) ||
-           (filterLengthEnabled && !lockup.isLive() && QTime(0, 0).secsTo(lockup.length()) <= filterLength) ||
-           (hideStreams && lockup.isLive());
 }
 
 bool SettingsStore::videoIsFiltered(const InnertubeObjects::Reel& reel) const
