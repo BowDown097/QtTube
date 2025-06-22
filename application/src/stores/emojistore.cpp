@@ -33,7 +33,7 @@ EmojiStore::EmojiStore(QObject* parent)
                 if (base.isEmpty())
                     continue;
 
-                QtTube::Emoji emoji = { .animated = emojiData["animated"].toBool() };
+                QtTube::Emoji emoji;
 
                 const QJsonArray emoticons = emojiData["emoticons"].toArray();
                 for (const QJsonValue& emoticon : emoticons)

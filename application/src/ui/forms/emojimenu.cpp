@@ -1,17 +1,17 @@
 #include "emojimenu.h"
 #include "ui_emojimenu.h"
 #include "stores/emojistore.h"
-#include "ui/widgets/flowlayout.h"
-#include "ui/widgets/labels/emojilabel.h"
+#include "ui/widgets/emojigraphicsitem.h"
 #include <QTimer>
+#include <ranges>
 
 EmojiMenu::~EmojiMenu() { delete ui; }
 
 EmojiMenu::EmojiMenu(QWidget* parent, Qt::WindowFlags f)
-    : QWidget(parent, f), ui(new Ui::EmojiMenu)
+    : QWidget(parent, f), m_scene(new QGraphicsScene(this)), ui(new Ui::EmojiMenu)
 {
     ui->setupUi(this);
-    layout = new FlowLayout(ui->scrollAreaContents);
+    ui->graphicsView->setScene(m_scene);
 
     connect(ui->emojiSearch, &QLineEdit::textEdited, this, &EmojiMenu::beginSearch);
 
@@ -31,23 +31,24 @@ void EmojiMenu::add(const QList<EmojiGroup>& emojiGroups)
 {
     for (const EmojiGroup& emojiGroup : emojiGroups)
     {
-        TubeLabel* groupLabel = new TubeLabel(emojiGroup.name);
-        groupLabel->setProperty("onOwnLine", true);
-        layout->addWidget(groupLabel);
+        QGraphicsTextItem* groupHeader = new QGraphicsTextItem(emojiGroup.name);
+        m_scene->addItem(groupHeader);
 
-        QList<EmojiLabel*> groupEmojiLabels;
-        groupEmojiLabels.reserve(emojiGroup.emojis.size());
+        QList<EmojiGraphicsItem*> groupEmojiItems;
+        groupEmojiItems.reserve(emojiGroup.emojis.size());
 
         for (const QtTube::Emoji& emoji : emojiGroup.emojis)
         {
-            EmojiLabel* emojiLabel = new EmojiLabel(emoji);
-            layout->addWidget(emojiLabel);
-            connect(emojiLabel, &EmojiLabel::clicked, this, [this, emojiLabel] { emit emojiClicked(emojiLabel->data()); });
-            groupEmojiLabels.append(emojiLabel);
+            EmojiGraphicsItem* emojiItem = new EmojiGraphicsItem(emoji);
+            m_scene->addItem(emojiItem);
+            connect(emojiItem, &EmojiGraphicsItem::clicked, this, [this, emojiItem] { emit emojiClicked(emojiItem->data()); });
+            groupEmojiItems.append(emojiItem);
         }
 
-        emojiGroupLabels.emplaceBack(groupLabel, groupEmojiLabels);
+        m_emojiGroupItems.emplaceBack(groupHeader, groupEmojiItems);
     }
+
+    doSceneLayout();
 }
 
 void EmojiMenu::beginSearch()
@@ -63,22 +64,79 @@ void EmojiMenu::beginSearch()
     debounceTimer->start();
 }
 
+void EmojiMenu::doSceneLayout()
+{
+    constexpr int emojiSize = 24;
+    constexpr int spacing = 6;
+    const int sceneWidth = ui->graphicsView->viewport()->width();
+
+    int y = 0;
+    for (const auto& [groupHeader, emojiItems] : std::as_const(m_emojiGroupItems))
+    {
+        if (!groupHeader->isVisible())
+            continue;
+
+        // put header on its own line
+        groupHeader->setPos(0, y);
+        y += groupHeader->boundingRect().height() + spacing;
+
+        // put emojis in a flex layout
+        int x = 0;
+        for (EmojiGraphicsItem* emojiItem : emojiItems)
+        {
+            if (!emojiItem->isVisible())
+                continue;
+
+            // wrap to next line if needed
+            if (x + emojiSize > sceneWidth)
+            {
+                x = 0;
+                y += emojiSize + spacing;
+            }
+
+            emojiItem->setPos(x, y);
+            x += emojiSize + spacing;
+        }
+
+        y += emojiSize + spacing;
+    }
+
+    m_scene->setSceneRect(0, 0, sceneWidth, y);
+}
+
 void EmojiMenu::filterEmojis()
 {
     const QString searchText = ui->emojiSearch->text();
     auto termFilter = [&searchText](const QString& term) { return term.contains(searchText, Qt::CaseInsensitive); };
 
-    for (const auto& [groupLabel, emojiLabels] : std::as_const(emojiGroupLabels))
+    for (const auto& [groupHeader, emojiItems] : std::as_const(m_emojiGroupItems))
     {
         bool anyVisible = false;
 
-        for (EmojiLabel* emojiLabel : std::as_const(emojiLabels))
+        for (EmojiGraphicsItem* emojiItem : emojiItems)
         {
-            bool isVisible = searchText.isEmpty() || std::ranges::any_of(emojiLabel->searchTerms(), termFilter);
-            emojiLabel->setVisible(isVisible);
+            bool isVisible = searchText.isEmpty() || std::ranges::any_of(std::views::join(std::array {
+                std::span(emojiItem->data().emoticons),
+                std::span(emojiItem->data().shortcodes)
+            }), termFilter);
+            emojiItem->setVisible(isVisible);
             anyVisible |= isVisible;
         }
 
-        groupLabel->setVisible(anyVisible);
+        groupHeader->setVisible(anyVisible);
     }
+
+    doSceneLayout();
+}
+
+void EmojiMenu::resizeEvent(QResizeEvent* event)
+{
+    QWidget::resizeEvent(event);
+    doSceneLayout();
+}
+
+void EmojiMenu::showEvent(QShowEvent* event)
+{
+    QWidget::showEvent(event);
+    doSceneLayout();
 }

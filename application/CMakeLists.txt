@@ -57,8 +57,8 @@ set(SOURCE_FILES
     src/ui/widgets/closebutton.cpp
     src/ui/widgets/continuablelistwidget.cpp
     src/ui/widgets/dynamiclistwidgetitem.cpp
+    src/ui/widgets/emojigraphicsitem.cpp
     src/ui/widgets/findbar.cpp
-    src/ui/widgets/flowlayout.cpp
     src/ui/widgets/pluginwidget.cpp
     src/ui/widgets/watchnextfeed.cpp
     src/ui/widgets/accountmenu/accountcontrollerwidget.cpp
@@ -69,7 +69,6 @@ set(SOURCE_FILES
     src/ui/widgets/download/downloadmanager.cpp
     src/ui/widgets/labels/channelbadgelabel.cpp
     src/ui/widgets/labels/channellabel.cpp
-    src/ui/widgets/labels/emojilabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
     src/ui/widgets/labels/tubelabel.cpp
     src/ui/widgets/livechat/giftredemptionmessage.cpp
@@ -153,8 +152,8 @@ set(HEADERS
     src/ui/widgets/closebutton.h
     src/ui/widgets/continuablelistwidget.h
     src/ui/widgets/dynamiclistwidgetitem.h
+    src/ui/widgets/emojigraphicsitem.h
     src/ui/widgets/findbar.h
-    src/ui/widgets/flowlayout.h
     src/ui/widgets/pluginwidget.h
     src/ui/widgets/watchnextfeed.h
     src/ui/widgets/accountmenu/accountcontrollerwidget.h
@@ -165,7 +164,6 @@ set(HEADERS
     src/ui/widgets/download/downloadmanager.h
     src/ui/widgets/labels/channelbadgelabel.h
     src/ui/widgets/labels/channellabel.h
-    src/ui/widgets/labels/emojilabel.h
     src/ui/widgets/labels/iconlabel.h
     src/ui/widgets/labels/tubelabel.h
     src/ui/widgets/livechat/giftredemptionmessage.h
@@ -272,7 +270,8 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Include directories, libraries
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE innertube-qt QtTube::PluginInterface Qt::Network Qt::Sql Qt::WebEngineWidgets Qt::Widgets)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
+    innertube-qt QtTube::PluginInterface Qt::Network Qt::Sql Qt::WebEngineWidgets Qt::Widgets)
 
 ## Platform-specific
 if(UNIX AND NOT APPLE)

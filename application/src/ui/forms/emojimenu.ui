@@ -31,32 +31,22 @@
      <property name="placeholderText">
       <string>Search emojis...</string>
      </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
-    <widget class="QScrollArea" name="scrollArea">
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
+    <widget class="QGraphicsView" name="graphicsView">
      <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
      </property>
-     <widget class="QWidget" name="scrollAreaContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>200</width>
-        <height>166</height>
-       </rect>
-      </property>
-     </widget>
+     <property name="renderHints">
+      <set>QPainter::RenderHint::Antialiasing</set>
+     </property>
     </widget>
    </item>
   </layout>

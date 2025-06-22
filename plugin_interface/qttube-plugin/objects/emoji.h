@@ -6,7 +6,6 @@ namespace QtTube
 {
     struct Emoji
     {
-        bool animated{};
         QStringList emoticons;
         bool hidden{};
         QString representation;
