@@ -1,5 +1,6 @@
 #pragma once
 #include "components/pluginauth.h"
+#include "components/player/pluginplayer.h"
 #include "components/pluginsettings.h"
 #include "components/replytypes.h"
 
@@ -60,12 +61,13 @@ namespace QtTube
 using QtTubePluginAuthFunc = QtTube::PluginAuth*(*)();
 using QtTubePluginMetadataFunc = QtTube::PluginMetadata*(*)();
 using QtTubePluginNewInstanceFunc = QtTube::PluginInterface*(*)();
+using QtTubePluginPlayerFunc = QtTube::PluginPlayer*(*)(QWidget*);
 using QtTubePluginSettingsFunc = QtTube::PluginSettings*(*)();
 using QtTubePluginVersionFunc = const char*(*)();
 
-#define GET_MACRO(_1, _2, _3, _4, NAME, ...) NAME
+#define GET_MACRO(_1, _2, _3, _4, _5, NAME, ...) NAME
 #define DECLARE_QTTUBE_PLUGIN(...) \
-    GET_MACRO(__VA_ARGS__, DECLARE_QTTUBE_PLUGIN4, DECLARE_QTTUBE_PLUGIN3, DECLARE_QTTUBE_PLUGIN2, DECLARE_QTTUBE_PLUGIN1)(__VA_ARGS__)
+    GET_MACRO(__VA_ARGS__, DECLARE_QTTUBE_PLUGIN5, DECLARE_QTTUBE_PLUGIN4, DECLARE_QTTUBE_PLUGIN3, DECLARE_QTTUBE_PLUGIN2, DECLARE_QTTUBE_PLUGIN1)(__VA_ARGS__)
 
 #define DECLARE_QTTUBE_PLUGIN2(PluginClass, MetadataInstance) \
     extern "C" \
@@ -75,12 +77,22 @@ using QtTubePluginVersionFunc = const char*(*)();
         DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
     }
 
-#define DECLARE_QTTUBE_PLUGIN3(PluginClass, MetadataInstance, SettingsClass) \
+#define DECLARE_QTTUBE_PLUGIN3(PluginClass, MetadataInstance, PlayerClass) \
     extern "C" \
     { \
         DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
         DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
         DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
+        DLLEXPORT QtTube::PluginPlayer* player(QWidget* parent) { return new PlayerClass(parent); } \
+    }
+
+#define DECLARE_QTTUBE_PLUGIN4(PluginClass, MetadataInstance, PlayerClass, SettingsClass) \
+    extern "C" \
+    { \
+        DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
+        DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
+        DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
+        DLLEXPORT QtTube::PluginPlayer* player(QWidget* parent) { return new PlayerClass(parent); } \
         DLLEXPORT QtTube::PluginSettings* settings() \
         { \
             static std::unique_ptr<SettingsClass> s = QtTube::PluginSettings::create<SettingsClass>(metadata()->name); \
@@ -88,12 +100,13 @@ using QtTubePluginVersionFunc = const char*(*)();
         } \
     }
 
-#define DECLARE_QTTUBE_PLUGIN4(PluginClass, MetadataInstance, SettingsClass, AuthClass) \
+#define DECLARE_QTTUBE_PLUGIN5(PluginClass, MetadataInstance, PlayerClass, SettingsClass, AuthClass) \
     extern "C" \
     { \
         DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
         DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
         DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
+        DLLEXPORT QtTube::PluginPlayer* player(QWidget* parent) { return new PlayerClass(parent); } \
         DLLEXPORT QtTube::PluginSettings* settings() \
         { \
             static std::unique_ptr<SettingsClass> s = QtTube::PluginSettings::create<SettingsClass>(metadata()->name); \

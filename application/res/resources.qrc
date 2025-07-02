@@ -67,39 +67,6 @@
         <file>notif-bell-none-light.svg</file>
     </qresource>
     <qresource>
-        <file>player/annotationlib/AnnotationParser.js</file>
-    </qresource>
-    <qresource>
-        <file>player/annotationlib/AnnotationRenderer.css</file>
-    </qresource>
-    <qresource>
-        <file>player/annotationlib/AnnotationRenderer.js</file>
-    </qresource>
-    <qresource>
-        <file>player/annotations.js</file>
-    </qresource>
-    <qresource>
-        <file>player/global.js</file>
-    </qresource>
-    <qresource>
-        <file>player/h264ify.js</file>
-    </qresource>
-    <qresource>
-        <file>player/integration.js</file>
-    </qresource>
-    <qresource>
-        <file>player/interceptors.js</file>
-    </qresource>
-    <qresource>
-        <file>player/patches.js</file>
-    </qresource>
-    <qresource>
-        <file>player/sponsorblock.js</file>
-    </qresource>
-    <qresource>
-        <file>player/styles.css</file>
-    </qresource>
-    <qresource>
         <file>playlist_add.svg</file>
     </qresource>
     <qresource>

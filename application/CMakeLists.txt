@@ -82,11 +82,6 @@ set(SOURCE_FILES
     src/ui/widgets/topbar/searchbox.cpp
     src/ui/widgets/topbar/topbar.cpp
     src/ui/widgets/topbar/topbarbell.cpp
-    src/ui/widgets/webengineplayer/fullscreennotification.cpp
-    src/ui/widgets/webengineplayer/fullscreenwindow.cpp
-    src/ui/widgets/webengineplayer/playerinterceptor.cpp
-    src/ui/widgets/webengineplayer/webchannelinterface.cpp
-    src/ui/widgets/webengineplayer/webengineplayer.cpp
     src/utils/osutils.cpp
     src/utils/stringutils.cpp
     src/utils/tubeutils.cpp
@@ -159,11 +154,6 @@ set(HEADERS
     src/ui/widgets/topbar/searchbox.h
     src/ui/widgets/topbar/topbar.h
     src/ui/widgets/topbar/topbarbell.h
-    src/ui/widgets/webengineplayer/fullscreennotification.h
-    src/ui/widgets/webengineplayer/fullscreenwindow.h
-    src/ui/widgets/webengineplayer/playerinterceptor.h
-    src/ui/widgets/webengineplayer/webchannelinterface.h
-    src/ui/widgets/webengineplayer/webengineplayer.h
     src/utils/osutils.h
     src/utils/stringutils.h
     src/utils/tubeutils.h

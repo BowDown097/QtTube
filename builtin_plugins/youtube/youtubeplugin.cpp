@@ -5,6 +5,7 @@
 #include "utils/conversion.h"
 #include "utils/replydata.h"
 #include "utils/stringutils.h"
+#include "youtubeplayer.h"
 
 using namespace InnertubeEndpoints;
 
@@ -15,7 +16,7 @@ QtTube::PluginMetadata g_metadata = {
     .author = "BowDown097",
     .url = "https://github.com/BowDown097/QtTube"
 };
-DECLARE_QTTUBE_PLUGIN(YouTubePlugin, g_metadata, YouTubeSettings, YouTubeAuth)
+DECLARE_QTTUBE_PLUGIN(YouTubePlugin, g_metadata, YouTubePlayer, YouTubeSettings, YouTubeAuth)
 
 YouTubeAuth* g_auth = static_cast<YouTubeAuth*>(auth());
 YouTubeSettings* g_settings = static_cast<YouTubeSettings*>(settings());

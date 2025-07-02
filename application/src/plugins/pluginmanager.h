@@ -28,8 +28,9 @@ struct QLibraryDeleter
     }
 };
 
-struct PluginData
+class PluginData
 {
+public:
     bool active{};
     QtTube::PluginAuth* auth{};
     QFileInfo fileInfo;
@@ -37,6 +38,19 @@ struct PluginData
     std::unique_ptr<QtTube::PluginInterface> interface;
     QtTube::PluginMetadata* metadata{};
     QtTube::PluginSettings* settings{};
+
+    QtTube::PluginPlayer* createPlayer(QWidget* parent)
+    {
+        if (!m_playerFunc)
+            m_playerFunc = QtTubePluginPlayerFunc(handle->resolve("player"));
+
+        if (m_playerFunc)
+            return m_playerFunc(parent);
+        else
+            return nullptr;
+    }
+private:
+    QtTubePluginPlayerFunc m_playerFunc{};
 };
 
 class PluginManager

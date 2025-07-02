@@ -1,6 +1,6 @@
 project(plugin_interface)
 
-find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS WebEngineWidgets Widgets)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -12,6 +12,8 @@ target_compile_definitions(QtTube-PluginInterface PUBLIC
 target_sources(QtTube-PluginInterface
     PRIVATE
         qttube-plugin/components/pluginsettingswindow.cpp
+        qttube-plugin/components/player/fullscreennotification.cpp
+        qttube-plugin/components/player/pluginwebplayer.cpp
     PUBLIC
         FILE_SET HEADERS FILES
             qttube-plugin/plugininterface.h
@@ -21,6 +23,9 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/pluginsettingswindow.h
             qttube-plugin/components/reply.h
             qttube-plugin/components/replytypes.h
+            qttube-plugin/components/player/fullscreennotification.h
+            qttube-plugin/components/player/pluginplayer.h
+            qttube-plugin/components/player/pluginwebplayer.h
             qttube-plugin/objects/badge.h
             qttube-plugin/objects/channel.h
             qttube-plugin/objects/emoji.h
@@ -39,4 +44,4 @@ target_sources(QtTube-PluginInterface
 add_library(QtTube::PluginInterface ALIAS QtTube-PluginInterface)
 
 target_include_directories(QtTube-PluginInterface PUBLIC verdigris/src)
-target_link_libraries(QtTube-PluginInterface PUBLIC Qt::Widgets)
+target_link_libraries(QtTube-PluginInterface PUBLIC Qt::WebEngineWidgets Qt::Widgets)

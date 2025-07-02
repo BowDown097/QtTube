@@ -29,20 +29,20 @@ private:
     std::unordered_map<QString, std::any> viewOptions;
 
     void addChatItemToList(const QtTube::LiveChatItem& item);
-    void addNewChatReplayItems(double progress, double previousProgress, bool seeked);
+    void addNewChatReplayItems(qint64 progress, qint64 previousProgress, bool seeked);
     void createEmojiMenuWidgets();
     void processingEnd();
-    void updateChatReplay(double progress, double previousProgress);
+    void updateChatReplay(qint64 progress, qint64 previousProgress);
     void waitForPopulation();
 public slots:
     void initialize(const QtTube::InitialLiveChatData& data, WatchViewPlayer* player);
 private slots:
     void chatModeChanged(const QString& name);
-    void chatReplayTick(double progress, double previousProgress);
+    void chatReplayTick(qint64 progress, qint64 previousProgress);
     void chatTick();
     void insertEmoji(const QtTube::Emoji& emoji);
     void processChatData(const QtTube::LiveChat& data);
-    void processChatReplayData(double progress, double previousProgress, bool seeked, const QtTube::LiveChatReplay& data);
+    void processChatReplayData(qint64 progress, qint64 previousProgress, bool seeked, const QtTube::LiveChatReplay& data);
     void sendMessage();
 signals:
     void getLiveChatFinished();

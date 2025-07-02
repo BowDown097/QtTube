@@ -45,7 +45,7 @@ void LiveChatWindow::addChatItemToList(const QtTube::LiveChatItem& item)
         UIUtils::addWidgetToList(ui->listWidget, new TextMessage(*textMessage, this));
 }
 
-void LiveChatWindow::addNewChatReplayItems(double progress, double previousProgress, bool seeked)
+void LiveChatWindow::addNewChatReplayItems(qint64 progress, qint64 previousProgress, bool seeked)
 {
     for (auto it = replayItems.begin(); it != replayItems.end();)
     {
@@ -80,14 +80,14 @@ void LiveChatWindow::chatModeChanged(const QString& name)
     }
 }
 
-void LiveChatWindow::chatReplayTick(double progress, double previousProgress)
+void LiveChatWindow::chatReplayTick(qint64 progress, qint64 previousProgress)
 {
     if (!populating)
     {
         if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
         {
             populating = true;
-            if (previousProgress > 0 && (int)std::abs(progress - previousProgress) > 5)
+            if (previousProgress > 0 && std::abs(progress - previousProgress) > 5)
             {
                 ui->listWidget->clear();
                 QtTube::LiveChatReplayReply* reply = plugin->interface->getLiveChatReplay(seekData, progress * 1000);
@@ -195,7 +195,7 @@ void LiveChatWindow::processChatData(const QtTube::LiveChat& data)
 }
 
 void LiveChatWindow::processChatReplayData(
-    double progress, double previousProgress, bool seeked, const QtTube::LiveChatReplay& data)
+    qint64 progress, qint64 previousProgress, bool seeked, const QtTube::LiveChatReplay& data)
 {
     if (ui->chatModeSwitcher->isHidden() && !data.viewOptions.isEmpty())
     {
@@ -245,7 +245,7 @@ void LiveChatWindow::sendMessage()
     }
 }
 
-void LiveChatWindow::updateChatReplay(double progress, double previousProgress)
+void LiveChatWindow::updateChatReplay(qint64 progress, qint64 previousProgress)
 {
     addNewChatReplayItems(progress, previousProgress, false);
     processingEnd();

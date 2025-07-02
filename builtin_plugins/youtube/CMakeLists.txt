@@ -18,7 +18,9 @@ target_link_libraries(youtube_plugin PRIVATE innertube-qt Qt::Sql QtTube::Plugin
 target_sources(youtube_plugin
     PRIVATE
         youtubeauth.cpp
+        youtubeplayer.cpp
         youtubeplugin.cpp
+        res/resources.qrc
         settings/channelfiltertable.cpp
         settings/channelfiltertable.ui
         settings/youtubesettings.cpp
@@ -45,6 +47,7 @@ target_sources(youtube_plugin
     PUBLIC
         FILE_SET HEADERS FILES
             youtubeauth.h
+            youtubeplayer.h
             youtubeplugin.h
             settings/channelfiltertable.h
             settings/youtubesettings.h

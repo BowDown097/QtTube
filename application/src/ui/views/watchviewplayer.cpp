@@ -1,19 +1,26 @@
 #include "watchviewplayer.h"
-#include "innertube.h"
 #include "qttubeapplication.h"
-#include "ui/widgets/webengineplayer/webengineplayer.h"
+#include "ui/views/viewcontroller.h"
+#include "utils/osutils.h"
+#include "utils/uiutils.h"
 #include <QLabel>
+#include <QMainWindow>
 #include <QMessageBox>
 #include <QProcess>
+#include <QRegularExpression>
 
 WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QObject(watchView)
 {
     if (qtTubeApp->settings().externalPlayerPath.isEmpty())
     {
-        m_player = new WebEnginePlayer(watchView);
-        m_player->setAuthStore(InnerTube::instance()->authStore());
-        m_player->setContext(InnerTube::instance()->context());
-        connect(m_player, &WebEnginePlayer::progressChanged, this, &WatchViewPlayer::progressChanged);
+        if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+        {
+            m_player = plugin->createPlayer(watchView);
+            connect(m_player, &QtTube::PluginPlayer::copyToClipboardRequested, this, &WatchViewPlayer::copyToClipboard);
+            connect(m_player, &QtTube::PluginPlayer::newState, this, &WatchViewPlayer::newState);
+            connect(m_player, &QtTube::PluginPlayer::progressChanged, this, &WatchViewPlayer::progressChanged);
+            connect(m_player, &QtTube::PluginPlayer::switchVideoRequested, this, &WatchViewPlayer::switchVideo);
+        }
     }
 
     calcAndSetSize(maxSize);
@@ -46,6 +53,38 @@ void WatchViewPlayer::calcAndSetSize(const QSize& maxSize)
         m_player->setFixedSize(m_size);
 }
 
+void WatchViewPlayer::copyToClipboard(const QString& text)
+{
+    UIUtils::copyToClipboard(text);
+}
+
+void WatchViewPlayer::newState(QtTube::PluginPlayer::PlayerState state)
+{
+    auto setWindowTitleSuffix = [](const QString& suffix) {
+        if (QMainWindow* mainWindow = UIUtils::getMainWindow())
+        {
+            static QRegularExpression suffixRegex(R"( \[(Playing|Paused)\]$)");
+            mainWindow->setWindowTitle(mainWindow->windowTitle().remove(suffixRegex).append(' ').append(suffix));
+        }
+    };
+
+    switch (state)
+    {
+    case QtTube::PluginPlayer::State_Playing:
+        OSUtils::suspendIdleSleep(true);
+        setWindowTitleSuffix("[Playing]");
+        break;
+    case QtTube::PluginPlayer::State_Paused:
+        OSUtils::suspendIdleSleep(false);
+        setWindowTitleSuffix("[Paused]");
+        break;
+    case QtTube::PluginPlayer::State_Ended:
+        OSUtils::suspendIdleSleep(false);
+        break;
+    default: break;
+    }
+}
+
 void WatchViewPlayer::play(const QString& videoId, int progress)
 {
     if (QString playerPath = qtTubeApp->settings().externalPlayerPath; !playerPath.isEmpty())
@@ -70,10 +109,9 @@ void WatchViewPlayer::seek(int progress)
         m_player->seek(progress);
 }
 
-void WatchViewPlayer::showSharePanel()
+void WatchViewPlayer::switchVideo(const QString& videoId)
 {
-    if (m_player)
-        m_player->showSharePanel();
+    ViewController::loadVideo(videoId);
 }
 
 QWidget* WatchViewPlayer::widget()

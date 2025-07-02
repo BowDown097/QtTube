@@ -64,10 +64,9 @@ std::optional<PluginData> PluginManager::loadPlugin(const QFileInfo& fileInfo)
         return {};
 
     // create PluginData with what we have so far
-    PluginData data = {
-        .fileInfo = fileInfo,
-        .handle = std::unique_ptr<QLibrary, QLibraryDeleter>(new QLibrary(fileInfo.absoluteFilePath()))
-    };
+    PluginData data;
+    data.fileInfo = fileInfo;
+    data.handle = std::unique_ptr<QLibrary, QLibraryDeleter>(new QLibrary(fileInfo.absoluteFilePath()));
     data.handle->setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
 
     // load handle, get required instance and metadata components

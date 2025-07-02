@@ -1,8 +1,5 @@
 #pragma once
-#include <QObject>
-#include <QSize>
-
-class WebEnginePlayer;
+#include "qttube-plugin/components/player/pluginplayer.h"
 
 class WatchViewPlayer : public QObject
 {
@@ -14,16 +11,19 @@ public:
     void calcAndSetSize(const QSize& maxSize);
     void play(const QString& videoId, int progress = 0);
     void seek(int progress);
-    void showSharePanel();
     QWidget* widget();
 
     QSize size() const { return m_size; }
     ScaleMode scaleMode() const { return m_scaleMode; }
 private:
-    WebEnginePlayer* m_player{};
+    QtTube::PluginPlayer* m_player{};
     ScaleMode m_scaleMode;
     QSize m_size;
+private slots:
+    void copyToClipboard(const QString& text);
+    void newState(QtTube::PluginPlayer::PlayerState state);
+    void switchVideo(const QString& videoId);
 signals:
-    void progressChanged(double progress, double previousProgress);
+    void progressChanged(qint64 progress, qint64 previousProgress);
     void scaleModeChanged(WatchViewPlayer::ScaleMode scaleMode);
 };

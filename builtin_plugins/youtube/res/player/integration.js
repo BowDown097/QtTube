@@ -20,24 +20,14 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         await sponsorBlock(settings.sponsorBlockCategories);
 
     document.addEventListener("click", function(e) {
-        // open share button link on click
-        if (e.target.matches(".ytp-share-panel-service-button")) {
-            channel.objects.interface.handleShare(e.target.href);
-        }
-        // copy video URL from share panel on click (clipboard API doesn't work in WebEngine ig)
-        else if (e.target.matches(".ytp-share-panel-link")) {
-            channel.objects.interface.copyToClipboard(e.target.href);
-        }
-        // switch to video tied to card on click
-        else {
-            let coveringOverlay, videowallStill;
-            if ((coveringOverlay = e.target.closest(".ytp-ce-covering-overlay")) != null) {
-                const olParams = new URLSearchParams(coveringOverlay.search);
-                channel.objects.interface.switchWatchViewVideo(olParams.get("v"));
-            } else if ((videowallStill = e.target.closest(".ytp-videowall-still")) != null) {
-                const stillParams = new URLSearchParams(videowallStill.search);
-                channel.objects.interface.switchWatchViewVideo(stillParams.get("v"));
-            }
+        const coveringOverlay = e.target.closest(".ytp-ce-covering-overlay");
+        const videowallStill = e.target.closest(".ytp-videowall-still");
+        if (coveringOverlay != null) {
+            const olParams = new URLSearchParams(coveringOverlay.search);
+            channel.objects.interface.requestSwitchVideo(olParams.get("v"));
+        } else if (videowallStill != null) {
+            const stillParams = new URLSearchParams(videowallStill.search);
+            channel.objects.interface.requestSwitchVideo(stillParams.get("v"));
         }
     });
 
@@ -55,7 +45,7 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         });
 
         // communicate state changes to interface
-        p.addEventListener("onStateChange", state => channel.objects.interface.handleStateChange(state));
+        p.addEventListener("onStateChange", state => channel.objects.interface.emitNewState(state));
 
         // set preferred volume when volume changes if we are setting it from player
         if (settings.volumeFromPlayer) {
