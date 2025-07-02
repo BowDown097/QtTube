@@ -13,9 +13,9 @@ WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QOb
 {
     if (qtTubeApp->settings().externalPlayerPath.isEmpty())
     {
-        if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+        if (PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->playerFunc)
         {
-            m_player = plugin->createPlayer(watchView);
+            m_player = plugin->playerFunc(watchView);
             connect(m_player, &QtTube::PluginPlayer::copyToClipboardRequested, this, &WatchViewPlayer::copyToClipboard);
             connect(m_player, &QtTube::PluginPlayer::newState, this, &WatchViewPlayer::newState);
             connect(m_player, &QtTube::PluginPlayer::progressChanged, this, &WatchViewPlayer::progressChanged);

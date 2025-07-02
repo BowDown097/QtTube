@@ -28,29 +28,16 @@ struct QLibraryDeleter
     }
 };
 
-class PluginData
+struct PluginData
 {
-public:
     bool active{};
     QtTube::PluginAuth* auth{};
     QFileInfo fileInfo;
     std::unique_ptr<QLibrary, QLibraryDeleter> handle;
     std::unique_ptr<QtTube::PluginInterface> interface;
     QtTube::PluginMetadata* metadata{};
+    QtTubePluginPlayerFunc playerFunc{};
     QtTube::PluginSettings* settings{};
-
-    QtTube::PluginPlayer* createPlayer(QWidget* parent)
-    {
-        if (!m_playerFunc)
-            m_playerFunc = QtTubePluginPlayerFunc(handle->resolve("player"));
-
-        if (m_playerFunc)
-            return m_playerFunc(parent);
-        else
-            return nullptr;
-    }
-private:
-    QtTubePluginPlayerFunc m_playerFunc{};
 };
 
 class PluginManager

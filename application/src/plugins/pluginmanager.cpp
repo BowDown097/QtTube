@@ -65,27 +65,28 @@ std::optional<PluginData> PluginManager::loadPlugin(const QFileInfo& fileInfo)
 
     // create PluginData with what we have so far
     PluginData data;
-    data.fileInfo = fileInfo;
-    data.handle = std::unique_ptr<QLibrary, QLibraryDeleter>(new QLibrary(fileInfo.absoluteFilePath()));
+    data.fileInfo = std::move(fileInfo);
+    data.handle.reset(new QLibrary(data.fileInfo.absoluteFilePath()));
     data.handle->setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
 
     // load handle, get required instance and metadata components
     if (!data.handle->load())
-        return pluginError(LoadFailedError.arg(fileInfo.fileName(), data.handle->errorString()), std::nullopt);
+        return pluginError(LoadFailedError.arg(data.fileInfo.fileName(), data.handle->errorString()), std::nullopt);
 
     if (auto newInstanceFunc = QtTubePluginNewInstanceFunc(data.handle->resolve("newInstance")))
         data.interface.reset(newInstanceFunc());
     else
-        return pluginError(NewInstanceNotFoundError.arg(fileInfo.fileName()), std::nullopt);
+        return pluginError(NewInstanceNotFoundError.arg(data.fileInfo.fileName()), std::nullopt);
 
     if (auto metadataFunc = QtTubePluginMetadataFunc(data.handle->resolve("metadata")))
         data.metadata = metadataFunc();
     else
-        return pluginError(MetadataNotFoundError.arg(fileInfo.fileName()), std::nullopt);
+        return pluginError(MetadataNotFoundError.arg(data.fileInfo.fileName()), std::nullopt);
 
     // optional components
     if (auto authFunc = QtTubePluginAuthFunc(data.handle->resolve("auth")))
         data.auth = authFunc();
+    data.playerFunc = QtTubePluginPlayerFunc(data.handle->resolve("player"));
     if (auto settingsFunc = QtTubePluginSettingsFunc(data.handle->resolve("settings")))
         data.settings = settingsFunc();
 
