@@ -22,17 +22,18 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/pluginsettings.h
             qttube-plugin/components/pluginsettingswindow.h
             qttube-plugin/components/reply.h
-            qttube-plugin/components/replytypes.h
             qttube-plugin/components/player/fullscreennotification.h
             qttube-plugin/components/player/pluginplayer.h
             qttube-plugin/components/player/pluginwebplayer.h
+            qttube-plugin/components/replytypes/replytypes.h
+            qttube-plugin/components/replytypes/simpledatatypes.h
+            qttube-plugin/components/replytypes/videodata.h
             qttube-plugin/objects/badge.h
             qttube-plugin/objects/channel.h
             qttube-plugin/objects/emoji.h
             qttube-plugin/objects/notification.h
             qttube-plugin/objects/shelf.h
             qttube-plugin/objects/video.h
-            qttube-plugin/objects/videodata.h
             qttube-plugin/objects/livechat/livechat.h
             qttube-plugin/objects/livechat/livechatbase.h
             qttube-plugin/objects/livechat/livechatreplay.h

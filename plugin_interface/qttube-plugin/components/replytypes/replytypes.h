@@ -2,17 +2,8 @@
 #include "qttube-plugin/components/reply.h"
 #include "qttube-plugin/objects/livechat/livechat.h"
 #include "qttube-plugin/objects/livechat/livechatreplay.h"
-#include "qttube-plugin/objects/notification.h"
-#include "qttube-plugin/objects/shelf.h"
-#include "qttube-plugin/objects/videodata.h"
-
-namespace QtTube
-{
-    using BrowseDataItem = std::variant<PluginChannel, PluginVideo, PluginShelf<PluginVideo>>;
-    using BrowseData = QList<BrowseDataItem>;
-    using NotificationsDataItem = PluginNotification;
-    using NotificationsData = QList<NotificationsDataItem>;
-}
+#include "simpledatatypes.h"
+#include "videodata.h"
 
 W_REGISTER_ARGTYPE(QtTube::BrowseData)
 W_REGISTER_ARGTYPE(QtTube::LiveChat)

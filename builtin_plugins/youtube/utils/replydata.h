@@ -9,7 +9,7 @@
 #include "innertube/responses/notification/notificationmenuresponse.h"
 #include "innertube/responses/video/nextresponse.h"
 #include "innertube/responses/video/playerresponse.h"
-#include "qttube-plugin/components/replytypes.h"
+#include "qttube-plugin/components/replytypes/replytypes.h"
 
 QtTube::BrowseData getHistoryData(const InnertubeEndpoints::HistoryResponse& response);
 QtTube::BrowseData getHomeData(const InnertubeEndpoints::HomeResponse& response);

@@ -1,7 +1,7 @@
 #pragma once
 #include "preloaddata.h"
 #include "qttube-plugin/components/reply.h"
-#include "qttube-plugin/objects/videodata.h"
+#include "qttube-plugin/components/replytypes/videodata.h"
 #include <QPointer>
 #include <QWidget>
 

@@ -1,7 +1,7 @@
 #pragma once
+#include "qttube-plugin/objects/channel.h"
 #include "qttube-plugin/objects/emoji.h"
-#include "channel.h"
-#include "video.h"
+#include "qttube-plugin/objects/video.h"
 
 namespace QtTube
 {

@@ -2,7 +2,7 @@
 #include "components/pluginauth.h"
 #include "components/player/pluginplayer.h"
 #include "components/pluginsettings.h"
-#include "components/replytypes.h"
+#include "components/replytypes/replytypes.h"
 
 #ifdef Q_OS_WIN
 #define DLLEXPORT __declspec(dllexport)

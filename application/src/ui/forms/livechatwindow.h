@@ -1,7 +1,7 @@
 #pragma once
+#include "qttube-plugin/components/replytypes/videodata.h"
 #include "qttube-plugin/objects/livechat/livechat.h"
 #include "qttube-plugin/objects/livechat/livechatreplay.h"
-#include "qttube-plugin/objects/videodata.h"
 #include "ui/views/watchviewplayer.h"
 #include <QWidget>
 

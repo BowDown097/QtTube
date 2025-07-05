@@ -1,7 +1,7 @@
 #pragma once
 #include "innertube/innertubeexception.h"
 #include "innertube/responses/browse/channelresponse.h"
-#include "qttube-plugin/components/replytypes.h"
+#include "qttube-plugin/components/replytypes/replytypes.h"
 #include "ui/widgets/continuablelistwidget.h"
 #include <QMessageBox>
 #include <QScrollBar>
