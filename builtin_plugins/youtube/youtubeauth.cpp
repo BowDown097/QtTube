@@ -2,15 +2,15 @@
 #include "innertube.h"
 #include "protobuf/protobufcompiler.h"
 
-const QtTube::PluginAuth::AuthUser* YouTubeAuth::activeLogin() const
+const QtTubePlugin::AuthStore::AuthUser* YouTubeAuth::activeLogin() const
 {
-    auto it = std::ranges::find_if(m_credentials, &QtTube::PluginAuth::AuthUser::active);
+    auto it = std::ranges::find_if(m_credentials, &QtTubePlugin::AuthStore::AuthUser::active);
     return it != m_credentials.end() ? &(*it) : nullptr;
 }
 
 void YouTubeAuth::clear()
 {
-    QtTube::PluginAuth::clear();
+    QtTubePlugin::AuthStore::clear();
     m_credentials.clear();
 }
 

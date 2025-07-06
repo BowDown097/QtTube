@@ -1,7 +1,7 @@
 #pragma once
 #include "livechatbase.h"
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct LiveChatReplayItem
     {

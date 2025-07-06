@@ -1,8 +1,8 @@
 #pragma once
-#include "components/pluginauth.h"
-#include "components/player/pluginplayer.h"
-#include "components/pluginsettings.h"
+#include "components/authstore.h"
+#include "components/player/player.h"
 #include "components/replytypes/replytypes.h"
+#include "components/settingsstore.h"
 
 #ifdef Q_OS_WIN
 #define DLLEXPORT __declspec(dllexport)
@@ -10,7 +10,7 @@
 #define DLLEXPORT
 #endif
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct PluginInterface
     {
@@ -34,17 +34,17 @@ namespace QtTube
 
         virtual LiveChatReply* getLiveChat(std::any data) { return LiveChatReply::create(); }
         virtual LiveChatReplayReply* getLiveChatReplay(std::any data, qint64 videoOffsetMs) { return LiveChatReplayReply::create(); }
-        virtual PluginReply<void>* sendLiveChatMessage(const QString& text) { return PluginReply<void>::create(); }
+        virtual Reply<void>* sendLiveChatMessage(const QString& text) { return Reply<void>::create(); }
 
-        virtual PluginReply<void>* rate(
+        virtual Reply<void>* rate(
             const QString& videoId,
             bool like,
             bool removing,
-            std::any data) { return PluginReply<void>::create(); }
+            std::any data) { return Reply<void>::create(); }
 
-        virtual PluginReply<void>* setNotificationPreference(std::any data) { return PluginReply<void>::create(); }
-        virtual PluginReply<void>* subscribe(std::any data) { return PluginReply<void>::create(); }
-        virtual PluginReply<void>* unsubscribe(std::any data) { return PluginReply<void>::create(); }
+        virtual Reply<void>* setNotificationPreference(std::any data) { return Reply<void>::create(); }
+        virtual Reply<void>* subscribe(std::any data) { return Reply<void>::create(); }
+        virtual Reply<void>* unsubscribe(std::any data) { return Reply<void>::create(); }
 
         virtual void init() = 0;
 
@@ -63,11 +63,11 @@ namespace QtTube
 }
 
 
-using QtTubePluginAuthFunc = QtTube::PluginAuth*(*)();
-using QtTubePluginMetadataFunc = QtTube::PluginMetadata*(*)();
-using QtTubePluginNewInstanceFunc = QtTube::PluginInterface*(*)();
-using QtTubePluginPlayerFunc = QtTube::PluginPlayer*(*)(QWidget*);
-using QtTubePluginSettingsFunc = QtTube::PluginSettings*(*)();
+using QtTubePluginAuthFunc = QtTubePlugin::AuthStore*(*)();
+using QtTubePluginMetadataFunc = QtTubePlugin::PluginMetadata*(*)();
+using QtTubePluginNewInstanceFunc = QtTubePlugin::PluginInterface*(*)();
+using QtTubePluginPlayerFunc = QtTubePlugin::Player*(*)(QWidget*);
+using QtTubePluginSettingsFunc = QtTubePlugin::SettingsStore*(*)();
 using QtTubePluginVersionFunc = const char*(*)();
 
 #define GET_MACRO(_1, _2, _3, _4, _5, NAME, ...) NAME
@@ -78,29 +78,29 @@ using QtTubePluginVersionFunc = const char*(*)();
     extern "C" \
     { \
         DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
-        DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
-        DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
+        DLLEXPORT QtTubePlugin::PluginInterface* newInstance() { return new PluginClass; } \
+        DLLEXPORT QtTubePlugin::PluginMetadata* metadata() { return &MetadataInstance; } \
     }
 
 #define DECLARE_QTTUBE_PLUGIN3(PluginClass, MetadataInstance, PlayerClass) \
     extern "C" \
     { \
         DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
-        DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
-        DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
-        DLLEXPORT QtTube::PluginPlayer* player(QWidget* parent) { return new PlayerClass(parent); } \
+        DLLEXPORT QtTubePlugin::PluginInterface* newInstance() { return new PluginClass; } \
+        DLLEXPORT QtTubePlugin::PluginMetadata* metadata() { return &MetadataInstance; } \
+        DLLEXPORT QtTubePlugin::Player* player(QWidget* parent) { return new PlayerClass(parent); } \
     }
 
 #define DECLARE_QTTUBE_PLUGIN4(PluginClass, MetadataInstance, PlayerClass, SettingsClass) \
     extern "C" \
     { \
         DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
-        DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
-        DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
-        DLLEXPORT QtTube::PluginPlayer* player(QWidget* parent) { return new PlayerClass(parent); } \
-        DLLEXPORT QtTube::PluginSettings* settings() \
+        DLLEXPORT QtTubePlugin::PluginInterface* newInstance() { return new PluginClass; } \
+        DLLEXPORT QtTubePlugin::PluginMetadata* metadata() { return &MetadataInstance; } \
+        DLLEXPORT QtTubePlugin::Player* player(QWidget* parent) { return new PlayerClass(parent); } \
+        DLLEXPORT QtTubePlugin::Settings* settings() \
         { \
-            static std::unique_ptr<SettingsClass> s = QtTube::PluginSettings::create<SettingsClass>(metadata()->name); \
+            static std::unique_ptr<SettingsClass> s = QtTubePlugin::SettingsStore::create<SettingsClass>(metadata()->name); \
             return s.get(); \
         } \
     }
@@ -109,17 +109,17 @@ using QtTubePluginVersionFunc = const char*(*)();
     extern "C" \
     { \
         DLLEXPORT const char* targetVersion() { return QTTUBE_VERSION_NAME; } \
-        DLLEXPORT QtTube::PluginInterface* newInstance() { return new PluginClass; } \
-        DLLEXPORT QtTube::PluginMetadata* metadata() { return &MetadataInstance; } \
-        DLLEXPORT QtTube::PluginPlayer* player(QWidget* parent) { return new PlayerClass(parent); } \
-        DLLEXPORT QtTube::PluginSettings* settings() \
+        DLLEXPORT QtTubePlugin::PluginInterface* newInstance() { return new PluginClass; } \
+        DLLEXPORT QtTubePlugin::PluginMetadata* metadata() { return &MetadataInstance; } \
+        DLLEXPORT QtTubePlugin::Player* player(QWidget* parent) { return new PlayerClass(parent); } \
+        DLLEXPORT QtTubePlugin::SettingsStore* settings() \
         { \
-            static std::unique_ptr<SettingsClass> s = QtTube::PluginSettings::create<SettingsClass>(metadata()->name); \
+            static std::unique_ptr<SettingsClass> s = QtTubePlugin::SettingsStore::create<SettingsClass>(metadata()->name); \
             return s.get(); \
         } \
-        DLLEXPORT QtTube::PluginAuth* auth() \
+        DLLEXPORT QtTubePlugin::AuthStore* auth() \
         { \
-            static std::unique_ptr<AuthClass> a = QtTube::PluginAuth::create<AuthClass>(metadata()->name); \
+            static std::unique_ptr<AuthClass> a = QtTubePlugin::AuthStore::create<AuthClass>(metadata()->name); \
             return a.get(); \
         } \
     }

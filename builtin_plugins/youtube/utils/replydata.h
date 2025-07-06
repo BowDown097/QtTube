@@ -16,14 +16,14 @@
 #include "qttube-plugin/objects/livechat/livechat.h"
 #include "qttube-plugin/objects/livechat/livechatreplay.h"
 
-std::pair<std::any, QtTube::ChannelData> getChannelData(const InnertubeEndpoints::ChannelResponse& response);
-QtTube::BrowseData getHistoryData(const InnertubeEndpoints::HistoryResponse& response);
-QtTube::BrowseData getHomeData(const InnertubeEndpoints::HomeResponse& response);
-QtTube::LiveChat getLiveChatData(const InnertubeEndpoints::GetLiveChat& endpoint, QJsonValue& sendEndpoint, int& sentMessages);
-QtTube::LiveChatReplay getLiveChatReplayData(const InnertubeEndpoints::GetLiveChatReplay& endpoint);
-void getNextData(QtTube::VideoData& data, const InnertubeEndpoints::NextResponse& response);
-QtTube::NotificationsData getNotificationsData(const InnertubeEndpoints::NotificationMenuResponse& response);
-void getPlayerData(QtTube::VideoData& data, const InnertubeEndpoints::PlayerResponse& response);
-QtTube::BrowseData getSearchData(const InnertubeEndpoints::SearchResponse& response);
-QtTube::BrowseData getSubscriptionsData(const InnertubeEndpoints::SubscriptionsResponse& response);
-QtTube::BrowseData getTrendingData(const InnertubeEndpoints::TrendingResponse& response);
+std::pair<std::any, QtTubePlugin::ChannelData> getChannelData(const InnertubeEndpoints::ChannelResponse& response);
+QtTubePlugin::BrowseData getHistoryData(const InnertubeEndpoints::HistoryResponse& response);
+QtTubePlugin::BrowseData getHomeData(const InnertubeEndpoints::HomeResponse& response);
+QtTubePlugin::LiveChat getLiveChatData(const InnertubeEndpoints::GetLiveChat& endpoint, QJsonValue& sendEndpoint, int& sentMessages);
+QtTubePlugin::LiveChatReplay getLiveChatReplayData(const InnertubeEndpoints::GetLiveChatReplay& endpoint);
+void getNextData(QtTubePlugin::VideoData& data, const InnertubeEndpoints::NextResponse& response);
+QtTubePlugin::NotificationsData getNotificationsData(const InnertubeEndpoints::NotificationMenuResponse& response);
+void getPlayerData(QtTubePlugin::VideoData& data, const InnertubeEndpoints::PlayerResponse& response);
+QtTubePlugin::BrowseData getSearchData(const InnertubeEndpoints::SearchResponse& response);
+QtTubePlugin::BrowseData getSubscriptionsData(const InnertubeEndpoints::SubscriptionsResponse& response);
+QtTubePlugin::BrowseData getTrendingData(const InnertubeEndpoints::TrendingResponse& response);

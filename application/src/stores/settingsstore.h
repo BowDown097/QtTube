@@ -23,7 +23,7 @@ public:
     explicit SettingsStore(QObject* parent = nullptr) : GenericStore("settings.ini") {}
 
     bool strHasFilteredTerm(const QString& str) const;
-    bool videoIsFiltered(const QtTube::PluginVideo& video) const;
+    bool videoIsFiltered(const QtTubePlugin::Video& video) const;
 
     void initialize() override;
     void save() override;

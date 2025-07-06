@@ -1,11 +1,11 @@
 #pragma once
 #include "fullscreennotification.h"
-#include "pluginplayer.h"
+#include "player.h"
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineScript>
 #include <QWebEngineView>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     class FullScreenWindow : public QWidget
     {
@@ -27,7 +27,7 @@ namespace QtTube
         Q_OBJECT
     public:
         using QObject::QObject;
-        Q_INVOKABLE void emitNewState(PluginPlayer::PlayerState state)
+        Q_INVOKABLE void emitNewState(Player::PlayerState state)
         { emit newState(state); }
         Q_INVOKABLE void emitProgressChanged(qint64 progress, qint64 previousProgress)
         { emit progressChanged(progress, previousProgress); }
@@ -37,16 +37,16 @@ namespace QtTube
         { emit switchVideoRequested(videoId); }
     signals:
         void copyToClipboardRequested(const QString& text);
-        void newState(QtTube::PluginPlayer::PlayerState state);
+        void newState(QtTubePlugin::Player::PlayerState state);
         void progressChanged(qint64 progress, qint64 previousProgress);
         void switchVideoRequested(const QString& videoId);
     };
 
-    class PluginWebPlayer : public PluginPlayer
+    class WebPlayer : public Player
     {
         Q_OBJECT
     public:
-        explicit PluginWebPlayer(QWidget* parent = nullptr);
+        explicit WebPlayer(QWidget* parent = nullptr);
     protected:
         QWebChannel* m_channel;
         WebChannelInterface* m_interface;

@@ -13,10 +13,10 @@ void BrowseHelper::browseChannel(
     {
         widget->setPopulatingFlag(true);
 
-        QtTube::ChannelReply* reply = plugin->interface->getChannel(channelId, requestData, widget->continuationData);
-        connect(reply, &QtTube::ChannelReply::exception, this,
+        QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(channelId, requestData, widget->continuationData);
+        connect(reply, &QtTubePlugin::ChannelReply::exception, this,
                 std::bind_front(&BrowseHelper::browseFailed, this, "channel tab", widget));
-        connect(reply, &QtTube::ChannelReply::finished, this,
+        connect(reply, &QtTubePlugin::ChannelReply::finished, this,
                 std::bind_front(&BrowseHelper::setupChannel, this, widget, activeTabIndex, reply));
     }
 }
@@ -33,10 +33,10 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
 
         widget->setPopulatingFlag(true);
 
-        QtTube::BrowseReply* reply = plugin->interface->getHistory(query, widget->continuationData);
-        connect(reply, &QtTube::BrowseReply::exception, this,
+        QtTubePlugin::BrowseReply* reply = plugin->interface->getHistory(query, widget->continuationData);
+        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailed, this, "history", widget));
-        connect(reply, &QtTube::BrowseReply::finished, this,
+        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
             std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
     }
 }
@@ -47,10 +47,10 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
     {
         widget->setPopulatingFlag(true);
 
-        QtTube::BrowseReply* reply = plugin->interface->getHome(widget->continuationData);
-        connect(reply, &QtTube::BrowseReply::exception, this,
+        QtTubePlugin::BrowseReply* reply = plugin->interface->getHome(widget->continuationData);
+        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
-        connect(reply, &QtTube::BrowseReply::finished, this,
+        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
             std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
     }
 }
@@ -61,10 +61,10 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
     {
         widget->setPopulatingFlag(true);
 
-        QtTube::NotificationsReply* reply = plugin->interface->getNotifications(widget->continuationData);
-        connect(reply, &QtTube::NotificationsReply::exception, this,
+        QtTubePlugin::NotificationsReply* reply = plugin->interface->getNotifications(widget->continuationData);
+        connect(reply, &QtTubePlugin::NotificationsReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailed, this, "notification", widget));
-        connect(reply, &QtTube::NotificationsReply::finished, this,
+        connect(reply, &QtTubePlugin::NotificationsReply::finished, this,
             std::bind_front(&BrowseHelper::setupNotifications, this, widget, reply));
     }
 }
@@ -81,10 +81,10 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 
         widget->setPopulatingFlag(true);
 
-        QtTube::BrowseReply* reply = plugin->interface->getSubFeed(widget->continuationData);
-        connect(reply, &QtTube::BrowseReply::exception, this,
+        QtTubePlugin::BrowseReply* reply = plugin->interface->getSubFeed(widget->continuationData);
+        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailed, this, "subscriptions", widget));
-        connect(reply, &QtTube::BrowseReply::finished, this,
+        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
             std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
     }
 }
@@ -95,10 +95,10 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
     {
         widget->setPopulatingFlag(true);
 
-        QtTube::BrowseReply* reply = plugin->interface->getTrending(widget->continuationData);
-        connect(reply, &QtTube::BrowseReply::exception, this,
+        QtTubePlugin::BrowseReply* reply = plugin->interface->getTrending(widget->continuationData);
+        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailed, this, "trending", widget));
-        connect(reply, &QtTube::BrowseReply::finished, this,
+        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
             std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
     }
 }
@@ -109,34 +109,34 @@ void BrowseHelper::search(ContinuableListWidget* widget, QHBoxLayout* additional
     {
         widget->setPopulatingFlag(true);
 
-        QtTube::BrowseReply* reply = plugin->interface->getSearch(
+        QtTubePlugin::BrowseReply* reply = plugin->interface->getSearch(
             query, getActiveFilters(additionalWidgets), widget->continuationData);
-        connect(reply, &QtTube::BrowseReply::exception, this,
+        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
             std::bind_front(&BrowseHelper::browseFailed, this, "search", widget));
-        connect(reply, &QtTube::BrowseReply::finished, this,
+        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
             std::bind_front(&BrowseHelper::setupSearch, this, widget, additionalWidgets, query, plugin, reply));
     }
 }
 
-void BrowseHelper::processChannelTabItems(ContinuableListWidget* widget, const QList<QtTube::ChannelTabDataItem>& items)
+void BrowseHelper::processChannelTabItems(ContinuableListWidget* widget, const QList<QtTubePlugin::ChannelTabDataItem>& items)
 {
-    for (const QtTube::ChannelTabDataItem& item : items)
+    for (const QtTubePlugin::ChannelTabDataItem& item : items)
     {
-        if (const auto* channel = std::get_if<QtTube::PluginChannel>(&item))
+        if (const auto* channel = std::get_if<QtTubePlugin::Channel>(&item))
         {
             UIUtils::addChannelToList(widget, *channel);
             QCoreApplication::processEvents();
         }
-        else if (const auto* video = std::get_if<QtTube::PluginVideo>(&item))
+        else if (const auto* video = std::get_if<QtTubePlugin::Video>(&item))
         {
             UIUtils::addVideoToList(widget, *video);
             QCoreApplication::processEvents();
         }
-        else if (const auto* channelShelf = std::get_if<QtTube::PluginShelf<QtTube::PluginChannel>>(&item))
+        else if (const auto* channelShelf = std::get_if<QtTubePlugin::Shelf<QtTubePlugin::Channel>>(&item))
         {
             UIUtils::addShelfTitleToList(widget, channelShelf->title);
 
-            for (const QtTube::PluginChannel& channel : channelShelf->contents)
+            for (const QtTubePlugin::Channel& channel : channelShelf->contents)
             {
                 UIUtils::addChannelToList(widget, channel);
                 QCoreApplication::processEvents();
@@ -145,11 +145,11 @@ void BrowseHelper::processChannelTabItems(ContinuableListWidget* widget, const Q
             if (!channelShelf->isDividerHidden)
                 UIUtils::addSeparatorToList(widget);
         }
-        else if (const auto* videoShelf = std::get_if<QtTube::PluginShelf<QtTube::PluginVideo>>(&item))
+        else if (const auto* videoShelf = std::get_if<QtTubePlugin::Shelf<QtTubePlugin::Video>>(&item))
         {
             UIUtils::addShelfTitleToList(widget, videoShelf->title);
 
-            for (const QtTube::PluginVideo& video : videoShelf->contents)
+            for (const QtTubePlugin::Video& video : videoShelf->contents)
             {
                 UIUtils::addVideoToList(widget, video);
                 QCoreApplication::processEvents();
@@ -164,12 +164,12 @@ void BrowseHelper::processChannelTabItems(ContinuableListWidget* widget, const Q
         widget->addItem("No data found.");
 }
 
-void BrowseHelper::browseFailed(const QString& title, ContinuableListWidget* widget, const QtTube::PluginException& ex)
+void BrowseHelper::browseFailed(const QString& title, ContinuableListWidget* widget, const QtTubePlugin::Exception& ex)
 {
     if (widget)
         widget->setPopulatingFlag(false);
 
-    if (ex.severity() == QtTube::PluginException::Severity::Normal)
+    if (ex.severity() == QtTubePlugin::Exception::Severity::Normal)
         QMessageBox::critical(nullptr, "Failed to get " + title + " data", ex.message());
     else
         qWarning().nospace() << "Failed to get " << title << " data:" << ex.message();
@@ -193,20 +193,20 @@ QList<std::pair<QString, int>> BrowseHelper::getActiveFilters(QHBoxLayout* addit
     return activeFilters;
 }
 
-void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTube::BrowseReply* reply, const QtTube::BrowseData& data)
+void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data)
 {
-    for (const QtTube::BrowseDataItem& item : data)
+    for (const QtTubePlugin::BrowseDataItem& item : data)
     {
-        if (const auto* channel = std::get_if<QtTube::PluginChannel>(&item))
+        if (const auto* channel = std::get_if<QtTubePlugin::Channel>(&item))
         {
             UIUtils::addChannelToList(widget, *channel);
             QCoreApplication::processEvents();
         }
-        else if (const auto* shelf = std::get_if<QtTube::PluginShelf<QtTube::PluginVideo>>(&item))
+        else if (const auto* shelf = std::get_if<QtTubePlugin::Shelf<QtTubePlugin::Video>>(&item))
         {
             UIUtils::addShelfTitleToList(widget, shelf->title);
 
-            for (const QtTube::PluginVideo& video : shelf->contents)
+            for (const QtTubePlugin::Video& video : shelf->contents)
             {
                 UIUtils::addVideoToList(widget, video);
                 QCoreApplication::processEvents();
@@ -215,7 +215,7 @@ void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTube::BrowseRepl
             if (!shelf->isDividerHidden)
                 UIUtils::addSeparatorToList(widget);
         }
-        else if (const auto* video = std::get_if<QtTube::PluginVideo>(&item))
+        else if (const auto* video = std::get_if<QtTubePlugin::Video>(&item))
         {
             UIUtils::addVideoToList(widget, *video);
         }
@@ -229,7 +229,7 @@ void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTube::BrowseRepl
 
 void BrowseHelper::setupChannel(
     ContinuableListWidget* widget, int activeTabIndex,
-    QtTube::ChannelReply* reply, const QtTube::ChannelData& data)
+    QtTubePlugin::ChannelReply* reply, const QtTubePlugin::ChannelData& data)
 {
     if (activeTabIndex < data.tabs.size())
         processChannelTabItems(widget, data.tabs[activeTabIndex].items);
@@ -241,9 +241,9 @@ void BrowseHelper::setupChannel(
 }
 
 void BrowseHelper::setupNotifications(
-    ContinuableListWidget* widget, QtTube::NotificationsReply* reply, const QtTube::NotificationsData& data)
+    ContinuableListWidget* widget, QtTubePlugin::NotificationsReply* reply, const QtTubePlugin::NotificationsData& data)
 {
-    for (const QtTube::NotificationsDataItem& notification : data)
+    for (const QtTubePlugin::NotificationsDataItem& notification : data)
     {
         UIUtils::addNotificationToList(widget, notification);
         QCoreApplication::processEvents();
@@ -256,7 +256,7 @@ void BrowseHelper::setupNotifications(
 
 void BrowseHelper::setupSearch(
     ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query,
-    const PluginData* plugin, QtTube::BrowseReply* reply, const QtTube::BrowseData& data)
+    const PluginData* plugin, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data)
 {
     if (additionalWidgets && additionalWidgets->count() == 0)
     {

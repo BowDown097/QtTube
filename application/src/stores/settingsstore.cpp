@@ -59,7 +59,7 @@ bool SettingsStore::strHasFilteredTerm(const QString& str) const
     return std::ranges::any_of(filteredTerms, [&str](const QString& t) { return str.contains(t, Qt::CaseInsensitive); });
 }
 
-bool SettingsStore::videoIsFiltered(const QtTube::PluginVideo& video) const
+bool SettingsStore::videoIsFiltered(const QtTubePlugin::Video& video) const
 {
     if (strHasFilteredTerm(video.title))
         return true;

@@ -1,11 +1,11 @@
-#include "pluginwebplayer.h"
+#include "webplayer.h"
 #include <QBoxLayout>
 #include <QFile>
 #include <QWebChannel>
 #include <QWebEngineScriptCollection>
 #include <QWebEngineSettings>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     FullScreenWindow::FullScreenWindow(QWebEngineView* oldView, QWidget* parent)
         : QWidget(parent),
@@ -47,8 +47,8 @@ namespace QtTube
         QWidget::resizeEvent(event);
     }
 
-    PluginWebPlayer::PluginWebPlayer(QWidget* parent)
-        : PluginPlayer(parent),
+    WebPlayer::WebPlayer(QWidget* parent)
+        : Player(parent),
           m_interface(new WebChannelInterface(this)),
           m_view(new QWebEngineView(this))
     {
@@ -63,14 +63,14 @@ namespace QtTube
         m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
         m_view->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
 
-        connect(m_interface, &WebChannelInterface::copyToClipboardRequested, this, &PluginPlayer::copyToClipboardRequested);
-        connect(m_interface, &WebChannelInterface::newState, this, &PluginPlayer::newState);
-        connect(m_interface, &WebChannelInterface::progressChanged, this, &PluginPlayer::progressChanged);
-        connect(m_interface, &WebChannelInterface::switchVideoRequested, this, &PluginPlayer::switchVideoRequested);
-        connect(m_view->page(), &QWebEnginePage::fullScreenRequested, this, &PluginWebPlayer::fullScreenRequested);
+        connect(m_interface, &WebChannelInterface::copyToClipboardRequested, this, &Player::copyToClipboardRequested);
+        connect(m_interface, &WebChannelInterface::newState, this, &Player::newState);
+        connect(m_interface, &WebChannelInterface::progressChanged, this, &Player::progressChanged);
+        connect(m_interface, &WebChannelInterface::switchVideoRequested, this, &Player::switchVideoRequested);
+        connect(m_view->page(), &QWebEnginePage::fullScreenRequested, this, &WebPlayer::fullScreenRequested);
     }
 
-    void PluginWebPlayer::fullScreenRequested(QWebEngineFullScreenRequest request)
+    void WebPlayer::fullScreenRequested(QWebEngineFullScreenRequest request)
     {
         request.accept();
         if (request.toggleOn())
@@ -79,7 +79,7 @@ namespace QtTube
             m_fullScreenWindow.reset();
     }
 
-    void PluginWebPlayer::loadScriptData(const QString& data, QWebEngineScript::InjectionPoint injectionPoint, quint32 worldId)
+    void WebPlayer::loadScriptData(const QString& data, QWebEngineScript::InjectionPoint injectionPoint, quint32 worldId)
     {
         QWebEngineScript script;
         script.setInjectionPoint(injectionPoint);
@@ -88,7 +88,7 @@ namespace QtTube
         m_view->page()->scripts().insert(script);
     }
 
-    void PluginWebPlayer::loadScriptFile(const QString& path, QWebEngineScript::InjectionPoint injectionPoint, quint32 worldId)
+    void WebPlayer::loadScriptFile(const QString& path, QWebEngineScript::InjectionPoint injectionPoint, quint32 worldId)
     {
         if (QFile file(path); file.open(QFile::ReadOnly))
             loadScriptData(file.readAll(), injectionPoint, worldId);

@@ -44,11 +44,11 @@ void ChannelLabel::reset()
     UIUtils::clearLayout(badgeLayout);
 }
 
-void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTube::PluginBadge>& badges)
+void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTubePlugin::Badge>& badges)
 {
     setInfo(uploaderId, uploaderName);
 
-    for (const QtTube::PluginBadge& badge : badges)
+    for (const QtTubePlugin::Badge& badge : badges)
     {
         ChannelBadgeLabel* badgeLabel = new ChannelBadgeLabel(this);
         badgeLabel->setData(badge);

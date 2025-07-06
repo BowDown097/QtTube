@@ -3,30 +3,30 @@
 #include "settings/youtubesettings.h"
 #include "youtubeauth.h"
 
-class YouTubePlugin : public QtTube::PluginInterface
+class YouTubePlugin : public QtTubePlugin::PluginInterface
 {
 public:
-    QtTube::ChannelReply* getChannel(const QString& channelId, std::any tabData, std::any continuationData) override;
-    QtTube::BrowseReply* getHistory(const QString& query, std::any continuationData) override;
-    QtTube::BrowseReply* getHome(std::any continuationData) override;
-    QtTube::NotificationsReply* getNotifications(std::any continuationData) override;
-    QtTube::BrowseReply* getSearch(
+    QtTubePlugin::ChannelReply* getChannel(const QString& channelId, std::any tabData, std::any continuationData) override;
+    QtTubePlugin::BrowseReply* getHistory(const QString& query, std::any continuationData) override;
+    QtTubePlugin::BrowseReply* getHome(std::any continuationData) override;
+    QtTubePlugin::NotificationsReply* getNotifications(std::any continuationData) override;
+    QtTubePlugin::BrowseReply* getSearch(
         const QString& query,
         const QList<std::pair<QString, int>>& activeFilters,
         std::any continuationData) override;
-    QtTube::BrowseReply* getSubFeed(std::any continuationData) override;
-    QtTube::BrowseReply* getTrending(std::any continuationData) override;
-    QtTube::VideoReply* getVideo(const QString& videoId, std::any continuationData) override;
+    QtTubePlugin::BrowseReply* getSubFeed(std::any continuationData) override;
+    QtTubePlugin::BrowseReply* getTrending(std::any continuationData) override;
+    QtTubePlugin::VideoReply* getVideo(const QString& videoId, std::any continuationData) override;
 
-    QtTube::LiveChatReply* getLiveChat(std::any data) override;
-    QtTube::LiveChatReplayReply* getLiveChatReplay(std::any data, qint64 videoOffsetMs) override;
-    QtTube::PluginReply<void>* sendLiveChatMessage(const QString& text) override;
+    QtTubePlugin::LiveChatReply* getLiveChat(std::any data) override;
+    QtTubePlugin::LiveChatReplayReply* getLiveChatReplay(std::any data, qint64 videoOffsetMs) override;
+    QtTubePlugin::Reply<void>* sendLiveChatMessage(const QString& text) override;
 
-    QtTube::PluginReply<void>* rate(const QString& videoId, bool like, bool removing, std::any data) override;
+    QtTubePlugin::Reply<void>* rate(const QString& videoId, bool like, bool removing, std::any data) override;
 
-    QtTube::PluginReply<void>* setNotificationPreference(std::any data) override;
-    QtTube::PluginReply<void>* subscribe(std::any data) override;
-    QtTube::PluginReply<void>* unsubscribe(std::any data) override;
+    QtTubePlugin::Reply<void>* setNotificationPreference(std::any data) override;
+    QtTubePlugin::Reply<void>* subscribe(std::any data) override;
+    QtTubePlugin::Reply<void>* unsubscribe(std::any data) override;
 
     void init() override;
 
@@ -45,5 +45,5 @@ private:
 };
 
 extern YouTubeAuth* g_auth;
-extern QtTube::PluginMetadata g_metadata;
+extern QtTubePlugin::PluginMetadata g_metadata;
 extern YouTubeSettings* g_settings;

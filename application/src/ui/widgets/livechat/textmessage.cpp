@@ -2,7 +2,7 @@
 #include "ui/widgets/labels/tubelabel.h"
 #include <QBoxLayout>
 
-TextMessage::TextMessage(const QtTube::TextMessage& data, QWidget* parent)
+TextMessage::TextMessage(const QtTubePlugin::TextMessage& data, QWidget* parent)
     : QWidget(parent),
       authorIcon(new TubeLabel(this)),
       authorLabel(new TubeLabel(data.authorName, this)),

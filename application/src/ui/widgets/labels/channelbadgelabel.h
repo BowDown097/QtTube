@@ -6,7 +6,7 @@ class ChannelBadgeLabel : public QLabel
 {
 public:
     explicit ChannelBadgeLabel(QWidget* parent = nullptr);
-    void setData(const QtTube::PluginBadge& badge);
+    void setData(const QtTubePlugin::Badge& badge);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent*) override;

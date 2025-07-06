@@ -44,7 +44,7 @@ void BrowseChannelRenderer::navigateChannel()
     ViewController::loadChannel(channelId);
 }
 
-void BrowseChannelRenderer::setData(const QtTube::PluginChannel& channel)
+void BrowseChannelRenderer::setData(const QtTubePlugin::Channel& channel)
 {
     this->channelId = channel.channelId;
     subscribeWidget->setData(channel.subscribeButton);

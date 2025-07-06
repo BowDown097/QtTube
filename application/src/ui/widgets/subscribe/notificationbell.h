@@ -13,7 +13,7 @@ public:
 
     explicit NotificationBell(QWidget* parent = nullptr);
     qsizetype defaultEnabledStateIndex() const { return m_defaultEnabledStateIndex; }
-    void setData(const QtTube::PluginNotificationBell& notificationBell);
+    void setData(const QtTubePlugin::NotificationBell& notificationBell);
     void setVisualState(qsizetype index);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -26,5 +26,5 @@ private:
     qsizetype m_defaultEnabledStateIndex = -1;
     QMenu* m_notificationMenu;
 private slots:
-    void setState(const QtTube::PluginNotificationState& state);
+    void setState(const QtTubePlugin::NotificationState& state);
 };

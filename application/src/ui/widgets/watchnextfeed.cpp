@@ -32,8 +32,8 @@ void WatchNextFeed::reset()
 }
 
 void WatchNextFeed::setData(
-    const QList<QtTube::PluginVideo>& recommendedVideos,
-    const QtTube::VideoData::Continuations& continuations)
+    const QList<QtTubePlugin::Video>& recommendedVideos,
+    const QtTubePlugin::VideoData::Continuations& continuations)
 {
     if (continuations.comments.has_value())
     {
@@ -48,7 +48,7 @@ void WatchNextFeed::setData(
         connect(recommended, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueRecommended);
     }
 
-    for (const QtTube::PluginVideo& video : recommendedVideos)
+    for (const QtTubePlugin::Video& video : recommendedVideos)
     {
         BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
         renderer->thumbnail->setFixedSize(167, 94);

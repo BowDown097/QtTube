@@ -66,7 +66,7 @@ void YouTubeSettings::save()
     writeList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
 }
 
-QtTube::PluginSettingsWindow* YouTubeSettings::window()
+QtTubePlugin::SettingsWindow* YouTubeSettings::window()
 {
     return new YouTubeSettingsForm;
 }

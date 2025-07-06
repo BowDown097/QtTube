@@ -22,7 +22,7 @@ Build date: %6
 SettingsForm::~SettingsForm() { delete ui; }
 
 SettingsForm::SettingsForm(QWidget* parent)
-    : QtTube::PluginSettingsWindow(parent),
+    : QtTubePlugin::SettingsWindow(parent),
       pluginActiveButtonGroup(new QButtonGroup(this)),
       ui(new Ui::SettingsForm)
 {

@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 
-namespace QtTube { struct PluginNotification; }
+namespace QtTubePlugin { struct Notification; }
 
 class QHBoxLayout;
 class QVBoxLayout;
@@ -12,7 +12,7 @@ class BrowseNotificationRenderer : public QWidget
     Q_OBJECT
 public:
     explicit BrowseNotificationRenderer(QWidget* parent = nullptr);
-    void setData(const QtTube::PluginNotification& notification);
+    void setData(const QtTubePlugin::Notification& notification);
 private:
     TubeLabel* bodyLabel;
     TubeLabel* channelIconLabel;

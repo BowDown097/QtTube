@@ -8,7 +8,7 @@
 #include <QThreadPool>
 #include <QTimer>
 
-EmojiGraphicsItem::EmojiGraphicsItem(const QtTube::Emoji& data, QGraphicsItem* parent)
+EmojiGraphicsItem::EmojiGraphicsItem(const QtTubePlugin::Emoji& data, QGraphicsItem* parent)
     : QObject(), QGraphicsPixmapItem(parent), m_data(data)
 {
     setAcceptHoverEvents(true);

@@ -9,7 +9,7 @@ constexpr QLatin1String Stylesheet(R"(
     color: white;
 )");
 
-SpecialMessage::SpecialMessage(const QtTube::SpecialMessage& data, QWidget* parent)
+SpecialMessage::SpecialMessage(const QtTubePlugin::SpecialMessage& data, QWidget* parent)
     : QWidget(parent),
       header(new TubeLabel(this)),
       layout(new QVBoxLayout(this)),

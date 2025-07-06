@@ -1,9 +1,9 @@
 #pragma once
 #include <QString>
 
-namespace QtTube
+namespace QtTubePlugin
 {
-    struct PluginBadge
+    struct Badge
     {
         QString label;
         QString tooltip;

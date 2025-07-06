@@ -23,26 +23,26 @@ private:
     QTimer* messagesTimer;
     std::any nextData;
     bool populating{};
-    QList<QtTube::LiveChatReplayItem> replayItems;
+    QList<QtTubePlugin::LiveChatReplayItem> replayItems;
     std::any seekData;
     Ui::LiveChatWindow* ui;
     std::unordered_map<QString, std::any> viewOptions;
 
-    void addChatItemToList(const QtTube::LiveChatItem& item);
+    void addChatItemToList(const QtTubePlugin::LiveChatItem& item);
     void addNewChatReplayItems(qint64 progress, qint64 previousProgress, bool seeked);
     void createEmojiMenuWidgets();
     void processingEnd();
     void updateChatReplay(qint64 progress, qint64 previousProgress);
     void waitForPopulation();
 public slots:
-    void initialize(const QtTube::InitialLiveChatData& data, WatchViewPlayer* player);
+    void initialize(const QtTubePlugin::InitialLiveChatData& data, WatchViewPlayer* player);
 private slots:
     void chatModeChanged(const QString& name);
     void chatReplayTick(qint64 progress, qint64 previousProgress);
     void chatTick();
-    void insertEmoji(const QtTube::Emoji& emoji);
-    void processChatData(const QtTube::LiveChat& data);
-    void processChatReplayData(qint64 progress, qint64 previousProgress, bool seeked, const QtTube::LiveChatReplay& data);
+    void insertEmoji(const QtTubePlugin::Emoji& emoji);
+    void processChatData(const QtTubePlugin::LiveChat& data);
+    void processChatReplayData(qint64 progress, qint64 previousProgress, bool seeked, const QtTubePlugin::LiveChatReplay& data);
     void sendMessage();
 signals:
     void getLiveChatFinished();

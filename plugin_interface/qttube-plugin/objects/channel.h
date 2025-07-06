@@ -3,11 +3,11 @@
 #include <any>
 #include <QList>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct PluginMetadata;
 
-    struct PluginNotificationState
+    struct NotificationState
     {
         enum class Representation { All, None, Neutral };
 
@@ -16,14 +16,14 @@ namespace QtTube
         Representation representation;
     };
 
-    struct PluginNotificationBell
+    struct NotificationBell
     {
         qsizetype activeStateIndex = -1;
         qsizetype defaultEnabledStateIndex = -1;
-        QList<PluginNotificationState> states;
+        QList<NotificationState> states;
     };
 
-    struct PluginSubscribeButton
+    struct SubscribeButton
     {
         struct ColorPalette
         {
@@ -56,22 +56,22 @@ namespace QtTube
         QString countText;
         bool enabled = true;
         Localization localization;
-        PluginNotificationBell notificationBell;
+        NotificationBell notificationBell;
         bool subscribed{};
         std::any subscribeData;
         std::any unsubscribeData;
     };
 
-    struct PluginChannel
+    struct Channel
     {
         QString channelAvatarUrl;
-        QList<PluginBadge> channelBadges;
+        QList<Badge> channelBadges;
         QString channelId;
         QString channelName;
         QString channelUrlPrefix;
         QString description;
         QString metadataText;
         PluginMetadata* sourceMetadata{};
-        PluginSubscribeButton subscribeButton;
+        SubscribeButton subscribeButton;
     };
 }

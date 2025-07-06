@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/components/player/pluginwebplayer.h"
+#include "qttube-plugin/components/player/webplayer.h"
 #include <QWebEngineUrlRequestInterceptor>
 
 class PlayerInterceptor : public QWebEngineUrlRequestInterceptor
@@ -12,7 +12,7 @@ private:
     static bool isTrackingUrl(const QUrl& url);
 };
 
-class YouTubePlayer : public QtTube::PluginWebPlayer
+class YouTubePlayer : public QtTubePlugin::WebPlayer
 {
 public:
     explicit YouTubePlayer(QWidget* parent = nullptr);

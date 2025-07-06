@@ -19,7 +19,7 @@ public:
 
     explicit VideoRenderer(QWidget* parent = nullptr);
 
-    void setData(const QtTube::PluginVideo& video);
+    void setData(const QtTubePlugin::Video& video);
 private:
     int progress{};
     QString videoId;

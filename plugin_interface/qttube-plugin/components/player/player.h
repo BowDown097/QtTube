@@ -1,9 +1,9 @@
 #pragma once
 #include <QWidget>
 
-namespace QtTube
+namespace QtTubePlugin
 {
-    class PluginPlayer : public QWidget
+    class Player : public QWidget
     {
         Q_OBJECT
     public:
@@ -23,7 +23,7 @@ namespace QtTube
         virtual void seek(int progress) = 0;
     signals:
         void copyToClipboardRequested(const QString& text);
-        void newState(QtTube::PluginPlayer::PlayerState state);
+        void newState(QtTubePlugin::Player::PlayerState state);
         void progressChanged(qint64 progress, qint64 previousProgress);
         void switchVideoRequested(const QString& videoId);
     };

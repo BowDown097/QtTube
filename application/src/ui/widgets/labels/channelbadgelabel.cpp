@@ -25,7 +25,7 @@ void ChannelBadgeLabel::leaveEvent(QEvent*)
     setStyleSheet(NormalStylesheet);
 }
 
-void ChannelBadgeLabel::setData(const QtTube::PluginBadge& badge)
+void ChannelBadgeLabel::setData(const QtTubePlugin::Badge& badge)
 {
     setText(badge.label);
     setToolTip(badge.tooltip);

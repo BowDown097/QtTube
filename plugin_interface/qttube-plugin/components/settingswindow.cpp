@@ -1,4 +1,4 @@
-#include "pluginsettingswindow.h"
+#include "settingswindow.h"
 #include <QCheckBox>
 #include <QComboBox>
 #include <QKeyEvent>
@@ -8,9 +8,9 @@
 #include <QRadioButton>
 #include <QSpinBox>
 
-namespace QtTube
+namespace QtTubePlugin
 {
-    void PluginSettingsWindow::closeEvent(QCloseEvent* event)
+    void SettingsWindow::closeEvent(QCloseEvent* event)
     {
         if (savePending())
         {
@@ -24,7 +24,7 @@ namespace QtTube
         QWidget::closeEvent(event);
     }
 
-    void PluginSettingsWindow::keyPressEvent(QKeyEvent* event)
+    void SettingsWindow::keyPressEvent(QKeyEvent* event)
     {
         if (event->key() == Qt::Key_Escape)
             close();
@@ -32,7 +32,7 @@ namespace QtTube
             QWidget::keyPressEvent(event);
     }
 
-    void PluginSettingsWindow::setupSaveButton(QPushButton* saveButton, bool makeDynamic, QList<QWidget*> filteredWidgets)
+    void SettingsWindow::setupSaveButton(QPushButton* saveButton, bool makeDynamic, QList<QWidget*> filteredWidgets)
     {
         connect(saveButton, &QPushButton::clicked, this, [this, saveButton] {
             saveSettings();

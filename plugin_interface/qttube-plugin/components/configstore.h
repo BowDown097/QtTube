@@ -3,7 +3,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     class ConfigStore
     {

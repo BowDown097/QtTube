@@ -4,10 +4,10 @@
 #include "qttube-plugin/objects/shelf.h"
 #include "qttube-plugin/objects/video.h"
 
-namespace QtTube
+namespace QtTubePlugin
 {
-    using BrowseDataItem = std::variant<PluginChannel, PluginVideo, PluginShelf<PluginVideo>>;
+    using BrowseDataItem = std::variant<Channel, Video, Shelf<Video>>;
     using BrowseData = QList<BrowseDataItem>;
-    using NotificationsDataItem = PluginNotification;
+    using NotificationsDataItem = Notification;
     using NotificationsData = QList<NotificationsDataItem>;
 }

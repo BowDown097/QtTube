@@ -31,5 +31,5 @@ private slots:
     void doSceneLayout();
     void filterEmojis();
 signals:
-    void emojiClicked(const QtTube::Emoji& emoji);
+    void emojiClicked(const QtTubePlugin::Emoji& emoji);
 };

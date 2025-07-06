@@ -32,7 +32,7 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
     sentTimeLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
 }
 
-void BrowseNotificationRenderer::setData(const QtTube::PluginNotification& notification)
+void BrowseNotificationRenderer::setData(const QtTubePlugin::Notification& notification)
 {
     bodyLabel->setText(notification.body);
     channelIconLabel->setImage(notification.channelAvatarUrl);

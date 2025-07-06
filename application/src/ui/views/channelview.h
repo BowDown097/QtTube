@@ -33,9 +33,9 @@ private:
     void loadChannel(const QString& channelId);
 private slots:
     void loadTab(std::any requestData, int index);
-    void processData(const QtTube::ChannelData& data);
-    void processHeader(const QtTube::ChannelHeader& header);
-    void processTabs(const QList<QtTube::ChannelTabData>& tabs);
+    void processData(const QtTubePlugin::ChannelData& data);
+    void processHeader(const QtTubePlugin::ChannelHeader& header);
+    void processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs);
 signals:
-    void loadFailed(const QtTube::PluginException& ex);
+    void loadFailed(const QtTubePlugin::Exception& ex);
 };

@@ -3,15 +3,15 @@
 #include <QException>
 #include <wobjectimpl.h>
 
-namespace QtTube
+namespace QtTubePlugin
 {
-    class PluginException : public QException
+    class Exception : public QException
     {
     public:
         enum class Severity { Normal, Minor };
-        explicit PluginException(const QString& message, Severity severity = Severity::Normal)
+        explicit Exception(const QString& message, Severity severity = Severity::Normal)
             : m_message(message), m_severity(severity) {}
-        explicit PluginException(QString&& message, Severity severity = Severity::Normal)
+        explicit Exception(QString&& message, Severity severity = Severity::Normal)
             : m_message(std::move(message)), m_severity(severity) {}
         const QString& message() const { return m_message; }
         Severity severity() const { return m_severity; }
@@ -21,46 +21,46 @@ namespace QtTube
     };
 
     template<typename T>
-    class PluginReply : public QObject
+    class Reply : public QObject
     {
-        W_OBJECT(PluginReply)
+        W_OBJECT(Reply)
     public:
         std::any continuationData;
 
-        void exception(const QtTube::PluginException& ex) W_SIGNAL(exception, ex)
+        void exception(const QtTubePlugin::Exception& ex) W_SIGNAL(exception, ex)
         void finished(const T& object) W_SIGNAL(finished, object)
 
         // creates a reply that is automatically deleted when finished. you'll want to use this with multithreaded code.
-        static PluginReply<T>* create()
+        static Reply<T>* create()
         {
-            PluginReply<T>* reply = new PluginReply<T>;
-            connect(reply, &PluginReply<T>::exception, reply, &QObject::deleteLater);
-            connect(reply, &PluginReply<T>::finished, reply, &QObject::deleteLater);
+            Reply<T>* reply = new Reply<T>;
+            connect(reply, &Reply<T>::exception, reply, &QObject::deleteLater);
+            connect(reply, &Reply<T>::finished, reply, &QObject::deleteLater);
             return reply;
         }
     };
 
     template<>
-    class PluginReply<void> : public QObject
+    class Reply<void> : public QObject
     {
-        W_OBJECT(PluginReply<void>)
+        W_OBJECT(Reply<void>)
     public:
         std::any continuationData;
 
-        void exception(const QtTube::PluginException& ex) W_SIGNAL(exception, ex)
+        void exception(const QtTubePlugin::Exception& ex) W_SIGNAL(exception, ex)
         void finished() W_SIGNAL(finished)
 
         // creates a reply that is automatically deleted when finished. you'll want to use this with multithreaded code.
-        static PluginReply<void>* create()
+        static Reply<void>* create()
         {
-            PluginReply<void>* reply = new PluginReply<void>;
-            connect(reply, &PluginReply<void>::exception, reply, &QObject::deleteLater);
-            connect(reply, &PluginReply<void>::finished, reply, &QObject::deleteLater);
+            Reply<void>* reply = new Reply<void>;
+            connect(reply, &Reply<void>::exception, reply, &QObject::deleteLater);
+            connect(reply, &Reply<void>::finished, reply, &QObject::deleteLater);
             return reply;
         }
     };
 }
 
-W_REGISTER_ARGTYPE(QtTube::PluginException)
-W_OBJECT_IMPL_INLINE(QtTube::PluginReply<T>, template<typename T>)
-W_OBJECT_IMPL_INLINE(QtTube::PluginReply<void>)
+W_REGISTER_ARGTYPE(QtTubePlugin::Exception)
+W_OBJECT_IMPL_INLINE(QtTubePlugin::Reply<T>, template<typename T>)
+W_OBJECT_IMPL_INLINE(QtTubePlugin::Reply<void>)

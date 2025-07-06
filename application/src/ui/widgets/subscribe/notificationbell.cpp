@@ -42,13 +42,13 @@ void NotificationBell::leaveEvent(QEvent*)
     setCursor(QCursor());
 }
 
-void NotificationBell::setData(const QtTube::PluginNotificationBell& notificationBell)
+void NotificationBell::setData(const QtTubePlugin::NotificationBell& notificationBell)
 {
     m_defaultEnabledStateIndex = notificationBell.defaultEnabledStateIndex;
 
     for (qsizetype i = 0; i < notificationBell.states.size(); ++i)
     {
-        const QtTube::PluginNotificationState& state = notificationBell.states[i];
+        const QtTubePlugin::NotificationState& state = notificationBell.states[i];
 
         QAction* action = new QAction(state.name, this);
         m_notificationMenu->addAction(action);
@@ -56,10 +56,10 @@ void NotificationBell::setData(const QtTube::PluginNotificationBell& notificatio
 
         switch (state.representation)
         {
-        case QtTube::PluginNotificationState::Representation::All:
+        case QtTubePlugin::NotificationState::Representation::All:
             action->setIcon(UIUtils::iconThemed("notif-bell-all"));
             break;
-        case QtTube::PluginNotificationState::Representation::None:
+        case QtTubePlugin::NotificationState::Representation::None:
             action->setIcon(UIUtils::iconThemed("notif-bell-none"));
             break;
         default:
@@ -77,7 +77,7 @@ void NotificationBell::setVisualState(qsizetype index)
     setDefaultAction(m_notificationMenu->actions().at(index));
 }
 
-void NotificationBell::setState(const QtTube::PluginNotificationState& state)
+void NotificationBell::setState(const QtTubePlugin::NotificationState& state)
 {
     if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
         activePlugin->interface->setNotificationPreference(state.data);

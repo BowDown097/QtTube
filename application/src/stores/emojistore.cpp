@@ -33,7 +33,7 @@ EmojiStore::EmojiStore(QObject* parent)
                 if (base.isEmpty())
                     continue;
 
-                QtTube::Emoji emoji;
+                QtTubePlugin::Emoji emoji;
 
                 const QJsonArray emoticons = emojiData["emoticons"].toArray();
                 for (const QJsonValue& emoticon : emoticons)
@@ -65,7 +65,7 @@ EmojiStore::EmojiStore(QObject* parent)
     });
 }
 
-void EmojiStore::add(const QString& group, const QList<QtTube::Emoji>& emojis, bool mergeIntoGroup)
+void EmojiStore::add(const QString& group, const QList<QtTubePlugin::Emoji>& emojis, bool mergeIntoGroup)
 {
     if (auto it = std::ranges::find(m_emojiGroups, group, &EmojiGroup::name); it != m_emojiGroups.end())
     {
@@ -86,7 +86,7 @@ QString& EmojiStore::emojize(QString& text) const
 
     for (const EmojiGroup& emojiGroup : m_emojiGroups)
     {
-        for (const QtTube::Emoji& emoji : emojiGroup.emojis)
+        for (const QtTubePlugin::Emoji& emoji : emojiGroup.emojis)
         {
             for (const QString& shortcode : emoji.shortcodes)
             {

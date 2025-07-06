@@ -37,7 +37,7 @@ void EmojiMenu::add(const QList<EmojiGroup>& emojiGroups)
         QList<EmojiGraphicsItem*> groupEmojiItems;
         groupEmojiItems.reserve(emojiGroup.emojis.size());
 
-        for (const QtTube::Emoji& emoji : emojiGroup.emojis)
+        for (const QtTubePlugin::Emoji& emoji : emojiGroup.emojis)
         {
             EmojiGraphicsItem* emojiItem = new EmojiGraphicsItem(emoji);
             m_scene->addItem(emojiItem);

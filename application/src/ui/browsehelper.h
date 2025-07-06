@@ -24,18 +24,18 @@ public:
     void browseTrending(ContinuableListWidget* widget);
     void search(ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query);
 
-    void processChannelTabItems(ContinuableListWidget* widget, const QList<QtTube::ChannelTabDataItem>& items);
+    void processChannelTabItems(ContinuableListWidget* widget, const QList<QtTubePlugin::ChannelTabDataItem>& items);
 private slots:
-    void browseFailed(const QString& title, ContinuableListWidget* widget, const QtTube::PluginException& ex);
+    void browseFailed(const QString& title, ContinuableListWidget* widget, const QtTubePlugin::Exception& ex);
 private:
     QList<std::pair<QString, int>> getActiveFilters(QHBoxLayout* additionalWidgets);
-    void setupBrowse(ContinuableListWidget* widget, QtTube::BrowseReply* reply, const QtTube::BrowseData& data);
+    void setupBrowse(ContinuableListWidget* widget, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data);
     void setupChannel(
         ContinuableListWidget* widget, int activeTabIndex,
-        QtTube::ChannelReply* reply, const QtTube::ChannelData& data);
+        QtTubePlugin::ChannelReply* reply, const QtTubePlugin::ChannelData& data);
     void setupNotifications(
-        ContinuableListWidget* widget, QtTube::NotificationsReply* reply, const QtTube::NotificationsData& data);
+        ContinuableListWidget* widget, QtTubePlugin::NotificationsReply* reply, const QtTubePlugin::NotificationsData& data);
     void setupSearch(
         ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query,
-        const PluginData* plugin, QtTube::BrowseReply* reply, const QtTube::BrowseData& data);
+        const PluginData* plugin, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data);
 };

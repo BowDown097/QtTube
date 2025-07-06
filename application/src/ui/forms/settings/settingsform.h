@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/components/pluginsettingswindow.h"
+#include "qttube-plugin/components/settingswindow.h"
 
 namespace Ui {
 class SettingsForm;
@@ -9,7 +9,7 @@ class QAbstractButton;
 class QButtonGroup;
 class QCheckBox;
 
-class SettingsForm : public QtTube::PluginSettingsWindow
+class SettingsForm : public QtTubePlugin::SettingsWindow
 {
     Q_OBJECT
 public:

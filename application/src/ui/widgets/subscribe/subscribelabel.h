@@ -8,7 +8,7 @@ class SubscribeLabel : public ClickableWidget<QLabel>
     Q_OBJECT
 public:
     explicit SubscribeLabel(QWidget* parent = nullptr);
-    void setData(const QtTube::PluginSubscribeButton& data);
+    void setData(const QtTubePlugin::SubscribeButton& data);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent* event) override;
@@ -17,8 +17,8 @@ protected:
 #endif
     void leaveEvent(QEvent* event) override;
 private:
-    QtTube::PluginSubscribeButton::ColorPalette colorPalette;
-    QtTube::PluginSubscribeButton::Localization localization;
+    QtTubePlugin::SubscribeButton::ColorPalette colorPalette;
+    QtTubePlugin::SubscribeButton::Localization localization;
     std::any subscribeData;
     bool subscribed{};
     std::any unsubscribeData;

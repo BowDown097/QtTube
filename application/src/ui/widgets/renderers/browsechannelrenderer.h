@@ -14,7 +14,7 @@ class BrowseChannelRenderer : public QWidget
     Q_OBJECT
 public:
     explicit BrowseChannelRenderer(QWidget* parent = nullptr);
-    void setData(const QtTube::PluginChannel& channel);
+    void setData(const QtTubePlugin::Channel& channel);
 private:
     QString channelId;
     TubeLabel* descriptionLabel;

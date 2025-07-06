@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/components/pluginsettings.h"
+#include "qttube-plugin/components/settingsstore.h"
 
 namespace InnertubeObjects
 {
@@ -12,7 +12,7 @@ struct ShortsLockupViewModel;
 struct Video;
 }
 
-class YouTubeSettings : public QObject, public QtTube::PluginSettings
+class YouTubeSettings : public QObject, public QtTubePlugin::SettingsStore
 {
     Q_OBJECT
     Q_PROPERTY(bool disablePlayerInfoPanels MEMBER disablePlayerInfoPanels NOTIFY disablePlayerInfoPanelsChanged)
@@ -49,7 +49,7 @@ public:
 
     void init() override;
     void save() override;
-    QtTube::PluginSettingsWindow* window() override;
+    QtTubePlugin::SettingsWindow* window() override;
 
     bool channelIsFiltered(const QString& id) const;
     bool videoIsFiltered(const InnertubeObjects::AdSlot& adSlot) const;

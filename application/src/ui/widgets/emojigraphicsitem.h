@@ -8,8 +8,8 @@ class EmojiGraphicsItem : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
-    explicit EmojiGraphicsItem(const QtTube::Emoji& data, QGraphicsItem* parent = nullptr);
-    const QtTube::Emoji& data() const { return m_data; }
+    explicit EmojiGraphicsItem(const QtTubePlugin::Emoji& data, QGraphicsItem* parent = nullptr);
+    const QtTubePlugin::Emoji& data() const { return m_data; }
     void setSize(int w, int h) { m_size = QSize(w, h); }
     void setSize(QSize size) { m_size = size; }
 
@@ -28,7 +28,7 @@ private:
     };
 
     qsizetype m_currentFrame{};
-    const QtTube::Emoji& m_data;
+    const QtTubePlugin::Emoji& m_data;
     QList<Frame> m_frames;
     QTimer* m_frameTimer;
     QSize m_size;

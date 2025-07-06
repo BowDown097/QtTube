@@ -6,19 +6,19 @@
 #include "simpledatatypes.h"
 #include "videodata.h"
 
-W_REGISTER_ARGTYPE(QtTube::BrowseData)
-W_REGISTER_ARGTYPE(QtTube::ChannelData)
-W_REGISTER_ARGTYPE(QtTube::LiveChat)
-W_REGISTER_ARGTYPE(QtTube::LiveChatReplay)
-W_REGISTER_ARGTYPE(QtTube::NotificationsData)
-W_REGISTER_ARGTYPE(QtTube::VideoData)
+W_REGISTER_ARGTYPE(QtTubePlugin::BrowseData)
+W_REGISTER_ARGTYPE(QtTubePlugin::ChannelData)
+W_REGISTER_ARGTYPE(QtTubePlugin::LiveChat)
+W_REGISTER_ARGTYPE(QtTubePlugin::LiveChatReplay)
+W_REGISTER_ARGTYPE(QtTubePlugin::NotificationsData)
+W_REGISTER_ARGTYPE(QtTubePlugin::VideoData)
 
-namespace QtTube
+namespace QtTubePlugin
 {
-    using BrowseReply = PluginReply<BrowseData>;
-    using ChannelReply = PluginReply<ChannelData>;
-    using LiveChatReply = PluginReply<LiveChat>;
-    using LiveChatReplayReply = PluginReply<LiveChatReplay>;
-    using NotificationsReply = PluginReply<NotificationsData>;
-    using VideoReply = PluginReply<VideoData>;
+    using BrowseReply = Reply<BrowseData>;
+    using ChannelReply = Reply<ChannelData>;
+    using LiveChatReply = Reply<LiveChat>;
+    using LiveChatReplayReply = Reply<LiveChatReplay>;
+    using NotificationsReply = Reply<NotificationsData>;
+    using VideoReply = Reply<VideoData>;
 }

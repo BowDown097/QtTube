@@ -18,7 +18,7 @@ constexpr QLatin1String MessageStylesheet(R"(
     color: %2;
 )");
 
-PaidMessage::PaidMessage(const QtTube::PaidMessage& data, QWidget* parent)
+PaidMessage::PaidMessage(const QtTubePlugin::PaidMessage& data, QWidget* parent)
     : QWidget(parent),
       amountLabel(new TubeLabel(data.paidAmountText, this)),
       authorIcon(new TubeLabel(this)),

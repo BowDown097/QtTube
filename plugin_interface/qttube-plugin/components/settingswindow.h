@@ -3,14 +3,14 @@
 
 class QPushButton;
 
-namespace QtTube
+namespace QtTubePlugin
 {
-    class PluginSettingsWindow : public QWidget
+    class SettingsWindow : public QWidget
     {
         Q_OBJECT
     public:
-        explicit PluginSettingsWindow(QWidget* parent = nullptr) : QWidget(parent) {}
-        virtual ~PluginSettingsWindow() = default;
+        explicit SettingsWindow(QWidget* parent = nullptr) : QWidget(parent) {}
+        virtual ~SettingsWindow() = default;
         virtual bool savePending() const = 0;
         virtual void saveSettings() = 0;
     protected:

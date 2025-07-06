@@ -35,9 +35,9 @@ WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchVie
 
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTube::VideoReply* reply = plugin->interface->getVideo(videoId, {});
-        connect(reply, &QtTube::VideoReply::exception, this, &WatchView::loadFailed);
-        connect(reply, &QtTube::VideoReply::finished, this, &WatchView::processData);
+        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId, {});
+        connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
+        connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
     }
 
     ui->player->play(videoId, progress);
@@ -107,15 +107,15 @@ void WatchView::hotLoadVideo(const QString& videoId, int progress, PreloadData::
 
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTube::VideoReply* reply = plugin->interface->getVideo(videoId, {});
-        connect(reply, &QtTube::VideoReply::exception, this, &WatchView::loadFailed);
-        connect(reply, &QtTube::VideoReply::finished, this, &WatchView::processData);
+        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId, {});
+        connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
+        connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
     }
 
     ui->player->play(videoId, progress);
 }
 
-void WatchView::openLiveChat(const QtTube::InitialLiveChatData& data)
+void WatchView::openLiveChat(const QtTubePlugin::InitialLiveChatData& data)
 {
     LiveChatWindow* window = new LiveChatWindow;
     window->setAttribute(Qt::WA_DeleteOnClose);
@@ -123,7 +123,7 @@ void WatchView::openLiveChat(const QtTube::InitialLiveChatData& data)
     window->initialize(data, ui->player);
 }
 
-void WatchView::processData(const QtTube::VideoData& data)
+void WatchView::processData(const QtTubePlugin::VideoData& data)
 {
     videoId = data.videoId;
     videoUrlPrefix = data.videoUrlPrefix;
@@ -165,7 +165,7 @@ void WatchView::processData(const QtTube::VideoData& data)
         ui->topLevelButtons->addWidget(ui->likeLabel);
         connect(ui->likeLabel, &IconLabel::clicked, this,
             std::bind(&WatchView::rate, this, true, data.likeData.like, data.likeData.removeLike));
-        if (data.likeStatus == QtTube::VideoData::LikeStatus::Liked)
+        if (data.likeStatus == QtTubePlugin::VideoData::LikeStatus::Liked)
         {
             ui->likeLabel->setIcon("like-toggled");
             ui->likeLabel->setStyleSheet("color: #167ac6");
@@ -176,7 +176,7 @@ void WatchView::processData(const QtTube::VideoData& data)
         ui->topLevelButtons->addWidget(ui->dislikeLabel);
         connect(ui->dislikeLabel, &IconLabel::clicked, this,
             std::bind(&WatchView::rate, this, false, data.likeData.dislike, data.likeData.removeDislike));
-        if (data.likeStatus == QtTube::VideoData::LikeStatus::Disliked)
+        if (data.likeStatus == QtTubePlugin::VideoData::LikeStatus::Disliked)
         {
             ui->dislikeLabel->setIcon("dislike-toggled");
             ui->dislikeLabel->setStyleSheet("color: #167ac6");
@@ -268,12 +268,12 @@ void WatchView::updateMetadata(const QString& videoId)
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTube::VideoReply* reply = plugin->interface->getVideo(videoId, {});
-        connect(reply, &QtTube::VideoReply::exception, this, [this](const QtTube::PluginException& ex) {
+        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId, {});
+        connect(reply, &QtTubePlugin::VideoReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
             qDebug() << ex.message() << "Stream/premiere could have ended - killing update timer.";
             metadataUpdateTimer->deleteLater();
         });
-        connect(reply, &QtTube::VideoReply::finished, this, [this](const QtTube::VideoData& data) {
+        connect(reply, &QtTubePlugin::VideoReply::finished, this, [this](const QtTubePlugin::VideoData& data) {
             ui->date->setText(data.dateText);
             ui->description->setText(data.descriptionText);
             ui->titleLabel->setText(data.titleText);

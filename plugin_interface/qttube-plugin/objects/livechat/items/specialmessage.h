@@ -2,7 +2,7 @@
 #include <QFont>
 #include <QString>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct SpecialMessage
     {

@@ -7,7 +7,7 @@ namespace PreloadData
     struct WatchView
     {
         QString channelAvatarUrl;
-        QList<QtTube::PluginBadge> channelBadges;
+        QList<QtTubePlugin::Badge> channelBadges;
         QString channelId;
         QString channelName;
         QString title;

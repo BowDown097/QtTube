@@ -9,7 +9,7 @@
 #include <QMessageBox>
 
 YouTubeSettingsForm::YouTubeSettingsForm(QWidget* parent)
-    : QtTube::PluginSettingsWindow(parent), ui(new Ui::YouTubeSettingsForm)
+    : QtTubePlugin::SettingsWindow(parent), ui(new Ui::YouTubeSettingsForm)
 {
     ui->setupUi(this);
 

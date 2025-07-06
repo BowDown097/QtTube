@@ -12,7 +12,7 @@ class SubscribeWidget : public QWidget
 {
 public:
     explicit SubscribeWidget(QWidget* parent = nullptr);
-    void setData(const QtTube::PluginSubscribeButton& data);
+    void setData(const QtTubePlugin::SubscribeButton& data);
 
     QHBoxLayout* layout;
     QPointer<TubeLabel> subscribersCountLabel;

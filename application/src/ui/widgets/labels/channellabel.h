@@ -12,7 +12,7 @@ public:
     TubeLabel* text;
     explicit ChannelLabel(QWidget* parent = nullptr);
     void addStretch();
-    void setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTube::PluginBadge>& badges);
+    void setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTubePlugin::Badge>& badges);
     void setInfo(const QString& uploaderId, const QString& uploaderName);
 private:
     QHBoxLayout* badgeLayout;

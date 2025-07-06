@@ -16,10 +16,10 @@ WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QOb
         if (PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->playerFunc)
         {
             m_player = plugin->playerFunc(watchView);
-            connect(m_player, &QtTube::PluginPlayer::copyToClipboardRequested, this, &WatchViewPlayer::copyToClipboard);
-            connect(m_player, &QtTube::PluginPlayer::newState, this, &WatchViewPlayer::newState);
-            connect(m_player, &QtTube::PluginPlayer::progressChanged, this, &WatchViewPlayer::progressChanged);
-            connect(m_player, &QtTube::PluginPlayer::switchVideoRequested, this, &WatchViewPlayer::switchVideo);
+            connect(m_player, &QtTubePlugin::Player::copyToClipboardRequested, this, &WatchViewPlayer::copyToClipboard);
+            connect(m_player, &QtTubePlugin::Player::newState, this, &WatchViewPlayer::newState);
+            connect(m_player, &QtTubePlugin::Player::progressChanged, this, &WatchViewPlayer::progressChanged);
+            connect(m_player, &QtTubePlugin::Player::switchVideoRequested, this, &WatchViewPlayer::switchVideo);
         }
     }
 
@@ -58,7 +58,7 @@ void WatchViewPlayer::copyToClipboard(const QString& text)
     UIUtils::copyToClipboard(text);
 }
 
-void WatchViewPlayer::newState(QtTube::PluginPlayer::PlayerState state)
+void WatchViewPlayer::newState(QtTubePlugin::Player::PlayerState state)
 {
     auto setWindowTitleSuffix = [](const QString& suffix) {
         if (QMainWindow* mainWindow = UIUtils::getMainWindow())
@@ -70,15 +70,15 @@ void WatchViewPlayer::newState(QtTube::PluginPlayer::PlayerState state)
 
     switch (state)
     {
-    case QtTube::PluginPlayer::State_Playing:
+    case QtTubePlugin::Player::State_Playing:
         OSUtils::suspendIdleSleep(true);
         setWindowTitleSuffix("[Playing]");
         break;
-    case QtTube::PluginPlayer::State_Paused:
+    case QtTubePlugin::Player::State_Paused:
         OSUtils::suspendIdleSleep(false);
         setWindowTitleSuffix("[Paused]");
         break;
-    case QtTube::PluginPlayer::State_Ended:
+    case QtTubePlugin::Player::State_Ended:
         OSUtils::suspendIdleSleep(false);
         break;
     default: break;

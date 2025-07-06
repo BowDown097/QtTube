@@ -2,7 +2,7 @@
 #include "ui/widgets/labels/tubelabel.h"
 #include <QBoxLayout>
 
-GiftRedemptionMessage::GiftRedemptionMessage(const QtTube::GiftRedemptionMessage& data, QWidget* parent)
+GiftRedemptionMessage::GiftRedemptionMessage(const QtTubePlugin::GiftRedemptionMessage& data, QWidget* parent)
     : QWidget(parent),
       authorLabel(new TubeLabel(data.authorName, this)),
       layout(new QHBoxLayout(this)),

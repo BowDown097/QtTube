@@ -6,7 +6,7 @@
 #include <any>
 #include <QList>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     using LiveChatItem = std::variant<std::monostate, GiftRedemptionMessage, PaidMessage, SpecialMessage, TextMessage>;
 

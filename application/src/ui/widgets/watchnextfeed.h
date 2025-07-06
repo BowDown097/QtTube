@@ -10,8 +10,8 @@ public:
     explicit WatchNextFeed(QWidget* parent = nullptr);
     void reset();
     void setData(
-        const QList<QtTube::PluginVideo>& recommendedVideos,
-        const QtTube::VideoData::Continuations& continuations);
+        const QList<QtTubePlugin::Video>& recommendedVideos,
+        const QtTubePlugin::VideoData::Continuations& continuations);
 
     ContinuableListWidget* currentList() { return qobject_cast<ContinuableListWidget*>(currentWidget()); }
 private:

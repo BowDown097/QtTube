@@ -3,7 +3,7 @@
 #include "qttube-plugin/objects/shelf.h"
 #include "qttube-plugin/objects/video.h"
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct ChannelHeader
     {
@@ -11,15 +11,15 @@ namespace QtTube
         QString bannerUrl;
         QString channelSubtext;
         QString channelText;
-        PluginSubscribeButton subscribeButton;
+        SubscribeButton subscribeButton;
     };
 
     using ChannelTabDataItem = std::variant<
         std::monostate,
-        PluginChannel,
-        PluginVideo,
-        PluginShelf<PluginChannel>,
-        PluginShelf<PluginVideo>>;
+        Channel,
+        Video,
+        Shelf<Channel>,
+        Shelf<Video>>;
 
     struct ChannelTabData
     {

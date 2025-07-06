@@ -3,7 +3,7 @@
 #include "qttube-plugin/objects/emoji.h"
 #include "qttube-plugin/objects/video.h"
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct InitialLiveChatData
     {
@@ -31,7 +31,7 @@ namespace QtTube
 
         enum class LikeStatus { Liked, Disliked, Neutral };
 
-        PluginChannel channel;
+        Channel channel;
         Continuations continuations;
         QString dateText;
         QString descriptionText;
@@ -43,7 +43,7 @@ namespace QtTube
         float likeDislikeRatio{};
         LikeStatus likeStatus = LikeStatus::Neutral;
         bool ratingsAvailable = true;
-        QList<PluginVideo> recommendedVideos;
+        QList<Video> recommendedVideos;
         PluginMetadata* sourceMetadata{};
         QString titleText;
         QString videoId;

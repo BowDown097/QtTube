@@ -1,7 +1,7 @@
 #pragma once
 #include <QString>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct GiftRedemptionMessage
     {

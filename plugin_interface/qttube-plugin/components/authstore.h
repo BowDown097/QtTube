@@ -1,9 +1,9 @@
 #pragma once
 #include "configstore.h"
 
-namespace QtTube
+namespace QtTubePlugin
 {
-    struct PluginAuth : ConfigStore
+    struct AuthStore : ConfigStore
     {
         struct AuthUser
         {
@@ -21,7 +21,7 @@ namespace QtTube
 
         virtual const AuthUser* activeLogin() const = 0;
 
-        template<typename T> requires std::derived_from<T, PluginAuth>
+        template<typename T> requires std::derived_from<T, AuthStore>
         static std::unique_ptr<T> create(const QString& plugin)
         {
             return ConfigStore::create<T>(plugin, "auth");

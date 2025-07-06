@@ -2,22 +2,22 @@
 #include "badge.h"
 #include <QTime>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct PluginMetadata;
 
-    struct PluginVideo
+    struct Video
     {
         bool isVerticalVideo{};
         QString lengthText;
         QString metadataText;
         int progressSecs{};
         PluginMetadata* sourceMetadata{};
-        QList<PluginBadge> tags; // or badges
+        QList<Badge> tags; // or badges
         QString thumbnailUrl;
         QString title;
         QString uploaderAvatarUrl;
-        QList<PluginBadge> uploaderBadges;
+        QList<Badge> uploaderBadges;
         QString uploaderId;
         QString uploaderText;
         QString uploaderUrlPrefix;

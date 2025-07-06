@@ -9,7 +9,7 @@ class TubeLabel;
 class TextMessage : public QWidget
 {
 public:
-    TextMessage(const QtTube::TextMessage& data, QWidget* parent);
+    TextMessage(const QtTubePlugin::TextMessage& data, QWidget* parent);
 private:
     TubeLabel* authorIcon;
     TubeLabel* authorLabel;

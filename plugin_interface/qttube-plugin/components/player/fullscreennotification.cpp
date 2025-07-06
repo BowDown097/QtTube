@@ -4,7 +4,7 @@
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     constexpr int PadH = 10, PadW = 100;
 

@@ -1,11 +1,11 @@
 #pragma once
 #include <QString>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct PluginMetadata;
 
-    struct PluginNotification
+    struct Notification
     {
         enum class TargetType { Channel, Video };
 

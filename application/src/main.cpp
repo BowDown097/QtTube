@@ -48,12 +48,12 @@ int main(int argc, char *argv[])
         qtTubeApp->doInitialSetup();
         if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
         {
-            QtTube::VideoReply* videoReply = plugin->interface->getVideo(parser.value("chat"), {});
-            QObject::connect(videoReply, &QtTube::VideoReply::exception, [](const QtTube::PluginException& ex) {
+            QtTubePlugin::VideoReply* videoReply = plugin->interface->getVideo(parser.value("chat"), {});
+            QObject::connect(videoReply, &QtTubePlugin::VideoReply::exception, [](const QtTubePlugin::Exception& ex) {
                 qDebug() << "Could not open live chat:" << ex.message();
                 qtTubeApp->exit(EXIT_FAILURE);
             });
-            QObject::connect(videoReply, &QtTube::VideoReply::finished, [](const QtTube::VideoData& data) {
+            QObject::connect(videoReply, &QtTubePlugin::VideoReply::finished, [](const QtTubePlugin::VideoData& data) {
                 if (data.initialLiveChatData.has_value())
                 {
                     LiveChatWindow liveChatWindow;

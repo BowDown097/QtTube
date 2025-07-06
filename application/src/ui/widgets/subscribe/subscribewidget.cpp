@@ -42,7 +42,7 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
     });
 }
 
-void SubscribeWidget::setData(const QtTube::PluginSubscribeButton& data)
+void SubscribeWidget::setData(const QtTubePlugin::SubscribeButton& data)
 {
     subscribeLabel->setData(data);
     subscribeLabel->show();

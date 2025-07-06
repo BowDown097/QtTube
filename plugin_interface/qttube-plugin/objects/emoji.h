@@ -2,7 +2,7 @@
 #include <QList>
 #include <QString>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     struct Emoji
     {

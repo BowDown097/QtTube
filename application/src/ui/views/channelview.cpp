@@ -85,14 +85,14 @@ void ChannelView::loadChannel(const QString& channelId)
     this->channelId = channelId;
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTube::ChannelReply* reply = plugin->interface->getChannel(channelId, {}, {});
+        QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(channelId, {}, {});
 
         QEventLoop loop;
-        connect(reply, &QtTube::ChannelReply::exception, this, [this, &loop](const QtTube::PluginException& ex) {
+        connect(reply, &QtTubePlugin::ChannelReply::exception, this, [this, &loop](const QtTubePlugin::Exception& ex) {
             loop.quit();
             emit loadFailed(ex);
         });
-        connect(reply, &QtTube::ChannelReply::finished, this, [this, &loop](const QtTube::ChannelData& data) {
+        connect(reply, &QtTubePlugin::ChannelReply::finished, this, [this, &loop](const QtTubePlugin::ChannelData& data) {
             loop.quit();
             processData(data);
         });
@@ -110,7 +110,7 @@ void ChannelView::loadTab(std::any requestData, int index)
     BrowseHelper::instance()->browseChannel(list, index, channelId, requestData);
 }
 
-void ChannelView::processData(const QtTube::ChannelData& data)
+void ChannelView::processData(const QtTubePlugin::ChannelData& data)
 {
     processHeader(data.header.value());
     processTabs(data.tabs);
@@ -119,7 +119,7 @@ void ChannelView::processData(const QtTube::ChannelData& data)
     });
 }
 
-void ChannelView::processHeader(const QtTube::ChannelHeader& header)
+void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
 {
     channelName->setText(header.channelText);
     handleAndVideos->setText(header.channelSubtext);
@@ -148,7 +148,7 @@ void ChannelView::processHeader(const QtTube::ChannelHeader& header)
         channelBanner->setImage(header.bannerUrl);
 }
 
-void ChannelView::processTabs(const QList<QtTube::ChannelTabData>& tabs)
+void ChannelView::processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs)
 {
     if (tabs.isEmpty())
         return;

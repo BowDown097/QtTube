@@ -38,7 +38,7 @@ void VideoRenderer::navigate()
     ViewController::loadVideo(videoId, progress, watchPreloadData.get());
 }
 
-void VideoRenderer::setData(const QtTube::PluginVideo& video)
+void VideoRenderer::setData(const QtTubePlugin::Video& video)
 {
     progress = video.progressSecs;
     videoId = video.videoId;

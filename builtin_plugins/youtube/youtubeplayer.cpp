@@ -36,7 +36,7 @@ QString getFileContents(const QString& path)
 }
 
 YouTubePlayer::YouTubePlayer(QWidget* parent)
-    : QtTube::PluginWebPlayer(parent), m_interceptor(new PlayerInterceptor(this))
+    : QtTubePlugin::WebPlayer(parent), m_interceptor(new PlayerInterceptor(this))
 {
     m_channel->registerObject("settings", g_settings);
 

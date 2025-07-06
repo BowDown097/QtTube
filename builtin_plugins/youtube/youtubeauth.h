@@ -1,7 +1,7 @@
 #pragma once
-#include "qttube-plugin/components/pluginauth.h"
+#include "qttube-plugin/components/authstore.h"
 
-struct CredentialSet : QtTube::PluginAuth::AuthUser
+struct CredentialSet : QtTubePlugin::AuthStore::AuthUser
 {
     QString apisid;
     QString hsid;
@@ -18,15 +18,15 @@ struct CredentialSet : QtTube::PluginAuth::AuthUser
         bool active, const QString& avatar, const QString& id, const QString& username,
         const QString& apisid, const QString& hsid, const QString& sapisid,
         const QString& sid, const QString& ssid, const QString& visitorInfo)
-        : QtTube::PluginAuth::AuthUser(active, avatar, id, username),
+        : QtTubePlugin::AuthStore::AuthUser(active, avatar, id, username),
           apisid(apisid), hsid(hsid), sapisid(sapisid),
           sid(sid), ssid(ssid), visitorInfo(visitorInfo) {}
 };
 
-class YouTubeAuth : public QtTube::PluginAuth
+class YouTubeAuth : public QtTubePlugin::AuthStore
 {
 public:
-    const QtTube::PluginAuth::AuthUser* activeLogin() const override;
+    const QtTubePlugin::AuthStore::AuthUser* activeLogin() const override;
     void clear() override;
     void init() override;
     void save() override;

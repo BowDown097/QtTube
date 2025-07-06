@@ -1,7 +1,7 @@
 #pragma once
 #include <QWidget>
 
-namespace QtTube
+namespace QtTubePlugin
 {
     class FullScreenNotification : public QWidget
     {

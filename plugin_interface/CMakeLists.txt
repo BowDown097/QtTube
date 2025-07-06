@@ -11,20 +11,20 @@ target_compile_definitions(QtTube-PluginInterface PUBLIC
 
 target_sources(QtTube-PluginInterface
     PRIVATE
-        qttube-plugin/components/pluginsettingswindow.cpp
+    qttube-plugin/components/settingswindow.cpp
         qttube-plugin/components/player/fullscreennotification.cpp
-        qttube-plugin/components/player/pluginwebplayer.cpp
+        qttube-plugin/components/player/webplayer.cpp
     PUBLIC
         FILE_SET HEADERS FILES
             qttube-plugin/plugininterface.h
+            qttube-plugin/components/authstore.h
             qttube-plugin/components/configstore.h
-            qttube-plugin/components/pluginauth.h
-            qttube-plugin/components/pluginsettings.h
-            qttube-plugin/components/pluginsettingswindow.h
             qttube-plugin/components/reply.h
+            qttube-plugin/components/settingsstore.h
+            qttube-plugin/components/settingswindow.h
             qttube-plugin/components/player/fullscreennotification.h
-            qttube-plugin/components/player/pluginplayer.h
-            qttube-plugin/components/player/pluginwebplayer.h
+            qttube-plugin/components/player/player.h
+            qttube-plugin/components/player/webplayer.h
             qttube-plugin/components/replytypes/channeldata.h
             qttube-plugin/components/replytypes/replytypes.h
             qttube-plugin/components/replytypes/simpledatatypes.h
