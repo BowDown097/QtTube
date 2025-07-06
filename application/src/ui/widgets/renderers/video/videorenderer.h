@@ -2,13 +2,6 @@
 #include "ui/views/preloaddata.h"
 #include <QWidget>
 
-namespace InnertubeObjects
-{
-struct Reel;
-struct ShortsLockupViewModel;
-struct Video;
-}
-
 namespace QtTube { struct PluginVideo; }
 
 class ChannelLabel;
@@ -27,22 +20,14 @@ public:
 
     explicit VideoRenderer(QWidget* parent = nullptr);
 
-    void setData(const InnertubeObjects::Reel& reel,
-                 bool isInGrid = false, bool useThumbnailFromData = true);
-    void setData(const InnertubeObjects::ShortsLockupViewModel& shortsLockup,
-                 bool isInGrid = false, bool useThumbnailFromData = true);
-    void setData(const InnertubeObjects::Video& video,
-                 bool useThumbnailFromData = true);
     void setData(const QtTube::PluginVideo& video);
 private:
     int progress{};
-    QJsonValue videoEndpoint;
     QString videoId;
     std::unique_ptr<PreloadData::WatchView> watchPreloadData;
 
     void setThumbnail(const QString& url);
 private slots:
-    void copyDirectUrl();
     void copyVideoUrl();
     void navigate();
     void setDeArrowData(const QString& fallbackThumbUrl, const HttpReply& reply);

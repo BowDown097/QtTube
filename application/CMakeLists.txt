@@ -59,14 +59,6 @@ set(SOURCE_FILES
     src/ui/widgets/livechat/textmessage.cpp
     src/ui/widgets/modals/focusedmodal.cpp
     src/ui/widgets/modals/sharemodal.cpp
-    src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.cpp
-    src/ui/widgets/renderers/backstage/backstagepollrenderer.cpp
-    src/ui/widgets/renderers/backstage/backstagepostrenderer.cpp
-    src/ui/widgets/renderers/backstage/backstagequizchoicerenderer.cpp
-    src/ui/widgets/renderers/backstage/backstagequizexplanation.cpp
-    src/ui/widgets/renderers/backstage/backstagequizrenderer.cpp
-    src/ui/widgets/renderers/backstage/basepostrenderer.cpp
-    src/ui/widgets/renderers/backstage/postrenderer.cpp
     src/ui/widgets/renderers/browsechannelrenderer.cpp
     src/ui/widgets/renderers/browsenotificationrenderer.cpp
     src/ui/widgets/renderers/video/browsevideorenderer.cpp
@@ -82,7 +74,6 @@ set(SOURCE_FILES
     src/ui/widgets/topbar/topbar.cpp
     src/ui/widgets/topbar/topbarbell.cpp
     src/utils/osutils.cpp
-    src/utils/stringutils.cpp
     src/utils/tubeutils.cpp
     src/utils/uiutils.cpp
     res/resources.qrc
@@ -130,14 +121,6 @@ set(HEADERS
     src/ui/widgets/livechat/textmessage.h
     src/ui/widgets/modals/focusedmodal.h
     src/ui/widgets/modals/sharemodal.h
-    src/ui/widgets/renderers/backstage/backstagepollchoicerenderer.h
-    src/ui/widgets/renderers/backstage/backstagepollrenderer.h
-    src/ui/widgets/renderers/backstage/backstagepostrenderer.h
-    src/ui/widgets/renderers/backstage/backstagequizchoicerenderer.h
-    src/ui/widgets/renderers/backstage/backstagequizexplanation.h
-    src/ui/widgets/renderers/backstage/backstagequizrenderer.h
-    src/ui/widgets/renderers/backstage/basepostrenderer.h
-    src/ui/widgets/renderers/backstage/postrenderer.h
     src/ui/widgets/renderers/browsechannelrenderer.h
     src/ui/widgets/renderers/browsenotificationrenderer.h
     src/ui/widgets/renderers/video/browsevideorenderer.h
@@ -153,7 +136,6 @@ set(HEADERS
     src/ui/widgets/topbar/topbar.h
     src/ui/widgets/topbar/topbarbell.h
     src/utils/osutils.h
-    src/utils/stringutils.h
     src/utils/tubeutils.h
     src/utils/uiutils.h
 )

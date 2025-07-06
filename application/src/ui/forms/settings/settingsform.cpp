@@ -4,7 +4,6 @@
 #include "qttubeapplication.h"
 #include "termfilterview.h"
 #include "ui/widgets/pluginwidget.h"
-#include "utils/stringutils.h"
 #include "utils/uiutils.h"
 #include <QButtonGroup>
 #include <QFileDialog>
@@ -36,8 +35,6 @@ SettingsForm::SettingsForm(QWidget* parent)
 
 #ifndef Q_OS_LINUX
     ui->vaapi->hide();
-#else
-    ui->vaapi->setVisible(qApp->platformName() != "wayland");
 #endif
 
     SettingsStore& store = qtTubeApp->settings();
@@ -47,43 +44,16 @@ SettingsForm::SettingsForm(QWidget* parent)
     ui->darkTheme->setChecked(store.darkTheme);
     // general
     ui->autoHideTopBar->setChecked(store.autoHideTopBar);
-    ui->condensedCounts->setChecked(store.condensedCounts);
-    ui->fullSubs->setChecked(store.fullSubs);
     ui->imageCaching->setChecked(store.imageCaching);
     ui->preferLists->setChecked(store.preferLists);
     // player
-    ui->blockAds->setChecked(store.blockAds);
-    ui->disable60Fps->setChecked(store.disable60Fps);
-    ui->disablePlayerInfoPanels->setChecked(store.disablePlayerInfoPanels);
     ui->externalPlayerEdit->setText(store.externalPlayerPath);
-    ui->h264Only->setChecked(store.h264Only);
-    ui->preferredQuality->setEnabled(!store.qualityFromPlayer);
-    ui->preferredQuality->setCurrentIndex(static_cast<int>(store.preferredQuality));
-    ui->preferredVolume->setEnabled(!store.volumeFromPlayer);
-    ui->preferredVolume->setValue(store.preferredVolume);
-    ui->qualityFromPlayer->setChecked(store.qualityFromPlayer);
-    ui->restoreAnnotations->setChecked(store.restoreAnnotations);
     ui->vaapi->setChecked(store.vaapi);
-    ui->volumeFromPlayer->setChecked(store.volumeFromPlayer);
-    toggleWebPlayerSettings(store.externalPlayerPath.isEmpty());
-    // privacy
-    ui->playbackTracking->setChecked(store.playbackTracking);
-    ui->watchtimeTracking->setChecked(store.watchtimeTracking);
+    ui->vaapi->setEnabled(store.externalPlayerPath.isEmpty());
     // filtering
     ui->filterLength->setEnabled(store.filterLengthEnabled);
     ui->filterLength->setValue(store.filterLength);
     ui->filterLengthCheck->setChecked(store.filterLengthEnabled);
-    ui->hideShorts->setChecked(store.hideShorts);
-    ui->hideStreams->setChecked(store.hideStreams);
-    // sponsorblock
-    ui->blockFiller->setChecked(store.sponsorBlockCategories.contains("filler"));
-    ui->blockInteraction->setChecked(store.sponsorBlockCategories.contains("interaction"));
-    ui->blockIntro->setChecked(store.sponsorBlockCategories.contains("intro"));
-    ui->blockNonMusic->setChecked(store.sponsorBlockCategories.contains("music_offtopic"));
-    ui->blockOutro->setChecked(store.sponsorBlockCategories.contains("outro"));
-    ui->blockPreview->setChecked(store.sponsorBlockCategories.contains("preview"));
-    ui->blockSelfPromo->setChecked(store.sponsorBlockCategories.contains("selfpromo"));
-    ui->blockSponsor->setChecked(store.sponsorBlockCategories.contains("sponsor"));
     // dearrow
     ui->deArrow->setChecked(store.deArrow);
     ui->deArrowThumbs->setChecked(store.deArrowThumbs);
@@ -96,10 +66,8 @@ SettingsForm::SettingsForm(QWidget* parent)
     connect(ui->externalPlayerButton, &QPushButton::clicked, this, &SettingsForm::selectExternalPlayer);
     connect(ui->externalPlayerEdit, &QLineEdit::textEdited, this, &SettingsForm::checkExternalPlayer);
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool c) { ui->filterLength->setEnabled(c); });
-    connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredQuality->setEnabled(!c); });
     connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &SettingsForm::currentChanged);
-    connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
 
     setupSaveButton(ui->saveButton, true);
 }
@@ -109,17 +77,17 @@ void SettingsForm::checkExternalPlayer(const QString& text)
     if (text.isEmpty())
     {
         ui->externalPlayerEdit->setStyleSheet(QString());
-        toggleWebPlayerSettings(true);
+        ui->vaapi->setEnabled(true);
         return;
     }
 
     if (!text.contains("%U"))
         return;
 
-    if (QString playerPath = StringUtils::extractPath(text); QFileInfo(playerPath).isExecutable())
+    if (QString playerPath = extractPath(text); QFileInfo(playerPath).isExecutable())
     {
         ui->externalPlayerEdit->setStyleSheet(QString());
-        toggleWebPlayerSettings(false);
+        ui->vaapi->setEnabled(false);
     }
     else
     {
@@ -163,13 +131,22 @@ void SettingsForm::currentChanged(int index)
     }
 }
 
-void SettingsForm::handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox)
+QString SettingsForm::extractPath(const QString& str)
 {
-    int categoryIndex = categories.indexOf(category);
-    if (checkBox->isChecked() && categoryIndex == -1)
-        categories.append(category);
-    else if (!checkBox->isChecked() && categoryIndex != -1)
-        categories.removeAt(categoryIndex);
+    QString out;
+    quint8 quoteCount{};
+
+    for (QChar c : str)
+    {
+        if (c == '"' || c == '\'')
+            ++quoteCount;
+        else if (c.isSpace() && quoteCount != 1)
+            break;
+        else
+            out += c;
+    }
+
+    return out;
 }
 
 void SettingsForm::pluginActiveButtonToggled(QAbstractButton* button, bool checked)
@@ -197,40 +174,15 @@ void SettingsForm::saveSettings()
     // general
     store.appStyle = ui->appStyle->currentText();
     store.autoHideTopBar = ui->autoHideTopBar->isChecked();
-    store.condensedCounts = ui->condensedCounts->isChecked();
     store.darkTheme = ui->darkTheme->isChecked();
-    store.fullSubs = ui->fullSubs->isChecked();
     store.imageCaching = ui->imageCaching->isChecked();
     store.preferLists = ui->preferLists->isChecked();
     // player
-    store.blockAds = ui->blockAds->isChecked();
-    store.disable60Fps = ui->disable60Fps->isChecked();
-    store.disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
     store.externalPlayerPath = ui->externalPlayerEdit->text();
-    store.h264Only = ui->h264Only->isChecked();
-    store.preferredQuality = static_cast<SettingsStore::PlayerQuality>(ui->preferredQuality->currentIndex());
-    store.preferredVolume = ui->preferredVolume->value();
-    store.qualityFromPlayer = ui->qualityFromPlayer->isChecked();
-    store.restoreAnnotations = ui->restoreAnnotations->isChecked();
     store.vaapi = ui->vaapi->isChecked();
-    store.volumeFromPlayer = ui->volumeFromPlayer->isChecked();
-    // privacy
-    store.playbackTracking = ui->playbackTracking->isChecked();
-    store.watchtimeTracking = ui->watchtimeTracking->isChecked();
     // filtering
     store.filterLength = ui->filterLength->value();
     store.filterLengthEnabled = ui->filterLengthCheck->isChecked();
-    store.hideShorts = ui->hideShorts->isChecked();
-    store.hideStreams = ui->hideStreams->isChecked();
-    // sponsorblock
-    handleSponsorCategory(store.sponsorBlockCategories, "filler", ui->blockFiller);
-    handleSponsorCategory(store.sponsorBlockCategories, "interaction", ui->blockInteraction);
-    handleSponsorCategory(store.sponsorBlockCategories, "intro", ui->blockIntro);
-    handleSponsorCategory(store.sponsorBlockCategories, "music_offtopic", ui->blockNonMusic);
-    handleSponsorCategory(store.sponsorBlockCategories, "outro", ui->blockOutro);
-    handleSponsorCategory(store.sponsorBlockCategories, "preview", ui->blockPreview);
-    handleSponsorCategory(store.sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
-    handleSponsorCategory(store.sponsorBlockCategories, "sponsor", ui->blockSponsor);
     // dearrow
     store.deArrow = ui->deArrow->isChecked();
     store.deArrowThumbs = ui->deArrowThumbs->isChecked();
@@ -258,7 +210,7 @@ void SettingsForm::selectExternalPlayer()
     if (QString playerPath = QFileDialog::getOpenFileName(this, QString(), dir); !playerPath.isNull())
     {
         ui->externalPlayerEdit->setText(playerPath + " %U");
-        toggleWebPlayerSettings(false);
+        ui->vaapi->setEnabled(false);
     }
 }
 
@@ -273,18 +225,4 @@ void SettingsForm::toggleDeArrowSettings(bool checked)
 {
     ui->deArrowThumbs->setEnabled(checked);
     ui->deArrowTitles->setEnabled(checked);
-}
-
-void SettingsForm::toggleWebPlayerSettings(bool checked)
-{
-    ui->blockAds->setEnabled(checked);
-    ui->disable60Fps->setEnabled(checked);
-    ui->disablePlayerInfoPanels->setEnabled(checked);
-    ui->h264Only->setEnabled(checked);
-    ui->preferredQuality->setEnabled(checked);
-    ui->preferredQualityLabel->setEnabled(checked);
-    ui->preferredVolume->setEnabled(checked);
-    ui->preferredVolumeLabel->setEnabled(checked);
-    ui->restoreAnnotations->setEnabled(checked);
-    ui->vaapi->setEnabled(checked);
 }

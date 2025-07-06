@@ -1,13 +1,8 @@
 #include "uiutils.h"
-#include "innertube/objects/backstage/backstagepost.h"
-#include "innertube/objects/channel/channel.h"
-#include "innertube/objects/video/reel.h"
-#include "innertube/objects/video/video.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/widgets/dynamiclistwidgetitem.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "ui/widgets/renderers/backstage/backstagepostrenderer.h"
 #include "ui/widgets/renderers/browsechannelrenderer.h"
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
@@ -44,26 +39,6 @@ constexpr QLatin1String DarkStylesheet(R"(
 namespace UIUtils
 {
     QString g_defaultStyle;
-
-    void addBackstagePostToList(QListWidget* list, const InnertubeObjects::BackstagePost& post)
-    {
-        if (qtTubeApp->settings().channelIsFiltered(post.authorEndpoint["browseEndpoint"]["browseId"].toString()))
-            return;
-
-        BackstagePostRenderer* renderer = new BackstagePostRenderer;
-        renderer->setData(post);
-        addResizingWidgetToList(list, renderer);
-    }
-
-    void addChannelToList(QListWidget* list, const InnertubeObjects::Channel& channel)
-    {
-        if (qtTubeApp->settings().channelIsFiltered(channel.channelId))
-            return;
-
-        BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
-        renderer->setData(channel);
-        addWidgetToList(list, renderer);
-    }
 
     void addChannelToList(QListWidget* list, const QtTube::PluginChannel& channel)
     {
@@ -102,11 +77,6 @@ namespace UIUtils
         list->setItemWidget(item, line);
     }
 
-    void addShelfTitleToList(QListWidget* list, const QJsonValue& shelf)
-    {
-        addShelfTitleToList(list, InnertubeObjects::InnertubeString(shelf["title"]).text);
-    }
-
     void addShelfTitleToList(QListWidget* list, const QString& title)
     {
         if (title.isEmpty())
@@ -125,41 +95,11 @@ namespace UIUtils
         list->setItemWidget(item, shelfLabel);
     }
 
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Reel& reel,
-                        bool useThumbnailFromData)
-    {
-        if (qtTubeApp->settings().videoIsFiltered(reel))
-            return;
-
-        VideoRenderer* renderer = constructVideoRenderer(list);
-        renderer->setData(reel, list->flow() == QListWidget::LeftToRight, useThumbnailFromData);
-        addWidgetToList(list, renderer);
-    }
-
-    void addVideoToList(QListWidget* list, const InnertubeObjects::ShortsLockupViewModel& shortsLockup,
-                        bool useThumbnailFromData)
-    {
-        if (qtTubeApp->settings().videoIsFiltered(shortsLockup))
-            return;
-
-        VideoRenderer* renderer = constructVideoRenderer(list);
-        renderer->setData(shortsLockup, list->flow() == QListWidget::LeftToRight, useThumbnailFromData);
-        addWidgetToList(list, renderer);
-    }
-
-    void addVideoToList(QListWidget* list, const InnertubeObjects::Video& video,
-                        bool useThumbnailFromData)
+    void addVideoToList(QListWidget* list, const QtTube::PluginVideo& video)
     {
         if (qtTubeApp->settings().videoIsFiltered(video))
             return;
 
-        VideoRenderer* renderer = constructVideoRenderer(list);
-        renderer->setData(video, useThumbnailFromData);
-        addWidgetToList(list, renderer);
-    }
-
-    void addVideoToList(QListWidget* list, const QtTube::PluginVideo& video)
-    {
         VideoRenderer* renderer = constructVideoRenderer(list);
         renderer->setData(video);
         addWidgetToList(list, renderer);

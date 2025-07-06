@@ -1,13 +1,5 @@
 #include "settingsstore.h"
-#include "innertube/objects/video/reel.h"
-#include "innertube/objects/video/video.h"
-#include "innertube/objects/viewmodels/shortslockupviewmodel.h"
 #include <QSettings>
-
-bool SettingsStore::channelIsFiltered(const QString& id) const
-{
-    return !id.isEmpty() && std::ranges::any_of(filteredChannels, [&id](const QString& c) { return c.startsWith(id); });
-}
 
 void SettingsStore::initialize()
 {
@@ -17,35 +9,16 @@ void SettingsStore::initialize()
     activePlugin = settings.value("activePlugin").toString();
     appStyle = settings.value("appStyle", "Default").toString();
     autoHideTopBar = settings.value("autoHideTopBar", true).toBool();
-    condensedCounts = settings.value("condensedCounts", false).toBool();
     darkTheme = settings.value("darkTheme", false).toBool();
-    fullSubs = settings.value("fullSubs", false).toBool();
     imageCaching = settings.value("imageCaching", true).toBool();
     preferLists = settings.value("preferLists", false).toBool();
     // player
-    blockAds = settings.value("player/blockAds", true).toBool();
-    disable60Fps = settings.value("player/disable60Fps", false).toBool();
-    disablePlayerInfoPanels = settings.value("player/disableInfoPanels", false).toBool();
     externalPlayerPath = settings.value("player/externalPlayerPath").toString();
-    h264Only = settings.value("player/h264Only", false).toBool();
-    preferredQuality = settings.value("player/preferredQuality", 0).value<PlayerQuality>();
-    preferredVolume = settings.value("player/preferredVolume", 100).toInt();
-    qualityFromPlayer = settings.value("player/qualityFromPlayer", true).toBool();
-    restoreAnnotations = settings.value("player/restoreAnnotations", false).toBool();
     vaapi = settings.value("player/vaapi", false).toBool();
-    volumeFromPlayer = settings.value("player/volumeFromPlayer", true).toBool();
-    // privacy
-    playbackTracking = settings.value("privacy/playbackTracking", true).toBool();
-    watchtimeTracking = settings.value("privacy/watchtimeTracking", true).toBool();
     // filtering
     filterLength = settings.value("filtering/filterLength", 0).toInt();
     filterLengthEnabled = settings.value("filtering/filterLengthEnabled", false).toBool();
-    hideShorts = settings.value("filtering/hideShorts", false).toBool();
-    hideStreams = settings.value("filtering/hideStreams", false).toBool();
-    readIntoStringList(settings, filteredChannels, "filtering/filteredChannels", "id");
     readIntoStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
-    // sponsorblock
-    readIntoStringList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
     // dearrow
     deArrow = settings.value("deArrow/enabled", false).toBool();
     deArrowThumbs = settings.value("deArrow/thumbs", true).toBool();
@@ -73,35 +46,16 @@ void SettingsStore::save()
     settings.setValue("activePlugin", activePlugin);
     settings.setValue("appStyle", appStyle);
     settings.setValue("autoHideTopBar", autoHideTopBar);
-    settings.setValue("condensedCounts", condensedCounts);
     settings.setValue("darkTheme", darkTheme);
-    settings.setValue("fullSubs", fullSubs);
     settings.setValue("imageCaching", imageCaching);
     settings.setValue("preferLists", preferLists);
     // player
-    settings.setValue("player/blockAds", blockAds);
-    settings.setValue("player/disable60Fps", disable60Fps);
-    settings.setValue("player/disableInfoPanels", disablePlayerInfoPanels);
     settings.setValue("player/externalPlayerPath", externalPlayerPath);
-    settings.setValue("player/h264Only", h264Only);
-    settings.setValue("player/preferredQuality", static_cast<int>(preferredQuality));
-    settings.setValue("player/preferredVolume", preferredVolume);
-    settings.setValue("player/qualityFromPlayer", qualityFromPlayer);
-    settings.setValue("player/restoreAnnotations", restoreAnnotations);
     settings.setValue("player/vaapi", vaapi);
-    settings.setValue("player/volumeFromPlayer", volumeFromPlayer);
-    // privacy
-    settings.setValue("privacy/playbackTracking", playbackTracking);
-    settings.setValue("privacy/watchtimeTracking", watchtimeTracking);
     // filtering
     settings.setValue("filtering/filterLength", filterLength);
     settings.setValue("filtering/filterLengthEnabled", filterLengthEnabled);
-    settings.setValue("filtering/hideShorts", hideShorts);
-    settings.setValue("filtering/hideStreams", hideStreams);
-    writeStringList(settings, filteredChannels, "filtering/filteredChannels", "id");
     writeStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
-    // sponsorblock
-    writeStringList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
     // dearrow
     settings.setValue("deArrow/enabled", deArrow);
     settings.setValue("deArrow/thumbs", deArrowThumbs);
@@ -113,22 +67,14 @@ bool SettingsStore::strHasFilteredTerm(const QString& str) const
     return std::ranges::any_of(filteredTerms, [&str](const QString& t) { return str.contains(t, Qt::CaseInsensitive); });
 }
 
-bool SettingsStore::videoIsFiltered(const InnertubeObjects::Reel& reel) const
+bool SettingsStore::videoIsFiltered(const QtTube::PluginVideo& video) const
 {
-    return strHasFilteredTerm(reel.headline);
-}
-
-bool SettingsStore::videoIsFiltered(const InnertubeObjects::ShortsLockupViewModel& shortsLockup) const
-{
-    return strHasFilteredTerm(shortsLockup.primaryText);
-}
-
-bool SettingsStore::videoIsFiltered(const InnertubeObjects::Video& video) const
-{
-    return channelIsFiltered(video.ownerId()) || strHasFilteredTerm(video.title.text) ||
-           (filterLengthEnabled && !video.isLive() && QTime(0, 0).secsTo(video.length()) <= filterLength) ||
-           (hideShorts && video.isReel()) ||
-           (hideStreams && video.isLive());
+    if (strHasFilteredTerm(video.title))
+        return true;
+    if (filterLengthEnabled)
+        if (QTime length = video.length(); length.isValid() && QTime(0, 0).secsTo(length) <= filterLength)
+            return true;
+    return false;
 }
 
 void SettingsStore::writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key)

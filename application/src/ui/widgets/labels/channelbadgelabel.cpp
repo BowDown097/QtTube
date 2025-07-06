@@ -1,5 +1,4 @@
 #include "channelbadgelabel.h"
-#include "innertube/objects/channel/metadatabadge.h"
 
 constexpr QLatin1String HoveredStylesheet("QLabel { background: #4aa1df; border-radius: 1px; color: #ddd }");
 constexpr QLatin1String NormalStylesheet("QLabel { background: #777; border-radius: 1px; color: #ddd }");
@@ -24,12 +23,6 @@ void ChannelBadgeLabel::enterEvent(QEvent*)
 void ChannelBadgeLabel::leaveEvent(QEvent*)
 {
     setStyleSheet(NormalStylesheet);
-}
-
-void ChannelBadgeLabel::setData(const InnertubeObjects::MetadataBadge& badge)
-{
-    setText(badge.style == "BADGE_STYLE_TYPE_VERIFIED_ARTIST" ? "♪" : "✔");
-    setToolTip(badge.tooltip);
 }
 
 void ChannelBadgeLabel::setData(const QtTube::PluginBadge& badge)

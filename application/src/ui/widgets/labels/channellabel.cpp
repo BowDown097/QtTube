@@ -35,32 +35,13 @@ void ChannelLabel::copyChannelUrl()
 
 void ChannelLabel::navigate()
 {
-    if (!channelId.isEmpty())
-        ViewController::loadChannel(channelId);
-    else if (const QJsonValue urlEndpoint = channelEndpoint["urlEndpoint"]; urlEndpoint.isObject())
-        QDesktopServices::openUrl(urlEndpoint["url"].toString());
+    ViewController::loadChannel(channelId);
 }
 
 void ChannelLabel::reset()
 {
     text->clear();
     UIUtils::clearLayout(badgeLayout);
-}
-
-void ChannelLabel::setInfo(const QString& channelId, const QString& channelName,
-                           const QList<InnertubeObjects::MetadataBadge>& badges)
-{
-    setInfo(channelId, channelName);
-
-    for (const InnertubeObjects::MetadataBadge& badge : badges)
-    {
-        ChannelBadgeLabel* badgeLabel = new ChannelBadgeLabel(this);
-        badgeLabel->setData(badge);
-        badgeLayout->addWidget(badgeLabel);
-    }
-
-    if (badgeLayout->count() > 0)
-        badgeLayout->addStretch();
 }
 
 void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTube::PluginBadge>& badges)
@@ -76,14 +57,6 @@ void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderNam
 
     if (badgeLayout->count() > 0)
         badgeLayout->addStretch();
-}
-
-void ChannelLabel::setInfo(const QJsonValue& endpoint, const QString& name)
-{
-    this->channelEndpoint = endpoint;
-
-    reset();
-    text->setText(name);
 }
 
 void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName)

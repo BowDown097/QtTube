@@ -3,8 +3,6 @@
 #include <QPointer>
 #include <QWidget>
 
-namespace InnertubeObjects { struct Channel; }
-
 class ChannelLabel;
 class QHBoxLayout;
 class QVBoxLayout;
@@ -16,7 +14,6 @@ class BrowseChannelRenderer : public QWidget
     Q_OBJECT
 public:
     explicit BrowseChannelRenderer(QWidget* parent = nullptr);
-    void setData(const InnertubeObjects::Channel& channel);
     void setData(const QtTube::PluginChannel& channel);
 private:
     QString channelId;

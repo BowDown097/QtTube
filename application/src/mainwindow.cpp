@@ -80,9 +80,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     qtTubeApp->doInitialSetup();
 
 #ifdef Q_OS_LINUX
-    // Setting has no effect on Wayland because VAAPI accel
-    // unfortunately causes a crash on it for now.
-    if (qtTubeApp->settings().vaapi && qApp->platformName() != "wayland")
+    if (qtTubeApp->settings().vaapi)
     {
         qputenv("LIBVA_DRI3_DISABLE", "1"); // fixes issue on some older GPUs
         qputenv("QTWEBENGINE_CHROMIUM_FLAGS", qgetenv("QTWEBENGINE_CHROMIUM_FLAGS") + " --enable-features=VaapiVideoDecoder --enable-features=VaapiIgnoreDriverChecks --disable-features=UseChromeOSDirectVideoDecoder");

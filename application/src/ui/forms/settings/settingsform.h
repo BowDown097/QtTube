@@ -22,7 +22,7 @@ private:
     QButtonGroup* pluginActiveButtonGroup;
     Ui::SettingsForm* ui;
 
-    void handleSponsorCategory(QStringList& categories, const QString& category, QCheckBox* checkBox);
+    static QString extractPath(const QString& str);
 private slots:
     void checkExternalPlayer(const QString& text);
     void clearCache();
@@ -31,5 +31,4 @@ private slots:
     void selectExternalPlayer();
     void showTermFilterTable();
     void toggleDeArrowSettings(bool checked);
-    void toggleWebPlayerSettings(bool checked);
 };

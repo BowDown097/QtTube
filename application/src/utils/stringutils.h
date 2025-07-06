@@ -1,9 +1,0 @@
-#pragma once
-#include <QString>
-
-namespace StringUtils
-{
-    QString bytesString(double bytes);
-    QString extractDigits(const QString& str, bool useLocale = true, bool reserve = true);
-    QString extractPath(const QString& str);
-}

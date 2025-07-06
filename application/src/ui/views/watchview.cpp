@@ -206,15 +206,9 @@ void WatchView::processPreloadData(PreloadData::WatchView* preload)
     ui->channelIcon->setImage(preload->channelAvatarUrl);
     ui->titleLabel->setText(preload->title);
     if (!preload->channelId.isEmpty() && !preload->channelName.isEmpty())
-    {
-        std::visit([preload, this](auto&& v) {
-            ui->channelLabel->setInfo(preload->channelId, preload->channelName, v);
-        }, preload->channelBadges);
-    }
+        ui->channelLabel->setInfo(preload->channelId, preload->channelName, preload->channelBadges);
     if (!preload->title.isEmpty())
-    {
         ui->titleLabel->setText(preload->title);
-    }
 }
 
 void WatchView::rate(bool like, const std::any& addData, const std::any& removeData)

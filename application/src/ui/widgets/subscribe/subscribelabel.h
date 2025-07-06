@@ -1,7 +1,4 @@
 #pragma once
-#include "innertube/objects/channel/subscribebutton.h"
-#include "innertube/objects/viewmodels/buttonviewmodel.h"
-#include "innertube/objects/viewmodels/subscribebuttonviewmodel.h"
 #include "qttube-plugin/objects/channel.h"
 #include "ui/widgets/clickablewidget.h"
 #include <QLabel>
@@ -12,10 +9,6 @@ class SubscribeLabel : public ClickableWidget<QLabel>
 public:
     explicit SubscribeLabel(QWidget* parent = nullptr);
     void setData(const QtTube::PluginSubscribeButton& data);
-    void setSubscribeButton(const InnertubeObjects::Button& button);
-    void setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel);
-    void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);
-    void setSubscribeButton(const InnertubeObjects::SubscribeButtonViewModel& subscribeViewModel, bool subscribed);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent* event) override;

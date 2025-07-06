@@ -4,7 +4,6 @@
 #include <QRegularExpression>
 
 class HttpReply;
-namespace InnertubeObjects { struct InnertubeString; }
 
 class TubeLabel : public ClickableWidget<QLabel>
 {

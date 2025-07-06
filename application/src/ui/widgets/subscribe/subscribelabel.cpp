@@ -1,5 +1,4 @@
 #include "subscribelabel.h"
-#include "innertube.h"
 #include "qttubeapplication.h"
 #include <QMessageBox>
 
@@ -111,56 +110,6 @@ void SubscribeLabel::setStyle(bool subscribed, bool hovered)
     setStyleSheet(stylesheet);
 }
 
-void SubscribeLabel::setSubscribeButton(const InnertubeObjects::Button& button)
-{
-    localization.subscribeText = button.text.text;
-    setStyle(false, false);
-    setText(localization.subscribeText);
-}
-
-void SubscribeLabel::setSubscribeButton(const InnertubeObjects::ButtonViewModel& button)
-{
-    localization.subscribeText = button.title;
-    setStyle(false, false);
-    setText(localization.subscribeText);
-}
-
-void SubscribeLabel::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
-{
-    subscribed = subscribeButton.subscribed;
-    subscribeData = subscribeButton.onSubscribeEndpoints[0]["subscribeEndpoint"];
-    localization.subscribeText = subscribeButton.unsubscribedButtonText.text;
-    localization.subscribedText = subscribeButton.subscribedButtonText.text;
-    localization.unsubscribeText = subscribeButton.unsubscribeButtonText.text;
-
-    const QJsonValue unsubscribeDialog = subscribeButton.onUnsubscribeEndpoints
-        [0]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"];
-    localization.unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
-    unsubscribeData = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
-
-    setStyle(subscribed, false);
-    setText(subscribed ? localization.subscribedText : localization.subscribeText);
-}
-
-void SubscribeLabel::setSubscribeButton(
-    const InnertubeObjects::SubscribeButtonViewModel& subscribeViewModel, bool subscribed)
-{
-    this->subscribed = subscribed;
-    subscribeData = subscribeViewModel.subscribeButtonContent.onTapCommand["innertubeCommand"]["subscribeEndpoint"];
-    localization.subscribeText = subscribeViewModel.subscribeButtonContent.buttonText;
-    localization.subscribedText = subscribeViewModel.unsubscribeButtonContent.buttonText;
-    localization.unsubscribeText = "Unsubscribe";
-
-    const QJsonValue unsubscribeDialog = subscribeViewModel.unsubscribeButtonContent.onTapCommand["innertubeCommand"]
-                                         ["signalServiceEndpoint"]["actions"][0]["openPopupAction"]
-                                         ["popup"]["confirmDialogRenderer"];
-    localization.unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text;
-    unsubscribeData = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"];
-
-    setStyle(subscribed, false);
-    setText(subscribed ? localization.subscribedText : localization.subscribeText);
-}
-
 void SubscribeLabel::toggleSubscriptionStatus()
 {
     subscribed = !subscribed;
@@ -171,32 +120,29 @@ void SubscribeLabel::toggleSubscriptionStatus()
 
 void SubscribeLabel::trySubscribe()
 {
-    if (!InnerTube::instance()->hasAuthenticated())
+    if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
     {
-        QMessageBox::information(nullptr, "Need to log in", "You must be logged in to subscribe to channels.\nLocal subscriptions are planned, but not implemented.");
-        return;
-    }
+        if (!activePlugin->auth || !activePlugin->auth->activeLogin())
+        {
+            QMessageBox::information(nullptr, "Need to log in", "You must be logged in to subscribe to channels.\nLocal subscriptions are planned, but not implemented.");
+            return;
+        }
 
-    if (!subscribeData.has_value())
-    {
-        QMessageBox::information(nullptr, "Unable to [un]subscribe", "Subscription functionality is either unavailable or disabled for this button.");
-        return;
-    }
+        if (!subscribeData.has_value())
+        {
+            QMessageBox::information(nullptr, "Unable to [un]subscribe", "Subscription functionality is either unavailable or disabled for this button.");
+            return;
+        }
 
-    if (subscribed && QMessageBox::question(nullptr, localization.unsubscribeText, localization.unsubscribeDialogText) == QMessageBox::StandardButton::Yes)
-    {
-        toggleSubscriptionStatus();
-        if (const QJsonValue* unsubscribeEndpoint = std::any_cast<QJsonValue>(&unsubscribeData))
-            InnerTube::instance()->subscribe(*unsubscribeEndpoint, false);
-        else if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
+        if (subscribed && QMessageBox::question(nullptr, localization.unsubscribeText, localization.unsubscribeDialogText) == QMessageBox::StandardButton::Yes)
+        {
+            toggleSubscriptionStatus();
             activePlugin->interface->subscribe(subscribeData);
-    }
-    else if (!subscribed)
-    {
-        toggleSubscriptionStatus();
-        if (const QJsonValue* subscribeEndpoint = std::any_cast<QJsonValue>(&subscribeData))
-            InnerTube::instance()->subscribe(*subscribeEndpoint, true);
-        else if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
+        }
+        else if (!subscribed)
+        {
+            toggleSubscriptionStatus();
             activePlugin->interface->unsubscribe(unsubscribeData);
+        }
     }
 }

@@ -2,13 +2,10 @@
 #include "qttube-plugin/objects/badge.h"
 #include <QLabel>
 
-namespace InnertubeObjects { struct MetadataBadge; }
-
 class ChannelBadgeLabel : public QLabel
 {
 public:
     explicit ChannelBadgeLabel(QWidget* parent = nullptr);
-    void setData(const InnertubeObjects::MetadataBadge& badge);
     void setData(const QtTube::PluginBadge& badge);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

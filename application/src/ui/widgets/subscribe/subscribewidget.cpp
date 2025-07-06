@@ -2,7 +2,6 @@
 #include "notificationbell.h"
 #include "subscribelabel.h"
 #include "ui/widgets/labels/tubelabel.h"
-#include "utils/tubeutils.h"
 #include <QBoxLayout>
 
 constexpr QLatin1String SubscribersCountStylesheet(R"(
@@ -37,9 +36,7 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
 
     connect(subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
     {
-        if (originIsInnertube)
-            notificationBell->setVisualState(NotificationBell::PreferenceListState::Personalized);
-        else if (qsizetype defaultState = notificationBell->defaultEnabledStateIndex(); defaultState >= 0)
+        if (qsizetype defaultState = notificationBell->defaultEnabledStateIndex(); defaultState >= 0)
             notificationBell->setVisualState(defaultState);
         notificationBell->setVisible(subscribed);
     });
@@ -47,7 +44,6 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
 
 void SubscribeWidget::setData(const QtTube::PluginSubscribeButton& data)
 {
-    originIsInnertube = false;
     subscribeLabel->setData(data);
     subscribeLabel->show();
 
@@ -68,65 +64,4 @@ void SubscribeWidget::setData(const QtTube::PluginSubscribeButton& data)
         notificationBell->setData(data.notificationBell);
         notificationBell->setVisible(data.subscribed);
     }
-}
-
-void SubscribeWidget::setSubscribeButton(const InnertubeObjects::Button& button)
-{
-    originIsInnertube = true;
-    subscribeLabel->setSubscribeButton(button);
-    subscribeLabel->show();
-}
-
-void SubscribeWidget::setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel)
-{
-    originIsInnertube = true;
-    subscribeLabel->setSubscribeButton(buttonViewModel);
-    subscribeLabel->show();
-}
-
-void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton)
-{
-    originIsInnertube = true;
-    if (!subscribeButton.enabled)
-        return;
-
-    subscribeLabel->setSubscribeButton(subscribeButton);
-    subscribeLabel->show();
-
-    if (subscribeButton.notificationPreferenceButton.states.isEmpty())
-        return;
-
-    notificationBell->fromNotificationPreferenceButton(subscribeButton.notificationPreferenceButton);
-    notificationBell->setVisible(subscribeButton.subscribed);
-}
-
-void SubscribeWidget::setSubscribeButton(const InnertubeObjects::SubscribeButtonViewModel& subscribeViewModel,
-                                         bool subscribed)
-{
-    originIsInnertube = true;
-    if (subscribeViewModel.disableSubscribeButton)
-        return;
-
-    subscribeLabel->setSubscribeButton(subscribeViewModel, subscribed);
-    subscribeLabel->show();
-
-    if (subscribeViewModel.disableNotificationBell)
-        return;
-
-    notificationBell->fromListViewModel(subscribeViewModel.onShowSubscriptionOptions["innertubeCommand"]
-        ["showSheetCommand"]["panelLoadingStrategy"]["inlineContent"]["sheetViewModel"]["content"]["listViewModel"]);
-    notificationBell->setVisible(subscribed);
-}
-
-void SubscribeWidget::setSubscriberCount(QString subscriberCountText, const QString& channelId)
-{
-    subscriberCountText.truncate(subscriberCountText.lastIndexOf(' '));
-    TubeUtils::getSubCount(channelId, subscriberCountText).then([this](const std::pair<QString, bool>& result) {
-        if (subscribersCountLabel)
-        {
-            subscribersCountLabel->show();
-            subscribersCountLabel->setText(result.first);
-            subscribersCountLabel->adjustSize();
-        }
-    });
 }
