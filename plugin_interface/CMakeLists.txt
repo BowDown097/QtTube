@@ -25,6 +25,7 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/player/fullscreennotification.h
             qttube-plugin/components/player/pluginplayer.h
             qttube-plugin/components/player/pluginwebplayer.h
+            qttube-plugin/components/replytypes/channeldata.h
             qttube-plugin/components/replytypes/replytypes.h
             qttube-plugin/components/replytypes/simpledatatypes.h
             qttube-plugin/components/replytypes/videodata.h

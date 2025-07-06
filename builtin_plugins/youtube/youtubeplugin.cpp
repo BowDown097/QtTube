@@ -83,12 +83,38 @@ QByteArray YouTubePlugin::compileSearchParams(const QList<std::pair<QString, int
     return !params.isEmpty() ? ProtobufCompiler::compileEncoded(params, g_searchMsgFields) : QByteArray();
 }
 
+QtTube::ChannelReply* YouTubePlugin::getChannel(const QString& channelId, std::any tabData, std::any continuationData)
+{
+    QtTube::ChannelReply* pluginReply = QtTube::ChannelReply::create();
+
+    QString continuationToken, params;
+    if (const QString* cptr = std::any_cast<QString>(&continuationData))
+        continuationToken = *cptr;
+    if (const QString* pptr = std::any_cast<QString>(&tabData))
+        params = *pptr;
+
+    InnertubeReply<BrowseChannel>* tubeReply = InnerTube::instance()->get<BrowseChannel>(channelId, continuationToken, params);
+    QObject::connect(tubeReply, &InnertubeReply<BrowseChannel>::exception, [pluginReply](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(tubeReply, &InnertubeReply<BrowseChannel>::finished, [pluginReply](const BrowseChannel& endpoint) {
+        const auto& [continuationData, data] = getChannelData(endpoint.response);
+        pluginReply->continuationData = continuationData;
+        emit pluginReply->finished(data);
+    });
+
+    return pluginReply;
+}
+
 QtTube::BrowseReply* YouTubePlugin::getHistory(const QString& query, std::any continuationData)
 {
     QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
 
-    InnertubeReply<BrowseHistory>* tubeReply = InnerTube::instance()->get<BrowseHistory>(
-        query, std::any_cast<QString>(continuationData));
+    QString continuationToken;
+    if (const QString* cptr = std::any_cast<QString>(&continuationData))
+        continuationToken = *cptr;
+
+    InnertubeReply<BrowseHistory>* tubeReply = InnerTube::instance()->get<BrowseHistory>(query, continuationToken);
     QObject::connect(tubeReply, &InnertubeReply<BrowseHistory>::exception, [pluginReply](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
@@ -104,10 +130,13 @@ QtTube::BrowseReply* YouTubePlugin::getHome(std::any continuationData)
 {
     QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
 
+    QString continuationToken;
+    if (const QString* cptr = std::any_cast<QString>(&continuationData))
+        continuationToken = *cptr;
+
     if (InnerTube::instance()->hasAuthenticated())
     {
-        InnertubeReply<BrowseHome>* tubeReply = InnerTube::instance()->get<BrowseHome>(
-            std::any_cast<QString>(continuationData));
+        InnertubeReply<BrowseHome>* tubeReply = InnerTube::instance()->get<BrowseHome>(continuationToken);
         QObject::connect(tubeReply, &InnertubeReply<BrowseHome>::exception, [pluginReply](const InnertubeException& ex) {
             emit pluginReply->exception(convertException(ex));
         });
@@ -150,7 +179,11 @@ QtTube::LiveChatReply* YouTubePlugin::getLiveChat(std::any data)
 {
     QtTube::LiveChatReply* pluginReply = QtTube::LiveChatReply::create();
 
-    InnertubeReply<GetLiveChat>* tubeReply = InnerTube::instance()->get<GetLiveChat>(std::any_cast<QString>(data));
+    QString params;
+    if (const QString* pptr = std::any_cast<QString>(&data))
+        params = *pptr;
+
+    InnertubeReply<GetLiveChat>* tubeReply = InnerTube::instance()->get<GetLiveChat>(params);
     QObject::connect(tubeReply, &InnertubeReply<GetLiveChat>::exception, [pluginReply](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
@@ -165,8 +198,12 @@ QtTube::LiveChatReplayReply* YouTubePlugin::getLiveChatReplay(std::any data, qin
 {
     QtTube::LiveChatReplayReply* pluginReply = QtTube::LiveChatReplayReply::create();
 
+    QString params;
+    if (const QString* pptr = std::any_cast<QString>(&data))
+        params = *pptr;
+
     InnertubeReply<GetLiveChatReplay>* tubeReply = InnerTube::instance()->get<GetLiveChatReplay>(
-        std::any_cast<QString>(data), QString::number(videoOffsetMs));
+        params, QString::number(videoOffsetMs));
     QObject::connect(tubeReply, &InnertubeReply<GetLiveChatReplay>::exception, [pluginReply](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
@@ -181,8 +218,12 @@ QtTube::NotificationsReply* YouTubePlugin::getNotifications(std::any continuatio
 {
     QtTube::NotificationsReply* pluginReply = QtTube::NotificationsReply::create();
 
+    QString continuationToken;
+    if (const QString* cptr = std::any_cast<QString>(&continuationData))
+        continuationToken = *cptr;
+
     InnertubeReply<GetNotificationMenu>* tubeReply = InnerTube::instance()->get<GetNotificationMenu>(
-        "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", std::any_cast<QString>(continuationData));
+        "NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX", continuationToken);
     QObject::connect(tubeReply, &InnertubeReply<GetNotificationMenu>::exception, [pluginReply](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
@@ -199,8 +240,12 @@ QtTube::BrowseReply* YouTubePlugin::getSearch(
 {
     QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
 
+    QString continuationToken;
+    if (const QString* cptr = std::any_cast<QString>(&continuationData))
+        continuationToken = *cptr;
+
     InnertubeReply<Search>* tubeReply = InnerTube::instance()->get<Search>(
-        query, std::any_cast<QString>(continuationData), compileSearchParams(activeFilters));
+        query, continuationToken, compileSearchParams(activeFilters));
     QObject::connect(tubeReply, &InnertubeReply<Search>::exception, [pluginReply](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
@@ -216,8 +261,11 @@ QtTube::BrowseReply* YouTubePlugin::getSubFeed(std::any continuationData)
 {
     QtTube::BrowseReply* pluginReply = QtTube::BrowseReply::create();
 
-    InnertubeReply<BrowseSubscriptions>* tubeReply = InnerTube::instance()->get<BrowseSubscriptions>(
-        std::any_cast<QString>(continuationData));
+    QString continuationToken;
+    if (const QString* cptr = std::any_cast<QString>(&continuationData))
+        continuationToken = *cptr;
+
+    InnertubeReply<BrowseSubscriptions>* tubeReply = InnerTube::instance()->get<BrowseSubscriptions>(continuationToken);
     QObject::connect(tubeReply, &InnertubeReply<BrowseSubscriptions>::exception, [pluginReply](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
@@ -310,19 +358,23 @@ QtTube::PluginReply<void>* YouTubePlugin::rate(const QString& videoId, bool like
 {
     QtTube::PluginReply<void>* pluginReply = QtTube::PluginReply<void>::create();
 
+    QString params;
+    if (const QString* pptr = std::any_cast<QString>(&data))
+        params = *pptr;
+
     if (removing)
     {
-        InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<RemoveLike>(videoId, std::any_cast<QString>(data));
+        InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<RemoveLike>(videoId, params);
         QObject::connect(tubeReply, &InnertubeReply<void>::finished, pluginReply, &QtTube::PluginReply<void>::finished);
     }
     else if (like)
     {
-        InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<Like>(videoId, std::any_cast<QString>(data));
+        InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<Like>(videoId, params);
         QObject::connect(tubeReply, &InnertubeReply<void>::finished, pluginReply, &QtTube::PluginReply<void>::finished);
     }
     else
     {
-        InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<Dislike>(videoId, std::any_cast<QString>(data));
+        InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<Dislike>(videoId, params);
         QObject::connect(tubeReply, &InnertubeReply<void>::finished, pluginReply, &QtTube::PluginReply<void>::finished);
     }
 
@@ -347,7 +399,11 @@ QtTube::PluginReply<void>* YouTubePlugin::setNotificationPreference(std::any dat
 {
     QtTube::PluginReply<void>* pluginReply = QtTube::PluginReply<void>::create();
 
-    InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<ModifyChannelPreference>(std::any_cast<QString>(data));
+    QString params;
+    if (const QString* pptr = std::any_cast<QString>(&data))
+        params = *pptr;
+
+    InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<ModifyChannelPreference>(params);
     QObject::connect(tubeReply, &InnertubeReply<void>::finished, pluginReply, &QtTube::PluginReply<void>::finished);
 
     return pluginReply;
@@ -357,9 +413,12 @@ QtTube::PluginReply<void>* YouTubePlugin::subscribe(std::any data)
 {
     QtTube::PluginReply<void>* pluginReply = QtTube::PluginReply<void>::create();
 
-    const QJsonValue endpoint = std::any_cast<QJsonValue>(data);
-    const QString channelId = endpoint["channelIds"].toArray().first().toString();
-    const QString params = endpoint["params"].toString();
+    QString channelId, params;
+    if (const QJsonValue* eptr = std::any_cast<QJsonValue>(&data))
+    {
+        channelId = (*eptr)["channelIds"].toArray().first().toString();
+        params = (*eptr)["params"].toString();
+    }
 
     InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<Subscribe>(QStringList { channelId }, params);
     QObject::connect(tubeReply, &InnertubeReply<void>::finished, pluginReply, &QtTube::PluginReply<void>::finished);
@@ -371,9 +430,12 @@ QtTube::PluginReply<void>* YouTubePlugin::unsubscribe(std::any data)
 {
     QtTube::PluginReply<void>* pluginReply = QtTube::PluginReply<void>::create();
 
-    const QJsonValue endpoint = std::any_cast<QJsonValue>(data);
-    const QString channelId = endpoint["channelIds"].toArray().first().toString();
-    const QString params = endpoint["params"].toString();
+    QString channelId, params;
+    if (const QJsonValue* eptr = std::any_cast<QJsonValue>(&data))
+    {
+        channelId = (*eptr)["channelIds"].toArray().first().toString();
+        params = (*eptr)["params"].toString();
+    }
 
     InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<Unsubscribe>(QStringList { channelId }, params);
     QObject::connect(tubeReply, &InnertubeReply<void>::finished, pluginReply, &QtTube::PluginReply<void>::finished);

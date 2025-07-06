@@ -95,7 +95,7 @@ void BrowseChannelRenderer::setData(const InnertubeObjects::Channel& channel)
 void BrowseChannelRenderer::setData(const QtTube::PluginChannel& channel)
 {
     this->channelId = channel.channelId;
-    subscribeWidget->setData(channel);
+    subscribeWidget->setData(channel.subscribeButton);
     thumbLabel->setImage(channel.channelAvatarUrl);
     titleLabel->setInfo(channelId, channel.channelName, channel.channelBadges);
 

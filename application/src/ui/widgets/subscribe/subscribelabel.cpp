@@ -55,13 +55,13 @@ void SubscribeLabel::leaveEvent(QEvent* event)
         setText(localization.subscribedText);
 }
 
-void SubscribeLabel::setData(const QtTube::PluginChannel& channel)
+void SubscribeLabel::setData(const QtTube::PluginSubscribeButton& data)
 {
-    colorPalette = channel.subscribeButton.colorPalette;
-    localization = channel.subscribeButton.localization;
-    subscribed = channel.subscribeButton.subscribed;
-    subscribeData = channel.subscribeButton.subscribeData;
-    unsubscribeData = channel.subscribeButton.unsubscribeData;
+    colorPalette = data.colorPalette;
+    localization = data.localization;
+    subscribed = data.subscribed;
+    subscribeData = data.subscribeData;
+    unsubscribeData = data.unsubscribeData;
 
     setStyle(subscribed, false);
     setText(subscribed ? localization.subscribedText : localization.subscribeText);

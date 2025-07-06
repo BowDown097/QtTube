@@ -29,7 +29,6 @@ set(SOURCE_FILES
     src/stores/genericstore.cpp
     src/stores/settingsstore.cpp
     src/ui/browsehelper.cpp
-    src/ui/channelbrowser.cpp
     src/ui/forms/emojimenu.cpp
     src/ui/forms/livechatwindow.cpp
     src/ui/forms/settings/settingsform.cpp
@@ -99,7 +98,6 @@ set(HEADERS
     src/stores/genericstore.h
     src/stores/settingsstore.h
     src/ui/browsehelper.h
-    src/ui/channelbrowser.h
     src/ui/forms/emojimenu.h
     src/ui/forms/livechatwindow.h
     src/ui/forms/settings/settingsform.h

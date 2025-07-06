@@ -134,7 +134,7 @@ void WatchView::processData(const QtTube::VideoData& data)
     ui->channelIcon->setImage(data.channel.channelAvatarUrl);
     ui->channelLabel->setInfo(data.channel.channelId, data.channel.channelName, data.channel.channelBadges);
     ui->date->setText(data.dateText);
-    ui->subscribeWidget->setData(data.channel);
+    ui->subscribeWidget->setData(data.channel.subscribeButton);
     ui->titleLabel->setText(data.titleText);
     ui->viewCount->setText(data.viewCountText);
 

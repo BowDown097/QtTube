@@ -11,7 +11,7 @@ class SubscribeLabel : public ClickableWidget<QLabel>
     Q_OBJECT
 public:
     explicit SubscribeLabel(QWidget* parent = nullptr);
-    void setData(const QtTube::PluginChannel& channel);
+    void setData(const QtTube::PluginSubscribeButton& data);
     void setSubscribeButton(const InnertubeObjects::Button& button);
     void setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);

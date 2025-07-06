@@ -1,6 +1,5 @@
 #include "viewcontroller.h"
 #include "channelview.h"
-#include "innertube/innertubeexception.h"
 #include "mainwindow.h"
 #include "watchview.h"
 #include <QMessageBox>
@@ -11,15 +10,7 @@ namespace ViewController
     {
         if (ChannelView* casted = qobject_cast<ChannelView*>(MainWindow::centralWidget()->currentWidget()))
         {
-            try
-            {
-                casted->hotLoadChannel(channelId);
-            }
-            catch (InnertubeException& ie)
-            {
-                QMessageBox::critical(nullptr, "Failed to load channel", ie.message());
-            }
-
+            casted->hotLoadChannel(channelId);
             return;
         }
         else if (WatchView* watchView = qobject_cast<WatchView*>(MainWindow::centralWidget()->currentWidget()))
@@ -27,27 +18,19 @@ namespace ViewController
             watchView->deleteLater();
         }
 
-        ChannelView* channelView = nullptr;
-        try
-        {
-            channelView = new ChannelView(channelId);
-        }
-        catch (InnertubeException& ie)
-        {
-            QMessageBox::critical(nullptr, "Failed to load channel", ie.message());
-            if (channelView)
-            {
-                channelView->deleteLater();
-                MainWindow::topbar()->setAlwaysShow(true);
-            }
-        }
-
+        ChannelView* channelView = new ChannelView(channelId);
         MainWindow::centralWidget()->addWidget(channelView);
         MainWindow::centralWidget()->setCurrentWidget(channelView);
-        QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, channelView, [channelView]
-        {
+
+        QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, channelView, [channelView] {
             channelView->deleteLater();
             MainWindow::topbar()->setAlwaysShow(true);
+        });
+        QObject::connect(channelView, &ChannelView::loadFailed, [channelView](const QtTube::PluginException& ex) {
+            QMessageBox::critical(nullptr, "Failed to load channel", ex.message());
+            channelView->deleteLater();
+            MainWindow::topbar()->setAlwaysShow(true);
+            MainWindow::topbar()->show();
         });
     }
 
@@ -67,13 +50,11 @@ namespace ViewController
         MainWindow::centralWidget()->addWidget(watchView);
         MainWindow::centralWidget()->setCurrentWidget(watchView);
 
-        QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, watchView, [watchView]
-        {
+        QObject::connect(MainWindow::topbar()->logo, &TubeLabel::clicked, watchView, [watchView] {
             watchView->deleteLater();
             MainWindow::topbar()->setAlwaysShow(true);
         });
-        QObject::connect(watchView, &WatchView::loadFailed, [watchView](const QtTube::PluginException& ex)
-        {
+        QObject::connect(watchView, &WatchView::loadFailed, [watchView](const QtTube::PluginException& ex) {
             QMessageBox::critical(nullptr, "Failed to load video", ex.message());
             watchView->deleteLater();
             MainWindow::topbar()->setAlwaysShow(true);

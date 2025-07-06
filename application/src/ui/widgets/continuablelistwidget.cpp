@@ -11,14 +11,14 @@ ContinuableListWidget::ContinuableListWidget(QWidget* parent) : QListWidget(pare
 
 void ContinuableListWidget::clear()
 {
-    continuationToken.clear();
+    continuationData.reset();
     QListWidget::clear();
 }
 
 void ContinuableListWidget::scrollValueChanged(int value)
 {
     if (count() > 0 && value >= verticalScrollBar()->maximum() - continuationThreshold &&
-        !continuationToken.isEmpty() && !populating)
+        continuationData.has_value() && !populating)
     {
         emit continuationReady();
     }

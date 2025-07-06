@@ -1,11 +1,12 @@
 #pragma once
+#include <any>
 #include <QListWidget>
 
 class ContinuableListWidget : public QListWidget
 {
     Q_OBJECT
 public:
-    QString continuationToken;
+    std::any continuationData;
 
     explicit ContinuableListWidget(QWidget* parent = nullptr);
     void setContinuationThreshold(int threshold) { continuationThreshold = threshold; }

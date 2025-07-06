@@ -54,7 +54,7 @@ namespace QtTube
 
         ColorPalette colorPalette;
         QString countText;
-        bool enabled{};
+        bool enabled = true;
         Localization localization;
         PluginNotificationBell notificationBell;
         bool subscribed{};

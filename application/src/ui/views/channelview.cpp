@@ -1,5 +1,4 @@
 #include "channelview.h"
-#include "innertube.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/browsehelper.h"
@@ -7,7 +6,6 @@
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QScrollBar>
-#include <ranges>
 
 ChannelView::~ChannelView()
 {
@@ -74,126 +72,112 @@ ChannelView::ChannelView(const QString& channelId)
 
 void ChannelView::hotLoadChannel(const QString& channelId)
 {
-    if (this->channelId == channelId)
-        return;
-
-    disconnect(channelTabs, &QTabWidget::currentChanged, nullptr, nullptr);
-    channelTabs->clear();
-    loadChannel(channelId);
+    if (this->channelId != channelId)
+    {
+        disconnect(channelTabs, &QTabWidget::currentChanged, nullptr, nullptr);
+        channelTabs->clear();
+        loadChannel(channelId);
+    }
 }
 
 void ChannelView::loadChannel(const QString& channelId)
 {
     this->channelId = channelId;
-    auto response = InnerTube::instance()->getBlocking<InnertubeEndpoints::BrowseChannel>(channelId).response;
-
-    if (auto c4 = std::get_if<InnertubeObjects::ChannelC4Header>(&response.header))
-        prepareHeader(*c4);
-    else if (auto page = std::get_if<InnertubeObjects::ChannelPageHeader>(&response.header))
-        prepareHeader(*page, response.mutations);
-
-    connect(channelTabs, &QTabWidget::currentChanged, this, std::bind_front(&ChannelView::loadTab, this, response));
-
-    const QJsonArray tabs = response.contents["twoColumnBrowseResultsRenderer"]["tabs"].toArray();
-    for (const QJsonValue& v : tabs)
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        if (!v["tabRenderer"].isObject())
-            continue;
+        QtTube::ChannelReply* reply = plugin->interface->getChannel(channelId, {}, {});
 
-        QWidget* tab = new QWidget;
-
-        QGridLayout* grid = new QGridLayout(tab);
-        grid->setContentsMargins(0, 0, 0, 0);
-
-        ContinuableListWidget* list = new ContinuableListWidget(tab);
-        list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-        list->verticalScrollBar()->setSingleStep(25);
-        grid->addWidget(list, 0, 0, 1, 1);
-
-        connect(list, &ContinuableListWidget::continuationReady, this, [this, list] {
-            if (!list->continuationToken.isEmpty())
-                BrowseHelper::instance()->continueChannel(list, this->channelId);
+        QEventLoop loop;
+        connect(reply, &QtTube::ChannelReply::exception, this, [this, &loop](const QtTube::PluginException& ex) {
+            loop.quit();
+            emit loadFailed(ex);
         });
-
-        channelTabs->addTab(tab, v["tabRenderer"]["title"].toString());
+        connect(reply, &QtTube::ChannelReply::finished, this, [this, &loop](const QtTube::ChannelData& data) {
+            loop.quit();
+            processData(data);
+        });
+        loop.exec();
     }
 }
 
-void ChannelView::loadTab(const InnertubeEndpoints::ChannelResponse& response, int index)
+void ChannelView::loadTab(std::any requestData, int index)
 {
-    const QList<ContinuableListWidget*> tabs = channelTabs->findChildren<ContinuableListWidget*>();
-    for (ContinuableListWidget* l : tabs)
-        l->clear();
+    const QList<ContinuableListWidget*> tabWidgets = channelTabs->findChildren<ContinuableListWidget*>();
+    for (ContinuableListWidget* list : tabWidgets)
+        list->clear();
 
     ContinuableListWidget* list = channelTabs->widget(index)->findChild<ContinuableListWidget*>();
-    BrowseHelper::instance()->browseChannel(list, index, response);
+    BrowseHelper::instance()->browseChannel(list, index, channelId, requestData);
 }
 
-void ChannelView::prepareAvatarAndBanner(const InnertubeObjects::ResponsiveImage& avatar,
-                                         const InnertubeObjects::ResponsiveImage& banner)
+void ChannelView::processData(const QtTube::ChannelData& data)
 {
-    if (!banner.isEmpty())
+    processHeader(data.header.value());
+    processTabs(data.tabs);
+    connect(channelTabs, &QTabWidget::currentChanged, this, [this, tabs = data.tabs](int index) {
+        loadTab(tabs.at(index).requestData, index);
+    });
+}
+
+void ChannelView::processHeader(const QtTube::ChannelHeader& header)
+{
+    channelName->setText(header.channelText);
+    handleAndVideos->setText(header.channelSubtext);
+    subscribeWidget->setData(header.subscribeButton);
+
+    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
+        mainWindow->setWindowTitle(header.channelText + " - " + QTTUBE_APP_NAME);
+
+    bool hasAvatar = !header.avatarUrl.isEmpty();
+    bool hasBanner = !header.bannerUrl.isEmpty();
+
+    if (hasBanner)
         channelBanner->setFixedHeight(129);
     else if (qtTubeApp->settings().autoHideTopBar)
         channelBanner->setFixedHeight(MainWindow::topbar()->height() + 20);
 
     if (qtTubeApp->settings().autoHideTopBar)
     {
-        MainWindow::topbar()->setAlwaysShow(banner.isEmpty());
-        MainWindow::topbar()->setVisible(banner.isEmpty());
+        MainWindow::topbar()->setAlwaysShow(!hasBanner);
+        MainWindow::topbar()->setVisible(!hasBanner);
     }
 
-    if (const InnertubeObjects::GenericThumbnail* bestBanner = banner.bestQuality())
-        channelBanner->setImage(bestBanner->url);
-    if (const InnertubeObjects::GenericThumbnail* recAvatar = avatar.recommendedQuality(QSize(48, 48)))
-        channelIcon->setImage(recAvatar->url);
+    if (hasAvatar)
+        channelIcon->setImage(header.avatarUrl);
+    if (hasBanner)
+        channelBanner->setImage(header.bannerUrl);
 }
 
-void ChannelView::prepareHeader(const InnertubeObjects::ChannelC4Header& c4Header)
+void ChannelView::processTabs(const QList<QtTube::ChannelTabData>& tabs)
 {
-    channelName->setText(c4Header.title);
-    handleAndVideos->setText(c4Header.channelHandleText.text + " • " + c4Header.videosCountText.text);
-    subscribeWidget->setSubscribeButton(c4Header.subscribeButton);
-    subscribeWidget->setSubscriberCount(c4Header.subscriberCountText.text, c4Header.channelId);
+    if (tabs.isEmpty())
+        return;
 
-    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
-        mainWindow->setWindowTitle(c4Header.title + " - " + QTTUBE_APP_NAME);
+    ContinuableListWidget* firstListWidget{};
 
-    prepareAvatarAndBanner(c4Header.avatar, c4Header.banner);
-}
-
-void ChannelView::prepareHeader(const InnertubeObjects::ChannelPageHeader& pageHeader,
-                                const QList<InnertubeObjects::EntityMutation>& mutations)
-{
-    QString channelHandle = pageHeader.metadata.metadataRows.value(0).value(0).content;
-    QString subCount = pageHeader.metadata.metadataRows.value(1).value(0).content;
-    QString videosCount = pageHeader.metadata.metadataRows.value(1).value(1).content;
-
-    channelName->setText(pageHeader.title.text.content);
-    handleAndVideos->setText(channelHandle + ' ' + pageHeader.metadata.delimiter + ' ' + videosCount);
-    subscribeWidget->setSubscriberCount(subCount, channelId);
-
-    auto flatActions = pageHeader.actions.actionsRows
-        | std::views::transform([](const auto& list) { return list.items; })
-        | std::views::join;
-
-    for (const auto& action : flatActions)
+    for (qsizetype i = 0; i < tabs.size(); ++i)
     {
-        if (auto subscribeButton = std::get_if<InnertubeObjects::SubscribeButtonViewModel>(&action))
-        {
-            subscribeWidget->setSubscribeButton(*subscribeButton, subscribeButton->isSubscribed(mutations));
-        }
-        else if (auto plainButton = std::get_if<InnertubeObjects::ButtonViewModel>(&action))
-        {
-            // logged out subscribe button should be the only one with a modalEndpoint
-            if (plainButton->onTap["innertubeCommand"]["modalEndpoint"].isObject())
-                subscribeWidget->setSubscribeButton(*plainButton);
-        }
+        QWidget* tabWidget = new QWidget;
+
+        QGridLayout* grid = new QGridLayout(tabWidget);
+        grid->setContentsMargins(0, 0, 0, 0);
+
+        ContinuableListWidget* list = new ContinuableListWidget(tabWidget);
+        list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        list->verticalScrollBar()->setSingleStep(25);
+        grid->addWidget(list, 0, 0, 1, 1);
+
+        if (!firstListWidget)
+            firstListWidget = list;
+
+        connect(list, &ContinuableListWidget::continuationReady, this, [this, data = tabs[i].requestData, i, list] {
+            if (list->continuationData.has_value())
+                BrowseHelper::instance()->browseChannel(list, i, channelId, data);
+        });
+
+        channelTabs->addTab(tabWidget, tabs[i].title);
     }
 
-    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
-        mainWindow->setWindowTitle(pageHeader.title.text.content + " - " + QTTUBE_APP_NAME);
-
-    prepareAvatarAndBanner(pageHeader.image.avatar.image, pageHeader.banner.image);
+    BrowseHelper::instance()->processChannelTabItems(firstListWidget, tabs.front().items);
 }

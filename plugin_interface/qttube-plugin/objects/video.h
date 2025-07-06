@@ -8,6 +8,7 @@ namespace QtTube
 
     struct PluginVideo
     {
+        bool isVerticalVideo{};
         QString lengthText;
         QString metadataText;
         int progressSecs{};

@@ -1,6 +1,8 @@
 #pragma once
 #include "innertube/innertubeexception.h"
 #include "innertube/objects/channel/channel.h"
+#include "innertube/objects/channel/channelc4header.h"
+#include "innertube/objects/channel/channelpageheader.h"
 #include "innertube/objects/notification/notification.h"
 #include "innertube/objects/shelves/reelshelf.h"
 #include "innertube/objects/video/compactvideo.h"
@@ -13,6 +15,9 @@ QtTube::PluginBadge convertBadge(const InnertubeObjects::MetadataBadge& badge);
 QtTube::PluginChannel convertChannel(const InnertubeObjects::Channel& channel);
 QtTube::PluginChannel convertChannel(
     const InnertubeObjects::VideoOwner& owner, const InnertubeObjects::SubscribeButton& subscribeButton);
+QtTube::ChannelHeader convertChannelHeader(const InnertubeObjects::ChannelC4Header& header);
+QtTube::ChannelHeader convertChannelHeader(
+    const InnertubeObjects::ChannelPageHeader& header, const QList<InnertubeObjects::EntityMutation>& mutations);
 QtTube::PluginException convertException(const InnertubeException& ex);
 QtTube::LiveChatItem convertLiveChatItem(const QJsonValue& item);
 QtTube::PluginNotification convertNotification(const InnertubeObjects::Notification& notification);
@@ -24,7 +29,12 @@ QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::Re
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::StandardVideoShelf& sShelf);
 QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::VerticalVideoShelf& vShelf);
 QtTube::PluginSubscribeButton convertSubscribeButton(
+    const InnertubeObjects::ButtonViewModel& button, const QString& countText);
+QtTube::PluginSubscribeButton convertSubscribeButton(
     const InnertubeObjects::SubscribeButton& subscribeButton, const QString& countText);
+QtTube::PluginSubscribeButton convertSubscribeButton(
+    const InnertubeObjects::SubscribeButtonViewModel& subscribeButton, const QString& countText, bool subscribed);
+QtTube::ChannelTabData convertTab(const QJsonValue& tabRenderer, std::any& continuationData);
 QtTube::PluginVideo convertVideo(const InnertubeObjects::CompactVideo& compactVideo, bool useThumbnailFromData);
 QtTube::PluginVideo convertVideo(const InnertubeObjects::DisplayAd& displayAd, bool useThumbnailFromData);
 QtTube::PluginVideo convertVideo(const InnertubeObjects::LockupViewModel& lockup, bool useThumbnailFromData);

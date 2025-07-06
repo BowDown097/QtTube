@@ -1,15 +1,7 @@
 #pragma once
+#include "qttube-plugin/components/reply.h"
+#include "qttube-plugin/components/replytypes/channeldata.h"
 #include <QWidget>
-
-namespace InnertubeEndpoints { struct ChannelResponse; }
-
-namespace InnertubeObjects
-{
-    struct ChannelC4Header;
-    struct ChannelPageHeader;
-    struct EntityMutation;
-    struct ResponsiveImage;
-}
 
 class QHBoxLayout;
 class QTabWidget;
@@ -39,11 +31,11 @@ private:
     SubscribeWidget* subscribeWidget;
 
     void loadChannel(const QString& channelId);
-    void prepareAvatarAndBanner(const InnertubeObjects::ResponsiveImage& avatar,
-                                const InnertubeObjects::ResponsiveImage& banner);
-    void prepareHeader(const InnertubeObjects::ChannelC4Header& c4Header);
-    void prepareHeader(const InnertubeObjects::ChannelPageHeader& pageHeader,
-                       const QList<InnertubeObjects::EntityMutation>& mutations);
 private slots:
-    void loadTab(const InnertubeEndpoints::ChannelResponse& response, int index);
+    void loadTab(std::any requestData, int index);
+    void processData(const QtTube::ChannelData& data);
+    void processHeader(const QtTube::ChannelHeader& header);
+    void processTabs(const QList<QtTube::ChannelTabData>& tabs);
+signals:
+    void loadFailed(const QtTube::PluginException& ex);
 };

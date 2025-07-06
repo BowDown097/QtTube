@@ -16,6 +16,11 @@ namespace QtTube
     {
         virtual ~PluginInterface() = default;
 
+        virtual ChannelReply* getChannel(
+            const QString& channelId,
+            std::any tabData,
+            std::any continuationData) { return ChannelReply::create(); }
+
         virtual BrowseReply* getHistory(const QString& query, std::any continuationData) { return BrowseReply::create(); }
         virtual BrowseReply* getHome(std::any continuationData) { return BrowseReply::create(); }
         virtual NotificationsReply* getNotifications(std::any continuationData) { return NotificationsReply::create(); }

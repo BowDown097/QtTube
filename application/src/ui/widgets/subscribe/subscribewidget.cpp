@@ -45,13 +45,13 @@ SubscribeWidget::SubscribeWidget(QWidget* parent)
     });
 }
 
-void SubscribeWidget::setData(const QtTube::PluginChannel& channel)
+void SubscribeWidget::setData(const QtTube::PluginSubscribeButton& data)
 {
     originIsInnertube = false;
-    subscribeLabel->setData(channel);
+    subscribeLabel->setData(data);
     subscribeLabel->show();
 
-    if (channel.subscribeButton.countText.isEmpty())
+    if (data.countText.isEmpty())
     {
         layout->removeWidget(subscribersCountLabel);
         subscribersCountLabel->deleteLater();
@@ -59,12 +59,15 @@ void SubscribeWidget::setData(const QtTube::PluginChannel& channel)
     else
     {
         subscribersCountLabel->show();
-        subscribersCountLabel->setText(channel.subscribeButton.countText);
+        subscribersCountLabel->setText(data.countText);
         subscribersCountLabel->adjustSize();
     }
 
-    notificationBell->setData(channel.subscribeButton.notificationBell);
-    notificationBell->setVisible(channel.subscribeButton.subscribed);
+    if (!data.notificationBell.states.isEmpty())
+    {
+        notificationBell->setData(data.notificationBell);
+        notificationBell->setVisible(data.subscribed);
+    }
 }
 
 void SubscribeWidget::setSubscribeButton(const InnertubeObjects::Button& button)

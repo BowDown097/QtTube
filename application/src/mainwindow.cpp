@@ -47,23 +47,23 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::browse);
 
     connect(notificationMenu, &ContinuableListWidget::continuationReady, this, [this] {
-        if (!notificationMenu->continuationToken.isEmpty())
+        if (notificationMenu->continuationData.has_value())
             BrowseHelper::instance()->browseNotificationMenu(notificationMenu);
     });
     connect(ui->historyWidget, &ContinuableListWidget::continuationReady, this, [this] {
-        if (!ui->historyWidget->continuationToken.isEmpty())
+        if (ui->historyWidget->continuationData.has_value())
             BrowseHelper::instance()->browseHistory(ui->historyWidget, lastSearchQuery);
     });
     connect(ui->homeWidget, &ContinuableListWidget::continuationReady, this, [this] {
-        if (!ui->homeWidget->continuationToken.isEmpty())
+        if (ui->homeWidget->continuationData.has_value())
             BrowseHelper::instance()->browseHome(ui->homeWidget);
     });
     connect(ui->searchWidget, &ContinuableListWidget::continuationReady, this, [this] {
-        if (!ui->searchWidget->continuationToken.isEmpty())
+        if (ui->searchWidget->continuationData.has_value())
             BrowseHelper::instance()->search(ui->searchWidget, nullptr, lastSearchQuery);
     });
     connect(ui->subscriptionsWidget, &ContinuableListWidget::continuationReady, this, [this] {
-        if (!ui->subscriptionsWidget->continuationToken.isEmpty())
+        if (ui->subscriptionsWidget->continuationData.has_value())
             BrowseHelper::instance()->browseSubscriptions(ui->subscriptionsWidget);
     });
 

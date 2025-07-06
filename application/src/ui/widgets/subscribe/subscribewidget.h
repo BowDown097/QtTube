@@ -15,7 +15,7 @@ class SubscribeWidget : public QWidget
 {
 public:
     explicit SubscribeWidget(QWidget* parent = nullptr);
-    void setData(const QtTube::PluginChannel& channel);
+    void setData(const QtTube::PluginSubscribeButton& data);
     void setSubscribeButton(const InnertubeObjects::Button& button);
     void setSubscribeButton(const InnertubeObjects::ButtonViewModel& buttonViewModel);
     void setSubscribeButton(const InnertubeObjects::SubscribeButton& subscribeButton);

@@ -1,5 +1,6 @@
 #include "conversion.h"
 #include "innertube/innertubereply.h"
+#include <ranges>
 
 QtTube::PluginBadge convertBadge(const InnertubeObjects::MetadataBadge& badge)
 {
@@ -54,6 +55,60 @@ QtTube::PluginChannel convertChannel(
     for (const InnertubeObjects::MetadataBadge& badge : owner.badges)
         result.channelBadges.append(convertBadge(badge));
     result.subscribeButton = convertSubscribeButton(subscribeButton, owner.subscriberCountText.text);
+
+    return result;
+}
+
+QtTube::ChannelHeader convertChannelHeader(const InnertubeObjects::ChannelC4Header& header)
+{
+    QtTube::ChannelHeader result = {
+        .channelSubtext = header.channelHandleText.text + " • " + header.videosCountText.text,
+        .channelText = header.title,
+        .subscribeButton = convertSubscribeButton(header.subscribeButton, header.subscriberCountText.text)
+    };
+
+    if (const InnertubeObjects::GenericThumbnail* recAvatar = header.avatar.recommendedQuality(QSize(48, 48)))
+        result.avatarUrl = recAvatar->url;
+    if (const InnertubeObjects::GenericThumbnail* bestBanner = header.banner.bestQuality())
+        result.bannerUrl = bestBanner->url;
+
+    return result;
+}
+
+QtTube::ChannelHeader convertChannelHeader(
+    const InnertubeObjects::ChannelPageHeader& header, const QList<InnertubeObjects::EntityMutation>& mutations)
+{
+    QtTube::ChannelHeader result = {
+        .channelText = header.title.text.content
+    };
+
+    if (const InnertubeObjects::GenericThumbnail* recAvatar = header.image.avatar.image.recommendedQuality(QSize(48, 48)))
+        result.avatarUrl = recAvatar->url;
+    if (const InnertubeObjects::GenericThumbnail* bestBanner = header.banner.image.bestQuality())
+        result.bannerUrl = bestBanner->url;
+
+    QString channelHandle = header.metadata.metadataRows.value(0).value(0).content;
+    QString subCount = header.metadata.metadataRows.value(1).value(0).content;
+    QString videosCount = header.metadata.metadataRows.value(1).value(1).content;
+    result.channelSubtext = channelHandle + ' ' + header.metadata.delimiter + ' ' + videosCount;
+
+    auto flatActions = header.actions.actionsRows
+        | std::views::transform([](const auto& list) { return list.items; })
+        | std::views::join;
+
+    for (const auto& action : flatActions)
+    {
+        if (const auto* subscribeButton = std::get_if<InnertubeObjects::SubscribeButtonViewModel>(&action))
+        {
+            result.subscribeButton = convertSubscribeButton(*subscribeButton, subCount, subscribeButton->isSubscribed(mutations));
+        }
+        else if (const auto* plainButton = std::get_if<InnertubeObjects::ButtonViewModel>(&action))
+        {
+            // logged out subscribe button should be the only one with a modalEndpoint
+            if (plainButton->onTap["innertubeCommand"]["modalEndpoint"].isObject())
+                result.subscribeButton = convertSubscribeButton(*plainButton, subCount);
+        }
+    }
 
     return result;
 }
@@ -263,6 +318,18 @@ QtTube::PluginShelf<QtTube::PluginVideo> convertShelf(const InnertubeObjects::Ve
 }
 
 QtTube::PluginSubscribeButton convertSubscribeButton(
+    const InnertubeObjects::ButtonViewModel& button, const QString& countText)
+{
+    return QtTube::PluginSubscribeButton {
+        .countText = countText.left(countText.lastIndexOf(' ')),
+        .enabled = false,
+        .localization = {
+            .subscribeText = button.title
+        }
+    };
+}
+
+QtTube::PluginSubscribeButton convertSubscribeButton(
     const InnertubeObjects::SubscribeButton& subscribeButton, const QString& countText)
 {
     const QJsonValue unsubscribeDialog = subscribeButton.onUnsubscribeEndpoints
@@ -314,6 +381,147 @@ QtTube::PluginSubscribeButton convertSubscribeButton(
         }
 
         result.notificationBell.states.append(state);
+    }
+
+    return result;
+}
+
+QtTube::PluginSubscribeButton convertSubscribeButton(
+    const InnertubeObjects::SubscribeButtonViewModel& subscribeButton, const QString& countText, bool subscribed)
+{
+    const QJsonValue unsubscribeDialog = subscribeButton.unsubscribeButtonContent.onTapCommand
+        ["innertubeCommand"]["signalServiceEndpoint"]["actions"][0]["openPopupAction"]["popup"]["confirmDialogRenderer"];
+
+    QtTube::PluginSubscribeButton result = {
+        .countText = countText.left(countText.lastIndexOf(' ')),
+        .enabled = !subscribeButton.disableSubscribeButton,
+        .localization = {
+            .subscribeText = subscribeButton.subscribeButtonContent.buttonText,
+            .subscribedText = subscribeButton.unsubscribeButtonContent.buttonText,
+            .unsubscribeDialogText = InnertubeObjects::InnertubeString(unsubscribeDialog["dialogMessages"][0]).text,
+            .unsubscribeText = "Unsubscribe"
+        },
+        .subscribed = subscribed,
+        .subscribeData = subscribeButton.subscribeButtonContent.onTapCommand["innertubeCommand"]["subscribeEndpoint"],
+        .unsubscribeData = unsubscribeDialog["confirmButton"]["buttonRenderer"]["serviceEndpoint"]["unsubscribeEndpoint"]
+    };
+
+    if (subscribeButton.disableNotificationBell)
+        return result;
+
+    const QJsonArray listItems = subscribeButton.onShowSubscriptionOptions
+        ["innertubeCommand"]["showSheetCommand"]["panelLoadingStrategy"]
+        ["inlineContent"]["sheetViewModel"]["content"]["listViewModel"]
+        ["listItems"].toArray();
+
+    for (qsizetype i = 0; i < listItems.size(); ++i)
+    {
+        const QJsonValue viewModel = listItems[i]["listItemViewModel"];
+        if (viewModel["isSelected"].toBool() && result.notificationBell.defaultEnabledStateIndex == -1)
+            result.notificationBell.activeStateIndex = i;
+
+        QtTube::PluginNotificationState state = {
+            .data = viewModel["rendererContext"]["commandContext"]["onTap"]["innertubeCommand"]
+                ["modifyChannelNotificationPreferenceEndpoint"]["params"].toString(),
+            .name = viewModel["title"]["content"].toString()
+        };
+
+        QString imageName = viewModel["leadingImage"]["sources"][0]["clientResource"]["imageName"].toString();
+        if (imageName == "NOTIFICATIONS_ACTIVE")
+        {
+            state.representation = QtTube::PluginNotificationState::Representation::All;
+        }
+        else if (imageName == "NOTIFICATIONS_NONE")
+        {
+            result.notificationBell.defaultEnabledStateIndex = i;
+            state.representation = QtTube::PluginNotificationState::Representation::Neutral;
+        }
+        else if (imageName == "NOTIFICATIONS_OFF")
+        {
+            state.representation = QtTube::PluginNotificationState::Representation::None;
+        }
+        else
+        {
+            continue;
+        }
+
+        result.notificationBell.states.append(state);
+    }
+
+    return result;
+}
+
+void processRichGrid(const QJsonValue& richGrid, QList<QtTube::ChannelTabDataItem>& items, std::any& continuationData)
+{
+    const QJsonArray contents = richGrid["contents"].toArray();
+    for (const QJsonValue& v : contents)
+    {
+        const QJsonValue itemContent = v["richItemRenderer"]["content"];
+        if (const QJsonValue video = itemContent["videoRenderer"]; video.isObject())
+            items.append(convertVideo(InnertubeObjects::Video(video), true));
+        else if (const QJsonValue reel = itemContent["reelItemRenderer"]; reel.isObject())
+            items.append(convertVideo(InnertubeObjects::Reel(video), true));
+        else if (const QJsonValue shortsLockup = itemContent["shortsLockupViewModel"]; shortsLockup.isObject())
+            items.append(convertVideo(InnertubeObjects::ShortsLockupViewModel(shortsLockup), true));
+        else if (const QJsonValue continuation = v["continuationItemRenderer"]; continuation.isObject())
+            continuationData = continuation["continuationEndpoint"]["continuationCommand"]["token"].toString();
+    }
+}
+
+void processSectionList(const QJsonValue& sectionList, QList<QtTube::ChannelTabDataItem>& items, std::any& continuationData)
+{
+    const QJsonArray contents = sectionList["contents"].toArray();
+    for (const QJsonValue& v : contents)
+    {
+        const QJsonArray itemSectionContents = v["itemSectionRenderer"]["contents"].toArray();
+        for (const QJsonValue& v2 : itemSectionContents)
+        {
+            if (const QJsonValue shelf = v2["shelfRenderer"]; shelf.isObject())
+            {
+                const QJsonObject shelfContent = shelf["content"].toObject();
+                const QJsonArray shelfItems = ((const QJsonValue&)(*shelfContent.begin()))["items"].toArray();
+                if (shelfItems.isEmpty())
+                    continue;
+
+                const QString shelfKey = shelfItems.begin()->toObject().begin().key();
+                if (shelfKey == "channelRenderer" || shelfKey == "gridChannelRenderer")
+                {
+                    QtTube::PluginShelf<QtTube::PluginChannel> channelShelf;
+                    channelShelf.title = InnertubeObjects::InnertubeString(shelf["title"]).text;
+                    for (const QJsonValue& v3 : shelfItems)
+                        channelShelf.contents.append(convertChannel(InnertubeObjects::Channel(v3[shelfKey])));
+                    items.append(channelShelf);
+                }
+                else if (shelfKey == "gridVideoRenderer" || shelfKey == "videoRenderer")
+                {
+                    QtTube::PluginShelf<QtTube::PluginVideo> videoShelf;
+                    videoShelf.title = InnertubeObjects::InnertubeString(shelf["title"]).text;
+                    for (const QJsonValue& v3 : shelfItems)
+                        videoShelf.contents.append(convertVideo(InnertubeObjects::Video(v3[shelfKey]), true));
+                    items.append(videoShelf);
+                }
+            }
+            else if (const QJsonValue continuation = v2["continuationItemRenderer"]; continuation.isObject())
+            {
+                continuationData = continuation["continuationEndpoint"]["continuationCommand"]["token"].toString();
+            }
+        }
+    }
+}
+
+QtTube::ChannelTabData convertTab(const QJsonValue& tabRenderer, std::any& continuationData)
+{
+    QtTube::ChannelTabData result = {
+        .requestData = tabRenderer["endpoint"]["browseEndpoint"]["params"].toString(),
+        .title = tabRenderer["title"].toString()
+    };
+
+    if (const QJsonValue tabContent = tabRenderer["content"]; tabContent.isObject())
+    {
+        if (const QJsonValue richGrid = tabContent["richGridRenderer"]; richGrid.isObject())
+            processRichGrid(richGrid, result.items, continuationData);
+        else if (const QJsonValue sectionList = tabContent["sectionListRenderer"]; sectionList.isObject())
+            processSectionList(sectionList, result.items, continuationData);
     }
 
     return result;
@@ -413,6 +621,7 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::LockupViewModel& lockup
 QtTube::PluginVideo convertVideo(const InnertubeObjects::Reel& reel, bool useThumbnailFromData)
 {
     QtTube::PluginVideo result = {
+        .isVerticalVideo = true,
         .lengthText = "SHORTS",
         .metadataText = reel.viewCountText.text,
         .sourceMetadata = &g_metadata,
@@ -431,6 +640,7 @@ QtTube::PluginVideo convertVideo(const InnertubeObjects::Reel& reel, bool useThu
 QtTube::PluginVideo convertVideo(const InnertubeObjects::ShortsLockupViewModel& shortsLockup, bool useThumbnailFromData)
 {
     QtTube::PluginVideo result = {
+        .isVerticalVideo = true,
         .lengthText = "SHORTS",
         .metadataText = shortsLockup.secondaryText,
         .sourceMetadata = &g_metadata,

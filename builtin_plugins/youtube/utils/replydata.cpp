@@ -69,6 +69,53 @@ const QList<QtTube::Emoji> g_platformEmojis = {
     QtTube::Emoji { .representation = "UCkszU2WH9gy1mb0dV-11UJg/egJ1XufTKYfegwOo57ewAg", .shortcodes = {":shelterin:"}, .url = "https://yt3.ggpht.com/gjC5x98J4BoVSEPfFJaoLtc4tSBGSEdIlfL2FV4iJG9uGNykDP9oJC_QxAuBTJy6dakPxVeC=w48-h48-c-k-nd" }
 };
 
+std::pair<std::any, QtTube::ChannelData> getChannelData(const InnertubeEndpoints::ChannelResponse& response)
+{
+    std::any continuationData;
+    QtTube::ChannelData data;
+
+    if (const auto* c4Header = std::get_if<InnertubeObjects::ChannelC4Header>(&response.header))
+        data.header = convertChannelHeader(*c4Header);
+    else if (const auto* pageHeader = std::get_if<InnertubeObjects::ChannelPageHeader>(&response.header))
+        data.header = convertChannelHeader(*pageHeader, response.mutations);
+
+    if (response.contents.isArray()) // will be array in case of continuation
+    {
+        QtTube::ChannelTabData tabData;
+
+        const QJsonArray contentsArr = response.contents.toArray();
+        for (const QJsonValue& item : contentsArr)
+        {
+            if (const QJsonValue richItem = item["richItemRenderer"]; richItem.isObject())
+            {
+                const QJsonObject content = richItem["content"].toObject();
+                QJsonObject::const_iterator it = content.begin();
+                if (it.key() == "gridVideoRenderer" || it.key() == "videoRenderer")
+                    tabData.items.append(convertVideo(InnertubeObjects::Video(it.value()), true));
+                else if (it.key() == "reelItemRenderer")
+                    tabData.items.append(convertVideo(InnertubeObjects::Reel(it.value()), true));
+                else if (it.key() == "shortsLockupViewModel")
+                    tabData.items.append(convertVideo(InnertubeObjects::ShortsLockupViewModel(it.value()), true));
+            }
+            else if (const QJsonValue continuation = item["continuationItemRenderer"]; continuation.isObject())
+            {
+                continuationData = continuation["continuationEndpoint"]["continuationCommand"]["token"].toString();
+            }
+        }
+
+        data.tabs.append(tabData);
+    }
+    else if (response.contents.isObject())
+    {
+        const QJsonArray tabs = response.contents["twoColumnBrowseResultsRenderer"]["tabs"].toArray();
+        for (qsizetype i = 0; i < tabs.size(); ++i)
+            if (const QJsonValue tabRenderer = tabs[i]["tabRenderer"]; tabRenderer.isObject())
+                data.tabs.append(convertTab(tabRenderer, continuationData));
+    }
+
+    return std::make_pair(continuationData, data);
+}
+
 QtTube::BrowseData getHistoryData(const InnertubeEndpoints::HistoryResponse& response)
 {
     QtTube::BrowseData result;
