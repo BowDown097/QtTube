@@ -54,15 +54,9 @@ SettingsForm::SettingsForm(QWidget* parent)
     ui->filterLength->setEnabled(store.filterLengthEnabled);
     ui->filterLength->setValue(store.filterLength);
     ui->filterLengthCheck->setChecked(store.filterLengthEnabled);
-    // dearrow
-    ui->deArrow->setChecked(store.deArrow);
-    ui->deArrowThumbs->setChecked(store.deArrowThumbs);
-    ui->deArrowTitles->setChecked(store.deArrowTitles);
-    toggleDeArrowSettings(store.deArrow);
 
     connect(pluginActiveButtonGroup, &QButtonGroup::buttonToggled, this, &SettingsForm::pluginActiveButtonToggled);
     connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
-    connect(ui->deArrow, &QCheckBox::toggled, this, &SettingsForm::toggleDeArrowSettings);
     connect(ui->externalPlayerButton, &QPushButton::clicked, this, &SettingsForm::selectExternalPlayer);
     connect(ui->externalPlayerEdit, &QLineEdit::textEdited, this, &SettingsForm::checkExternalPlayer);
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool c) { ui->filterLength->setEnabled(c); });
@@ -183,10 +177,6 @@ void SettingsForm::saveSettings()
     // filtering
     store.filterLength = ui->filterLength->value();
     store.filterLengthEnabled = ui->filterLengthCheck->isChecked();
-    // dearrow
-    store.deArrow = ui->deArrow->isChecked();
-    store.deArrowThumbs = ui->deArrowThumbs->isChecked();
-    store.deArrowTitles = ui->deArrowTitles->isChecked();
 
     store.save();
     store.initialize();
@@ -219,10 +209,4 @@ void SettingsForm::showTermFilterTable()
     TermFilterView* fv = new TermFilterView;
     fv->show();
     fv->populateFromSettings();
-}
-
-void SettingsForm::toggleDeArrowSettings(bool checked)
-{
-    ui->deArrowThumbs->setEnabled(checked);
-    ui->deArrowTitles->setEnabled(checked);
 }

@@ -1,8 +1,7 @@
 #pragma once
+#include "qttube-plugin/objects/video.h"
 #include "ui/views/preloaddata.h"
 #include <QWidget>
-
-namespace QtTube { struct PluginVideo; }
 
 class ChannelLabel;
 class HttpReply;
@@ -25,11 +24,8 @@ private:
     int progress{};
     QString videoId;
     std::unique_ptr<PreloadData::WatchView> watchPreloadData;
-
-    void setThumbnail(const QString& url);
 private slots:
     void copyVideoUrl();
     void navigate();
-    void setDeArrowData(const QString& fallbackThumbUrl, const HttpReply& reply);
     void showTitleContextMenu(const QPoint& pos);
 };

@@ -51,13 +51,7 @@ YouTubeSettingsForm::YouTubeSettingsForm(QWidget* parent)
     ui->blockSelfPromo->setChecked(g_settings->sponsorBlockCategories.contains("selfpromo"));
     ui->blockSponsor->setChecked(g_settings->sponsorBlockCategories.contains("sponsor"));
     ui->showSBToasts->setChecked(g_settings->showSBToasts);
-    // dearrow
-    ui->deArrow->setChecked(g_settings->deArrow);
-    ui->deArrowThumbs->setChecked(g_settings->deArrowThumbs);
-    ui->deArrowTitles->setChecked(g_settings->deArrowTitles);
-    toggleDeArrowSettings(g_settings->deArrow);
 
-    connect(ui->deArrow, &QCheckBox::toggled, this, &YouTubeSettingsForm::toggleDeArrowSettings);
     //connect(ui->exportButton, &QPushButton::clicked, this, &YouTubeSettingsForm::openExportWizard);
     connect(ui->importButton, &QPushButton::clicked, this, &YouTubeSettingsForm::openImportWizard);
     connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredQuality->setEnabled(!c); });
@@ -177,10 +171,6 @@ void YouTubeSettingsForm::saveSettings()
     handleSponsorCategory(g_settings->sponsorBlockCategories, "selfpromo", ui->blockSelfPromo);
     handleSponsorCategory(g_settings->sponsorBlockCategories, "sponsor", ui->blockSponsor);
     g_settings->showSBToasts = ui->showSBToasts->isChecked();
-    // dearrow
-    g_settings->deArrow = ui->deArrow->isChecked();
-    g_settings->deArrowThumbs = ui->deArrowThumbs->isChecked();
-    g_settings->deArrowTitles = ui->deArrowTitles->isChecked();
 
     g_settings->save();
     g_settings->init();
@@ -193,10 +183,4 @@ void YouTubeSettingsForm::showChannelFilterTable()
     ChannelFilterTable* ft = new ChannelFilterTable;
     ft->show();
     ft->populateFromSettings();
-}
-
-void YouTubeSettingsForm::toggleDeArrowSettings(bool checked)
-{
-    ui->deArrowThumbs->setEnabled(checked);
-    ui->deArrowTitles->setEnabled(checked);
 }

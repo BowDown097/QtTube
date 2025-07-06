@@ -33,10 +33,6 @@ void YouTubeSettings::init()
     // sponsorblock
     showSBToasts = settings.value("sponsorBlock/toasts", true).toBool();
     readIntoList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
-    // dearrow
-    deArrow = settings.value("deArrow/enabled", false).toBool();
-    deArrowThumbs = settings.value("deArrow/thumbs", true).toBool();
-    deArrowTitles = settings.value("deArrow/titles", true).toBool();
 }
 
 void YouTubeSettings::save()
@@ -68,10 +64,6 @@ void YouTubeSettings::save()
     // sponsorblock
     settings.setValue("sponsorBlock/toasts", showSBToasts);
     writeList(settings, sponsorBlockCategories, "sponsorBlock/categories", "name");
-    // dearrow
-    settings.setValue("deArrow/enabled", deArrow);
-    settings.setValue("deArrow/thumbs", deArrowThumbs);
-    settings.setValue("deArrow/titles", deArrowTitles);
 }
 
 QtTube::PluginSettingsWindow* YouTubeSettings::window()

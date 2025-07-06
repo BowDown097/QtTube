@@ -19,10 +19,6 @@ void SettingsStore::initialize()
     filterLength = settings.value("filtering/filterLength", 0).toInt();
     filterLengthEnabled = settings.value("filtering/filterLengthEnabled", false).toBool();
     readIntoStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
-    // dearrow
-    deArrow = settings.value("deArrow/enabled", false).toBool();
-    deArrowThumbs = settings.value("deArrow/thumbs", true).toBool();
-    deArrowTitles = settings.value("deArrow/titles", true).toBool();
 }
 
 void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key)
@@ -56,10 +52,6 @@ void SettingsStore::save()
     settings.setValue("filtering/filterLength", filterLength);
     settings.setValue("filtering/filterLengthEnabled", filterLengthEnabled);
     writeStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
-    // dearrow
-    settings.setValue("deArrow/enabled", deArrow);
-    settings.setValue("deArrow/thumbs", deArrowThumbs);
-    settings.setValue("deArrow/titles", deArrowTitles);
 }
 
 bool SettingsStore::strHasFilteredTerm(const QString& str) const

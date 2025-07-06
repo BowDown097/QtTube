@@ -30,5 +30,4 @@ private slots:
     void pluginActiveButtonToggled(QAbstractButton* button, bool checked);
     void selectExternalPlayer();
     void showTermFilterTable();
-    void toggleDeArrowSettings(bool checked);
 };

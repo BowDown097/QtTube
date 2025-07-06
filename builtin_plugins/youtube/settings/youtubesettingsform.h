@@ -12,7 +12,7 @@ class YouTubeSettingsForm : public QtTube::PluginSettingsWindow
     Q_OBJECT
 public:
     explicit YouTubeSettingsForm(QWidget* parent = nullptr);
-    ~YouTubeSettingsForm();
+    ~YouTubeSettingsForm() override;
 
     virtual bool savePending() const override;
     virtual void saveSettings() override;
@@ -23,5 +23,4 @@ private slots:
     //void openExportWizard();
     void openImportWizard();
     void showChannelFilterTable();
-    void toggleDeArrowSettings(bool checked);
 };

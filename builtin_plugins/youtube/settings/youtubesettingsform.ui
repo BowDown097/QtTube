@@ -50,7 +50,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>112</height>
+            <height>109</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -136,7 +136,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>257</height>
+            <height>252</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -380,7 +380,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>78</height>
+            <height>76</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -462,7 +462,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>150</height>
+            <height>147</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -572,7 +572,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>207</height>
+            <height>205</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -717,7 +717,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>215</height>
+            <height>210</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -882,98 +882,6 @@
               </spacer>
              </item>
             </layout>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="deArrowTab">
-      <attribute name="title">
-       <string>DeArrow</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_31">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QScrollArea" name="scrollArea_14">
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents_14">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>476</width>
-            <height>112</height>
-           </rect>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_32">
-           <property name="spacing">
-            <number>10</number>
-           </property>
-           <property name="leftMargin">
-            <number>10</number>
-           </property>
-           <property name="topMargin">
-            <number>10</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>10</number>
-           </property>
-           <item>
-            <widget class="QCheckBox" name="deArrow">
-             <property name="toolTip">
-              <string>DeArrow is an open source browser extension for crowdsourcing better titles and thumbnails on YouTube.</string>
-             </property>
-             <property name="text">
-              <string>Enable 'DeArrow' integration</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="deArrowThumbs">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Replace thumbnails</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="deArrowTitles">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Replace titles</string>
-             </property>
-            </widget>
            </item>
           </layout>
          </widget>

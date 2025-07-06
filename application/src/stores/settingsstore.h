@@ -12,9 +12,6 @@ public:
     QString appStyle;
     bool autoHideTopBar{};
     bool darkTheme{};
-    bool deArrow{};
-    bool deArrowThumbs{};
-    bool deArrowTitles{};
     QString externalPlayerPath;
     int filterLength{};
     bool filterLengthEnabled{};

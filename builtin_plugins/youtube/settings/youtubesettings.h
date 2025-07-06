@@ -28,9 +28,6 @@ public:
 
     bool blockAds{};
     bool condensedCounts{};
-    bool deArrow{};
-    bool deArrowThumbs{};
-    bool deArrowTitles{};
     bool disable60Fps{};
     bool disablePlayerInfoPanels{};
     QStringList filteredChannels;
