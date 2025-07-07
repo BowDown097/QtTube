@@ -28,6 +28,8 @@ public:
     QtTubePlugin::Reply<void>* subscribe(std::any data) override;
     QtTubePlugin::Reply<void>* unsubscribe(std::any data) override;
 
+    QtTubePlugin::ResolveUrlReply* resolveUrlOrID(const QString& in) override;
+
     void init() override;
 
     const QList<std::pair<QString, QStringList>> searchFilters() const override

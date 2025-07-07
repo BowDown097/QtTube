@@ -3,6 +3,7 @@
 #include "qttube-plugin/components/reply.h"
 #include "qttube-plugin/objects/livechat/livechat.h"
 #include "qttube-plugin/objects/livechat/livechatreplay.h"
+#include "resolveurldata.h"
 #include "simpledatatypes.h"
 #include "videodata.h"
 
@@ -11,6 +12,7 @@ W_REGISTER_ARGTYPE(QtTubePlugin::ChannelData)
 W_REGISTER_ARGTYPE(QtTubePlugin::LiveChat)
 W_REGISTER_ARGTYPE(QtTubePlugin::LiveChatReplay)
 W_REGISTER_ARGTYPE(QtTubePlugin::NotificationsData)
+W_REGISTER_ARGTYPE(QtTubePlugin::ResolveUrlData)
 W_REGISTER_ARGTYPE(QtTubePlugin::VideoData)
 
 namespace QtTubePlugin
@@ -20,5 +22,6 @@ namespace QtTubePlugin
     using LiveChatReply = Reply<LiveChat>;
     using LiveChatReplayReply = Reply<LiveChatReplay>;
     using NotificationsReply = Reply<NotificationsData>;
+    using ResolveUrlReply = Reply<ResolveUrlData>;
     using VideoReply = Reply<VideoData>;
 }

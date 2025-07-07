@@ -34,11 +34,11 @@ namespace ViewController
         });
     }
 
-    void loadVideo(const QString& videoId, int progress, PreloadData::WatchView* preload)
+    void loadVideo(const QString& videoId, int progress, PreloadData::WatchView* preload, bool continuePlayback)
     {
         if (WatchView* casted = qobject_cast<WatchView*>(MainWindow::centralWidget()->currentWidget()))
         {
-            casted->hotLoadVideo(videoId, progress, preload);
+            casted->hotLoadVideo(videoId, progress, preload, continuePlayback);
             return;
         }
         else if (ChannelView* channelView = qobject_cast<ChannelView*>(MainWindow::centralWidget()->currentWidget()))
@@ -60,5 +60,13 @@ namespace ViewController
             MainWindow::topbar()->setAlwaysShow(true);
             MainWindow::topbar()->show();
         });
+    }
+
+    void unloadCurrent()
+    {
+        if (ChannelView* channelView = qobject_cast<ChannelView*>(MainWindow::centralWidget()->currentWidget()))
+            channelView->deleteLater();
+        else if (WatchView* watchView = qobject_cast<WatchView*>(MainWindow::centralWidget()->currentWidget()))
+            watchView->deleteLater();
     }
 }

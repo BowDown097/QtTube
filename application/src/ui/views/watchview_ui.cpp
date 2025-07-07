@@ -222,9 +222,9 @@ void WatchView_Ui::scrollValueChanged(int value)
         feedScrollBar->setEnabled(false);
 }
 
-void WatchView_Ui::toggleShowMore()
+void WatchView_Ui::setShowMore(bool enabled)
 {
-    if (showMoreLabel->text() == "SHOW MORE")
+    if (enabled)
     {
         description->setMaximumHeight(QWIDGETSIZE_MAX);
         description->setMaximumLines(-1);
@@ -235,4 +235,9 @@ void WatchView_Ui::toggleShowMore()
         description->setMaximumLines(3);
         showMoreLabel->setText("SHOW MORE");
     }
+}
+
+void WatchView_Ui::toggleShowMore()
+{
+    setShowMore(showMoreLabel->text() == "SHOW MORE");
 }

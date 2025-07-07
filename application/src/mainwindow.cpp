@@ -4,16 +4,13 @@
 #include "qttubeapplication.h"
 #include "stores/settingsstore.h"
 #include "ui/browsehelper.h"
-#include "ui/views/channelview.h"
 #include "ui/views/viewcontroller.h"
-#include "ui/views/watchview.h"
 #include "ui/widgets/accountmenu/accountcontrollerwidget.h"
 #include "utils/uiutils.h"
 #include <QAction>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QScrollBar>
-#include <QUrlQuery>
 
 MainWindow::~MainWindow() { delete ui; }
 
@@ -207,69 +204,9 @@ void MainWindow::search(const QString& query, SearchBox::SearchType searchType)
         return;
 
     if (searchType == SearchBox::SearchType::ByLink)
-        searchByLink(query);
+        qtTubeApp->handleUrlOrID(query);
     else
         searchByQuery(query);
-}
-
-void MainWindow::searchByLink(const QString& link)
-{
-    static QRegularExpression channelRegex(R"((?:^|\/channel\/)(UC[a-zA-Z0-9_-]{22})(?=\b))");
-    static QRegularExpression videoRegex(R"((?:^|v=|vi=|v\/|vi\/|shorts\/|live\/|youtu\.be\/)([a-zA-Z0-9_-]{11})(?=\b))");
-
-    if (QRegularExpressionMatch channelMatch = channelRegex.match(link); channelMatch.lastCapturedIndex() >= 1)
-    {
-        ViewController::loadChannel(channelMatch.captured(1));
-    }
-    else if (QRegularExpressionMatch videoMatch = videoRegex.match(link); videoMatch.lastCapturedIndex() >= 1)
-    {
-        int progress{};
-        if (QUrl url(link); url.isValid())
-            if (QUrlQuery urlQuery(url); urlQuery.hasQueryItem("t"))
-                progress = urlQuery.queryItemValue("t").toInt();
-
-        ViewController::loadVideo(videoMatch.captured(1), progress);
-    }
-    else
-    {
-        // this hits all kinds of stuff, but we're going to specifically filter for channels and videos.
-        // doesn't have to be an exact URL either, so just giving a handle and stuff like that should still work
-        using UrlEndpoint = InnertubeEndpoints::ResolveUrl;
-        using UrlReply = InnertubeReply<UrlEndpoint>;
-        auto reply = InnerTube::instance()->get<UrlEndpoint>(link);
-        connect(reply, &UrlReply::exception, this, [this, link](const InnertubeException& ex) {
-            QMessageBox::critical(this, "Error", ex.message());
-        });
-        connect(reply, &UrlReply::finished, this, [this](const UrlEndpoint& endpoint) {
-            QString webPageType = endpoint.endpoint["commandMetadata"]["webCommandMetadata"]["webPageType"].toString();
-            if (webPageType == "WEB_PAGE_TYPE_CHANNEL")
-            {
-                ViewController::loadChannel(endpoint.endpoint["browseEndpoint"]["browseId"].toString());
-            }
-            else if (webPageType == "WEB_PAGE_TYPE_WATCH")
-            {
-                ViewController::loadVideo(
-                    endpoint.endpoint["watchEndpoint"]["videoId"].toString(),
-                    endpoint.endpoint["watchEndpoint"]["startTimeSeconds"].toInt());
-            }
-            else
-            {
-                // check for an edge case where a classic channel URL is returned instead of the UCID
-                if (QString classicUrl = endpoint.endpoint["urlEndpoint"]["url"].toString(); !classicUrl.isEmpty())
-                {
-                    auto reply2 = InnerTube::instance()->get<UrlEndpoint>(classicUrl);
-                    connect(reply2, &UrlReply::finished, this, [](const UrlEndpoint& endpoint2) {
-                        if (endpoint2.endpoint["commandMetadata"]["webCommandMetadata"]["webPageType"].toString() == "WEB_PAGE_TYPE_CHANNEL")
-                            ViewController::loadChannel(endpoint2.endpoint["browseEndpoint"]["browseId"].toString());
-                    });
-                }
-                else
-                {
-                    QMessageBox::warning(this, "Nothing Found!", "Could not find anything from your input.");
-                }
-            }
-        });
-    }
 }
 
 void MainWindow::searchByQuery(const QString& query)
@@ -277,11 +214,7 @@ void MainWindow::searchByQuery(const QString& query)
     m_topbar->setAlwaysShow(true);
     UIUtils::clearLayout(ui->additionalWidgets);
     ui->historySearchWidget->clear();
-
-    if (ChannelView* channelView = qobject_cast<ChannelView*>(ui->centralwidget->currentWidget()))
-        channelView->deleteLater();
-    else if (WatchView* watchView = qobject_cast<WatchView*>(ui->centralwidget->currentWidget()))
-        watchView->deleteLater();
+    ViewController::unloadCurrent();
 
     if (ui->tabWidget->currentIndex() == 4)
     {

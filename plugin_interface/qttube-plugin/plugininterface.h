@@ -46,10 +46,27 @@ namespace QtTubePlugin
         virtual Reply<void>* subscribe(std::any data) { return Reply<void>::create(); }
         virtual Reply<void>* unsubscribe(std::any data) { return Reply<void>::create(); }
 
+        virtual ResolveUrlReply* resolveUrlOrID(const QString& in) { return ResolveUrlReply::create(); }
+
         virtual void init() = 0;
 
         // mapped as category -> filters
         virtual const QList<std::pair<QString, QStringList>> searchFilters() const { return {}; }
+
+        // this should be used when returning results immediately in a reply.
+        // this is quite spaghetti tho, i don't like it :(
+        template<typename ReplyType>
+            requires requires(ReplyType& r) { []<typename T>(Reply<T>&){}(r); }
+        void delayedEmit(ReplyType* inst, auto&&... args)
+        {
+            using FirstArg = std::remove_cvref_t<std::tuple_element_t<0, std::tuple<decltype(args)...>>>;
+            QMetaObject::invokeMethod(inst, [inst, ...args = std::forward<decltype(args)>(args)]() mutable {
+                if constexpr (std::same_as<FirstArg, Exception>)
+                    emit inst->exception(std::forward<decltype(args)>(args)...);
+                else
+                    emit inst->finished(std::forward<decltype(args)>(args)...);
+            }, Qt::QueuedConnection);
+        }
     };
 
     struct PluginMetadata
@@ -61,7 +78,6 @@ namespace QtTubePlugin
         const char* url = "";
     };
 }
-
 
 using QtTubePluginAuthFunc = QtTubePlugin::AuthStore*(*)();
 using QtTubePluginMetadataFunc = QtTubePlugin::PluginMetadata*(*)();

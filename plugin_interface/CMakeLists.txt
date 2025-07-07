@@ -11,7 +11,7 @@ target_compile_definitions(QtTube-PluginInterface PUBLIC
 
 target_sources(QtTube-PluginInterface
     PRIVATE
-    qttube-plugin/components/settingswindow.cpp
+        qttube-plugin/components/settingswindow.cpp
         qttube-plugin/components/player/fullscreennotification.cpp
         qttube-plugin/components/player/webplayer.cpp
     PUBLIC
@@ -27,6 +27,7 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/player/webplayer.h
             qttube-plugin/components/replytypes/channeldata.h
             qttube-plugin/components/replytypes/replytypes.h
+            qttube-plugin/components/replytypes/resolveurldata.h
             qttube-plugin/components/replytypes/simpledatatypes.h
             qttube-plugin/components/replytypes/videodata.h
             qttube-plugin/objects/badge.h

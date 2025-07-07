@@ -16,7 +16,9 @@ public:
     explicit WatchView(const QString& videoId, int progress = 0,
                        PreloadData::WatchView* preload = nullptr, QWidget* parent = nullptr);
     ~WatchView();
-    void hotLoadVideo(const QString& videoId, int progress = 0, PreloadData::WatchView* preload = nullptr);
+    void hotLoadVideo(
+        const QString& videoId, int progress = 0,
+        PreloadData::WatchView* preload = nullptr, bool continuePlayback = false);
 protected:
     void resizeEvent(QResizeEvent* event) override;
 private:
@@ -29,7 +31,7 @@ private:
     void processPreloadData(PreloadData::WatchView* preload);
     void updateMetadata(const QString& videoId);
 private slots:
-    void descriptionLinkActivated(const QString& url);
+    void descriptionLinkActivated(const QString& link);
     void processData(const QtTubePlugin::VideoData& data);
     void rate(bool like, const std::any& addData, const std::any& removeData);
     void showShareModal();

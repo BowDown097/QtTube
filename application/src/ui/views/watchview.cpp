@@ -3,7 +3,6 @@
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/forms/livechatwindow.h"
-#include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/modals/sharemodal.h"
@@ -12,12 +11,10 @@
 #include "utils/osutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
-#include <QDesktopServices>
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTimer>
-#include <QUrlQuery>
 
 WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchView* preload, QWidget* parent)
     : QWidget(parent), ui(new Ui::WatchView)
@@ -55,46 +52,25 @@ WatchView::~WatchView()
     delete ui;
 }
 
-void WatchView::descriptionLinkActivated(const QString& url)
+void WatchView::descriptionLinkActivated(const QString& link)
 {
-    QUrl qUrl(url);
-    if (url.startsWith("http"))
-    {
-        QDesktopServices::openUrl(qUrl);
-    }
-    else if (url.startsWith("/channel"))
-    {
-        QString funnyPath = qUrl.path().replace("/channel/", "");
-        ViewController::loadChannel(funnyPath.left(funnyPath.indexOf('/')));
-    }
-    else if (url.startsWith("/watch"))
-    {
-        ui->scrollArea->verticalScrollBar()->setValue(0);
-
-        QUrlQuery query(qUrl);
-        int progress = query.queryItemValue("t").replace("s", "").toInt();
-
-        if (query.queryItemValue("continuePlayback") == "1")
-        {
-            ui->player->seek(progress);
-        }
-        else
-        {
-            hotLoadVideo(query.queryItemValue("v"), progress);
-            ui->toggleShowMore();
-        }
-    }
-    else
-    {
-        qDebug() << "Ran into unsupported description link:" << url;
-    }
+    qtTubeApp->handleUrlOrID(link);
 }
 
-void WatchView::hotLoadVideo(const QString& videoId, int progress, PreloadData::WatchView* preload)
+void WatchView::hotLoadVideo(
+    const QString& videoId, int progress, PreloadData::WatchView* preload, bool continuePlayback)
 {
-    ui->feed->reset();
     ui->scrollArea->horizontalScrollBar()->setValue(0);
     ui->scrollArea->verticalScrollBar()->setValue(0);
+
+    if (continuePlayback)
+    {
+        ui->player->seek(progress);
+        return;
+    }
+
+    ui->feed->reset();
+    ui->setShowMore(false);
 
     if (metadataUpdateTimer)
         metadataUpdateTimer->deleteLater();

@@ -17,6 +17,7 @@ public:
     bool notify(QObject* receiver, QEvent* event) override;
 
     void doInitialSetup();
+    void handleUrlOrID(const QString& in);
 
     CredentialsStore& creds() { return m_creds; }
     PluginManager& plugins() { return m_plugins; }

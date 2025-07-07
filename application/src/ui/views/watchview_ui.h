@@ -57,6 +57,7 @@ private:
     void setupPrimaryInfo(QWidget* watchView);
     void setupTitle(QWidget* watchView);
 public slots:
+    void setShowMore(bool enabled);
     void toggleShowMore();
 private slots:
     void moveFeed(WatchViewPlayer::ScaleMode scaleMode);

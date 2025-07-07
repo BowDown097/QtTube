@@ -6,6 +6,7 @@
 #include "utils/replydata.h"
 #include "utils/stringutils.h"
 #include "youtubeplayer.h"
+#include <QUrlQuery>
 
 using namespace InnertubeEndpoints;
 
@@ -376,6 +377,115 @@ QtTubePlugin::Reply<void>* YouTubePlugin::rate(const QString& videoId, bool like
     {
         InnertubeReply<void>* tubeReply = InnerTube::instance()->getPlain<Dislike>(videoId, params);
         QObject::connect(tubeReply, &InnertubeReply<void>::finished, pluginReply, &QtTubePlugin::Reply<void>::finished);
+    }
+
+    return pluginReply;
+}
+
+QtTubePlugin::ResolveUrlReply* YouTubePlugin::resolveUrlOrID(const QString& in)
+{
+    QtTubePlugin::ResolveUrlReply* pluginReply = QtTubePlugin::ResolveUrlReply::create();
+
+    static QRegularExpression channelRegex(R"((?:^|\/channel\/)(UC[a-zA-Z0-9_-]{22})(?=\b))");
+    static QRegularExpression videoRegex(R"((?:^|v=|vi=|v\/|vi\/|watch\/|shorts\/|live\/|youtu\.be\/)([a-zA-Z0-9_-]{11})(?=\b))");
+
+    auto noDomainMatch = [](const QString& host) {
+        constexpr std::array YouTubeDomains = { "www.youtube.com", "youtube.com", "youtu.be" };
+        return std::ranges::none_of(YouTubeDomains, [&host](const char* domain) {
+            return host.compare(domain, Qt::CaseInsensitive) == 0;
+        });
+    };
+
+    if (QRegularExpressionMatch channelMatch = channelRegex.match(in); channelMatch.lastCapturedIndex() >= 1)
+    {
+        delayedEmit(pluginReply, QtTubePlugin::ResolveUrlData {
+            .data = channelMatch.captured(1),
+            .target = QtTubePlugin::ResolveUrlTarget::Channel
+        });
+    }
+    else if (QRegularExpressionMatch videoMatch = videoRegex.match(in); videoMatch.lastCapturedIndex() >= 1)
+    {
+        bool continuePlayback{};
+        qint64 progress{};
+
+        if (QUrl url(in); url.isValid())
+        {
+            QUrlQuery urlQuery(url);
+            if (urlQuery.hasQueryItem("t"))
+                progress = urlQuery.queryItemValue("t").replace("s", "").toLongLong();
+            if (urlQuery.queryItemValue("continuePlayback") == "1")
+                continuePlayback = true;
+        }
+
+        delayedEmit(pluginReply, QtTubePlugin::ResolveUrlData {
+            .continuePlayback = continuePlayback,
+            .data = videoMatch.captured(1),
+            .target = QtTubePlugin::ResolveUrlTarget::Video,
+            .videoProgress = progress
+        });
+    }
+    else if (QUrl url(in); url.isValid() && (url.scheme() == "http" || url.scheme() == "https") && noDomainMatch(url.host()))
+    {
+        delayedEmit(pluginReply, QtTubePlugin::ResolveUrlData {
+            .data = in,
+            .target = QtTubePlugin::ResolveUrlTarget::PlainUrl
+        });
+    }
+    else
+    {
+        // this hits all kinds of stuff, but we're going to specifically filter for channels and videos.
+        // doesn't have to be an exact URL either, so just giving a handle and stuff like that should still work
+        InnertubeReply<ResolveUrl>* tubeReply = InnerTube::instance()->get<ResolveUrl>(in);
+        QObject::connect(tubeReply, &InnertubeReply<ResolveUrl>::exception, [=](const InnertubeException& ex) {
+            emit pluginReply->exception(convertException(ex));
+        });
+        QObject::connect(tubeReply, &InnertubeReply<ResolveUrl>::finished, [=](const ResolveUrl& endpoint) {
+            QString webPageType = endpoint.endpoint["commandMetadata"]["webCommandMetadata"]["webPageType"].toString();
+            if (webPageType == "WEB_PAGE_TYPE_CHANNEL")
+            {
+                emit pluginReply->finished(QtTubePlugin::ResolveUrlData {
+                    .data = endpoint.endpoint["browseEndpoint"]["browseId"].toString(),
+                    .target = QtTubePlugin::ResolveUrlTarget::Channel
+                });
+            }
+            else if (webPageType == "WEB_PAGE_TYPE_WATCH")
+            {
+                emit pluginReply->finished(QtTubePlugin::ResolveUrlData {
+                    .data = endpoint.endpoint["watchEndpoint"]["videoId"].toString(),
+                    .target = QtTubePlugin::ResolveUrlTarget::Video,
+                    .videoProgress = endpoint.endpoint["watchEndpoint"]["startTimeSeconds"].toInteger()
+                });
+            }
+            else
+            {
+                // check for an edge case where a classic channel URL is returned instead of the UCID
+                if (QString classicUrl = endpoint.endpoint["urlEndpoint"]["url"].toString(); !classicUrl.isEmpty())
+                {
+                    InnertubeReply<ResolveUrl>* tubeReply2 = InnerTube::instance()->get<ResolveUrl>(classicUrl);
+                    QObject::connect(tubeReply2, &InnertubeReply<ResolveUrl>::exception, [=](const InnertubeException& ex2) {
+                        emit pluginReply->exception(convertException(ex2));
+                    });
+                    QObject::connect(tubeReply2, &InnertubeReply<ResolveUrl>::finished, [=](const ResolveUrl& endpoint2) {
+                        QString webPageType2 = endpoint2.endpoint["commandMetadata"]["webCommandMetadata"]["webPageType"].toString();
+                        if (webPageType2 == "WEB_PAGE_TYPE_CHANNEL")
+                        {
+                            emit pluginReply->finished(QtTubePlugin::ResolveUrlData {
+                                .data = endpoint2.endpoint["browseEndpoint"]["browseId"].toString(),
+                                .target = QtTubePlugin::ResolveUrlTarget::Channel
+                            });
+                        }
+                        else
+                        {
+                            emit pluginReply->finished(QtTubePlugin::ResolveUrlData());
+                        }
+                    });
+                }
+                else
+                {
+                    emit pluginReply->finished(QtTubePlugin::ResolveUrlData());
+                }
+            }
+        });
     }
 
     return pluginReply;

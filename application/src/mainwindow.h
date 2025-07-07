@@ -36,7 +36,6 @@ private slots:
     void searchWatchHistory();
 private:
     void browse();
-    void searchByLink(const QString& link);
     void searchByQuery(const QString& query);
 
     static inline QStackedWidget* m_centralWidget;
