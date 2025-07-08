@@ -86,9 +86,12 @@ using QtTubePluginPlayerFunc = QtTubePlugin::Player*(*)(QWidget*);
 using QtTubePluginSettingsFunc = QtTubePlugin::SettingsStore*(*)();
 using QtTubePluginVersionFunc = const char*(*)();
 
+#define EXPAND(x) x
 #define GET_MACRO(_1, _2, _3, _4, _5, NAME, ...) NAME
 #define DECLARE_QTTUBE_PLUGIN(...) \
-    GET_MACRO(__VA_ARGS__, DECLARE_QTTUBE_PLUGIN5, DECLARE_QTTUBE_PLUGIN4, DECLARE_QTTUBE_PLUGIN3, DECLARE_QTTUBE_PLUGIN2, DECLARE_QTTUBE_PLUGIN1)(__VA_ARGS__)
+EXPAND(GET_MACRO(__VA_ARGS__, DECLARE_QTTUBE_PLUGIN5, \
+                 DECLARE_QTTUBE_PLUGIN4, DECLARE_QTTUBE_PLUGIN3, \
+                 DECLARE_QTTUBE_PLUGIN2, DECLARE_QTTUBE_PLUGIN1)(__VA_ARGS__))
 
 #define DECLARE_QTTUBE_PLUGIN2(PluginClass, MetadataInstance) \
     extern "C" \

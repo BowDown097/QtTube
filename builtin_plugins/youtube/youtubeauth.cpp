@@ -4,7 +4,7 @@
 
 const QtTubePlugin::AuthStore::AuthUser* YouTubeAuth::activeLogin() const
 {
-    auto it = std::ranges::find_if(m_credentials, &QtTubePlugin::AuthStore::AuthUser::active);
+    auto it = std::ranges::find_if(m_credentials, &CredentialSet::active);
     return it != m_credentials.end() ? &(*it) : nullptr;
 }
 

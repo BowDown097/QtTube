@@ -4,6 +4,7 @@
 #include "innertube.h"
 #include "utils/stringutils.h"
 #include "utils/tubeutils.h"
+#include <QJsonDocument>
 
 const QList<QtTubePlugin::Emoji> g_platformEmojis = {
     QtTubePlugin::Emoji { .representation = "UCkszU2WH9gy1mb0dV-11UJg/G8AfY6yWGuKuhL0PlbiA2AE", .shortcodes = {":hand-pink-waving:"}, .url = "https://yt3.ggpht.com/KOxdr_z3A5h1Gb7kqnxqOCnbZrBmxI2B_tRQ453BhTWUhYAlpg5ZP8IKEBkcvRoY8grY91Q=w48-h48-c-k-nd" },
