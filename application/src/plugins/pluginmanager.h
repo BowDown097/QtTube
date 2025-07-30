@@ -31,7 +31,7 @@ struct QLibraryDeleter
 struct PluginData
 {
     bool active{};
-    QtTubePlugin::AuthStore* auth{};
+    QtTubePlugin::AuthStoreBase* auth{};
     QFileInfo fileInfo;
     std::unique_ptr<QLibrary, QLibraryDeleter> handle;
     std::unique_ptr<QtTubePlugin::PluginInterface> interface;

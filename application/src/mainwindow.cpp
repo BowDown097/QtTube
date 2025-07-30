@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "innertube.h"
 #include "qttubeapplication.h"
 #include "stores/settingsstore.h"
 #include "ui/browsehelper.h"
@@ -70,11 +69,22 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     connect(reloadShortcut, &QAction::triggered, this, &MainWindow::reloadCurrentTab);
     addAction(reloadShortcut);
 
-    connect(InnerTube::instance()->authStore(), &InnertubeAuthStore::authenticateSuccess, this, [this] {
-        m_topbar->postSignInSetup();
-    });
-
     qtTubeApp->doInitialSetup();
+
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->auth)
+    {
+        if (const QtTubePlugin::AuthUser* authUser = plugin->auth->activeBaseLogin())
+        {
+            m_topbar->avatarButton->setImage(authUser->avatar, TubeLabel::Cached | TubeLabel::Rounded);
+            m_topbar->postSignInSetup();
+        }
+
+        connect(plugin->auth, &QtTubePlugin::AuthStoreBase::authenticateSuccess, m_topbar, &TopBar::postSignInSetup);
+        connect(plugin->auth, &QtTubePlugin::AuthStoreBase::updateFail, this, [] {
+            QMessageBox::critical(nullptr, "Invalid Login Credentials", "Your login credentials are invalid. They may have expired. You will be logged out, then try logging in again.");
+            m_topbar->signOut();
+        });
+    }
 
 #ifdef Q_OS_LINUX
     if (qtTubeApp->settings().vaapi)
@@ -169,7 +179,7 @@ void MainWindow::resizeEvent(QResizeEvent* event)
     m_topbar->scaleAppropriately();
     notificationMenu->move(m_topbar->notificationBell->x() - notificationMenu->width() + 20, 34);
 
-    if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>("accountController"))
+    if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>())
         accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
 
     QMainWindow::resizeEvent(event);
@@ -273,9 +283,6 @@ void MainWindow::showAccountMenu()
     connect(accountController, &AccountControllerWidget::resized, this, [this, accountController] {
         accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
     });
-
-    auto reply = InnerTube::instance()->get<InnertubeEndpoints::AccountMenu>();
-    connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, accountController->accountMenu, &AccountMenuWidget::initialize);
 }
 
 void MainWindow::showNotifications()

@@ -20,11 +20,11 @@ endif()
 # Source files
 set(SOURCE_FILES
     src/eastereggs.cpp
+    src/httprequest.cpp
     src/main.cpp
     src/mainwindow.cpp
     src/qttubeapplication.cpp
     src/plugins/pluginmanager.cpp
-    src/stores/credentialsstore.cpp
     src/stores/emojistore.cpp
     src/stores/genericstore.cpp
     src/stores/settingsstore.cpp
@@ -74,17 +74,16 @@ set(SOURCE_FILES
     src/ui/widgets/topbar/topbar.cpp
     src/ui/widgets/topbar/topbarbell.cpp
     src/utils/osutils.cpp
-    src/utils/tubeutils.cpp
     src/utils/uiutils.cpp
     res/resources.qrc
 )
 
 set(HEADERS
     src/eastereggs.h
+    src/httprequest.h
     src/mainwindow.h
     src/qttubeapplication.h
     src/plugins/pluginmanager.h
-    src/stores/credentialsstore.h
     src/stores/emojistore.h
     src/stores/genericstore.h
     src/stores/settingsstore.h
@@ -136,7 +135,6 @@ set(HEADERS
     src/ui/widgets/topbar/topbar.h
     src/ui/widgets/topbar/topbarbell.h
     src/utils/osutils.h
-    src/utils/tubeutils.h
     src/utils/uiutils.h
 )
 
@@ -204,8 +202,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Include directories, libraries
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
-    innertube-qt QtTube::PluginInterface Qt::Network Qt::WebEngineWidgets Qt::Widgets)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QtTube::PluginInterface Qt::Network Qt::WebEngineWidgets Qt::Widgets)
 
 ## Platform-specific
 if(UNIX AND NOT APPLE)

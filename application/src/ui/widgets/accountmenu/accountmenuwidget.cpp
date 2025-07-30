@@ -1,9 +1,8 @@
 #include "accountmenuwidget.h"
-#include "innertube/endpoints/misc/accountmenu.h"
 #include "mainwindow.h"
+#include "qttubeapplication.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
-#include "utils/tubeutils.h"
 #include <QBoxLayout>
 
 AccountMenuWidget::AccountMenuWidget(QWidget* parent)
@@ -18,15 +17,26 @@ AccountMenuWidget::AccountMenuWidget(QWidget* parent)
       switchAccountsLabel(new IconLabel("switch-accounts", "Switch account", QMargins(), QSize(24, 24), this)),
       yourChannelLabel(new IconLabel("your-channel", "Your channel", QMargins(), QSize(24, 24), this))
 {
+    PluginData* plugin = qtTubeApp->plugins().activePlugin();
+    if (!plugin || !plugin->auth)
+        throw std::runtime_error("Account menu somehow opened without an active plugin with auth.");
+
+    const QtTubePlugin::AuthUser* user = plugin->auth->activeBaseLogin();
+    if (!user)
+        throw std::runtime_error("Account menu somehow opened without an active login.");
+
     setAutoFillBackground(true);
 
     accountNameLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
+    accountNameLabel->setText(user->username);
     accountLayout->addWidget(accountNameLabel);
 
+    handleLabel->setText(user->handle);
     accountLayout->addWidget(handleLabel);
 
     avatar->setFixedSize(48, 48);
     avatar->setScaledContents(true);
+    avatar->setImage(user->avatar, TubeLabel::Cached | TubeLabel::Rounded);
     headerLayout->addWidget(avatar);
 
     headerLayout->addLayout(accountLayout);
@@ -40,22 +50,7 @@ AccountMenuWidget::AccountMenuWidget(QWidget* parent)
 
     connect(switchAccountsLabel, &IconLabel::clicked, this, &AccountMenuWidget::accountSwitcherRequested);
     connect(signOutLabel, &IconLabel::clicked, this, &AccountMenuWidget::triggerSignOut);
-}
-
-void AccountMenuWidget::initialize(const InnertubeEndpoints::AccountMenu& endpoint)
-{
-    const InnertubeObjects::ActiveAccountHeader& header = endpoint.response.header;
-    accountNameLabel->setText(header.accountName);
-    handleLabel->setText(header.channelHandle);
-
-    if (const InnertubeObjects::GenericThumbnail* recAvatar = header.accountPhoto.recommendedQuality(avatar->size()))
-        avatar->setImage(recAvatar->url, TubeLabel::Cached | TubeLabel::Rounded);
-
-    QString channelId = TubeUtils::getUcidFromUrl("https://www.youtube.com/" + header.channelHandle);
-    connect(yourChannelLabel, &IconLabel::clicked, this, std::bind(&AccountMenuWidget::gotoChannel, this, channelId));
-
-    adjustSize();
-    emit finishedInitializing();
+    connect(yourChannelLabel, &IconLabel::clicked, this, [this, channelId = user->id] { gotoChannel(channelId); });
 }
 
 void AccountMenuWidget::gotoChannel(const QString& channelId)

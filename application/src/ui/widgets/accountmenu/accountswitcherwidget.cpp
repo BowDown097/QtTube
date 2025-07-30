@@ -1,6 +1,5 @@
 #include "accountswitcherwidget.h"
 #include "accountentrywidget.h"
-#include "innertube.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include <QBoxLayout>
@@ -19,19 +18,19 @@ AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
 
     layout->addWidget(backButton);
 
-    const CredentialSet* activeLogin = qtTubeApp->creds().activeLogin();
-    if (!activeLogin)
-    {
-        qWarning() << "AccountSwitcherWidget brought up with no active login. This shouldn't be possible.";
-        return;
-    }
+    PluginData* plugin = qtTubeApp->plugins().activePlugin();
+    if (!plugin || !(this->auth = plugin->auth))
+        throw std::runtime_error("Account switcher somehow opened without an active plugin with auth.");
 
-    for (const CredentialSet& credSet : qtTubeApp->creds().credentials())
+    QtTubePlugin::AuthUser* activeUser = plugin->auth->activeBaseLogin();
+    if (!activeUser)
+        throw std::runtime_error("Account switcher somehow opened without an active login.");
+
+    for (QtTubePlugin::AuthUser* user : plugin->auth->baseCredentials())
     {
-        AccountEntryWidget* accountEntry = new AccountEntryWidget(credSet, this);
-        accountEntry->setClickable(credSet.channelId != activeLogin->channelId);
-        connect(accountEntry, &AccountEntryWidget::clicked, this,
-                std::bind(&AccountSwitcherWidget::switchAccount, this, credSet));
+        AccountEntryWidget* accountEntry = new AccountEntryWidget(*user, this);
+        accountEntry->setClickable(user->id != activeUser->id);
+        connect(accountEntry, &AccountEntryWidget::clicked, this, [this, activeUser, user] { switchAccount(activeUser, user); });
         layout->addWidget(accountEntry);
     }
 
@@ -44,15 +43,18 @@ AccountSwitcherWidget::AccountSwitcherWidget(QWidget* parent)
 void AccountSwitcherWidget::addAccount()
 {
     hide();
-    InnerTube::instance()->unauthenticate();
-    MainWindow::topbar()->trySignIn();
+    auth->unauthenticate();
+    auth->startAuthRoutine();
     emit closeRequested();
 }
 
-void AccountSwitcherWidget::switchAccount(const CredentialSet& credSet)
+void AccountSwitcherWidget::switchAccount(QtTubePlugin::AuthUser* oldUser, QtTubePlugin::AuthUser* newUser)
 {
+    oldUser->active = false;
+    newUser->active = true;
+
     hide();
-    qtTubeApp->creds().populateAuthStore(credSet);
+    auth->restoreFromActive();
     MainWindow::topbar()->postSignInSetup();
     emit closeRequested();
 }

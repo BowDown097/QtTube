@@ -1,7 +1,5 @@
 #include "qttubeapplication.h"
 #include "eastereggs.h"
-#include "innertube.h"
-#include "localcache.h"
 #include "mainwindow.h"
 #include "ui/views/viewcontroller.h"
 #include "utils/uiutils.h"
@@ -10,33 +8,11 @@
 
 void QtTubeApplication::doInitialSetup()
 {
-    m_creds.initialize();
     m_plugins.reloadPlugins();
     m_settings.initialize();
 
     UIUtils::g_defaultStyle = style()->objectName();
     UIUtils::setAppStyle(m_settings.appStyle, m_settings.darkTheme);
-
-    LocalCache* cache = LocalCache::instance("client");
-    cache->setMaxSeconds(86400);
-
-    if (const QByteArray cver = cache->value("cver"); !cver.isNull())
-    {
-        InnerTube::instance()->createClient(InnertubeClient::ClientType::WEB, cver);
-    }
-    else
-    {
-        cache->clear();
-        InnerTube::instance()->createClient(InnertubeClient::ClientType::WEB, "2.20250421.01.00", true);
-        cache->insert("cver", InnerTube::instance()->context()->client.clientVersion.toLatin1());
-    }
-
-    if (const CredentialSet* activeLogin = m_creds.activeLogin())
-    {
-        m_creds.populateAuthStore(*activeLogin);
-        if (InnerTube::instance()->hasAuthenticated())
-            emit InnerTube::instance()->authStore()->authenticateSuccess();
-    }
 }
 
 void QtTubeApplication::handleUrlOrID(const QString& in)

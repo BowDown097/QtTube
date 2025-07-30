@@ -122,7 +122,7 @@ void SubscribeLabel::trySubscribe()
 {
     if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
     {
-        if (!activePlugin->auth || !activePlugin->auth->activeLogin())
+        if (!activePlugin->auth || activePlugin->auth->isEmpty())
         {
             QMessageBox::information(nullptr, "Need to log in", "You must be logged in to subscribe to channels.\nLocal subscriptions are planned, but not implemented.");
             return;

@@ -1,7 +1,7 @@
 #pragma once
+#include "qttube-plugin/components/auth/authstore.h"
 #include <QWidget>
 
-struct CredentialSet;
 class QPushButton;
 class QVBoxLayout;
 
@@ -12,11 +12,12 @@ public:
     explicit AccountSwitcherWidget(QWidget* parent = nullptr);
 private:
     QPushButton* addAccountButton;
+    QtTubePlugin::AuthStoreBase* auth;
     QPushButton* backButton;
     QVBoxLayout* layout;
 private slots:
     void addAccount();
-    void switchAccount(const CredentialSet& credSet);
+    void switchAccount(QtTubePlugin::AuthUser* oldUser, QtTubePlugin::AuthUser* newUser);
 signals:
     void accountMenuRequested();
     void closeRequested();

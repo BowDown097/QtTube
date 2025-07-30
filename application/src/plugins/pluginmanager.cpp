@@ -128,11 +128,18 @@ void PluginManager::reloadPlugins()
             {
                 if (fileInfo.fileName() == presentlyActivePluginName)
                     plugin->active = true;
-                if (plugin->auth)
-                    plugin->auth->init();
+
+                plugin->interface->init();
+
                 if (plugin->settings)
                     plugin->settings->init();
-                plugin->interface->init();
+
+                if (plugin->auth)
+                {
+                    plugin->auth->init();
+                    plugin->auth->restoreFromActive();
+                }
+
                 m_loadedPlugins.emplace(plugin->metadata->name, std::move(plugin.value()));
             }
             else

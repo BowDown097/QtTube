@@ -1,6 +1,5 @@
 #pragma once
 #include "plugins/pluginmanager.h"
-#include "stores/credentialsstore.h"
 #include "stores/settingsstore.h"
 #include <QApplication>
 
@@ -12,6 +11,7 @@
 
 class QtTubeApplication final : public QApplication
 {
+    Q_OBJECT
 public:
     QtTubeApplication(int& argc, char** argv) : QApplication(argc, argv) {}
     bool notify(QObject* receiver, QEvent* event) override;
@@ -19,7 +19,6 @@ public:
     void doInitialSetup();
     void handleUrlOrID(const QString& in);
 
-    CredentialsStore& creds() { return m_creds; }
     PluginManager& plugins() { return m_plugins; }
     SettingsStore& settings() { return m_settings; }
 
@@ -27,11 +26,12 @@ public:
     WaylandInterface& waylandInterface() { return m_waylandInterface; }
 #endif
 private:
-    CredentialsStore m_creds;
     PluginManager m_plugins;
     SettingsStore m_settings;
 
 #ifdef QTTUBE_HAS_WAYLAND
     WaylandInterface m_waylandInterface;
 #endif
+signals:
+    void activePluginChanged(PluginData* active);
 };

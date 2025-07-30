@@ -1,5 +1,5 @@
 #pragma once
-#include "components/authstore.h"
+#include "components/auth/authstore.h"
 #include "components/player/player.h"
 #include "components/replytypes/replytypes.h"
 #include "components/settingsstore.h"
@@ -15,6 +15,8 @@ namespace QtTubePlugin
     struct PluginInterface
     {
         virtual ~PluginInterface() = default;
+
+        virtual AccountReply* getActiveAccount() { return AccountReply::create(); }
 
         virtual ChannelReply* getChannel(
             const QString& channelId,
@@ -52,21 +54,6 @@ namespace QtTubePlugin
 
         // mapped as category -> filters
         virtual const QList<std::pair<QString, QStringList>> searchFilters() const { return {}; }
-
-        // this should be used when returning results immediately in a reply.
-        // this is quite spaghetti tho, i don't like it :(
-        template<typename ReplyType>
-            requires requires(ReplyType& r) { []<typename T>(Reply<T>&){}(r); }
-        void delayedEmit(ReplyType* inst, auto&&... args)
-        {
-            using FirstArg = std::remove_cvref_t<std::tuple_element_t<0, std::tuple<decltype(args)...>>>;
-            QMetaObject::invokeMethod(inst, [inst, ...args = std::forward<decltype(args)>(args)]() mutable {
-                if constexpr (std::same_as<FirstArg, Exception>)
-                    emit inst->exception(std::forward<decltype(args)>(args)...);
-                else
-                    emit inst->finished(std::forward<decltype(args)>(args)...);
-            }, Qt::QueuedConnection);
-        }
     };
 
     struct PluginMetadata
@@ -79,7 +66,7 @@ namespace QtTubePlugin
     };
 }
 
-using QtTubePluginAuthFunc = QtTubePlugin::AuthStore*(*)();
+using QtTubePluginAuthFunc = QtTubePlugin::AuthStoreBase*(*)();
 using QtTubePluginMetadataFunc = QtTubePlugin::PluginMetadata*(*)();
 using QtTubePluginNewInstanceFunc = QtTubePlugin::PluginInterface*(*)();
 using QtTubePluginPlayerFunc = QtTubePlugin::Player*(*)(QWidget*);
@@ -136,9 +123,9 @@ EXPAND(GET_MACRO(__VA_ARGS__, DECLARE_QTTUBE_PLUGIN5, \
             static std::unique_ptr<SettingsClass> s = QtTubePlugin::SettingsStore::create<SettingsClass>(metadata()->name); \
             return s.get(); \
         } \
-        DLLEXPORT QtTubePlugin::AuthStore* auth() \
+        DLLEXPORT QtTubePlugin::AuthStoreBase* auth() \
         { \
-            static std::unique_ptr<AuthClass> a = QtTubePlugin::AuthStore::create<AuthClass>(metadata()->name); \
+            static std::unique_ptr<AuthClass> a = QtTubePlugin::AuthStoreBase::create<AuthClass>(metadata()->name); \
             return a.get(); \
         } \
     }

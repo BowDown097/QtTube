@@ -1,5 +1,6 @@
 #pragma once
 #include "channeldata.h"
+#include "initialaccountdata.h"
 #include "qttube-plugin/components/reply.h"
 #include "qttube-plugin/objects/livechat/livechat.h"
 #include "qttube-plugin/objects/livechat/livechatreplay.h"
@@ -9,6 +10,7 @@
 
 W_REGISTER_ARGTYPE(QtTubePlugin::BrowseData)
 W_REGISTER_ARGTYPE(QtTubePlugin::ChannelData)
+W_REGISTER_ARGTYPE(QtTubePlugin::InitialAccountData)
 W_REGISTER_ARGTYPE(QtTubePlugin::LiveChat)
 W_REGISTER_ARGTYPE(QtTubePlugin::LiveChatReplay)
 W_REGISTER_ARGTYPE(QtTubePlugin::NotificationsData)
@@ -17,6 +19,7 @@ W_REGISTER_ARGTYPE(QtTubePlugin::VideoData)
 
 namespace QtTubePlugin
 {
+    using AccountReply = Reply<InitialAccountData>;
     using BrowseReply = Reply<BrowseData>;
     using ChannelReply = Reply<ChannelData>;
     using LiveChatReply = Reply<LiveChat>;

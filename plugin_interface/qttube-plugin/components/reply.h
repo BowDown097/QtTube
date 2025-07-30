@@ -25,6 +25,8 @@ namespace QtTubePlugin
     {
         W_OBJECT(Reply)
     public:
+        using data_type = T;
+
         std::any continuationData;
 
         void exception(const QtTubePlugin::Exception& ex) W_SIGNAL(exception, ex)
@@ -45,6 +47,8 @@ namespace QtTubePlugin
     {
         W_OBJECT(Reply<void>)
     public:
+        using data_type = void;
+
         std::any continuationData;
 
         void exception(const QtTubePlugin::Exception& ex) W_SIGNAL(exception, ex)

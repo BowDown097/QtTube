@@ -149,6 +149,7 @@ void SettingsForm::pluginActiveButtonToggled(QAbstractButton* button, bool check
     {
         pluginWidget->data()->active = true;
         qtTubeApp->settings().activePlugin = pluginWidget->data()->fileInfo.fileName();
+        emit qtTubeApp->activePluginChanged(pluginWidget->data());
     }
 }
 

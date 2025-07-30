@@ -25,7 +25,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        if (!plugin->auth || !plugin->auth->activeLogin())
+        if (!plugin->auth || plugin->auth->isEmpty())
         {
             widget->addItem("Local history has not been implemented yet. You will need to log in.");
             return;
@@ -73,7 +73,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        if (!plugin->auth || !plugin->auth->activeLogin())
+        if (!plugin->auth || plugin->auth->isEmpty())
         {
             widget->addItem("Local subscriptions have not been implemented yet. You will need to log in.");
             return;

@@ -17,7 +17,7 @@ public:
 
     explicit TopBar(QWidget* parent);
     void handleMouseEvent(QMouseEvent* event);
-    void postSignInSetup(bool emitSignal = true);
+    void postSignInSetup();
     void scaleAppropriately();
     void setAlwaysShow(bool alwaysShow) { this->alwaysShow = alwaysShow; }
     void updatePalette(const QPalette& palette);
@@ -28,12 +28,10 @@ private:
     QPushButton* signInButton;
 public slots:
     void signOut();
-    void trySignIn();
-    void updateNotificationCount(int value = -1);
+    void updateNotificationCount(int value);
 private slots:
-    void setUpAvatarButton();
-    void setUpNotifications();
     void showSettings();
+    void trySignIn();
 signals:
     void signInStatusChanged();
 };

@@ -1,21 +1,19 @@
-// TODO: make this whole mess better. i'm really bad at qt gui and
-// can't figure out how to make this work with an hbox layout, which
-// is what this should be using instead of whatever the hell's going on.
-
 #include "topbar.h"
-#include "innertube.h"
 #include "qttubeapplication.h"
 #include "ui/forms/settings/settingsform.h"
 #include "utils/uiutils.h"
 #include <QApplication>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QPropertyAnimation>
 #include <QPushButton>
 #include <QTabBar>
 
-#ifdef INNERTUBE_NO_WEBENGINE
-#include <QMessageBox>
-#endif
+inline bool hasAuthenticated()
+{
+    const PluginData* plugin = qtTubeApp->plugins().activePlugin();
+    return plugin && plugin->auth && !plugin->auth->isEmpty();
+}
 
 TopBar::TopBar(QWidget* parent)
     : QWidget(parent),
@@ -93,20 +91,32 @@ void TopBar::handleMouseEvent(QMouseEvent* event)
     }
 }
 
-void TopBar::postSignInSetup(bool emitSignal)
+void TopBar::postSignInSetup()
 {
     avatarButton->show();
     signInButton->hide();
-    setUpAvatarButton();
-    setUpNotifications();
+    scaleAppropriately();
 
-    if (emitSignal)
-        emit signInStatusChanged();
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    {
+        QtTubePlugin::AccountReply* reply = plugin->interface->getActiveAccount();
+        connect(reply, &QtTubePlugin::AccountReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
+            QMessageBox::warning(nullptr, "Failed to get active account data", ex.message());
+        });
+        connect(reply, &QtTubePlugin::AccountReply::finished, this, [this, plugin](const QtTubePlugin::InitialAccountData& data) {
+            updateNotificationCount(data.notificationCount);
+            avatarButton->setImage(data.avatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
+            plugin->auth->update(data);
+            scaleAppropriately();
+        });
+    }
+
+    emit signInStatusChanged();
 }
 
 void TopBar::scaleAppropriately()
 {
-    if (InnerTube::instance()->hasAuthenticated())
+    if (hasAuthenticated())
     {
         searchBox->resize(502 + width() - 800, 35);
         notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
@@ -121,27 +131,6 @@ void TopBar::scaleAppropriately()
     }
 }
 
-void TopBar::setUpAvatarButton()
-{
-    scaleAppropriately();
-    auto reply = InnerTube::instance()->get<InnertubeEndpoints::AccountMenu>();
-    connect(reply, &InnertubeReply<InnertubeEndpoints::AccountMenu>::finished, this, [this](const InnertubeEndpoints::AccountMenu& endpoint)
-    {
-        qtTubeApp->creds().updateAccount(endpoint);
-        const InnertubeObjects::ResponsiveImage& accountPhoto = endpoint.response.header.accountPhoto;
-        if (const InnertubeObjects::GenericThumbnail* recAvatar = accountPhoto.recommendedQuality(avatarButton->size()))
-            avatarButton->setImage(recAvatar->url, TubeLabel::Cached | TubeLabel::Rounded);
-    });
-}
-
-void TopBar::setUpNotifications()
-{
-    scaleAppropriately();
-    notificationBell->setVisible(InnerTube::instance()->hasAuthenticated());
-    if (InnerTube::instance()->hasAuthenticated())
-        updateNotificationCount();
-}
-
 void TopBar::showSettings()
 {
     SettingsForm* settings = new SettingsForm;
@@ -150,63 +139,24 @@ void TopBar::showSettings()
 
 void TopBar::signOut()
 {
-    InnerTube::instance()->unauthenticate();
-    setUpNotifications();
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->auth)
+        plugin->auth->clear();
+    notificationBell->hide();
     avatarButton->hide();
     signInButton->show();
     emit signInStatusChanged();
-    qtTubeApp->creds().clear();
 }
 
 void TopBar::trySignIn()
 {
-#ifndef INNERTUBE_NO_WEBENGINE
-    InnerTube::instance()->authenticate();
-#else
-    QMessageBox::StandardButton box = QMessageBox::information(nullptr, "YouTube Login",
-R"(
-Could not bring up the YouTube login page because the Qt web engine is not available.
-You will need to provide authentication credentials manually to log in.
-For info on how to do this, see https://github.com/BowDown097/QtTube/wiki/Manually-getting-login-credentials.
-)");
-    if (box != QMessageBox::StandardButton::Ok)
-        return;
-
-    int index = CredentialsStore::instance()->getActiveLoginIndex();
-    if (index == -1)
-        index = 0;
-
-    CredentialsStore::instance()->populateAuthStore(index);
-    if (!InnerTube::instance()->hasAuthenticated())
-    {
-        QMessageBox::information(nullptr, "Not Logged In",
-R"(
-You didn't provide authentication credentials or the credentials you provided are invalid.
-If you provided credentials, please check them, refer back to the previous linked guide if needed, and try again.
-)");
-        return;
-    }
-
-    postSignInSetup();
-#endif
+    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->auth)
+        plugin->auth->startAuthRoutine();
 }
 
 void TopBar::updateNotificationCount(int value)
 {
-    if (value >= 0) // if value is non-negative (default value is -1)
-    {
-        notificationBell->updatePixmap(value > 0, palette());
-        notificationBell->updateCount(value);
-    }
-    else
-    {
-        auto reply = InnerTube::instance()->get<InnertubeEndpoints::UnseenCount>();
-        connect(reply, &InnertubeReply<InnertubeEndpoints::UnseenCount>::finished, this, [this](const InnertubeEndpoints::UnseenCount& endpoint)
-        {
-            notificationBell->updatePixmap(endpoint.unseenCount > 0, palette());
-            notificationBell->updateCount(endpoint.unseenCount);
-        });
-    }
+    notificationBell->updatePixmap(value > 0, palette());
+    notificationBell->updateCount(value);
 }
 
 void TopBar::updatePalette(const QPalette& palette)
@@ -217,6 +167,6 @@ void TopBar::updatePalette(const QPalette& palette)
     searchBox->updatePalette(palette);
     settingsButton->setPixmap(UIUtils::pixmapThemed("settings", palette));
 
-    if (!InnerTube::instance()->hasAuthenticated())
+    if (!hasAuthenticated())
         notificationBell->hide();
 }

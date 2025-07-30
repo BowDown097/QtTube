@@ -6,6 +6,7 @@
 class YouTubePlugin : public QtTubePlugin::PluginInterface
 {
 public:
+    QtTubePlugin::AccountReply* getActiveAccount() override;
     QtTubePlugin::ChannelReply* getChannel(const QString& channelId, std::any tabData, std::any continuationData) override;
     QtTubePlugin::BrowseReply* getHistory(const QString& query, std::any continuationData) override;
     QtTubePlugin::BrowseReply* getHome(std::any continuationData) override;

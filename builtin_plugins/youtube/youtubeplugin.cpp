@@ -1,6 +1,7 @@
 #include "youtubeplugin.h"
 #include "innertube.h"
 #include "localcache.h"
+#include "qttube-plugin/replyutils.h"
 #include "protobuf/protobufcompiler.h"
 #include "utils/conversion.h"
 #include "utils/replydata.h"
@@ -82,6 +83,36 @@ QByteArray YouTubePlugin::compileSearchParams(const QList<std::pair<QString, int
         params.insert("filter", filterParams);
 
     return !params.isEmpty() ? ProtobufCompiler::compileEncoded(params, g_searchMsgFields) : QByteArray();
+}
+
+QtTubePlugin::AccountReply* YouTubePlugin::getActiveAccount()
+{
+    QtTubePlugin::AccountReply* pluginReply = QtTubePlugin::AccountReply::create();
+    InnertubeReply<AccountMenu>* accountMenuReply = InnerTube::instance()->get<AccountMenu>();
+    InnertubeReply<UnseenCount>* unseenCountReply = InnerTube::instance()->get<UnseenCount>();
+
+    auto data = std::make_shared<QtTubePlugin::InitialAccountData>();
+    auto state = std::make_shared<QtTubePlugin::MultiCompletionState<2>>();
+
+    QObject::connect(accountMenuReply, &InnertubeReply<AccountMenu>::exception, [=](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(accountMenuReply, &InnertubeReply<AccountMenu>::finished, [=](const AccountMenu& endpoint) {
+        getAccountData(*data, endpoint.response);
+        if (state->hit())
+            emit pluginReply->finished(*data);
+    });
+
+    QObject::connect(unseenCountReply, &InnertubeReply<UnseenCount>::exception, [=](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(unseenCountReply, &InnertubeReply<UnseenCount>::finished, [=](const UnseenCount& endpoint) {
+        data->notificationCount = endpoint.unseenCount;
+        if (state->hit())
+            emit pluginReply->finished(*data);
+    });
+
+    return pluginReply;
 }
 
 QtTubePlugin::ChannelReply* YouTubePlugin::getChannel(const QString& channelId, std::any tabData, std::any continuationData)
@@ -295,37 +326,29 @@ QtTubePlugin::BrowseReply* YouTubePlugin::getTrending(std::any continuationData)
 
 QtTubePlugin::VideoReply* YouTubePlugin::getVideo(const QString& videoId, std::any continuationData)
 {
-    std::shared_ptr<QtTubePlugin::VideoData> videoData = std::make_shared<QtTubePlugin::VideoData>();
     QtTubePlugin::VideoReply* pluginReply = QtTubePlugin::VideoReply::create();
-
     InnertubeReply<Next>* nextReply = InnerTube::instance()->get<Next>(videoId);
     InnertubeReply<Player>* playerReply = InnerTube::instance()->get<Player>(videoId);
 
-    struct CompletionState { bool nextFinished{}; bool playerFinished{}; QMutex mutex; };
-    std::shared_ptr<CompletionState> state = std::make_shared<CompletionState>();
-
-    auto tryEmitFinished = [=] {
-        QMutexLocker locker(&state->mutex);
-        if (state->nextFinished && state->playerFinished)
-            emit pluginReply->finished(*videoData);
-    };
+    auto data = std::make_shared<QtTubePlugin::VideoData>();
+    auto state = std::make_shared<QtTubePlugin::MultiCompletionState<2>>();
 
     QObject::connect(nextReply, &InnertubeReply<Next>::exception, [=](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
     QObject::connect(nextReply, &InnertubeReply<Next>::finished, [=](const Next& endpoint) {
-        getNextData(*videoData, endpoint.response);
-        state->nextFinished = true;
-        tryEmitFinished();
+        getNextData(*data, endpoint.response);
+        if (state->hit())
+            emit pluginReply->finished(*data);
     });
 
     QObject::connect(playerReply, &InnertubeReply<Player>::exception, [=](const InnertubeException& ex) {
         emit pluginReply->exception(convertException(ex));
     });
     QObject::connect(playerReply, &InnertubeReply<Player>::finished, [=](const Player& endpoint) {
-        getPlayerData(*videoData, endpoint.response);
-        state->playerFinished = true;
-        tryEmitFinished();
+        getPlayerData(*data, endpoint.response);
+        if (state->hit())
+            emit pluginReply->finished(*data);
     });
 
     return pluginReply;
@@ -345,13 +368,6 @@ void YouTubePlugin::init()
         cache->clear();
         InnerTube::instance()->createClient(InnertubeClient::ClientType::WEB, "2.20250421.01.00", true);
         cache->insert("cver", InnerTube::instance()->context()->client.clientVersion.toLatin1());
-    }
-
-    if (const CredentialSet* activeLogin = static_cast<const CredentialSet*>(g_auth->activeLogin()))
-    {
-        g_auth->populateAuthStore(*activeLogin);
-        if (InnerTube::instance()->hasAuthenticated())
-            emit InnerTube::instance()->authStore()->authenticateSuccess();
     }
 }
 
@@ -398,7 +414,7 @@ QtTubePlugin::ResolveUrlReply* YouTubePlugin::resolveUrlOrID(const QString& in)
 
     if (QRegularExpressionMatch channelMatch = channelRegex.match(in); channelMatch.lastCapturedIndex() >= 1)
     {
-        delayedEmit(pluginReply, QtTubePlugin::ResolveUrlData {
+        QtTubePlugin::delayedEmit(pluginReply, QtTubePlugin::ResolveUrlData {
             .data = channelMatch.captured(1),
             .target = QtTubePlugin::ResolveUrlTarget::Channel
         });
@@ -417,7 +433,7 @@ QtTubePlugin::ResolveUrlReply* YouTubePlugin::resolveUrlOrID(const QString& in)
                 continuePlayback = true;
         }
 
-        delayedEmit(pluginReply, QtTubePlugin::ResolveUrlData {
+        QtTubePlugin::delayedEmit(pluginReply, QtTubePlugin::ResolveUrlData {
             .continuePlayback = continuePlayback,
             .data = videoMatch.captured(1),
             .target = QtTubePlugin::ResolveUrlTarget::Video,
@@ -426,7 +442,7 @@ QtTubePlugin::ResolveUrlReply* YouTubePlugin::resolveUrlOrID(const QString& in)
     }
     else if (QUrl url(in); url.isValid() && (url.scheme() == "http" || url.scheme() == "https") && noDomainMatch(url.host()))
     {
-        delayedEmit(pluginReply, QtTubePlugin::ResolveUrlData {
+        QtTubePlugin::delayedEmit(pluginReply, QtTubePlugin::ResolveUrlData {
             .data = in,
             .target = QtTubePlugin::ResolveUrlTarget::PlainUrl
         });

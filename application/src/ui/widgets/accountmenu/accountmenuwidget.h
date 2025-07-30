@@ -1,8 +1,6 @@
 #pragma once
 #include <QWidget>
 
-namespace InnertubeEndpoints { struct AccountMenu; }
-
 class IconLabel;
 class QHBoxLayout;
 class QVBoxLayout;
@@ -23,13 +21,10 @@ private:
     IconLabel* signOutLabel;
     IconLabel* switchAccountsLabel;
     IconLabel* yourChannelLabel;
-public slots:
-    void initialize(const InnertubeEndpoints::AccountMenu& endpoint);
 private slots:
     void gotoChannel(const QString& channelId);
     void triggerSignOut();
 signals:
     void accountSwitcherRequested();
     void closeRequested();
-    void finishedInitializing();
 };

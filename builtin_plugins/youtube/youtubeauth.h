@@ -1,7 +1,8 @@
 #pragma once
-#include "qttube-plugin/components/authstore.h"
+#include "qttube-plugin/components/auth/authstore.h"
+#include "qttube-plugin/components/auth/webauthroutine.h"
 
-struct CredentialSet : QtTubePlugin::AuthStore::AuthUser
+struct CredentialSet : QtTubePlugin::AuthUser
 {
     QString apisid;
     QString hsid;
@@ -15,23 +16,30 @@ struct CredentialSet : QtTubePlugin::AuthStore::AuthUser
 
     CredentialSet() = default;
     CredentialSet(
-        bool active, const QString& avatar, const QString& id, const QString& username,
+        bool active, const QString& avatar, const QString& id, const QString& username, const QString& handle,
         const QString& apisid, const QString& hsid, const QString& sapisid,
         const QString& sid, const QString& ssid, const QString& visitorInfo)
-        : QtTubePlugin::AuthStore::AuthUser(active, avatar, id, username),
+        : QtTubePlugin::AuthUser(active, avatar, id, username, handle),
           apisid(apisid), hsid(hsid), sapisid(sapisid),
           sid(sid), ssid(ssid), visitorInfo(visitorInfo) {}
 };
 
-class YouTubeAuth : public QtTubePlugin::AuthStore
+struct YouTubeAuthRoutine : QtTubePlugin::WebAuthRoutine
 {
-public:
-    const QtTubePlugin::AuthStore::AuthUser* activeLogin() const override;
-    void clear() override;
+    void onNewCookie(const QByteArray& name, const QByteArray& value) override;
+    void onNewHeader(const QByteArray& name, const QByteArray& value) override;
+    void start() override;
+};
+
+struct YouTubeAuth : QtTubePlugin::AuthStore<CredentialSet, YouTubeAuthRoutine>
+{
     void init() override;
     void save() override;
 
+    void restoreFromActive() override;
+    void unauthenticate() override;
+
+    CredentialSet createUser(const QtTubePlugin::InitialAccountData& data, const YouTubeAuthRoutine* routine) override;
+
     void populateAuthStore(const CredentialSet& credSet);
-private:
-    QList<CredentialSet> m_credentials;
 };

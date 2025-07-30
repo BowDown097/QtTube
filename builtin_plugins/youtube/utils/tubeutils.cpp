@@ -57,7 +57,9 @@ namespace TubeUtils
         outPlaybackQuery.setQueryItems(map);
         outPlaybackUrl.setQuery(outPlaybackQuery);
 
-        HttpRequest().withHeaders(InnertubeEndpoints::EndpointMethods::getNeededHeaders(context, authStore)).get(outPlaybackUrl);
+        HttpRequest()
+            .withHeaders(InnertubeEndpoints::EndpointMethods::getNeededHeaders(context, authStore))
+            .get(outPlaybackUrl);
     }
 
     // most logic courtesy of https://github.com/Rehike/Rehike

@@ -6,16 +6,19 @@
 #include "innertube/responses/browse/homeresponse.h"
 #include "innertube/responses/browse/subscriptionsresponse.h"
 #include "innertube/responses/browse/trendingresponse.h"
+#include "innertube/responses/misc/accountmenuresponse.h"
 #include "innertube/responses/misc/searchresponse.h"
 #include "innertube/responses/notification/notificationmenuresponse.h"
 #include "innertube/responses/video/nextresponse.h"
 #include "innertube/responses/video/playerresponse.h"
 #include "qttube-plugin/components/replytypes/channeldata.h"
+#include "qttube-plugin/components/replytypes/initialaccountdata.h"
 #include "qttube-plugin/components/replytypes/simpledatatypes.h"
 #include "qttube-plugin/components/replytypes/videodata.h"
 #include "qttube-plugin/objects/livechat/livechat.h"
 #include "qttube-plugin/objects/livechat/livechatreplay.h"
 
+void getAccountData(QtTubePlugin::InitialAccountData& data, const InnertubeEndpoints::AccountMenuResponse& response);
 std::pair<std::any, QtTubePlugin::ChannelData> getChannelData(const InnertubeEndpoints::ChannelResponse& response);
 QtTubePlugin::BrowseData getHistoryData(const InnertubeEndpoints::HistoryResponse& response);
 QtTubePlugin::BrowseData getHomeData(const InnertubeEndpoints::HomeResponse& response);
