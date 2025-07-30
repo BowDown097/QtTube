@@ -105,8 +105,7 @@ namespace QtTubePlugin
                         matchUser->handle = data.handle;
                         matchUser->username = data.displayName;
 
-                        save();
-                        m_activeRoutine->deleteLater();
+                        saveAndCleanUp();
                         return;
                     }
                 }
@@ -116,17 +115,22 @@ namespace QtTubePlugin
                     user->handle = data.handle;
                     user->username = data.displayName;
 
-                    save();
-                    m_activeRoutine->deleteLater();
+                    saveAndCleanUp();
                     return;
                 }
             }
 
             append(createUser(data, m_activeRoutine));
-            save();
-            m_activeRoutine->deleteLater();
+            saveAndCleanUp();
         }
     private:
         RoutineType* m_activeRoutine{};
+
+        void saveAndCleanUp()
+        {
+            save();
+            if (m_activeRoutine)
+                m_activeRoutine->deleteLater();
+        }
     };
 }
