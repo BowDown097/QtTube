@@ -137,12 +137,12 @@ void SubscribeLabel::trySubscribe()
         if (subscribed && QMessageBox::question(nullptr, localization.unsubscribeText, localization.unsubscribeDialogText) == QMessageBox::StandardButton::Yes)
         {
             toggleSubscriptionStatus();
-            activePlugin->interface->subscribe(subscribeData);
+            activePlugin->interface->unsubscribe(unsubscribeData);
         }
         else if (!subscribed)
         {
             toggleSubscriptionStatus();
-            activePlugin->interface->unsubscribe(unsubscribeData);
+            activePlugin->interface->subscribe(subscribeData);
         }
     }
 }

@@ -61,9 +61,12 @@ void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderNam
 
 void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName)
 {
-    this->channelId = uploaderId;
     reset();
+    this->channelId = uploaderId;
+
+    text->setClickable(!uploaderId.isEmpty());
     text->setText(uploaderName);
+    text->setUnderlineOnHover(!uploaderId.isEmpty());
 }
 
 void ChannelLabel::showContextMenu(const QPoint& pos)

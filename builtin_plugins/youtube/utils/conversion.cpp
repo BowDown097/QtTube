@@ -609,6 +609,22 @@ QtTubePlugin::Video convertVideo(const InnertubeObjects::LockupViewModel& lockup
         result.uploaderUrlPrefix = "https://www.youtube.com/channel/";
         if (const InnertubeObjects::GenericThumbnail* recAvatar = owner->icon.recommendedQuality(QSize(205, 205)))
             result.uploaderAvatarUrl = recAvatar->url;
+
+        const QJsonValue& attachmentRunsValue = lockup.metadata.metadata.metadataRows[0][0].attachmentRuns;
+        if (attachmentRunsValue.isArray())
+        {
+            const QJsonArray attachmentRuns = attachmentRunsValue.toArray();
+            for (const QJsonValue& attachmentRun : attachmentRuns)
+            {
+                const QString attachmentImage = attachmentRun
+                    ["element"]["type"]["imageType"]["image"]
+                    ["sources"][0]["clientResource"]["imageName"].toString();
+                if (attachmentImage == "CHECK_CIRCLE_FILLED")
+                    result.uploaderBadges.append(QtTubePlugin::Badge { .label = "✔" });
+                else if (attachmentImage == "AUDIO_BADGE")
+                    result.uploaderBadges.append(QtTubePlugin::Badge { .label = "♪" });
+            }
+        }
     }
 
     result.thumbnailUrl = useThumbnailFromData && !lockup.contentImage.image.isEmpty()

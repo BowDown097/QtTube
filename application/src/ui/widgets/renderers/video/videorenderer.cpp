@@ -44,7 +44,7 @@ void VideoRenderer::setData(const QtTubePlugin::Video& video)
     videoId = video.videoId;
 
     metadataLabel->setText(video.metadataText);
-    if (!video.uploaderId.isEmpty())
+    if (!video.uploaderId.isEmpty() || !video.uploaderText.isEmpty())
     {
         channelLabel->show();
         channelLabel->setInfo(video.uploaderId, video.uploaderText, video.uploaderBadges);
