@@ -1,4 +1,5 @@
 #pragma once
+#include "qttube-plugin/components/replytypes/recommendedcontinuationdata.h"
 #include "qttube-plugin/components/replytypes/videodata.h"
 #include <QTabWidget>
 
@@ -10,6 +11,7 @@ public:
     explicit WatchNextFeed(QWidget* parent = nullptr);
     void reset();
     void setData(
+        const QString& videoId,
         const QList<QtTubePlugin::Video>& recommendedVideos,
         const QtTubePlugin::VideoData::Continuations& continuations);
 
@@ -18,8 +20,11 @@ private:
     ContinuableListWidget* comments;
     std::any commentsContinuation;
     ContinuableListWidget* recommended;
-    std::any recommendedContinuation;
+    QString videoId;
+
+    void populateRecommended(const QList<QtTubePlugin::Video>& videos);
 private slots:
     void continueComments();
     void continueRecommended();
+    void continueRecommendedFinished(const QtTubePlugin::RecommendedContinuationData& data);
 };

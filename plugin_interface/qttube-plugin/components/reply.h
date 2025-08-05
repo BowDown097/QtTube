@@ -40,6 +40,8 @@ namespace QtTubePlugin
             connect(reply, &Reply<T>::finished, reply, &QObject::deleteLater);
             return reply;
         }
+    private:
+        Reply() = default;
     };
 
     template<>
@@ -62,6 +64,8 @@ namespace QtTubePlugin
             connect(reply, &Reply<void>::finished, reply, &QObject::deleteLater);
             return reply;
         }
+    private:
+        Reply() = default;
     };
 }
 

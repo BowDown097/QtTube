@@ -32,7 +32,10 @@ namespace QtTubePlugin
             std::any continuationData) { return BrowseReply::create(); }
         virtual BrowseReply* getSubFeed(std::any continuationData) { return BrowseReply::create(); }
         virtual BrowseReply* getTrending(std::any continuationData) { return BrowseReply::create(); }
-        virtual VideoReply* getVideo(const QString& videoId, std::any continuationData) { return VideoReply::create(); }
+
+        virtual RecommendedContinuationReply* continueRecommended(const QString& videoId, std::any continuationData)
+        { return RecommendedContinuationReply::create(); }
+        virtual VideoReply* getVideo(const QString& videoId) { return VideoReply::create(); }
 
         virtual LiveChatReply* getLiveChat(std::any data) { return LiveChatReply::create(); }
         virtual LiveChatReplayReply* getLiveChatReplay(std::any data, qint64 videoOffsetMs) { return LiveChatReplayReply::create(); }

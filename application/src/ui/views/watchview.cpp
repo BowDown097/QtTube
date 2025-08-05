@@ -32,7 +32,7 @@ WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchVie
 
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId, {});
+        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId);
         connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
         connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
     }
@@ -83,7 +83,7 @@ void WatchView::hotLoadVideo(
 
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId, {});
+        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId);
         connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
         connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
     }
@@ -174,7 +174,7 @@ void WatchView::processData(const QtTubePlugin::VideoData& data)
         metadataUpdateTimer->start();
     }
 
-    ui->feed->setData(data.recommendedVideos, data.continuations);
+    ui->feed->setData(data.videoId, data.recommendedVideos, data.continuations);
 }
 
 void WatchView::processPreloadData(PreloadData::WatchView* preload)
@@ -244,7 +244,7 @@ void WatchView::updateMetadata(const QString& videoId)
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId, {});
+        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId);
         connect(reply, &QtTubePlugin::VideoReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
             qDebug() << ex.message() << "Stream/premiere could have ended - killing update timer.";
             metadataUpdateTimer->deleteLater();

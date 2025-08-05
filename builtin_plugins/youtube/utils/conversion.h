@@ -9,6 +9,7 @@
 #include "innertube/objects/video/reel.h"
 #include "innertube/objects/video/watchnext/secondaryinfo/videoowner.h"
 #include "innertube/responses/browse/homeresponse.h"
+#include "innertube/responses/video/nextcontinuationdata.h"
 #include "youtubeplugin.h"
 
 QtTubePlugin::Badge convertBadge(const InnertubeObjects::MetadataBadge& badge);
@@ -21,6 +22,8 @@ QtTubePlugin::ChannelHeader convertChannelHeader(
 QtTubePlugin::Exception convertException(const InnertubeException& ex);
 QtTubePlugin::LiveChatItem convertLiveChatItem(const QJsonValue& item);
 QtTubePlugin::Notification convertNotification(const InnertubeObjects::Notification& notification);
+QtTubePlugin::RecommendedContinuationData convertRecommendedContinuationData(
+    const InnertubeEndpoints::NextContinuationData& data);
 QtTubePlugin::Shelf<QtTubePlugin::Video> convertShelf(
     const InnertubeObjects::HomeRichShelf& hrShelf, bool useThumbnailFromData = true);
 QtTubePlugin::Shelf<QtTubePlugin::Video> convertShelf(

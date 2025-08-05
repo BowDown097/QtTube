@@ -17,7 +17,10 @@ public:
         std::any continuationData) override;
     QtTubePlugin::BrowseReply* getSubFeed(std::any continuationData) override;
     QtTubePlugin::BrowseReply* getTrending(std::any continuationData) override;
-    QtTubePlugin::VideoReply* getVideo(const QString& videoId, std::any continuationData) override;
+
+    QtTubePlugin::RecommendedContinuationReply* continueRecommended(
+        const QString& videoId, std::any continuationData) override;
+    QtTubePlugin::VideoReply* getVideo(const QString& videoId) override;
 
     QtTubePlugin::LiveChatReply* getLiveChat(std::any data) override;
     QtTubePlugin::LiveChatReplayReply* getLiveChatReplay(std::any data, qint64 videoOffsetMs) override;

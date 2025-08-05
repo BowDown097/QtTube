@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
         qtTubeApp->doInitialSetup();
         if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
         {
-            QtTubePlugin::VideoReply* videoReply = plugin->interface->getVideo(parser.value("chat"), {});
+            QtTubePlugin::VideoReply* videoReply = plugin->interface->getVideo(parser.value("chat"));
             QObject::connect(videoReply, &QtTubePlugin::VideoReply::exception, [](const QtTubePlugin::Exception& ex) {
                 qDebug() << "Could not open live chat:" << ex.message();
                 qtTubeApp->exit(EXIT_FAILURE);

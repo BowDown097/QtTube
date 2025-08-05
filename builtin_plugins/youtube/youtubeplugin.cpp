@@ -62,6 +62,29 @@ const QVariantMap g_searchMsgFields = {
 QJsonValue g_liveChatSendEndpoint;
 int g_liveChatSentMessages{};
 
+QtTubePlugin::RecommendedContinuationReply* YouTubePlugin::continueRecommended(
+    const QString& videoId, std::any continuationData)
+{
+    QtTubePlugin::RecommendedContinuationReply* pluginReply = QtTubePlugin::RecommendedContinuationReply::create();
+
+    QString continuationToken;
+    if (const QString* cptr = std::any_cast<QString>(&continuationData))
+        continuationToken = *cptr;
+
+    InnertubeReply<Next>* tubeReply = InnerTube::instance()->get<Next>(videoId, continuationToken);
+    QObject::connect(tubeReply, &InnertubeReply<Next>::exception, [pluginReply](const InnertubeException& ex) {
+        emit pluginReply->exception(convertException(ex));
+    });
+    QObject::connect(tubeReply, &InnertubeReply<Next>::finished, [pluginReply](const Next& endpoint) {
+        if (endpoint.response.continuationData.has_value())
+            emit pluginReply->finished(convertRecommendedContinuationData(endpoint.response.continuationData.value()));
+        else
+            emit pluginReply->exception(QtTubePlugin::Exception("No continuation data found."));
+    });
+
+    return pluginReply;
+}
+
 QByteArray YouTubePlugin::compileSearchParams(const QList<std::pair<QString, int>>& activeFilters)
 {
     QVariantMap filterParams, params;
@@ -324,7 +347,7 @@ QtTubePlugin::BrowseReply* YouTubePlugin::getTrending(std::any continuationData)
     return pluginReply;
 }
 
-QtTubePlugin::VideoReply* YouTubePlugin::getVideo(const QString& videoId, std::any continuationData)
+QtTubePlugin::VideoReply* YouTubePlugin::getVideo(const QString& videoId)
 {
     QtTubePlugin::VideoReply* pluginReply = QtTubePlugin::VideoReply::create();
     InnertubeReply<Next>* nextReply = InnerTube::instance()->get<Next>(videoId);

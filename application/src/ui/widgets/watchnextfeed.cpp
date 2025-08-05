@@ -1,9 +1,11 @@
 #include "watchnextfeed.h"
 #include "continuablelistwidget.h"
+#include "qttubeapplication.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/videothumbnailwidget.h"
 #include "utils/uiutils.h"
+#include <QMessageBox>
 
 WatchNextFeed::WatchNextFeed(QWidget* parent)
     : QTabWidget(parent),
@@ -21,6 +23,39 @@ void WatchNextFeed::continueComments()
 
 void WatchNextFeed::continueRecommended()
 {
+    recommended->setPopulatingFlag(true);
+    if (PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
+    {
+        QtTubePlugin::RecommendedContinuationReply* reply = activePlugin->interface->continueRecommended(
+            videoId, recommended->continuationData);
+        connect(reply, &QtTubePlugin::RecommendedContinuationReply::exception, this, [](const QtTubePlugin::Exception& ex) {
+            QMessageBox::critical(nullptr, "Failed to get continuation data", ex.message());
+        });
+        connect(reply, &QtTubePlugin::RecommendedContinuationReply::finished,
+                this, &WatchNextFeed::continueRecommendedFinished);
+    }
+}
+
+void WatchNextFeed::continueRecommendedFinished(const QtTubePlugin::RecommendedContinuationData& data)
+{
+    recommended->continuationData = data.nextContinuation;
+    populateRecommended(data.videos);
+    recommended->setPopulatingFlag(false);
+}
+
+void WatchNextFeed::populateRecommended(const QList<QtTubePlugin::Video>& videos)
+{
+    for (const QtTubePlugin::Video& video : videos)
+    {
+        BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
+        renderer->thumbnail->setFixedSize(167, 94);
+        renderer->titleLabel->setMaximumLines(2);
+        renderer->titleLabel->setWordWrap(true);
+        renderer->setData(video);
+
+        UIUtils::addWidgetToList(recommended, renderer);
+        QCoreApplication::processEvents();
+    }
 }
 
 void WatchNextFeed::reset()
@@ -32,9 +67,12 @@ void WatchNextFeed::reset()
 }
 
 void WatchNextFeed::setData(
+    const QString& videoId,
     const QList<QtTubePlugin::Video>& recommendedVideos,
     const QtTubePlugin::VideoData::Continuations& continuations)
 {
+    this->videoId = videoId;
+
     if (continuations.comments.has_value())
     {
         setTabVisible(1, true);
@@ -44,19 +82,9 @@ void WatchNextFeed::setData(
 
     if (continuations.recommended.has_value())
     {
-        recommendedContinuation = continuations.recommended;
+        recommended->continuationData = continuations.recommended;
         connect(recommended, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueRecommended);
     }
 
-    for (const QtTubePlugin::Video& video : recommendedVideos)
-    {
-        BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
-        renderer->thumbnail->setFixedSize(167, 94);
-        renderer->titleLabel->setMaximumLines(2);
-        renderer->titleLabel->setWordWrap(true);
-        renderer->setData(video);
-
-        UIUtils::addWidgetToList(recommended, renderer);
-        QCoreApplication::processEvents();
-    }
+    populateRecommended(recommendedVideos);
 }

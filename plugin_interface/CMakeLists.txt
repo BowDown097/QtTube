@@ -32,6 +32,7 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/player/webplayer.h
             qttube-plugin/components/replytypes/channeldata.h
             qttube-plugin/components/replytypes/initialaccountdata.h
+            qttube-plugin/components/replytypes/recommendedcontinuationdata.h
             qttube-plugin/components/replytypes/replytypes.h
             qttube-plugin/components/replytypes/resolveurldata.h
             qttube-plugin/components/replytypes/simpledatatypes.h

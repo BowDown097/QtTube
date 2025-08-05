@@ -246,6 +246,16 @@ QtTubePlugin::Notification convertNotification(const InnertubeObjects::Notificat
     return result;
 }
 
+QtTubePlugin::RecommendedContinuationData convertRecommendedContinuationData(
+    const InnertubeEndpoints::NextContinuationData& data)
+{
+    auto videos = data.feed | std::views::transform([](const auto& lockup) { return convertVideo(lockup, true); });
+    return QtTubePlugin::RecommendedContinuationData {
+        .nextContinuation = data.continuationToken,
+        .videos = QList(videos.begin(), videos.end())
+    };
+}
+
 QtTubePlugin::Shelf<QtTubePlugin::Video> convertShelf(
     const InnertubeObjects::HomeRichShelf& hrShelf, bool useThumbnailFromData)
 {
