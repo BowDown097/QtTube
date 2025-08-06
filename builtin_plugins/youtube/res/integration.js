@@ -1,6 +1,7 @@
 // h264ify
 const params = new URLSearchParams(document.location.search);
-h264ify(params.get("h264Only") === "1", params.get("no60Fps") === "1");
+if (params.get("h264Only") === "1")
+    h264ify();
 
 // autoplay and time
 waitForElement("#movie_player").then(function(p) {
@@ -14,10 +15,11 @@ if (params.get("adblock") === "1")
 
 // apply settings
 new QWebChannel(qt.webChannelTransport, async function(channel) {
-    const settings = channel.objects.settings;
+    const playerSettings = channel.objects.playerSettings;
+    const pluginSettings = channel.objects.pluginSettings;
 
-    if (settings.sponsorBlockCategories?.length)
-        await sponsorBlock(settings.sponsorBlockCategories);
+    if (pluginSettings.sponsorBlockCategories?.length)
+        await sponsorBlock(pluginSettings.sponsorBlockCategories);
 
     document.addEventListener("click", function(e) {
         const coveringOverlay = e.target.closest(".ytp-ce-covering-overlay");
@@ -31,7 +33,7 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         }
     });
 
-    if (settings.disablePlayerInfoPanels)
+    if (pluginSettings.disablePlayerInfoPanels)
         addStyle(".ytp-info-panel-preview { display: none; }");
 
     waitForElement("#movie_player").then(function(p) {
@@ -48,37 +50,42 @@ new QWebChannel(qt.webChannelTransport, async function(channel) {
         p.addEventListener("onStateChange", state => channel.objects.interface.emitNewState(state));
 
         // set preferred volume when volume changes if we are setting it from player
-        if (settings.volumeFromPlayer) {
+        if (playerSettings.volumeFromPlayer) {
             p.addEventListener("onVolumeChange", d => {
-                if (!d.muted && d.volume != settings.preferredVolume)
-                    settings.preferredVolume = d.volume;
+                if (!d.muted && d.volume != playerSettings.preferredVolume)
+                    playerSettings.preferredVolume = d.volume;
             });
         }
 
         // set preferred volume
-        p.setVolume(settings.preferredVolume);
+        p.setVolume(playerSettings.preferredVolume);
         p.pauseVideo(); // pause video so the video doesn't go back to the beginning when quality pref is set. why does it do that???
 
         // annotations
-        if (settings.restoreAnnotations) {
+        if (pluginSettings.restoreAnnotations) {
             waitForElement(".ytp-panel-menu").then(el => addAnnotationSwitch(el));
             handleAnnotations(document.location.pathname.split("/").pop());
         }
 
         // quality preference
-        const qualityKeys = Object.keys(settings.PlayerQuality).reduce(function(acc, key) {
-            return acc[settings.PlayerQuality[key]] = key, acc;
-        }, {});
+        const qualityKeyOverrides = {
+            [playerSettings.Quality.HD4320]: "highres",
+            [playerSettings.Quality.SD480]: "large",
+            [playerSettings.Quality.SD360]: "medium",
+            [playerSettings.Quality.SD240]: "small",
+            [playerSettings.Quality.SD144]: "tiny"
+        };
 
-        var qPref = qualityKeys[settings.preferredQuality].toLowerCase();
+        var qPref = qualityKeyOverrides[playerSettings.preferredQuality] ||
+            Object.keys(playerSettings.Quality)[playerSettings.preferredQuality].toLowerCase();
 
-        if (settings.qualityFromPlayer) {
+        if (playerSettings.qualityFromPlayer) {
             p.addEventListener("onPlaybackQualityChange", q => {
                 if (q == qPref)
                     return;
-                const match = Object.keys(settings.PlayerQuality).find(k => q == k.toLowerCase());
+                const match = Object.keys(playerSettings.Quality).find(k => q == k.toLowerCase());
                 if (match)
-                    settings.preferredQuality = settings.PlayerQuality[match];
+                    playerSettings.preferredQuality = playerSettings.Quality[match];
             });
         }
 

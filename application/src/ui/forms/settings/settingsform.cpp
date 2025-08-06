@@ -48,8 +48,15 @@ SettingsForm::SettingsForm(QWidget* parent)
     ui->preferLists->setChecked(store.preferLists);
     // player
     ui->externalPlayerEdit->setText(store.externalPlayerPath);
-    ui->vaapi->setChecked(store.vaapi);
+    ui->h264Only->setChecked(store.playerSettings.h264Only);
+    ui->preferredQuality->setEnabled(!store.playerSettings.qualityFromPlayer);
+    ui->preferredQuality->setCurrentIndex(static_cast<int>(store.playerSettings.preferredQuality));
+    ui->preferredVolume->setEnabled(!store.playerSettings.volumeFromPlayer);
+    ui->preferredVolume->setValue(store.playerSettings.preferredVolume);
+    ui->qualityFromPlayer->setChecked(store.playerSettings.qualityFromPlayer);
+    ui->vaapi->setChecked(store.playerSettings.vaapi);
     ui->vaapi->setEnabled(store.externalPlayerPath.isEmpty());
+    ui->volumeFromPlayer->setChecked(store.playerSettings.volumeFromPlayer);
     // filtering
     ui->filterLength->setEnabled(store.filterLengthEnabled);
     ui->filterLength->setValue(store.filterLength);
@@ -60,8 +67,10 @@ SettingsForm::SettingsForm(QWidget* parent)
     connect(ui->externalPlayerButton, &QPushButton::clicked, this, &SettingsForm::selectExternalPlayer);
     connect(ui->externalPlayerEdit, &QLineEdit::textEdited, this, &SettingsForm::checkExternalPlayer);
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool c) { ui->filterLength->setEnabled(c); });
+    connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredQuality->setEnabled(!c); });
     connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &SettingsForm::currentChanged);
+    connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
 
     setupSaveButton(ui->saveButton, true);
 }
@@ -174,7 +183,13 @@ void SettingsForm::saveSettings()
     store.preferLists = ui->preferLists->isChecked();
     // player
     store.externalPlayerPath = ui->externalPlayerEdit->text();
-    store.vaapi = ui->vaapi->isChecked();
+    store.playerSettings.h264Only = ui->h264Only->isChecked();
+    store.playerSettings.preferredQuality = static_cast<QtTubePlugin::PlayerSettings::Quality>(
+        ui->preferredQuality->currentIndex());
+    store.playerSettings.preferredVolume = ui->preferredVolume->value();
+    store.playerSettings.qualityFromPlayer = ui->qualityFromPlayer->isChecked();
+    store.playerSettings.vaapi = ui->vaapi->isChecked();
+    store.playerSettings.volumeFromPlayer = ui->volumeFromPlayer->isChecked();
     // filtering
     store.filterLength = ui->filterLength->value();
     store.filterLengthEnabled = ui->filterLengthCheck->isChecked();

@@ -1,37 +1,31 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
-        <file>player/annotationlib/AnnotationParser.js</file>
+        <file>annotationlib/AnnotationParser.js</file>
     </qresource>
     <qresource>
-        <file>player/annotationlib/AnnotationRenderer.css</file>
+        <file>annotationlib/AnnotationRenderer.css</file>
     </qresource>
     <qresource>
-        <file>player/annotationlib/AnnotationRenderer.js</file>
+        <file>annotationlib/AnnotationRenderer.js</file>
     </qresource>
     <qresource>
-        <file>player/annotations.js</file>
+        <file>annotations.js</file>
     </qresource>
     <qresource>
-        <file>player/global.js</file>
+        <file>integration.js</file>
     </qresource>
     <qresource>
-        <file>player/h264ify.js</file>
+        <file>interceptors.js</file>
     </qresource>
     <qresource>
-        <file>player/integration.js</file>
+        <file>patches.js</file>
     </qresource>
     <qresource>
-        <file>player/interceptors.js</file>
+        <file>sponsorblock.js</file>
     </qresource>
     <qresource>
-        <file>player/patches.js</file>
-    </qresource>
-    <qresource>
-        <file>player/sponsorblock.js</file>
-    </qresource>
-    <qresource>
-        <file>player/styles.css</file>
+        <file>styles.css</file>
     </qresource>
 </RCC>
 

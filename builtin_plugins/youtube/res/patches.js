@@ -1,6 +1,3 @@
-// CSS patcher - takes in QString arg (find better way to pass in data later maybe?)
-addStyle(`%1`);
-
 // unavailable video patcher (a LOT of this courtesy of yt-dlp <3)
 waitForElement("#movie_player .ytp-error").then(function() {
     const embeddedPlayerResponse = JSON.parse(ytcfg.data_.PLAYER_VARS.embedded_player_response);

@@ -24,16 +24,8 @@ YouTubeSettingsForm::YouTubeSettingsForm(QWidget* parent)
     ui->returnDislikes->setChecked(g_settings->returnDislikes);
     // player
     ui->blockAds->setChecked(g_settings->blockAds);
-    ui->disable60Fps->setChecked(g_settings->disable60Fps);
     ui->disablePlayerInfoPanels->setChecked(g_settings->disablePlayerInfoPanels);
-    ui->h264Only->setChecked(g_settings->h264Only);
-    ui->preferredQuality->setEnabled(!g_settings->qualityFromPlayer);
-    ui->preferredQuality->setCurrentIndex(static_cast<int>(g_settings->preferredQuality));
-    ui->preferredVolume->setEnabled(!g_settings->volumeFromPlayer);
-    ui->preferredVolume->setValue(g_settings->preferredVolume);
-    ui->qualityFromPlayer->setChecked(g_settings->qualityFromPlayer);
     ui->restoreAnnotations->setChecked(g_settings->restoreAnnotations);
-    ui->volumeFromPlayer->setChecked(g_settings->volumeFromPlayer);
     // privacy
     ui->playbackTracking->setChecked(g_settings->playbackTracking);
     ui->watchtimeTracking->setChecked(g_settings->watchtimeTracking);
@@ -54,9 +46,7 @@ YouTubeSettingsForm::YouTubeSettingsForm(QWidget* parent)
 
     //connect(ui->exportButton, &QPushButton::clicked, this, &YouTubeSettingsForm::openExportWizard);
     connect(ui->importButton, &QPushButton::clicked, this, &YouTubeSettingsForm::openImportWizard);
-    connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredQuality->setEnabled(!c); });
     connect(ui->showFilteredChannels, &QPushButton::clicked, this, &YouTubeSettingsForm::showChannelFilterTable);
-    connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
 
     setupSaveButton(ui->saveButton, true, {
         ui->saveButton,
@@ -146,14 +136,8 @@ void YouTubeSettingsForm::saveSettings()
     g_settings->returnDislikes = ui->returnDislikes->isChecked();
     // player
     g_settings->blockAds = ui->blockAds->isChecked();
-    g_settings->disable60Fps = ui->disable60Fps->isChecked();
     g_settings->disablePlayerInfoPanels = ui->disablePlayerInfoPanels->isChecked();
-    g_settings->h264Only = ui->h264Only->isChecked();
-    g_settings->preferredQuality = static_cast<YouTubeSettings::PlayerQuality>(ui->preferredQuality->currentIndex());
-    g_settings->preferredVolume = ui->preferredVolume->value();
-    g_settings->qualityFromPlayer = ui->qualityFromPlayer->isChecked();
     g_settings->restoreAnnotations = ui->restoreAnnotations->isChecked();
-    g_settings->volumeFromPlayer = ui->volumeFromPlayer->isChecked();
     // privacy
     g_settings->playbackTracking = ui->playbackTracking->isChecked();
     g_settings->watchtimeTracking = ui->watchtimeTracking->isChecked();

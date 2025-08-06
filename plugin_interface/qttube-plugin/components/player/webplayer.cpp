@@ -5,6 +5,67 @@
 #include <QWebEngineScriptCollection>
 #include <QWebEngineSettings>
 
+// wanted to put this in a resource file but it seemingly doesn't work in this context. sad!
+constexpr QLatin1StringView UtilitiesScriptData(R"(
+function addStyle(css) {
+    let style = document.createElement("style");
+    style.type = "text/css";
+    style.appendChild(document.createTextNode(css));
+    document.documentElement.appendChild(style);
+}
+
+function h264ify() {
+    // return a custom MIME type checker that can defer to the original function
+    function makeModifiedTypeChecker(origChecker) {
+        // Check if a video type is allowed
+        return function (type) {
+            if (!type)
+                return '';
+
+            const disallowedTypes = ["webm", "vp8", "vp9", "vp09", "av01"];
+            if (disallowedTypes.some(disallowedType => type.includes(disallowedType)))
+                return '';
+
+            // Otherwise, ask the browser
+            return origChecker(type);
+        };
+    }
+
+    // Override video element canPlayType() function
+    const videoElem = document.createElement('video');
+    const origCanPlayType = videoElem.canPlayType.bind(videoElem);
+    videoElem.canPlayType = makeModifiedTypeChecker(origCanPlayType);
+
+    // Override media source extension isTypeSupported() function
+    const mse = window.MediaSource;
+    // Check for MSE support before use
+    if (!mse)
+        return;
+    const origIsTypeSupported = mse.isTypeSupported.bind(mse);
+    mse.isTypeSupported = makeModifiedTypeChecker(origIsTypeSupported);
+}
+
+function waitForElement(selector) {
+    return new Promise(resolve => {
+        const query = document.querySelector(selector);
+        if (query)
+            return resolve(query);
+
+        const observer = new MutationObserver(() => {
+            const query = document.querySelector(selector);
+            if (query) {
+                resolve(query);
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document, {
+            childList: true,
+            subtree: true
+        });
+    });
+})");
+
 namespace QtTubePlugin
 {
     FullScreenWindow::FullScreenWindow(QWebEngineView* oldView, QWidget* parent)
@@ -60,10 +121,12 @@ namespace QtTubePlugin
         m_channel->registerObject("interface", m_interface);
         m_view->page()->setWebChannel(m_channel);
 
+        loadScriptFile(":/qtwebchannel/qwebchannel.js", QWebEngineScript::DocumentCreation);
+        loadScriptData(UtilitiesScriptData, QWebEngineScript::DocumentCreation);
+
         m_view->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
         m_view->settings()->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
 
-        connect(m_interface, &WebChannelInterface::copyToClipboardRequested, this, &Player::copyToClipboardRequested);
         connect(m_interface, &WebChannelInterface::newState, this, &Player::newState);
         connect(m_interface, &WebChannelInterface::progressChanged, this, &Player::progressChanged);
         connect(m_interface, &WebChannelInterface::switchVideoRequested, this, &Player::switchVideoRequested);
@@ -94,5 +157,22 @@ namespace QtTubePlugin
             loadScriptData(file.readAll(), injectionPoint, worldId);
         else
             qWarning() << "Failed to load script file:" << path;
+    }
+
+    void WebPlayer::loadStyleData(const QString& data)
+    {
+        QWebEngineScript script;
+        script.setInjectionPoint(QWebEngineScript::DocumentReady);
+        script.setSourceCode(QStringLiteral("addStyle(`%1`);").arg(data));
+        script.setWorldId(QWebEngineScript::MainWorld);
+        m_view->page()->scripts().insert(script);
+    }
+
+    void WebPlayer::loadStyleFile(const QString& path)
+    {
+        if (QFile file(path); file.open(QFile::ReadOnly))
+            loadStyleData(file.readAll());
+        else
+            qWarning() << "Failed to load style file:" << path;
     }
 }

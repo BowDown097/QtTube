@@ -1,4 +1,5 @@
 #pragma once
+#include "qttube-plugin/components/settings/playersettings.h"
 #include <QWidget>
 
 namespace QtTubePlugin
@@ -19,7 +20,7 @@ namespace QtTubePlugin
 
         using QWidget::QWidget;
     public slots:
-        virtual void play(const QString& videoId, int progress) = 0;
+        virtual void play(const QString& videoId, int progress, QtTubePlugin::PlayerSettings* settings) = 0;
         virtual void seek(int progress) = 0;
     signals:
         void copyToClipboardRequested(const QString& text);

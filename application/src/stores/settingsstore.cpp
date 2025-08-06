@@ -14,7 +14,13 @@ void SettingsStore::initialize()
     preferLists = settings.value("preferLists", false).toBool();
     // player
     externalPlayerPath = settings.value("player/externalPlayerPath").toString();
-    vaapi = settings.value("player/vaapi", false).toBool();
+    playerSettings.h264Only = settings.value("player/h264Only").toBool();
+    playerSettings.preferredQuality = static_cast<QtTubePlugin::PlayerSettings::Quality>(
+        settings.value("player/preferredQuality").toInt());
+    playerSettings.preferredVolume = settings.value("player/preferredVolume").toInt();
+    playerSettings.qualityFromPlayer = settings.value("player/qualityFromPlayer").toBool();
+    playerSettings.vaapi = settings.value("player/vaapi").toBool();
+    playerSettings.volumeFromPlayer = settings.value("player/volumeFromPlayer").toBool();
     // filtering
     filterLength = settings.value("filtering/filterLength", 0).toInt();
     filterLengthEnabled = settings.value("filtering/filterLengthEnabled", false).toBool();
@@ -47,7 +53,12 @@ void SettingsStore::save()
     settings.setValue("preferLists", preferLists);
     // player
     settings.setValue("player/externalPlayerPath", externalPlayerPath);
-    settings.setValue("player/vaapi", vaapi);
+    settings.setValue("player/h264Only", playerSettings.h264Only);
+    settings.setValue("player/preferredQuality", static_cast<int>(playerSettings.preferredQuality));
+    settings.setValue("player/preferredVolume", playerSettings.preferredVolume);
+    settings.setValue("player/qualityFromPlayer", playerSettings.qualityFromPlayer);
+    settings.setValue("player/vaapi", playerSettings.vaapi);
+    settings.setValue("player/volumeFromPlayer", playerSettings.volumeFromPlayer);
     // filtering
     settings.setValue("filtering/filterLength", filterLength);
     settings.setValue("filtering/filterLengthEnabled", filterLengthEnabled);

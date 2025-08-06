@@ -99,7 +99,7 @@ void WatchViewPlayer::play(const QString& videoId, int progress)
     }
     else
     {
-        m_player->play(videoId, progress);
+        m_player->play(videoId, progress, &qtTubeApp->settings().playerSettings);
     }
 }
 

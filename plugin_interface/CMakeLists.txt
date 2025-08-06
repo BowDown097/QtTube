@@ -35,6 +35,7 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/replytypes/resolveurldata.h
             qttube-plugin/components/replytypes/simpledatatypes.h
             qttube-plugin/components/replytypes/videodata.h
+            qttube-plugin/components/settings/playersettings.h
             qttube-plugin/components/settings/settingsstore.h
             qttube-plugin/components/settings/settingswindow.h
             qttube-plugin/objects/badge.h

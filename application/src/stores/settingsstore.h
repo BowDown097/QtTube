@@ -1,5 +1,6 @@
 #pragma once
 #include "genericstore.h"
+#include "qttube-plugin/components/settings/playersettings.h"
 #include "qttube-plugin/objects/video.h"
 
 class QSettings;
@@ -17,8 +18,8 @@ public:
     bool filterLengthEnabled{};
     QStringList filteredTerms;
     bool imageCaching{};
+    QtTubePlugin::PlayerSettings playerSettings;
     bool preferLists{};
-    bool vaapi{};
 
     explicit SettingsStore(QObject* parent = nullptr) : GenericStore("settings.ini") {}
 

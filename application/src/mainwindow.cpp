@@ -87,7 +87,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     }
 
 #ifdef Q_OS_LINUX
-    if (qtTubeApp->settings().vaapi)
+    if (qtTubeApp->settings().playerSettings.vaapi)
     {
         qputenv("LIBVA_DRI3_DISABLE", "1"); // fixes issue on some older GPUs
         qputenv("QTWEBENGINE_CHROMIUM_FLAGS", qgetenv("QTWEBENGINE_CHROMIUM_FLAGS") + " --enable-features=VaapiVideoDecoder --enable-features=VaapiIgnoreDriverChecks --disable-features=UseChromeOSDirectVideoDecoder");

@@ -38,22 +38,18 @@ QString getFileContents(const QString& path)
 YouTubePlayer::YouTubePlayer(QWidget* parent)
     : QtTubePlugin::WebPlayer(parent), m_interceptor(new PlayerInterceptor(this))
 {
-    m_channel->registerObject("settings", g_settings);
+    m_channel->registerObject("pluginSettings", g_settings);
 
-    loadScriptFile(":/qtwebchannel/qwebchannel.js", QWebEngineScript::DocumentCreation);
-    loadScriptFile(":/player/annotationlib/AnnotationParser.js", QWebEngineScript::DocumentReady);
-    loadScriptFile(":/player/annotationlib/AnnotationRenderer.js", QWebEngineScript::DocumentReady);
-    loadScriptFile(":/player/annotations.js", QWebEngineScript::DocumentReady);
-    loadScriptFile(":/player/global.js", QWebEngineScript::DocumentCreation);
-    loadScriptFile(":/player/h264ify.js", QWebEngineScript::DocumentReady);
-    loadScriptFile(":/player/integration.js", QWebEngineScript::DocumentReady);
-    loadScriptFile(":/player/interceptors.js", QWebEngineScript::DocumentCreation);
-    loadScriptFile(":/player/sponsorblock.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/annotationlib/AnnotationParser.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/annotationlib/AnnotationRenderer.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/annotations.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/integration.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/interceptors.js", QWebEngineScript::DocumentCreation);
+    loadScriptFile(":/patches.js", QWebEngineScript::DocumentReady);
+    loadScriptFile(":/sponsorblock.js", QWebEngineScript::DocumentReady);
 
-    QString annotationStylesData = getFileContents(":/player/annotationlib/AnnotationRenderer.css");
-    QString patchesData = getFileContents(":/player/patches.js");
-    QString stylesData = getFileContents(":/player/styles.css");
-    loadScriptData(patchesData.arg(annotationStylesData + stylesData), QWebEngineScript::DocumentReady);
+    loadStyleFile(":/annotationlib/AnnotationRenderer.css");
+    loadStyleFile(":/styles.css");
 
     m_view->page()->profile()->setUrlRequestInterceptor(m_interceptor);
 
@@ -73,12 +69,13 @@ YouTubePlayer::YouTubePlayer(QWidget* parent)
     }
 }
 
-void YouTubePlayer::play(const QString& videoId, int progress)
+void YouTubePlayer::play(const QString& videoId, int progress, QtTubePlugin::PlayerSettings* settings)
 {
+    m_channel->registerObject("playerSettings", settings);
     // h264 settings must be passed as a parameter because
     // the video format is determined before QWebChannel loads
-    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2&h264Only=%3&no60Fps=%4&adblock=%5")
-        .arg(videoId).arg(progress).arg(g_settings->h264Only).arg(g_settings->disable60Fps).arg(g_settings->blockAds)));
+    m_view->load(QUrl(QStringLiteral("https://youtube.com/embed/%1?t=%2&h264Only=%3&adblock=%4")
+        .arg(videoId).arg(progress).arg(settings->h264Only).arg(g_settings->blockAds)));
 }
 
 void YouTubePlayer::seek(int progress)
