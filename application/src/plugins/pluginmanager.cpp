@@ -4,6 +4,7 @@
 #include <QMessageBox>
 
 constexpr QLatin1String LoadFailedError("Could not load plugin from %1: %2.");
+constexpr QLatin1String MalformedMetadataError("Metadata for plugin from %1 is malformed.");
 constexpr QLatin1String MetadataNotFoundError("Could not find metadata function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
 constexpr QLatin1String NameConflictError("The name of the plugin from %1 (%2) conflicts with that of the plugin from %3 (%4).");
 constexpr QLatin1String NewInstanceNotFoundError("Could not find initialization function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
@@ -34,11 +35,11 @@ bool PluginManager::checkPluginTargetVersion(const QFileInfo& fileInfo)
     if (!handle->load())
         return pluginError(LoadFailedError.arg(fileInfo.fileName(), handle->errorString()), false);
 
-    QFunctionPointer versionFuncPtr = handle->resolve("targetVersion");
-    if (!versionFuncPtr)
+    QFunctionPointer targetVersionFuncPtr = handle->resolve("targetVersion");
+    if (!targetVersionFuncPtr)
         return pluginError(TargetVersionNotFoundError.arg(fileInfo.fileName()), false);
 
-    const char* targetVersion = QtTubePluginVersionFunc(versionFuncPtr)();
+    const char* targetVersion = QtTubePluginTargetVersionFunc(targetVersionFuncPtr)();
     if (strcmp(targetVersion, QTTUBE_VERSION_NAME) != 0)
     {
         QMessageBox::StandardButton button = QMessageBox::warning(nullptr, "Plugin Warning",
@@ -82,6 +83,9 @@ std::optional<PluginData> PluginManager::loadPlugin(const QFileInfo& fileInfo)
         data.metadata = metadataFunc();
     else
         return pluginError(MetadataNotFoundError.arg(data.fileInfo.fileName()), std::nullopt);
+
+    if (data.metadata->name[0] == '\0' || data.metadata->version[0] == '\0')
+        return pluginError(MalformedMetadataError.arg(data.fileInfo.fileName()), std::nullopt);
 
     // optional components
     if (auto authFunc = QtTubePluginAuthFunc(data.handle->resolve("auth")))

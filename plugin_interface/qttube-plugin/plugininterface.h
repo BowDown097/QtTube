@@ -62,6 +62,7 @@ namespace QtTubePlugin
     struct PluginMetadata
     {
         const char* name = "";
+        const char* version = "";
         const char* description = "";
         const char* image = "";
         const char* author = "";
@@ -74,7 +75,7 @@ using QtTubePluginMetadataFunc = QtTubePlugin::PluginMetadata*(*)();
 using QtTubePluginNewInstanceFunc = QtTubePlugin::PluginInterface*(*)();
 using QtTubePluginPlayerFunc = QtTubePlugin::Player*(*)(QWidget*);
 using QtTubePluginSettingsFunc = QtTubePlugin::SettingsStore*(*)();
-using QtTubePluginVersionFunc = const char*(*)();
+using QtTubePluginTargetVersionFunc = const char*(*)();
 
 #define EXPAND(x) x
 #define GET_MACRO(_1, _2, _3, _4, _5, NAME, ...) NAME

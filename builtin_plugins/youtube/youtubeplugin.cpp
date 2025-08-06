@@ -13,6 +13,7 @@ using namespace InnertubeEndpoints;
 
 QtTubePlugin::PluginMetadata g_metadata = {
     .name = "YouTube",
+    .version = "1.0",
     .description = "Built-in plugin for YouTube.",
     .image = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/330px-YouTube_full-color_icon_%282017%29.svg.png",
     .author = "BowDown097",
