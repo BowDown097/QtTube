@@ -2,7 +2,7 @@
 #include "components/auth/authstore.h"
 #include "components/player/player.h"
 #include "components/replytypes/replytypes.h"
-#include "components/settingsstore.h"
+#include "components/settings/settingsstore.h"
 
 #ifdef Q_OS_WIN
 #define DLLEXPORT __declspec(dllexport)

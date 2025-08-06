@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/components/settingsstore.h"
+#include "qttube-plugin/components/settings/settingsstore.h"
 
 namespace InnertubeObjects
 {

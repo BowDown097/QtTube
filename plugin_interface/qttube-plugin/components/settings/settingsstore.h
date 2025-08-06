@@ -1,5 +1,5 @@
 #pragma once
-#include "configstore.h"
+#include "qttube-plugin/components/configstore.h"
 #include "settingswindow.h"
 
 namespace QtTubePlugin

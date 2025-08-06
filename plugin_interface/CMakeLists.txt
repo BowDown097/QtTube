@@ -11,19 +11,17 @@ target_compile_definitions(QtTube-PluginInterface PUBLIC
 
 target_sources(QtTube-PluginInterface
     PRIVATE
-        qttube-plugin/components/settingswindow.cpp
         qttube-plugin/components/auth/authstore.cpp
         qttube-plugin/components/auth/webauthroutine.cpp
         qttube-plugin/components/player/fullscreennotification.cpp
         qttube-plugin/components/player/webplayer.cpp
+        qttube-plugin/components/settings/settingswindow.cpp
     PUBLIC
         FILE_SET HEADERS FILES
             qttube-plugin/plugininterface.h
             qttube-plugin/replyutils.h
             qttube-plugin/components/configstore.h
             qttube-plugin/components/reply.h
-            qttube-plugin/components/settingsstore.h
-            qttube-plugin/components/settingswindow.h
             qttube-plugin/components/auth/authroutine.h
             qttube-plugin/components/auth/authstore.h
             qttube-plugin/components/auth/webauthroutine.h
@@ -37,6 +35,8 @@ target_sources(QtTube-PluginInterface
             qttube-plugin/components/replytypes/resolveurldata.h
             qttube-plugin/components/replytypes/simpledatatypes.h
             qttube-plugin/components/replytypes/videodata.h
+            qttube-plugin/components/settings/settingsstore.h
+            qttube-plugin/components/settings/settingswindow.h
             qttube-plugin/objects/badge.h
             qttube-plugin/objects/channel.h
             qttube-plugin/objects/emoji.h
