@@ -1,6 +1,3 @@
-[submodule "builtin_plugins/youtube/innertube-qt"]
-	path = builtin_plugins/youtube/innertube-qt
-	url = https://github.com/BowDown097/innertube-qt
-[submodule "plugin_interface/verdigris"]
-	path = plugin_interface/verdigris
-	url = https://github.com/woboq/verdigris
+[submodule "plugin_interface"]
+	path = plugin_interface
+	url = https://github.com/BowDown097/qttube-plugin-interface

@@ -1,8 +1,5 @@
 # Qt packages
-find_package(Qt${QTTUBE_QT_VERSION_MAJOR} REQUIRED COMPONENTS Network WebEngineWidgets Widgets)
-if(QTTUBE_QT_VERSION_MAJOR EQUAL 5 AND (UNIX AND NOT APPLE))
-    find_package(Qt5 OPTIONAL_COMPONENTS X11Extras)
-endif()
+find_package(Qt6 REQUIRED COMPONENTS Network WebEngineWidgets Widgets)
 
 # Address sanitizer
 option(QTTUBE_ENABLE_ASAN "Enable AddressSanitizer to detect memory errors in debug builds." OFF)
@@ -177,15 +174,8 @@ endif()
 # Wayland idle-inhibit stuff (continued)
 if(Wayland_FOUND)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_WAYLAND)
-
-    if(QTTUBE_QT_VERSION_MAJOR EQUAL 5)
-        target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${Qt${QTTUBE_QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS})
-    else()
-        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::GuiPrivate)
-    endif()
-
     target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${Wayland_INCLUDE_DIRS})
-    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${Wayland_LIBRARIES})
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::GuiPrivate ${Wayland_LIBRARIES})
 endif()
 
 # Preprocessor definitions
