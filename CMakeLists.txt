@@ -15,6 +15,11 @@ set(CMAKE_AUTOUIC ON)
 ## Standard version
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+## Output executables and libs in the main build folder, not in subfolders
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+if(UNIX)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+endif()
 
 # Names
 ## App

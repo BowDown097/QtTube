@@ -46,6 +46,7 @@ public:
     PluginData* activePlugin();
     PluginData* findPlugin(const QString& name);
     const QList<PluginData*> loadedPlugins();
+    static const QStringList pluginLoadDirs();
     void reloadPlugins();
 private:
     std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;

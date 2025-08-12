@@ -1,5 +1,5 @@
 #include "pluginmanager.h"
-#include <QApplication>
+#include "qttubeapplication.h"
 #include <QDirIterator>
 #include <QMessageBox>
 
@@ -106,22 +106,36 @@ const QList<PluginData*> PluginManager::loadedPlugins()
     return out;
 }
 
+const QStringList PluginManager::pluginLoadDirs()
+{
+    static const QStringList pluginLoadDirs = {
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QDir::separator() + "plugins",
+        qApp->applicationDirPath() + QDir::separator() + "plugins"
+    };
+    return pluginLoadDirs;
+}
+
 void PluginManager::reloadPlugins()
 {
     QString presentlyActivePluginName;
     if (const PluginData* plugin = activePlugin())
         presentlyActivePluginName = plugin->fileInfo.fileName();
+    else if (!qtTubeApp->settings().activePlugin.isEmpty())
+        presentlyActivePluginName = qtTubeApp->settings().activePlugin;
 
     m_loadedPlugins.clear();
 
     QList<QFileInfo> pluginsToLoad;
-    for (QDirIterator it(qApp->applicationDirPath() + QDir::separator() + "plugins", QDir::Files); it.hasNext();)
+    for (const QString& pluginLoadDir : pluginLoadDirs())
     {
-        QFileInfo fileInfo(it.next());
-        if (presentlyActivePluginName.isEmpty())
-            presentlyActivePluginName = fileInfo.fileName();
-        if (QLibrary::isLibrary(fileInfo.absoluteFilePath()))
-            pluginsToLoad.append(fileInfo);
+        for (QDirIterator it(pluginLoadDir, QDir::Files); it.hasNext();)
+        {
+            QFileInfo fileInfo(it.next());
+            if (presentlyActivePluginName.isEmpty())
+                presentlyActivePluginName = fileInfo.fileName();
+            if (QLibrary::isLibrary(fileInfo.absoluteFilePath()))
+                pluginsToLoad.append(fileInfo);
+        }
     }
 
     for (const QFileInfo& fileInfo : pluginsToLoad)
