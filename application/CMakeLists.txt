@@ -16,7 +16,6 @@ endif()
 
 # Source files
 set(SOURCE_FILES
-    src/eastereggs.cpp
     src/httprequest.cpp
     src/main.cpp
     src/mainwindow.cpp
@@ -76,7 +75,6 @@ set(SOURCE_FILES
 )
 
 set(HEADERS
-    src/eastereggs.h
     src/httprequest.h
     src/mainwindow.h
     src/qttubeapplication.h
