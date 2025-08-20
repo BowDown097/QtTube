@@ -1,9 +1,23 @@
 #include "settingsstore.h"
+#include <QDir>
 #include <QSettings>
+#include <QStandardPaths>
+#include <QTimer>
+
+SettingsStore::SettingsStore(QObject* parent)
+    : QObject(parent),
+      m_configPath(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
+                   QDir::separator() + "settings.ini"),
+      m_saveDebounceTimer(new QTimer(this))
+{
+    m_saveDebounceTimer->setInterval(500);
+    m_saveDebounceTimer->setSingleShot(true);
+    connect(m_saveDebounceTimer, &QTimer::timeout, this, &SettingsStore::save);
+}
 
 void SettingsStore::initialize()
 {
-    QSettings settings(configPath(), QSettings::IniFormat);
+    QSettings settings(m_configPath, QSettings::IniFormat);
 
     // general
     activePlugin = settings.value("activePlugin").toString();
@@ -25,6 +39,13 @@ void SettingsStore::initialize()
     filterLength = settings.value("filtering/filterLength", 0).toInt();
     filterLengthEnabled = settings.value("filtering/filterLengthEnabled", false).toBool();
     readIntoStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
+
+    connect(&playerSettings, &QtTubePlugin::PlayerSettings::preferredQualityChanged, this, [this] {
+        m_saveDebounceTimer->start();
+    });
+    connect(&playerSettings, &QtTubePlugin::PlayerSettings::preferredVolumeChanged, this, [this] {
+        m_saveDebounceTimer->start();
+    });
 }
 
 void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key)
@@ -42,7 +63,7 @@ void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, c
 
 void SettingsStore::save()
 {
-    QSettings settings(configPath(), QSettings::IniFormat);
+    QSettings settings(m_configPath, QSettings::IniFormat);
 
     // general
     settings.setValue("activePlugin", activePlugin);

@@ -22,7 +22,6 @@ set(SOURCE_FILES
     src/qttubeapplication.cpp
     src/plugins/pluginmanager.cpp
     src/stores/emojistore.cpp
-    src/stores/genericstore.cpp
     src/stores/settingsstore.cpp
     src/ui/browsehelper.cpp
     src/ui/forms/emojimenu.cpp
@@ -80,7 +79,6 @@ set(HEADERS
     src/qttubeapplication.h
     src/plugins/pluginmanager.h
     src/stores/emojistore.h
-    src/stores/genericstore.h
     src/stores/settingsstore.h
     src/ui/browsehelper.h
     src/ui/forms/emojimenu.h

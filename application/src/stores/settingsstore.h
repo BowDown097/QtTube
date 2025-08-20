@@ -1,11 +1,11 @@
 #pragma once
-#include "genericstore.h"
 #include "qttube-plugin/components/settings/playersettings.h"
 #include "qttube-plugin/objects/video.h"
 
 class QSettings;
+class QTimer;
 
-class SettingsStore : public GenericStore
+class SettingsStore : public QObject
 {
     Q_OBJECT
 public:
@@ -21,14 +21,15 @@ public:
     QtTubePlugin::PlayerSettings playerSettings;
     bool preferLists{};
 
-    explicit SettingsStore(QObject* parent = nullptr) : GenericStore("settings.ini") {}
-
+    explicit SettingsStore(QObject* parent = nullptr);
+    void initialize();
+    void save();
     bool strHasFilteredTerm(const QString& str) const;
     bool videoIsFiltered(const QtTubePlugin::Video& video) const;
-
-    void initialize() override;
-    void save() override;
 private:
+    QString m_configPath;
+    QTimer* m_saveDebounceTimer;
+
     void readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key);
     void writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key);
 };
