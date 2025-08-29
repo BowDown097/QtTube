@@ -3,6 +3,38 @@
 #include <QNetworkReply>
 #include <QStandardPaths>
 
+// https://tools.ietf.org/html/rfc6266
+QString HttpReply::getFileName() const
+{
+    if (QNetworkReply* reply = qobject_cast<QNetworkReply*>(parent());
+        reply && reply->hasRawHeader("Content-Disposition"))
+    {
+        QString fileName;
+
+        QByteArray disposition = reply->rawHeader("Content-Disposition");
+        constexpr std::array keys = { QLatin1String("filename="), QLatin1String("filename*=UTF-8''") };
+
+        for (const QLatin1String& key : keys)
+        {
+            if (int index = disposition.indexOf(key); index >= 0)
+            {
+                disposition = disposition.mid(index + key.size());
+                if (disposition.startsWith('"') || disposition.startsWith('\''))
+                    disposition = disposition.mid(1);
+                if ((index = disposition.lastIndexOf('"')) > 0)
+                    disposition = disposition.left(index);
+                else if ((index = disposition.lastIndexOf('\'')) > 0)
+                    disposition = disposition.left(index);
+                fileName = QUrl::fromPercentEncoding(disposition);
+            }
+        }
+
+        return fileName;
+    }
+
+    return {};
+}
+
 QByteArray HttpReply::header(const QByteArray& key) const
 {
     if (QNetworkReply* reply = qobject_cast<QNetworkReply*>(parent()))
@@ -51,12 +83,19 @@ QNetworkAccessManager* HttpReply::networkAccessManager()
     return nam;
 }
 
-QByteArray HttpReply::readAll() const
+const QByteArray& HttpReply::readAll() const
 {
-    if (QNetworkReply* reply = qobject_cast<QNetworkReply*>(parent()))
-        return reply->readAll();
-    else
-        throw std::runtime_error("Attempting to access reply when request has not been made");
+    if (const QByteArray* byteArray = std::get_if<QByteArray>(&m_destination))
+        return *byteArray;
+    throw std::runtime_error("Attempting to get data from reply which has been written to an IO device");
+}
+
+void HttpReply::readyRead(QNetworkReply* networkReply)
+{
+    if (QByteArray* byteArray = std::get_if<QByteArray>(&m_destination))
+        byteArray->append(networkReply->readAll());
+    else if (QIODevice** ioDevice = std::get_if<QIODevice*>(&m_destination))
+        (*ioDevice)->write(networkReply->readAll());
 }
 
 QByteArray HttpReply::requestHeader(const QByteArray& headerName) const
@@ -108,7 +147,7 @@ QNetworkReply* HttpRequest::networkReply(
 HttpReply* HttpRequest::request(
     const QUrl& url, HttpReply::Operation operation, const QByteArray& data)
 {
-    HttpReply* result = new HttpReply(std::move(m_headers), url);
+    HttpReply* result = new HttpReply(std::move(m_headers), url, m_ioDevice);
 
     QNetworkRequest req(result->m_url);
     req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
@@ -123,6 +162,7 @@ HttpReply* HttpRequest::request(
     {
         result->setParent(reply);
         QObject::connect(reply, &QNetworkReply::finished, result, [result] { emit result->finished(*result); });
+        QObject::connect(reply, &QNetworkReply::readyRead, result, [reply, result] { emit result->readyRead(reply); });
     }
 
     return result;

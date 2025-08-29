@@ -22,22 +22,29 @@ public:
     // if you just want the QNetworkAccessManager that this uses, because it does have some extra goodies
     static QNetworkAccessManager* networkAccessManager();
 
+    QString getFileName() const;
     QByteArray header(const QByteArray& key) const;
     QByteArray header(QNetworkRequest::KnownHeaders header) const;
     const QList<std::pair<QByteArray, QByteArray>>& headers() const;
     bool isSuccessful() const;
-    QByteArray readAll() const;
+    const QByteArray& readAll() const;
     int statusCode() const;
 
     QByteArray requestHeader(const QByteArray& headerName) const;
     const QList<std::pair<QByteArray, QByteArray>>& requestHeaders() const { return m_requestHeaders; }
     const QUrl& url() const { return m_url; }
 private:
+    std::variant<QByteArray, QIODevice*> m_destination;
     QList<std::pair<QByteArray, QByteArray>> m_requestHeaders;
     QUrl m_url;
 
-    explicit HttpReply(QList<std::pair<QByteArray, QByteArray>>&& requestHeaders, const QUrl& url)
-        : m_requestHeaders(std::move(requestHeaders)), m_url(url) {}
+    explicit HttpReply(QList<std::pair<QByteArray, QByteArray>>&& requestHeaders, const QUrl& url, QIODevice* ioDevice)
+        : m_destination(ioDevice ? std::variant<QByteArray, QIODevice*>(ioDevice)
+                                 : std::variant<QByteArray, QIODevice*>(QByteArray())),
+          m_requestHeaders(std::move(requestHeaders)),
+          m_url(url) {}
+private slots:
+    void readyRead(QNetworkReply* networkReply);
 signals:
     void finished(const HttpReply& request);
 };
@@ -53,6 +60,8 @@ public:
     { m_headers.emplaceBack(name, value); return *this; }
     HttpRequest& withHeaders(const QList<std::pair<QByteArray, QByteArray>>& headers)
     { m_headers = headers; return *this; }
+    HttpRequest& writingToIODevice(QIODevice* ioDevice)
+    { m_ioDevice = ioDevice; return *this; }
 
     HttpReply* request(const QUrl& url, HttpReply::Operation operation, const QByteArray& data = {});
 
@@ -64,6 +73,7 @@ public:
 private:
     QList<std::pair<QNetworkRequest::Attribute, QVariant>> m_attributes;
     QList<std::pair<QByteArray, QByteArray>> m_headers;
+    QIODevice* m_ioDevice{};
     bool m_usingDiskCache{};
 
     QNetworkReply* networkReply(

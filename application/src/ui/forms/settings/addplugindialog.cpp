@@ -4,6 +4,15 @@
 #include "qttubeapplication.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QUuid>
+
+#if defined(Q_OS_WIN)
+constexpr QLatin1String LibraryExtension(".dll");
+#elif defined(Q_OS_MACOS)
+constexpr QLatin1String LibraryExtension(".dylib");
+#else
+constexpr QLatin1String LibraryExtension(".so");
+#endif
 
 AddPluginDialog::AddPluginDialog(QWidget* parent)
     : QDialog(parent), ui(new Ui::AddPluginDialog)
@@ -21,6 +30,7 @@ AddPluginDialog::~AddPluginDialog()
 void AddPluginDialog::attemptAdd()
 {
     PluginData plugin;
+    QString pluginPath = qtTubeApp->plugins().pluginLoadDirs().front() + QDir::separator();
 
     try
     {
@@ -28,21 +38,35 @@ void AddPluginDialog::attemptAdd()
         if (QFileInfo libraryFileInfo(libraryInput); libraryFileInfo.exists())
         {
             plugin = qtTubeApp->plugins().openPlugin(libraryFileInfo);
+            pluginPath += libraryFileInfo.fileName();
         }
         else if (QUrl libraryUrl(libraryInput); libraryUrl.isValid())
         {
             if (libraryUrl.isLocalFile())
             {
-                plugin = qtTubeApp->plugins().openPlugin(QFileInfo(libraryUrl.toLocalFile()));
+                QFileInfo localFileInfo(libraryUrl.toLocalFile());
+                plugin = qtTubeApp->plugins().openPlugin(localFileInfo);
+                pluginPath += localFileInfo.fileName();
             }
             else if (QString fileName = libraryUrl.fileName(); !fileName.isEmpty())
             {
-                QFile temporaryPluginFile(QDir::temp().filePath(libraryUrl.fileName()));
+                bool fullyTemp = !QLibrary::isLibrary(fileName);
+                QFile temporaryPluginFile(fullyTemp
+                    ? QDir::temp().filePath(QUuid::createUuid().toString(QUuid::Id128) + LibraryExtension)
+                    : QDir::temp().filePath(libraryUrl.fileName()));
                 temporaryPluginFile.open(QFile::WriteOnly);
-                temporaryPluginFile.write(blockingRequest(libraryUrl));
+
+                HttpReply* reply = HttpRequest().writingToIODevice(&temporaryPluginFile).get(libraryUrl);
+                QEventLoop loop;
+                connect(reply, &HttpReply::finished, &loop, &QEventLoop::quit);
+                loop.exec();
+
                 temporaryPluginFile.close();
 
                 plugin = qtTubeApp->plugins().openPlugin(QFileInfo(temporaryPluginFile));
+
+                QString dispFileName = reply->getFileName();
+                pluginPath += (fullyTemp && !dispFileName.isEmpty()) ? dispFileName : fileName;
             }
             else
             {
@@ -60,40 +84,16 @@ void AddPluginDialog::attemptAdd()
     if (!qtTubeApp->plugins().activePlugin())
         plugin.active = true;
 
-    QString newPluginPath =
-        qtTubeApp->plugins().pluginLoadDirs().front() +
-        QDir::separator() +
-        plugin.fileInfo.fileName();
-
-    QFileInfo(newPluginPath).dir().mkpath(".");
-    QFile::rename(plugin.fileInfo.absoluteFilePath(), newPluginPath);
-    plugin.fileInfo.setFile(newPluginPath);
+    QFileInfo(pluginPath).dir().mkpath(".");
+    QFile::rename(plugin.fileInfo.absoluteFilePath(), pluginPath);
+    plugin.fileInfo.setFile(pluginPath);
 
     emit qtTubeApp->activePluginChanged(qtTubeApp->plugins().loadAndInitPlugin(std::move(plugin)));
     done(QDialog::Accepted);
 }
 
-QByteArray AddPluginDialog::blockingRequest(const QUrl& url)
-{
-    HttpReply* reply = HttpRequest().get(url);
-
-    QEventLoop loop;
-    connect(reply, &HttpReply::finished, &loop, &QEventLoop::quit);
-    loop.exec();
-
-    return reply->readAll();
-}
-
 void AddPluginDialog::getOpenFile()
 {
-#if defined(Q_OS_WIN)
-    constexpr QLatin1String LibraryFilter("Library files (*.dll)");
-#elif defined(Q_OS_MACOS)
-    constexpr QLatin1String LibraryFilter("Library files (*.dylib)");
-#else
-    constexpr QLatin1String LibraryFilter("Library files (*.so)");
-#endif
-
     ui->lineEdit->setText(QFileDialog::getOpenFileName(
-        this, "Select a library file...", {}, LibraryFilter));
+        this, "Select a library file...", {}, "Library files (*" + LibraryExtension + ')'));
 }

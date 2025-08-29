@@ -13,7 +13,6 @@ public:
     ~AddPluginDialog();
 private:
     Ui::AddPluginDialog* ui;
-    QByteArray blockingRequest(const QUrl& url);
 private slots:
     void attemptAdd();
     void getOpenFile();
