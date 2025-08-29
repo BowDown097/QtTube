@@ -93,9 +93,7 @@ void TopBar::handleMouseEvent(QMouseEvent* event)
 
 void TopBar::postSignInSetup()
 {
-    avatarButton->show();
-    signInButton->hide();
-    scaleAppropriately();
+    updateUIForSignInState(true);
 
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
@@ -141,9 +139,7 @@ void TopBar::signOut()
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->auth)
         plugin->auth->clear();
-    notificationBell->hide();
-    avatarButton->hide();
-    signInButton->show();
+    updateUIForSignInState(false);
     emit signInStatusChanged();
 }
 
@@ -169,4 +165,21 @@ void TopBar::updatePalette(const QPalette& palette)
 
     if (!hasAuthenticated())
         notificationBell->hide();
+}
+
+void TopBar::updateUIForSignInState(bool signedIn)
+{
+    if (signedIn)
+    {
+        avatarButton->show();
+        signInButton->hide();
+    }
+    else
+    {
+        avatarButton->hide();
+        notificationBell->hide();
+        signInButton->show();
+    }
+
+    scaleAppropriately();
 }

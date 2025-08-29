@@ -70,21 +70,11 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     addAction(reloadShortcut);
 
     qtTubeApp->doInitialSetup();
+    connect(qtTubeApp, &QtTubeApplication::activePluginChanged, this, &MainWindow::activePluginChanged);
 
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->auth)
-    {
-        if (const QtTubePlugin::AuthUser* authUser = plugin->auth->activeBaseLogin())
-        {
-            m_topbar->avatarButton->setImage(authUser->avatar, TubeLabel::Cached | TubeLabel::Rounded);
-            m_topbar->postSignInSetup();
-        }
-
-        connect(plugin->auth, &QtTubePlugin::AuthStoreBase::authenticateSuccess, m_topbar, &TopBar::postSignInSetup);
-        connect(plugin->auth, &QtTubePlugin::AuthStoreBase::updateFail, this, [] {
-            QMessageBox::critical(nullptr, "Invalid Login Credentials", "Your login credentials are invalid. They may have expired. You will be logged out, then try logging in again.");
-            m_topbar->signOut();
-        });
-    }
+    // just call activePluginChanged() to do setup for whatever plugin has been loaded
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+        activePluginChanged(plugin);
 
 #ifdef Q_OS_LINUX
     if (qtTubeApp->settings().playerSettings.vaapi)
@@ -98,6 +88,32 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
         ViewController::loadChannel(parser.value("channel"));
     else if (parser.isSet("video"))
         ViewController::loadVideo(parser.value("video"));
+}
+
+void MainWindow::activePluginChanged(PluginData* activePlugin)
+{
+    if (QtTubePlugin::AuthStoreBase* authStore = activePlugin->auth)
+    {
+        if (const QtTubePlugin::AuthUser* authUser = authStore->activeBaseLogin())
+        {
+            m_topbar->avatarButton->setImage(authUser->avatar, TubeLabel::Cached | TubeLabel::Rounded);
+            m_topbar->postSignInSetup();
+        }
+        else
+        {
+            m_topbar->updateUIForSignInState(false);
+        }
+
+        connect(authStore, &QtTubePlugin::AuthStoreBase::authenticateSuccess, m_topbar, &TopBar::postSignInSetup);
+        connect(authStore, &QtTubePlugin::AuthStoreBase::updateFail, this, [] {
+            QMessageBox::critical(nullptr, "Invalid Login Credentials", "Your login credentials are invalid. They may have expired. You will be logged out, then try logging in again.");
+            m_topbar->signOut();
+        });
+    }
+    else
+    {
+        m_topbar->updateUIForSignInState(false);
+    }
 }
 
 void MainWindow::browse()

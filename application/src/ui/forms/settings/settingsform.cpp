@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "termfilterview.h"
+#include "addplugindialog.h"
 #include "ui/widgets/pluginwidget.h"
 #include "utils/uiutils.h"
 #include <QButtonGroup>
@@ -63,16 +64,17 @@ SettingsForm::SettingsForm(QWidget* parent)
     ui->filterLengthCheck->setChecked(store.filterLengthEnabled);
 
     connect(pluginActiveButtonGroup, &QButtonGroup::buttonToggled, this, &SettingsForm::pluginActiveButtonToggled);
+    connect(ui->addPluginButton, &QPushButton::clicked, this, &SettingsForm::openAddPluginDialog);
     connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
     connect(ui->externalPlayerButton, &QPushButton::clicked, this, &SettingsForm::selectExternalPlayer);
     connect(ui->externalPlayerEdit, &QLineEdit::textEdited, this, &SettingsForm::checkExternalPlayer);
     connect(ui->filterLengthCheck, &QCheckBox::toggled, this, [this](bool c) { ui->filterLength->setEnabled(c); });
     connect(ui->qualityFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredQuality->setEnabled(!c); });
-    connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::showTermFilterTable);
+    connect(ui->showFilteredTerms, &QPushButton::clicked, this, &SettingsForm::openTermFilterTable);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &SettingsForm::currentChanged);
     connect(ui->volumeFromPlayer, &QCheckBox::toggled, this, [this](bool c) { ui->preferredVolume->setEnabled(!c); });
 
-    setupSaveButton(ui->saveButton, true);
+    setupSaveButton(ui->saveButton, true, { ui->addPluginButton, ui->browsePluginsButton });
 }
 
 void SettingsForm::checkExternalPlayer(const QString& text)
@@ -116,16 +118,6 @@ void SettingsForm::currentChanged(int index)
     if (ui->tabWidget->tabText(index) != "Plugins" || !pluginActiveButtonGroup->buttons().isEmpty())
         return;
 
-    if (const QString& activePluginSetting = qtTubeApp->settings().activePlugin; !activePluginSetting.isEmpty())
-    {
-        if (PluginData* plugin = qtTubeApp->plugins().findPlugin(activePluginSetting))
-        {
-            if (PluginData* activePlugin = qtTubeApp->plugins().activePlugin(); activePlugin && activePlugin != plugin)
-                activePlugin->active = false;
-            plugin->active = true;
-        }
-    }
-
     for (PluginData* plugin : qtTubeApp->plugins().loadedPlugins())
     {
         PluginWidget* pluginWidget = new PluginWidget(plugin);
@@ -150,6 +142,24 @@ QString SettingsForm::extractPath(const QString& str)
     }
 
     return out;
+}
+
+void SettingsForm::openAddPluginDialog()
+{
+    AddPluginDialog dialog;
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        PluginWidget* pluginWidget = new PluginWidget(qtTubeApp->plugins().activePlugin());
+        UIUtils::addWidgetToList(ui->pluginsListWidget, pluginWidget);
+        pluginActiveButtonGroup->addButton(pluginWidget->activeButton());
+    }
+}
+
+void SettingsForm::openTermFilterTable()
+{
+    TermFilterView* fv = new TermFilterView;
+    fv->show();
+    fv->populateFromSettings();
 }
 
 void SettingsForm::pluginActiveButtonToggled(QAbstractButton* button, bool checked)
@@ -218,11 +228,4 @@ void SettingsForm::selectExternalPlayer()
         ui->externalPlayerEdit->setText(playerPath + " %U");
         ui->vaapi->setEnabled(false);
     }
-}
-
-void SettingsForm::showTermFilterTable()
-{
-    TermFilterView* fv = new TermFilterView;
-    fv->show();
-    fv->populateFromSettings();
 }

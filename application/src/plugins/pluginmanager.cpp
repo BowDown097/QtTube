@@ -3,6 +3,8 @@
 #include <QDirIterator>
 #include <QMessageBox>
 
+constexpr QLatin1String EmplaceError("Failed to add plugin to the internal plugin list. How did this happen???");
+constexpr QLatin1String LoadAbortedError("Loading of plugin was aborted.");
 constexpr QLatin1String LoadFailedError("Could not load plugin from %1: %2.");
 constexpr QLatin1String MalformedMetadataError("Metadata for plugin from %1 is malformed.");
 constexpr QLatin1String MetadataNotFoundError("Could not find metadata function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
@@ -10,13 +12,6 @@ constexpr QLatin1String NameConflictError("The name of the plugin from %1 (%2) c
 constexpr QLatin1String NewInstanceNotFoundError("Could not find initialization function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
 constexpr QLatin1String TargetVersionMismatchWarning("The target version of the plugin from %1 (%2) does not match this version of " QTTUBE_APP_NAME " (" QTTUBE_VERSION_NAME "). This plugin may not work. Load this plugin anyway?");
 constexpr QLatin1String TargetVersionNotFoundError("Could not find target version function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
-
-template<typename R>
-R pluginError(const QString& error, R&& returnValue)
-{
-    QMessageBox::critical(nullptr, "Plugin Error", error);
-    return returnValue;
-}
 
 PluginData* PluginManager::activePlugin()
 {
@@ -29,25 +24,40 @@ PluginData* PluginManager::activePlugin()
         return nullptr;
 }
 
-bool PluginManager::checkPluginTargetVersion(const QFileInfo& fileInfo)
+void PluginManager::checkPluginMetadata(const PluginData& data)
 {
-    std::unique_ptr<QLibrary, QLibraryDeleter> handle(new QLibrary(fileInfo.absoluteFilePath()));
-    if (!handle->load())
-        return pluginError(LoadFailedError.arg(fileInfo.fileName(), handle->errorString()), false);
+    QString pluginName = data.metadata->name;
+    QString pluginVersion = data.metadata->version;
 
-    QFunctionPointer targetVersionFuncPtr = handle->resolve("targetVersion");
-    if (!targetVersionFuncPtr)
-        return pluginError(TargetVersionNotFoundError.arg(fileInfo.fileName()), false);
+    if (pluginName.isEmpty() || pluginVersion.isEmpty())
+        throw PluginLoadException(MalformedMetadataError.arg(data.fileInfo.fileName()));
 
-    const char* targetVersion = QtTubePluginTargetVersionFunc(targetVersionFuncPtr)();
-    if (strcmp(targetVersion, QTTUBE_VERSION_NAME) != 0)
+    if (auto it = m_loadedPlugins.find(pluginName); it != m_loadedPlugins.end())
     {
-        QMessageBox::StandardButton button = QMessageBox::warning(nullptr, "Plugin Warning",
-            TargetVersionMismatchWarning.arg(fileInfo.fileName(), targetVersion), QMessageBox::Yes | QMessageBox::No);
-        return button == QMessageBox::Yes;
+        throw PluginLoadException(NameConflictError.arg(
+            data.fileInfo.fileName(), pluginName,
+            it->second.fileInfo.fileName(), it->second.metadata->name));
     }
+}
 
-    return true;
+void PluginManager::checkPluginTargetVersion(const PluginData& data)
+{
+    if (auto targetVersionFunc = QtTubePluginTargetVersionFunc(data.handle->resolve("targetVersion")))
+    {
+        if (const char* targetVersion = targetVersionFunc(); strcmp(targetVersion, QTTUBE_VERSION_NAME) != 0)
+        {
+            QMessageBox::StandardButton button = QMessageBox::warning(
+                nullptr, "Plugin Warning",
+                TargetVersionMismatchWarning.arg(data.fileInfo.fileName(), targetVersion),
+                QMessageBox::Yes | QMessageBox::No);
+            if (button != QMessageBox::Yes)
+                throw PluginLoadException(LoadAbortedError);
+        }
+    }
+    else
+    {
+        throw PluginLoadException(TargetVersionNotFoundError.arg(data.fileInfo.fileName()));
+    }
 }
 
 PluginData* PluginManager::findPlugin(const QString& name)
@@ -58,43 +68,23 @@ PluginData* PluginManager::findPlugin(const QString& name)
         return nullptr;
 }
 
-std::optional<PluginData> PluginManager::loadPlugin(const QFileInfo& fileInfo)
+PluginData* PluginManager::loadAndInitPlugin(PluginData&& plugin)
 {
-    // check version
-    if (!checkPluginTargetVersion(fileInfo))
-        return {};
+    plugin.interface->init();
 
-    // create PluginData with what we have so far
-    PluginData data;
-    data.fileInfo = std::move(fileInfo);
-    data.handle.reset(new QLibrary(data.fileInfo.absoluteFilePath()));
-    data.handle->setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
+    if (plugin.settings)
+        plugin.settings->init();
 
-    // load handle, get required instance and metadata components
-    if (!data.handle->load())
-        return pluginError(LoadFailedError.arg(data.fileInfo.fileName(), data.handle->errorString()), std::nullopt);
+    if (plugin.auth)
+    {
+        plugin.auth->init();
+        plugin.auth->restoreFromActive();
+    }
 
-    if (auto newInstanceFunc = QtTubePluginNewInstanceFunc(data.handle->resolve("newInstance")))
-        data.interface.reset(newInstanceFunc());
+    if (auto res = m_loadedPlugins.emplace(plugin.metadata->name, std::move(plugin)); res.second)
+        return &res.first->second;
     else
-        return pluginError(NewInstanceNotFoundError.arg(data.fileInfo.fileName()), std::nullopt);
-
-    if (auto metadataFunc = QtTubePluginMetadataFunc(data.handle->resolve("metadata")))
-        data.metadata = metadataFunc();
-    else
-        return pluginError(MetadataNotFoundError.arg(data.fileInfo.fileName()), std::nullopt);
-
-    if (data.metadata->name[0] == '\0' || data.metadata->version[0] == '\0')
-        return pluginError(MalformedMetadataError.arg(data.fileInfo.fileName()), std::nullopt);
-
-    // optional components
-    if (auto authFunc = QtTubePluginAuthFunc(data.handle->resolve("auth")))
-        data.auth = authFunc();
-    data.playerFunc = QtTubePluginPlayerFunc(data.handle->resolve("player"));
-    if (auto settingsFunc = QtTubePluginSettingsFunc(data.handle->resolve("settings")))
-        data.settings = settingsFunc();
-
-    return data;
+        throw PluginLoadException(EmplaceError);
 }
 
 const QList<PluginData*> PluginManager::loadedPlugins()
@@ -106,7 +96,46 @@ const QList<PluginData*> PluginManager::loadedPlugins()
     return out;
 }
 
-const QStringList PluginManager::pluginLoadDirs()
+PluginData PluginManager::openPlugin(const QFileInfo& fileInfo)
+{
+    // create PluginData with what we have so far, then try to load the handle
+    PluginData data = {
+        .fileInfo = fileInfo,
+        .handle = QLibraryPtr(new QLibrary(fileInfo.absoluteFilePath()))
+    };
+
+    data.handle->setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
+    if (!data.handle->load())
+        throw PluginLoadException(LoadFailedError.arg(data.fileInfo.fileName(), data.handle->errorString()));
+
+    // check target version
+    checkPluginTargetVersion(data);
+
+    // put in and simply validate metadata, check name for conflict with already loaded plugin
+    if (auto metadataFunc = QtTubePluginMetadataFunc(data.handle->resolve("metadata")))
+        data.metadata = metadataFunc();
+    else
+        throw PluginLoadException(MetadataNotFoundError.arg(data.fileInfo.fileName()));
+
+    checkPluginMetadata(data);
+
+    // put in interface
+    if (auto newInstanceFunc = QtTubePluginNewInstanceFunc(data.handle->resolve("newInstance")))
+        data.interface.reset(newInstanceFunc());
+    else
+        throw PluginLoadException(NewInstanceNotFoundError.arg(data.fileInfo.fileName()));
+
+    // put in optional components
+    if (auto authFunc = QtTubePluginAuthFunc(data.handle->resolve("auth")))
+        data.auth = authFunc();
+    data.playerFunc = QtTubePluginPlayerFunc(data.handle->resolve("player"));
+    if (auto settingsFunc = QtTubePluginSettingsFunc(data.handle->resolve("settings")))
+        data.settings = settingsFunc();
+
+    return data;
+}
+
+const QStringList& PluginManager::pluginLoadDirs()
 {
     static const QStringList pluginLoadDirs = {
         QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QDir::separator() + "plugins",
@@ -140,32 +169,16 @@ void PluginManager::reloadPlugins()
 
     for (const QFileInfo& fileInfo : pluginsToLoad)
     {
-        if (std::optional<PluginData> plugin = loadPlugin(fileInfo))
+        try
         {
-            if (auto it = m_loadedPlugins.find(plugin->metadata->name); it == m_loadedPlugins.end())
-            {
-                if (fileInfo.fileName() == presentlyActivePluginName)
-                    plugin->active = true;
-
-                plugin->interface->init();
-
-                if (plugin->settings)
-                    plugin->settings->init();
-
-                if (plugin->auth)
-                {
-                    plugin->auth->init();
-                    plugin->auth->restoreFromActive();
-                }
-
-                m_loadedPlugins.emplace(plugin->metadata->name, std::move(plugin.value()));
-            }
-            else
-            {
-                QMessageBox::critical(nullptr, "Plugin Error", NameConflictError.arg(
-                    fileInfo.fileName(), plugin->metadata->name,
-                    it->second.fileInfo.fileName(), it->second.metadata->name));
-            }
+            PluginData plugin = openPlugin(fileInfo);
+            if (fileInfo.fileName() == presentlyActivePluginName)
+                plugin.active = true;
+            loadAndInitPlugin(std::move(plugin));
+        }
+        catch (const PluginLoadException& ex)
+        {
+            QMessageBox::critical(nullptr, "Plugin Error", ex.message());
         }
     }
 }

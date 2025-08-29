@@ -27,7 +27,8 @@ private slots:
     void checkExternalPlayer(const QString& text);
     void clearCache();
     void currentChanged(int index);
+    void openAddPluginDialog();
+    void openTermFilterTable();
     void pluginActiveButtonToggled(QAbstractButton* button, bool checked);
     void selectExternalPlayer();
-    void showTermFilterTable();
 };

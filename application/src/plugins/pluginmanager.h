@@ -28,6 +28,20 @@ struct QLibraryDeleter
     }
 };
 
+using QLibraryPtr = std::unique_ptr<QLibrary, QLibraryDeleter>;
+
+class PluginLoadException : public QException
+{
+public:
+    void raise() const override { throw *this; }
+    PluginLoadException* clone() const override { return new PluginLoadException(*this); }
+
+    explicit PluginLoadException(const QString& message) : m_message(message) {}
+    const QString& message() const { return m_message; }
+private:
+    QString m_message;
+};
+
 struct PluginData
 {
     bool active{};
@@ -45,12 +59,14 @@ class PluginManager
 public:
     PluginData* activePlugin();
     PluginData* findPlugin(const QString& name);
+    PluginData* loadAndInitPlugin(PluginData&& plugin);
     const QList<PluginData*> loadedPlugins();
-    static const QStringList pluginLoadDirs();
+    PluginData openPlugin(const QFileInfo& fileInfo);
+    static const QStringList& pluginLoadDirs();
     void reloadPlugins();
 private:
     std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
 
-    bool checkPluginTargetVersion(const QFileInfo& fileInfo);
-    std::optional<PluginData> loadPlugin(const QFileInfo& fileInfo);
+    void checkPluginMetadata(const PluginData& data);
+    void checkPluginTargetVersion(const PluginData& data);
 };

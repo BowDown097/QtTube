@@ -21,6 +21,7 @@ public:
     void scaleAppropriately();
     void setAlwaysShow(bool alwaysShow) { this->alwaysShow = alwaysShow; }
     void updatePalette(const QPalette& palette);
+    void updateUIForSignInState(bool signedIn);
 private:
     bool alwaysShow = true;
     QPropertyAnimation* animation;

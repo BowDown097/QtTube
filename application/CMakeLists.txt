@@ -26,6 +26,7 @@ set(SOURCE_FILES
     src/ui/browsehelper.cpp
     src/ui/forms/emojimenu.cpp
     src/ui/forms/livechatwindow.cpp
+    src/ui/forms/settings/addplugindialog.cpp
     src/ui/forms/settings/settingsform.cpp
     src/ui/forms/settings/termfilterview.cpp
     src/ui/views/channelview.cpp
@@ -83,6 +84,7 @@ set(HEADERS
     src/ui/browsehelper.h
     src/ui/forms/emojimenu.h
     src/ui/forms/livechatwindow.h
+    src/ui/forms/settings/addplugindialog.h
     src/ui/forms/settings/settingsform.h
     src/ui/forms/settings/termfilterview.h
     src/ui/views/channelview.h
@@ -135,6 +137,7 @@ set(FORMS
     src/mainwindow.ui
     src/ui/forms/emojimenu.ui
     src/ui/forms/livechatwindow.ui
+    src/ui/forms/settings/addplugindialog.ui
     src/ui/forms/settings/settingsform.ui
     src/ui/forms/settings/termfilterview.ui
 )
