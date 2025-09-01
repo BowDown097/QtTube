@@ -76,7 +76,7 @@ jobs:
           modules: ${{ matrix.qt_modules }}
           cache: true
           cache-key-prefix: ${{ matrix.qt_host }}-${{ matrix.qt_version }}-"${{ matrix.qt_modules }}"-qt_cache
-      
+
       - name: Prepare AppImage
         if: runner.os == 'Linux'
         run: |
@@ -93,7 +93,7 @@ jobs:
       - name: Package (Windows)
         if: runner.os == 'Windows'
         run: cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_DIR }} --config ${{ env.BUILD_TYPE }}
-      
+
       #- name: Package (Windows installer)
         #if: runner.os == 'Windows'
         #run: |
@@ -111,14 +111,15 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
-          rm -f /home/runner/work/QtTube/Qt/${{ matrix.qt_version }}/gcc_64/plugins/sqldrivers/libqsqlmimer.so
+          rm -f ${{ env.QT_ROOT_DIR }}/plugins/sqldrivers/libqsqlmimer.so
           export OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
           chmod +x linuxdeploy-*.AppImage
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
           cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           cp /usr/lib/x86_64-linux-gnu/libssl.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-          export V8_SNAPSHOT_FILE="/home/runner/work/QtTube/Qt/${{ matrix.qt_version }}/gcc_64/resources/v8_context_snapshot.bin"
+          cp /usr/lib/x86_64-linux-gnu/libicu*.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+          export V8_SNAPSHOT_FILE="${{ env.QT_ROOT_DIR }}/resources/v8_context_snapshot.bin"
           [[ -e $V8_SNAPSHOT_FILE ]] && cp $V8_SNAPSHOT_FILE ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
           export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib"
           ./linuxdeploy-x86_64.AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt -d application/program_info/qttube.desktop -i application/res/qttube.svg
