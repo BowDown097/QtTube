@@ -191,7 +191,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Include directories, libraries
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QtTube::PluginInterface Qt::Network Qt::WebEngineWidgets Qt::Widgets)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QtTube::PluginInterface)
 
 ## Platform-specific
 if(UNIX AND NOT APPLE)

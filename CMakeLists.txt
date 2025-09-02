@@ -49,5 +49,6 @@ if(APPLE)
 endif()
 
 # Components
+option(ENABLE_WEB_COMPONENTS "" ON)
 add_subdirectory(plugin_interface)
 add_subdirectory(application)
