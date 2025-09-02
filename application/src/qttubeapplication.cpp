@@ -5,8 +5,25 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 
+#ifdef Q_OS_WIN
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
 void QtTubeApplication::doInitialSetup()
 {
+    // on windows, rpath is not supported for plugins. add lib directories manually
+#ifdef Q_OS_WIN
+    SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+    const QStringList libraryLoadDirs = {
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QDir::separator() + "plugin-libs",
+        qApp->applicationDirPath() + QDir::separator() + "plugin-libs"
+    };
+
+    for (const QString& dir : libraryLoadDirs)
+        AddDllDirectory(qUtf16Printable(QDir::toNativeSeparators(dir)));
+#endif
+
     m_plugins.reloadPlugins();
     m_settings.initialize();
 
