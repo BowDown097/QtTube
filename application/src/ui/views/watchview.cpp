@@ -11,6 +11,7 @@
 #include "utils/osutils.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
+#include <QMessageBox>
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -32,9 +33,15 @@ WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchVie
 
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId);
-        connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
-        connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
+        if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
+        {
+            connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
+            connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
+        }
+        else
+        {
+            emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
+        }
     }
 
     ui->player->play(videoId, progress);
@@ -83,9 +90,15 @@ void WatchView::hotLoadVideo(
 
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId);
-        connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
-        connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
+        if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
+        {
+            connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
+            connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
+        }
+        else
+        {
+            emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
+        }
     }
 
     ui->player->play(videoId, progress);
@@ -202,7 +215,8 @@ void WatchView::rate(bool like, const std::any& addData, const std::any& removeD
             senderLabel->setText(QLocale::system().toString(count + 1));
 
         if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
-            plugin->interface->rate(videoId, like, false, addData);
+            if (!plugin->interface->rate(videoId, like, false, addData))
+                QMessageBox::warning(nullptr, "Failed to rate video", "No method has been provided.");
     }
     else
     {
@@ -212,7 +226,8 @@ void WatchView::rate(bool like, const std::any& addData, const std::any& removeD
             senderLabel->setText(QLocale::system().toString(count - 1));
 
         if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
-            plugin->interface->rate(videoId, like, true, removeData);
+            if (!plugin->interface->rate(videoId, like, true, removeData))
+                QMessageBox::warning(nullptr, "Failed to rate video", "No method has been provided.");
     }
 }
 
@@ -244,24 +259,26 @@ void WatchView::updateMetadata(const QString& videoId)
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId);
-        connect(reply, &QtTubePlugin::VideoReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
-            qDebug() << ex.message() << "Stream/premiere could have ended - killing update timer.";
-            metadataUpdateTimer->deleteLater();
-        });
-        connect(reply, &QtTubePlugin::VideoReply::finished, this, [this](const QtTubePlugin::VideoData& data) {
-            ui->date->setText(data.dateText);
-            ui->description->setText(data.descriptionText);
-            ui->titleLabel->setText(data.titleText);
-            ui->viewCount->setText(data.viewCountText);
+        if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
+        {
+            connect(reply, &QtTubePlugin::VideoReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
+                qDebug() << ex.message() << "Stream/premiere could have ended - killing update timer.";
+                metadataUpdateTimer->deleteLater();
+            });
+            connect(reply, &QtTubePlugin::VideoReply::finished, this, [this](const QtTubePlugin::VideoData& data) {
+                ui->date->setText(data.dateText);
+                ui->description->setText(data.descriptionText);
+                ui->titleLabel->setText(data.titleText);
+                ui->viewCount->setText(data.viewCountText);
 
-            if (data.ratingsAvailable)
-            {
-                ui->dislikeLabel->setText(data.dislikeCountText);
-                ui->likeLabel->setText(data.likeCountText);
-                if (data.likeDislikeRatio > 0)
-                    ui->likeBar->setValue(data.likeDislikeRatio * 100);
-            }
-        });
+                if (data.ratingsAvailable)
+                {
+                    ui->dislikeLabel->setText(data.dislikeCountText);
+                    ui->likeLabel->setText(data.likeCountText);
+                    if (data.likeDislikeRatio > 0)
+                        ui->likeBar->setValue(data.likeDislikeRatio * 100);
+                }
+            });
+        }
     }
 }

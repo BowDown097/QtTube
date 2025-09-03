@@ -11,13 +11,19 @@ void BrowseHelper::browseChannel(
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        widget->setPopulatingFlag(true);
-
-        QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(channelId, requestData, widget->continuationData);
-        connect(reply, &QtTubePlugin::ChannelReply::exception, this,
-                std::bind_front(&BrowseHelper::browseFailed, this, "channel tab", widget));
-        connect(reply, &QtTubePlugin::ChannelReply::finished, this,
-                std::bind_front(&BrowseHelper::setupChannel, this, widget, activeTabIndex, reply));
+        if (QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(
+                channelId, requestData, widget->continuationData))
+        {
+            widget->setPopulatingFlag(true);
+            connect(reply, &QtTubePlugin::ChannelReply::exception, this,
+                    std::bind_front(&BrowseHelper::browseFailed, this, "channel tab", widget));
+            connect(reply, &QtTubePlugin::ChannelReply::finished, this,
+                    std::bind_front(&BrowseHelper::setupChannel, this, widget, activeTabIndex, reply));
+        }
+        else
+        {
+            QMessageBox::warning(nullptr, "Failed to get channel tab data", "No method has been provided.");
+        }
     }
 }
 
@@ -31,13 +37,18 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
             return;
         }
 
-        widget->setPopulatingFlag(true);
-
-        QtTubePlugin::BrowseReply* reply = plugin->interface->getHistory(query, widget->continuationData);
-        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-            std::bind_front(&BrowseHelper::browseFailed, this, "history", widget));
-        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-            std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getHistory(query, widget->continuationData))
+        {
+            widget->setPopulatingFlag(true);
+            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+                std::bind_front(&BrowseHelper::browseFailed, this, "history", widget));
+            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+                std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+        }
+        else
+        {
+            QMessageBox::warning(nullptr, "Failed to get history data", "No method has been provided.");
+        }
     }
 }
 
@@ -45,13 +56,18 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        widget->setPopulatingFlag(true);
-
-        QtTubePlugin::BrowseReply* reply = plugin->interface->getHome(widget->continuationData);
-        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-            std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
-        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-            std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getHome(widget->continuationData))
+        {
+            widget->setPopulatingFlag(true);
+            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+                std::bind_front(&BrowseHelper::browseFailed, this, "home", widget));
+            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+                std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+        }
+        else
+        {
+            QMessageBox::warning(nullptr, "Failed to get home data", "No method has been provided.");
+        }
     }
 }
 
@@ -59,13 +75,18 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        widget->setPopulatingFlag(true);
-
-        QtTubePlugin::NotificationsReply* reply = plugin->interface->getNotifications(widget->continuationData);
-        connect(reply, &QtTubePlugin::NotificationsReply::exception, this,
-            std::bind_front(&BrowseHelper::browseFailed, this, "notification", widget));
-        connect(reply, &QtTubePlugin::NotificationsReply::finished, this,
-            std::bind_front(&BrowseHelper::setupNotifications, this, widget, reply));
+        if (QtTubePlugin::NotificationsReply* reply = plugin->interface->getNotifications(widget->continuationData))
+        {
+            widget->setPopulatingFlag(true);
+            connect(reply, &QtTubePlugin::NotificationsReply::exception, this,
+                std::bind_front(&BrowseHelper::browseFailed, this, "notification", widget));
+            connect(reply, &QtTubePlugin::NotificationsReply::finished, this,
+                std::bind_front(&BrowseHelper::setupNotifications, this, widget, reply));
+        }
+        else
+        {
+            QMessageBox::warning(nullptr, "Failed to get notification data", "No method has been provided.");
+        }
     }
 }
 
@@ -79,13 +100,18 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
             return;
         }
 
-        widget->setPopulatingFlag(true);
-
-        QtTubePlugin::BrowseReply* reply = plugin->interface->getSubFeed(widget->continuationData);
-        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-            std::bind_front(&BrowseHelper::browseFailed, this, "subscriptions", widget));
-        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-            std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getSubFeed(widget->continuationData))
+        {
+            widget->setPopulatingFlag(true);
+            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+                std::bind_front(&BrowseHelper::browseFailed, this, "subscription feed", widget));
+            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+                std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+        }
+        else
+        {
+            QMessageBox::warning(nullptr, "Failed to get subscription feed data", "No method has been provided.");
+        }
     }
 }
 
@@ -93,13 +119,18 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        widget->setPopulatingFlag(true);
-
-        QtTubePlugin::BrowseReply* reply = plugin->interface->getTrending(widget->continuationData);
-        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-            std::bind_front(&BrowseHelper::browseFailed, this, "trending", widget));
-        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-            std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getTrending(widget->continuationData))
+        {
+            widget->setPopulatingFlag(true);
+            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+                std::bind_front(&BrowseHelper::browseFailed, this, "trending", widget));
+            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+                std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+        }
+        else
+        {
+            QMessageBox::warning(nullptr, "Failed to get trending data", "No method has been provided.");
+        }
     }
 }
 
@@ -107,14 +138,19 @@ void BrowseHelper::search(ContinuableListWidget* widget, QHBoxLayout* additional
 {
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        widget->setPopulatingFlag(true);
-
-        QtTubePlugin::BrowseReply* reply = plugin->interface->getSearch(
-            query, getActiveFilters(additionalWidgets), widget->continuationData);
-        connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-            std::bind_front(&BrowseHelper::browseFailed, this, "search", widget));
-        connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-            std::bind_front(&BrowseHelper::setupSearch, this, widget, additionalWidgets, query, plugin, reply));
+        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getSearch(
+                query, getActiveFilters(additionalWidgets), widget->continuationData))
+        {
+            widget->setPopulatingFlag(true);
+            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+                std::bind_front(&BrowseHelper::browseFailed, this, "search", widget));
+            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+                std::bind_front(&BrowseHelper::setupSearch, this, widget, additionalWidgets, query, plugin, reply));
+        }
+        else
+        {
+            QMessageBox::warning(nullptr, "Failed to get search data", "No method has been provided.");
+        }
     }
 }
 

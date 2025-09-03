@@ -2,6 +2,7 @@
 #include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include <QMenu>
+#include <QMessageBox>
 
 constexpr QLatin1String Stylesheet(R"(
     QToolButton {
@@ -80,5 +81,6 @@ void NotificationBell::setVisualState(qsizetype index)
 void NotificationBell::setState(const QtTubePlugin::NotificationState& state)
 {
     if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
-        activePlugin->interface->setNotificationPreference(state.data);
+        if (!activePlugin->interface->setNotificationPreference(state.data))
+            QMessageBox::warning(nullptr, "Failed to set notification preference", "No method has been provided.");
 }

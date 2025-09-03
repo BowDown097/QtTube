@@ -23,16 +23,19 @@ void WatchNextFeed::continueComments()
 
 void WatchNextFeed::continueRecommended()
 {
-    recommended->setPopulatingFlag(true);
     if (PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTubePlugin::RecommendedContinuationReply* reply = activePlugin->interface->continueRecommended(
-            videoId, recommended->continuationData);
-        connect(reply, &QtTubePlugin::RecommendedContinuationReply::exception, this, [](const QtTubePlugin::Exception& ex) {
-            QMessageBox::critical(nullptr, "Failed to get continuation data", ex.message());
-        });
-        connect(reply, &QtTubePlugin::RecommendedContinuationReply::finished,
-                this, &WatchNextFeed::continueRecommendedFinished);
+        if (QtTubePlugin::RecommendedContinuationReply* reply = activePlugin->interface->continueRecommended(
+                videoId, recommended->continuationData))
+        {
+            recommended->setPopulatingFlag(true);
+            connect(reply, &QtTubePlugin::RecommendedContinuationReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
+                recommended->setPopulatingFlag(false);
+                QMessageBox::critical(nullptr, "Failed to get continuation data", ex.message());
+            });
+            connect(reply, &QtTubePlugin::RecommendedContinuationReply::finished,
+                    this, &WatchNextFeed::continueRecommendedFinished);
+        }
     }
 }
 

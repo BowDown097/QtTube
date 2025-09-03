@@ -137,12 +137,14 @@ void SubscribeLabel::trySubscribe()
         if (subscribed && QMessageBox::question(nullptr, localization.unsubscribeText, localization.unsubscribeDialogText) == QMessageBox::StandardButton::Yes)
         {
             toggleSubscriptionStatus();
-            activePlugin->interface->unsubscribe(unsubscribeData);
+            if (!activePlugin->interface->unsubscribe(unsubscribeData))
+                QMessageBox::warning(nullptr, "Failed to unsubscribe", "No method has been provided.");
         }
         else if (!subscribed)
         {
             toggleSubscriptionStatus();
-            activePlugin->interface->subscribe(subscribeData);
+            if (!activePlugin->interface->subscribe(subscribeData))
+                QMessageBox::warning(nullptr, "Failed to subscribe", "No method has been provided.");
         }
     }
 }

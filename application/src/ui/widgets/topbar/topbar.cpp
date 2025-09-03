@@ -93,22 +93,28 @@ void TopBar::handleMouseEvent(QMouseEvent* event)
 
 void TopBar::postSignInSetup()
 {
-    updateUIForSignInState(true);
-
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTubePlugin::AccountReply* reply = plugin->interface->getActiveAccount();
-        connect(reply, &QtTubePlugin::AccountReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
-            QMessageBox::warning(nullptr, "Failed to get active account data", ex.message());
-        });
-        connect(reply, &QtTubePlugin::AccountReply::finished, this, [this, plugin](const QtTubePlugin::InitialAccountData& data) {
-            updateNotificationCount(data.notificationCount);
-            avatarButton->setImage(data.avatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
-            plugin->auth->update(data);
-            scaleAppropriately();
-        });
+        if (QtTubePlugin::AccountReply* reply = plugin->interface->getActiveAccount())
+        {
+            connect(reply, &QtTubePlugin::AccountReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
+                QMessageBox::warning(nullptr, "Failed to get active account data", ex.message());
+            });
+            connect(reply, &QtTubePlugin::AccountReply::finished, this, [this, plugin](const QtTubePlugin::InitialAccountData& data) {
+                updateNotificationCount(data.notificationCount);
+                avatarButton->setImage(data.avatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
+                plugin->auth->update(data);
+                scaleAppropriately();
+            });
+        }
+        else
+        {
+            QMessageBox::critical(nullptr, "Failed to get active account data", "No method has been provided. Not proceeding with authentication.");
+            return;
+        }
     }
 
+    updateUIForSignInState(true);
     emit signInStatusChanged();
 }
 

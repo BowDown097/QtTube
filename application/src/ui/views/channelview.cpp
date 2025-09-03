@@ -85,18 +85,23 @@ void ChannelView::loadChannel(const QString& channelId)
     this->channelId = channelId;
     if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(channelId, {}, {});
-
-        QEventLoop loop;
-        connect(reply, &QtTubePlugin::ChannelReply::exception, this, [this, &loop](const QtTubePlugin::Exception& ex) {
-            loop.quit();
-            emit loadFailed(ex);
-        });
-        connect(reply, &QtTubePlugin::ChannelReply::finished, this, [this, &loop](const QtTubePlugin::ChannelData& data) {
-            loop.quit();
-            processData(data);
-        });
-        loop.exec();
+        if (QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(channelId, {}, {}))
+        {
+            QEventLoop loop;
+            connect(reply, &QtTubePlugin::ChannelReply::exception, this, [this, &loop](const QtTubePlugin::Exception& ex) {
+                loop.quit();
+                emit loadFailed(ex);
+            });
+            connect(reply, &QtTubePlugin::ChannelReply::finished, this, [this, &loop](const QtTubePlugin::ChannelData& data) {
+                loop.quit();
+                processData(data);
+            });
+            loop.exec();
+        }
+        else
+        {
+            emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
+        }
     }
 }
 

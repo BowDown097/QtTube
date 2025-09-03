@@ -68,7 +68,7 @@ void LiveChatWindow::chatModeChanged(const QString& name)
     {
         if (!it->second.has_value())
         {
-            QMessageBox::critical(this, "Error", "Failed to change the chat mode as its data is missing.");
+            QMessageBox::critical(this, "Failed to change chat mode", "No data found.");
             return;
         }
 
@@ -90,15 +90,29 @@ void LiveChatWindow::chatReplayTick(qint64 progress, qint64 previousProgress)
             if (previousProgress > 0 && std::abs(progress - previousProgress) > 5)
             {
                 ui->listWidget->clear();
-                QtTubePlugin::LiveChatReplayReply* reply = plugin->interface->getLiveChatReplay(seekData, progress * 1000);
-                connect(reply, &QtTubePlugin::LiveChatReplayReply::finished, this,
-                    std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, true));
+                if (QtTubePlugin::LiveChatReplayReply* reply = plugin->interface->getLiveChatReplay(seekData, progress * 1000))
+                {
+                    connect(reply, &QtTubePlugin::LiveChatReplayReply::finished, this,
+                        std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, true));
+                }
+                else
+                {
+                    QMessageBox::critical(nullptr, "Failed to get live chat data", "No method has been provided.");
+                    deleteLater();
+                }
             }
             else if (progress < firstChatItemOffset || progress > lastChatItemOffset)
             {
-                QtTubePlugin::LiveChatReplayReply* reply = plugin->interface->getLiveChatReplay(nextData, progress * 1000);
-                connect(reply, &QtTubePlugin::LiveChatReplayReply::finished, this,
-                    std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, false));
+                if (QtTubePlugin::LiveChatReplayReply* reply = plugin->interface->getLiveChatReplay(nextData, progress * 1000))
+                {
+                    connect(reply, &QtTubePlugin::LiveChatReplayReply::finished, this,
+                        std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, false));
+                }
+                else
+                {
+                    QMessageBox::critical(nullptr, "Failed to get live chat data", "No method has been provided.");
+                    deleteLater();
+                }
             }
             else
             {
@@ -115,8 +129,15 @@ void LiveChatWindow::chatTick()
         if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
         {
             populating = true;
-            QtTubePlugin::LiveChatReply* reply = plugin->interface->getLiveChat(nextData);
-            connect(reply, &QtTubePlugin::LiveChatReply::finished, this, &LiveChatWindow::processChatData);
+            if (QtTubePlugin::LiveChatReply* reply = plugin->interface->getLiveChat(nextData))
+            {
+                connect(reply, &QtTubePlugin::LiveChatReply::finished, this, &LiveChatWindow::processChatData);
+            }
+            else
+            {
+                QMessageBox::critical(nullptr, "Failed to get live chat data", "No method has been provided.");
+                deleteLater();
+            }
         }
     }
 }
@@ -239,8 +260,10 @@ void LiveChatWindow::sendMessage()
     {
         if (QString trimmedText = ui->messageBox->text().trimmed(); !trimmedText.isEmpty())
         {
-            plugin->interface->sendLiveChatMessage(EmojiStore::instance()->emojize(trimmedText));
-            ui->messageBox->clear();
+            if (plugin->interface->sendLiveChatMessage(EmojiStore::instance()->emojize(trimmedText)))
+                ui->messageBox->clear();
+            else
+                QMessageBox::warning(nullptr, "Failed to send chat message", "No method has been provided.");
         }
     }
 }
