@@ -27,7 +27,7 @@ namespace ViewController
             MainWindow::topbar()->setAlwaysShow(true);
         });
         QObject::connect(channelView, &ChannelView::loadFailed, [channelView](const QtTubePlugin::Exception& ex) {
-            QMessageBox::critical(nullptr, "Failed to load channel", ex.message());
+            QMessageBox::critical(nullptr, "Failed to Load Channel", ex.message());
             channelView->deleteLater();
             MainWindow::topbar()->setAlwaysShow(true);
             MainWindow::topbar()->show();
@@ -55,7 +55,7 @@ namespace ViewController
             MainWindow::topbar()->setAlwaysShow(true);
         });
         QObject::connect(watchView, &WatchView::loadFailed, [watchView](const QtTubePlugin::Exception& ex) {
-            QMessageBox::critical(nullptr, "Failed to load video", ex.message());
+            QMessageBox::critical(nullptr, "Failed to Load Video", ex.message());
             watchView->deleteLater();
             MainWindow::topbar()->setAlwaysShow(true);
             MainWindow::topbar()->show();

@@ -70,7 +70,7 @@ void AddPluginDialog::attemptAdd()
             }
             else
             {
-                QMessageBox::critical(this, "Invalid Input", "Input points to an invalid URL.");
+                QMessageBox::critical(this, "Invalid Input", "The provided input is not a valid URL.");
             }
         }
     }

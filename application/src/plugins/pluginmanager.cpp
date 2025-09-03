@@ -4,7 +4,7 @@
 #include <QMessageBox>
 
 constexpr QLatin1String EmplaceError("Failed to add plugin to the internal plugin list. How did this happen???");
-constexpr QLatin1String LoadAbortedError("Loading of plugin was aborted.");
+constexpr QLatin1String LoadAbortedError("The operation was aborted.");
 constexpr QLatin1String LoadFailedError("Could not load plugin from %1: %2.");
 constexpr QLatin1String MalformedMetadataError("Metadata for plugin from %1 is malformed.");
 constexpr QLatin1String MetadataNotFoundError("Could not find metadata function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");

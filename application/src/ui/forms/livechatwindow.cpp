@@ -68,7 +68,7 @@ void LiveChatWindow::chatModeChanged(const QString& name)
     {
         if (!it->second.has_value())
         {
-            QMessageBox::critical(this, "Failed to change chat mode", "No data found.");
+            QMessageBox::critical(this, "Failed to Switch Chat Mode", "Required data is missing or unavailable.");
             return;
         }
 
@@ -97,7 +97,7 @@ void LiveChatWindow::chatReplayTick(qint64 progress, qint64 previousProgress)
                 }
                 else
                 {
-                    QMessageBox::critical(nullptr, "Failed to get live chat data", "No method has been provided.");
+                    QMessageBox::critical(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
                     deleteLater();
                 }
             }
@@ -110,7 +110,7 @@ void LiveChatWindow::chatReplayTick(qint64 progress, qint64 previousProgress)
                 }
                 else
                 {
-                    QMessageBox::critical(nullptr, "Failed to get live chat data", "No method has been provided.");
+                    QMessageBox::critical(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
                     deleteLater();
                 }
             }
@@ -135,7 +135,7 @@ void LiveChatWindow::chatTick()
             }
             else
             {
-                QMessageBox::critical(nullptr, "Failed to get live chat data", "No method has been provided.");
+                QMessageBox::critical(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
                 deleteLater();
             }
         }
@@ -263,7 +263,7 @@ void LiveChatWindow::sendMessage()
             if (plugin->interface->sendLiveChatMessage(EmojiStore::instance()->emojize(trimmedText)))
                 ui->messageBox->clear();
             else
-                QMessageBox::warning(nullptr, "Failed to send chat message", "No method has been provided.");
+                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
         }
     }
 }

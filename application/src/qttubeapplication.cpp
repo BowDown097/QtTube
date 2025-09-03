@@ -38,7 +38,7 @@ void QtTubeApplication::handleUrlOrID(const QString& in)
         if (QtTubePlugin::ResolveUrlReply* reply = plugin->interface->resolveUrlOrID(in))
         {
             connect(reply, &QtTubePlugin::ResolveUrlReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
-                QMessageBox::critical(nullptr, "Error in resolution", ex.message());
+                QMessageBox::critical(nullptr, "Error Resolving Input", ex.message());
             });
             connect(reply, &QtTubePlugin::ResolveUrlReply::finished, this, [this](const QtTubePlugin::ResolveUrlData& data) {
                 switch (data.target)
@@ -56,14 +56,14 @@ void QtTubeApplication::handleUrlOrID(const QString& in)
                     QDesktopServices::openUrl(data.data);
                     break;
                 case QtTubePlugin::ResolveUrlTarget::NotResolved:
-                    QMessageBox::warning(nullptr, "Nothing found!", "Could not find anything from your input.");
+                    QMessageBox::warning(nullptr, "No Results Found", "Nothing could be found based on your input.");
                     break;
                 }
             });
         }
         else
         {
-            QMessageBox::warning(nullptr, "Failed to perform resolution", "No method has been provided.");
+            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
         }
     }
 }

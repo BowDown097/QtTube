@@ -105,12 +105,12 @@ void SettingsForm::clearCache()
     QDir directory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/http/");
     if (!directory.exists() || directory.isEmpty())
     {
-        QMessageBox::warning(this, "No cache directory", "No cache directory exists.");
+        QMessageBox::warning(this, "No Cache Found", "The cache does not yet exist or is empty.");
         return;
     }
 
     directory.removeRecursively();
-    QMessageBox::information(this, "Cleared", "Cache directory cleared successfully.");
+    QMessageBox::information(this, "Cache Cleared", "The cache was cleared successfully.");
 }
 
 void SettingsForm::currentChanged(int index)
@@ -208,7 +208,7 @@ void SettingsForm::saveSettings()
     store.initialize();
 
     UIUtils::setAppStyle(store.appStyle, store.darkTheme);
-    QMessageBox::information(this, "Saved!", "Settings saved successfully.");
+    QMessageBox::information(this, "Settings Saved", "Settings saved successfully.");
 }
 
 void SettingsForm::selectExternalPlayer()

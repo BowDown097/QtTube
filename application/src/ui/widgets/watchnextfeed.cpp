@@ -31,7 +31,7 @@ void WatchNextFeed::continueRecommended()
             recommended->setPopulatingFlag(true);
             connect(reply, &QtTubePlugin::RecommendedContinuationReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
                 recommended->setPopulatingFlag(false);
-                QMessageBox::critical(nullptr, "Failed to get continuation data", ex.message());
+                QMessageBox::critical(nullptr, "Failed to Load Recommended Content", ex.message());
             });
             connect(reply, &QtTubePlugin::RecommendedContinuationReply::finished,
                     this, &WatchNextFeed::continueRecommendedFinished);

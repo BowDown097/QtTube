@@ -98,7 +98,7 @@ void TopBar::postSignInSetup()
         if (QtTubePlugin::AccountReply* reply = plugin->interface->getActiveAccount())
         {
             connect(reply, &QtTubePlugin::AccountReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
-                QMessageBox::warning(nullptr, "Failed to get active account data", ex.message());
+                QMessageBox::warning(nullptr, "Failed to Load Account Data", ex.message());
             });
             connect(reply, &QtTubePlugin::AccountReply::finished, this, [this, plugin](const QtTubePlugin::InitialAccountData& data) {
                 updateNotificationCount(data.notificationCount);
@@ -109,7 +109,7 @@ void TopBar::postSignInSetup()
         }
         else
         {
-            QMessageBox::critical(nullptr, "Failed to get active account data", "No method has been provided. Not proceeding with authentication.");
+            QMessageBox::critical(nullptr, "Failed to Load Account Data", "The active plugin has implemented authentication incompletely. The operation cannot continue.");
             return;
         }
     }

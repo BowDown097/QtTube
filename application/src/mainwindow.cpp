@@ -106,7 +106,7 @@ void MainWindow::activePluginChanged(PluginData* activePlugin)
 
         connect(authStore, &QtTubePlugin::AuthStoreBase::authenticateSuccess, m_topbar, &TopBar::postSignInSetup);
         connect(authStore, &QtTubePlugin::AuthStoreBase::updateFail, this, [] {
-            QMessageBox::critical(nullptr, "Invalid Login Credentials", "Your login credentials are invalid. They may have expired. You will be logged out, then try logging in again.");
+            QMessageBox::critical(nullptr, "Invalid Login", "Your session has expired or your credentials are invalid. You will be logged out. Try logging in again.");
             m_topbar->signOut();
         });
     }

@@ -216,7 +216,7 @@ void WatchView::rate(bool like, const std::any& addData, const std::any& removeD
 
         if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
             if (!plugin->interface->rate(videoId, like, false, addData))
-                QMessageBox::warning(nullptr, "Failed to rate video", "No method has been provided.");
+                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
     }
     else
     {
@@ -227,7 +227,7 @@ void WatchView::rate(bool like, const std::any& addData, const std::any& removeD
 
         if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
             if (!plugin->interface->rate(videoId, like, true, removeData))
-                QMessageBox::warning(nullptr, "Failed to rate video", "No method has been provided.");
+                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
     }
 }
 

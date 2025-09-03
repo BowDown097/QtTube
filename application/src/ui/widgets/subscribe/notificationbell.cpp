@@ -82,5 +82,5 @@ void NotificationBell::setState(const QtTubePlugin::NotificationState& state)
 {
     if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
         if (!activePlugin->interface->setNotificationPreference(state.data))
-            QMessageBox::warning(nullptr, "Failed to set notification preference", "No method has been provided.");
+            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
 }

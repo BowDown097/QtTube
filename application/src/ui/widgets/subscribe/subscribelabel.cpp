@@ -124,13 +124,13 @@ void SubscribeLabel::trySubscribe()
     {
         if (!activePlugin->auth || activePlugin->auth->isEmpty())
         {
-            QMessageBox::information(nullptr, "Need to log in", "You must be logged in to subscribe to channels.\nLocal subscriptions are planned, but not implemented.");
+            QMessageBox::warning(nullptr, "Login Required", "Local subscriptions are not yet available. You will need to log in.");
             return;
         }
 
         if (!subscribeData.has_value())
         {
-            QMessageBox::information(nullptr, "Unable to [un]subscribe", "Subscription functionality is either unavailable or disabled for this button.");
+            QMessageBox::critical(nullptr, "Failed to Subscribe", "Required data is missing or unavailable.");
             return;
         }
 
@@ -138,13 +138,13 @@ void SubscribeLabel::trySubscribe()
         {
             toggleSubscriptionStatus();
             if (!activePlugin->interface->unsubscribe(unsubscribeData))
-                QMessageBox::warning(nullptr, "Failed to unsubscribe", "No method has been provided.");
+                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
         }
         else if (!subscribed)
         {
             toggleSubscriptionStatus();
             if (!activePlugin->interface->subscribe(subscribeData))
-                QMessageBox::warning(nullptr, "Failed to subscribe", "No method has been provided.");
+                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
         }
     }
 }

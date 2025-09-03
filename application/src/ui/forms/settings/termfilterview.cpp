@@ -40,7 +40,7 @@ void TermFilterView::registerInSettings(QListWidgetItem* item)
     if (ui->listWidget->findItems(item->text(), Qt::MatchFixedString).count() > 1)
     {
         ui->listWidget->removeItemWidget(item);
-        QMessageBox::critical(this, "Duplicate term", "There is already a filter for this term.");
+        QMessageBox::critical(this, "Duplicate Term", "There is already a filter for this term.");
         return;
     }
 
