@@ -159,11 +159,12 @@ void PluginManager::reloadPlugins()
     {
         for (QDirIterator it(pluginLoadDir, QDir::Files); it.hasNext();)
         {
-            QFileInfo fileInfo(it.next());
-            if (presentlyActivePluginName.isEmpty())
-                presentlyActivePluginName = fileInfo.fileName();
-            if (QLibrary::isLibrary(fileInfo.absoluteFilePath()))
+            if (QFileInfo fileInfo(it.next()); QLibrary::isLibrary(fileInfo.absoluteFilePath()))
+            {
                 pluginsToLoad.append(fileInfo);
+                if (presentlyActivePluginName.isEmpty())
+                    presentlyActivePluginName = fileInfo.fileName();
+            }
         }
     }
 
