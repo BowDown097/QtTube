@@ -6,7 +6,7 @@
 
 namespace ViewController
 {
-    void loadChannel(const QString& channelId)
+    void loadChannel(const QString& channelId, PluginData* plugin)
     {
         if (ChannelView* casted = qobject_cast<ChannelView*>(MainWindow::centralWidget()->currentWidget()))
         {
@@ -18,7 +18,7 @@ namespace ViewController
             watchView->deleteLater();
         }
 
-        ChannelView* channelView = new ChannelView(channelId);
+        ChannelView* channelView = new ChannelView(channelId, plugin);
         MainWindow::centralWidget()->addWidget(channelView);
         MainWindow::centralWidget()->setCurrentWidget(channelView);
 
@@ -34,7 +34,8 @@ namespace ViewController
         });
     }
 
-    void loadVideo(const QString& videoId, int progress, PreloadData::WatchView* preload, bool continuePlayback)
+    void loadVideo(const QString& videoId, PluginData* plugin, int progress,
+                   PreloadData::WatchView* preload, bool continuePlayback)
     {
         if (WatchView* casted = qobject_cast<WatchView*>(MainWindow::centralWidget()->currentWidget()))
         {
@@ -46,7 +47,7 @@ namespace ViewController
             channelView->deleteLater();
         }
 
-        WatchView* watchView = new WatchView(videoId, progress, preload);
+        WatchView* watchView = new WatchView(videoId, plugin, progress, preload);
         MainWindow::centralWidget()->addWidget(watchView);
         MainWindow::centralWidget()->setCurrentWidget(watchView);
 

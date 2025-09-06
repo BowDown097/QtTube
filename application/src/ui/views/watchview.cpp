@@ -17,8 +17,9 @@
 #include <QScrollBar>
 #include <QTimer>
 
-WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchView* preload, QWidget* parent)
-    : QWidget(parent), ui(new Ui::WatchView)
+WatchView::WatchView(const QString& videoId, PluginData* plugin, int progress,
+                     PreloadData::WatchView* preload, QWidget* parent)
+    : QWidget(parent), plugin(plugin), ui(new Ui::WatchView)
 {
     if (qtTubeApp->settings().autoHideTopBar)
     {
@@ -26,22 +27,19 @@ WatchView::WatchView(const QString& videoId, int progress, PreloadData::WatchVie
         MainWindow::topbar()->setAlwaysShow(false);
     }
 
-    ui->setupUi(this);
+    ui->setupUi(this, plugin);
 
     if (preload)
         processPreloadData(preload);
 
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
     {
-        if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
-        {
-            connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
-            connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
-        }
-        else
-        {
-            emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
-        }
+        connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
+        connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
+    }
+    else
+    {
+        emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
     }
 
     ui->player->play(videoId, progress);
@@ -88,17 +86,14 @@ void WatchView::hotLoadVideo(
     if (preload)
         processPreloadData(preload);
 
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
     {
-        if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
-        {
-            connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
-            connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
-        }
-        else
-        {
-            emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
-        }
+        connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
+        connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
+    }
+    else
+    {
+        emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
     }
 
     ui->player->play(videoId, progress);
@@ -106,7 +101,7 @@ void WatchView::hotLoadVideo(
 
 void WatchView::openLiveChat(const QtTubePlugin::InitialLiveChatData& data)
 {
-    LiveChatWindow* window = new LiveChatWindow;
+    LiveChatWindow* window = new LiveChatWindow(plugin);
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
     window->initialize(data, ui->player);
@@ -214,9 +209,8 @@ void WatchView::rate(bool like, const std::any& addData, const std::any& removeD
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count + 1));
 
-        if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
-            if (!plugin->interface->rate(videoId, like, false, addData))
-                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+        if (!plugin->interface->rate(videoId, like, false, addData))
+            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
     }
     else
     {
@@ -225,9 +219,8 @@ void WatchView::rate(bool like, const std::any& addData, const std::any& removeD
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count - 1));
 
-        if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
-            if (!plugin->interface->rate(videoId, like, true, removeData))
-                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+        if (!plugin->interface->rate(videoId, like, true, removeData))
+            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
     }
 }
 
@@ -257,28 +250,25 @@ void WatchView::showShareModal()
 
 void WatchView::updateMetadata(const QString& videoId)
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
     {
-        if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
-        {
-            connect(reply, &QtTubePlugin::VideoReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
-                qDebug() << ex.message() << "Stream/premiere could have ended - killing update timer.";
-                metadataUpdateTimer->deleteLater();
-            });
-            connect(reply, &QtTubePlugin::VideoReply::finished, this, [this](const QtTubePlugin::VideoData& data) {
-                ui->date->setText(data.dateText);
-                ui->description->setText(data.descriptionText);
-                ui->titleLabel->setText(data.titleText);
-                ui->viewCount->setText(data.viewCountText);
+        connect(reply, &QtTubePlugin::VideoReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
+            qDebug() << ex.message() << "Stream/premiere could have ended - killing update timer.";
+            metadataUpdateTimer->deleteLater();
+        });
+        connect(reply, &QtTubePlugin::VideoReply::finished, this, [this](const QtTubePlugin::VideoData& data) {
+            ui->date->setText(data.dateText);
+            ui->description->setText(data.descriptionText);
+            ui->titleLabel->setText(data.titleText);
+            ui->viewCount->setText(data.viewCountText);
 
-                if (data.ratingsAvailable)
-                {
-                    ui->dislikeLabel->setText(data.dislikeCountText);
-                    ui->likeLabel->setText(data.likeCountText);
-                    if (data.likeDislikeRatio > 0)
-                        ui->likeBar->setValue(data.likeDislikeRatio * 100);
-                }
-            });
-        }
+            if (data.ratingsAvailable)
+            {
+                ui->dislikeLabel->setText(data.dislikeCountText);
+                ui->likeLabel->setText(data.likeCountText);
+                if (data.likeDislikeRatio > 0)
+                    ui->likeBar->setValue(data.likeDislikeRatio * 100);
+            }
+        });
     }
 }

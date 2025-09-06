@@ -9,18 +9,17 @@
 #include <QProcess>
 #include <QRegularExpression>
 
-WatchViewPlayer::WatchViewPlayer(QWidget* watchView, const QSize& maxSize) : QObject(watchView)
+WatchViewPlayer::WatchViewPlayer(QWidget* watchView, PluginData* plugin, const QSize& maxSize)
+    : QObject(watchView)
 {
     if (qtTubeApp->settings().externalPlayerPath.isEmpty())
     {
-        if (PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->playerFunc)
-        {
-            m_player = plugin->playerFunc(watchView);
-            connect(m_player, &QtTubePlugin::Player::copyToClipboardRequested, this, &WatchViewPlayer::copyToClipboard);
-            connect(m_player, &QtTubePlugin::Player::newState, this, &WatchViewPlayer::newState);
-            connect(m_player, &QtTubePlugin::Player::progressChanged, this, &WatchViewPlayer::progressChanged);
-            connect(m_player, &QtTubePlugin::Player::switchVideoRequested, this, &WatchViewPlayer::switchVideo);
-        }
+        m_player = plugin->playerFunc(watchView);
+        connect(m_player, &QtTubePlugin::Player::copyToClipboardRequested, this, &WatchViewPlayer::copyToClipboard);
+        connect(m_player, &QtTubePlugin::Player::newState, this, &WatchViewPlayer::newState);
+        connect(m_player, &QtTubePlugin::Player::progressChanged, this, &WatchViewPlayer::progressChanged);
+        connect(m_player, &QtTubePlugin::Player::switchVideoRequested, this,
+                std::bind_front(&WatchViewPlayer::switchVideo, this, plugin));
     }
 
     calcAndSetSize(maxSize);
@@ -109,9 +108,9 @@ void WatchViewPlayer::seek(int progress)
         m_player->seek(progress);
 }
 
-void WatchViewPlayer::switchVideo(const QString& videoId)
+void WatchViewPlayer::switchVideo(PluginData* plugin, const QString& videoId)
 {
-    ViewController::loadVideo(videoId);
+    ViewController::loadVideo(videoId, plugin);
 }
 
 QWidget* WatchViewPlayer::widget()

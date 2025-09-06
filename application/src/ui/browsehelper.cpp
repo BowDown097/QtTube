@@ -9,7 +9,7 @@ void BrowseHelper::browseChannel(
     ContinuableListWidget* widget, int activeTabIndex,
     const QString& channelId, std::any requestData)
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(
                 channelId, requestData, widget->continuationData))
@@ -18,7 +18,7 @@ void BrowseHelper::browseChannel(
             connect(reply, &QtTubePlugin::ChannelReply::exception, this,
                     std::bind_front(&BrowseHelper::browseFailed, this, "Channel Tab", widget));
             connect(reply, &QtTubePlugin::ChannelReply::finished, this,
-                    std::bind_front(&BrowseHelper::setupChannel, this, widget, activeTabIndex, reply));
+                    std::bind_front(&BrowseHelper::setupChannel, this, widget, activeTabIndex, plugin, reply));
         }
         else
         {
@@ -29,7 +29,7 @@ void BrowseHelper::browseChannel(
 
 void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& query)
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (!plugin->auth || plugin->auth->isEmpty())
         {
@@ -43,7 +43,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
             connect(reply, &QtTubePlugin::BrowseReply::exception, this,
                 std::bind_front(&BrowseHelper::browseFailed, this, "History", widget));
             connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-                std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+                std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
         }
         else
         {
@@ -54,7 +54,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
 
 void BrowseHelper::browseHome(ContinuableListWidget* widget)
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::BrowseReply* reply = plugin->interface->getHome(widget->continuationData))
         {
@@ -62,7 +62,7 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
             connect(reply, &QtTubePlugin::BrowseReply::exception, this,
                 std::bind_front(&BrowseHelper::browseFailed, this, "Home Feed", widget));
             connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-                std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+                std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
         }
         else
         {
@@ -73,7 +73,7 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
 
 void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::NotificationsReply* reply = plugin->interface->getNotifications(widget->continuationData))
         {
@@ -92,7 +92,7 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 
 void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (!plugin->auth || plugin->auth->isEmpty())
         {
@@ -106,7 +106,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
             connect(reply, &QtTubePlugin::BrowseReply::exception, this,
                 std::bind_front(&BrowseHelper::browseFailed, this, "Subscription Feed", widget));
             connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-                std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+                std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
         }
         else
         {
@@ -117,7 +117,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 
 void BrowseHelper::browseTrending(ContinuableListWidget* widget)
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::BrowseReply* reply = plugin->interface->getTrending(widget->continuationData))
         {
@@ -125,7 +125,7 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
             connect(reply, &QtTubePlugin::BrowseReply::exception, this,
                 std::bind_front(&BrowseHelper::browseFailed, this, "Trending Feed", widget));
             connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-                std::bind_front(&BrowseHelper::setupBrowse, this, widget, reply));
+                std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
         }
         else
         {
@@ -136,7 +136,7 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
 
 void BrowseHelper::search(ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query)
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::BrowseReply* reply = plugin->interface->getSearch(
                 query, getActiveFilters(additionalWidgets), widget->continuationData))
@@ -154,18 +154,20 @@ void BrowseHelper::search(ContinuableListWidget* widget, QHBoxLayout* additional
     }
 }
 
-void BrowseHelper::processChannelTabItems(ContinuableListWidget* widget, const QList<QtTubePlugin::ChannelTabDataItem>& items)
+void BrowseHelper::processChannelTabItems(
+    ContinuableListWidget* widget, PluginData* plugin,
+    const QList<QtTubePlugin::ChannelTabDataItem>& items)
 {
     for (const QtTubePlugin::ChannelTabDataItem& item : items)
     {
         if (const auto* channel = std::get_if<QtTubePlugin::Channel>(&item))
         {
-            UIUtils::addChannelToList(widget, *channel);
+            UIUtils::addChannelToList(widget, *channel, plugin);
             QCoreApplication::processEvents();
         }
         else if (const auto* video = std::get_if<QtTubePlugin::Video>(&item))
         {
-            UIUtils::addVideoToList(widget, *video);
+            UIUtils::addVideoToList(widget, *video, plugin);
             QCoreApplication::processEvents();
         }
         else if (const auto* channelShelf = std::get_if<QtTubePlugin::Shelf<QtTubePlugin::Channel>>(&item))
@@ -174,7 +176,7 @@ void BrowseHelper::processChannelTabItems(ContinuableListWidget* widget, const Q
 
             for (const QtTubePlugin::Channel& channel : channelShelf->contents)
             {
-                UIUtils::addChannelToList(widget, channel);
+                UIUtils::addChannelToList(widget, channel, plugin);
                 QCoreApplication::processEvents();
             }
 
@@ -187,7 +189,7 @@ void BrowseHelper::processChannelTabItems(ContinuableListWidget* widget, const Q
 
             for (const QtTubePlugin::Video& video : videoShelf->contents)
             {
-                UIUtils::addVideoToList(widget, video);
+                UIUtils::addVideoToList(widget, video, plugin);
                 QCoreApplication::processEvents();
             }
 
@@ -229,13 +231,15 @@ QList<std::pair<QString, int>> BrowseHelper::getActiveFilters(QHBoxLayout* addit
     return activeFilters;
 }
 
-void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data)
+void BrowseHelper::setupBrowse(
+    ContinuableListWidget* widget, PluginData* plugin,
+    QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data)
 {
     for (const QtTubePlugin::BrowseDataItem& item : data)
     {
         if (const auto* channel = std::get_if<QtTubePlugin::Channel>(&item))
         {
-            UIUtils::addChannelToList(widget, *channel);
+            UIUtils::addChannelToList(widget, *channel, plugin);
             QCoreApplication::processEvents();
         }
         else if (const auto* shelf = std::get_if<QtTubePlugin::Shelf<QtTubePlugin::Video>>(&item))
@@ -244,7 +248,7 @@ void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTubePlugin::Brow
 
             for (const QtTubePlugin::Video& video : shelf->contents)
             {
-                UIUtils::addVideoToList(widget, video);
+                UIUtils::addVideoToList(widget, video, plugin);
                 QCoreApplication::processEvents();
             }
 
@@ -253,7 +257,7 @@ void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTubePlugin::Brow
         }
         else if (const auto* video = std::get_if<QtTubePlugin::Video>(&item))
         {
-            UIUtils::addVideoToList(widget, *video);
+            UIUtils::addVideoToList(widget, *video, plugin);
         }
 
         QCoreApplication::processEvents();
@@ -264,13 +268,13 @@ void BrowseHelper::setupBrowse(ContinuableListWidget* widget, QtTubePlugin::Brow
 }
 
 void BrowseHelper::setupChannel(
-    ContinuableListWidget* widget, int activeTabIndex,
+    ContinuableListWidget* widget, int activeTabIndex, PluginData* plugin,
     QtTubePlugin::ChannelReply* reply, const QtTubePlugin::ChannelData& data)
 {
     if (activeTabIndex < data.tabs.size())
-        processChannelTabItems(widget, data.tabs[activeTabIndex].items);
+        processChannelTabItems(widget, plugin, data.tabs[activeTabIndex].items);
     else if (!data.tabs.isEmpty())
-        processChannelTabItems(widget, data.tabs[0].items);
+        processChannelTabItems(widget, plugin, data.tabs[0].items);
 
     widget->setPopulatingFlag(false);
     widget->continuationData = reply->continuationData;
@@ -292,7 +296,7 @@ void BrowseHelper::setupNotifications(
 
 void BrowseHelper::setupSearch(
     ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query,
-    const PluginData* plugin, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data)
+    PluginData* plugin, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data)
 {
     if (additionalWidgets && additionalWidgets->count() == 0)
     {
@@ -317,5 +321,5 @@ void BrowseHelper::setupSearch(
         }
     }
 
-    setupBrowse(widget, reply, data);
+    setupBrowse(widget, plugin, reply, data);
 }

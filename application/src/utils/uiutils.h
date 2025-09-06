@@ -9,21 +9,22 @@ class QListWidget;
 class QListWidgetItem;
 class QMainWindow;
 class QTabWidget;
+struct PluginData;
 class VideoRenderer;
 
 namespace UIUtils
 {
     extern QString g_defaultStyle;
 
-    void addChannelToList(QListWidget* list, const QtTubePlugin::Channel& channel);
+    void addChannelToList(QListWidget* list, const QtTubePlugin::Channel& channel, PluginData* plugin);
     void addNotificationToList(QListWidget* list, const QtTubePlugin::Notification& notification);
     QListWidgetItem* addResizingWidgetToList(QListWidget* list, QWidget* widget);
     void addSeparatorToList(QListWidget* list);
     void addShelfTitleToList(QListWidget* list, const QString& title);
-    void addVideoToList(QListWidget* list, const QtTubePlugin::Video& video);
+    void addVideoToList(QListWidget* list, const QtTubePlugin::Video& video, PluginData* plugin);
     QListWidgetItem* addWidgetToList(QListWidget* list, QWidget* widget);
     void clearLayout(QLayout* layout);
-    VideoRenderer* constructVideoRenderer(QListWidget* list);
+    VideoRenderer* constructVideoRenderer(QListWidget* list, PluginData* plugin);
     void copyToClipboard(const QString& text);
     QMainWindow* getMainWindow();
     QIcon iconThemed(const QString& name, const QPalette& pal = {});

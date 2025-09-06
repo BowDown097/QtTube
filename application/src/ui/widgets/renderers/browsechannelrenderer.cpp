@@ -6,15 +6,15 @@
 #include <QBoxLayout>
 #include <QMessageBox>
 
-BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
+BrowseChannelRenderer::BrowseChannelRenderer(PluginData* plugin, QWidget* parent)
     : QWidget(parent),
       descriptionLabel(new TubeLabel(this)),
       hbox(new QHBoxLayout(this)),
       metadataLabel(new TubeLabel(this)),
-      subscribeWidget(new SubscribeWidget(this)),
+      subscribeWidget(new SubscribeWidget(plugin, this)),
       textVbox(new QVBoxLayout),
       thumbLabel(new TubeLabel(this)),
-      titleLabel(new ChannelLabel(this))
+      titleLabel(new ChannelLabel(plugin, this))
 {
     titleLabel->text->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
     titleLabel->addStretch();
@@ -36,12 +36,7 @@ BrowseChannelRenderer::BrowseChannelRenderer(QWidget* parent)
 
     hbox->addLayout(textVbox);
 
-    connect(thumbLabel, &TubeLabel::clicked, this, &BrowseChannelRenderer::navigateChannel);
-}
-
-void BrowseChannelRenderer::navigateChannel()
-{
-    ViewController::loadChannel(channelId);
+    connect(thumbLabel, &TubeLabel::clicked, this, [this, plugin] { ViewController::loadChannel(channelId, plugin); });
 }
 
 void BrowseChannelRenderer::setData(const QtTubePlugin::Channel& channel)

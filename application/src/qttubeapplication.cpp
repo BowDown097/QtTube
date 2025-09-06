@@ -40,17 +40,17 @@ void QtTubeApplication::handleUrlOrID(const QString& in)
             connect(reply, &QtTubePlugin::ResolveUrlReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
                 QMessageBox::critical(nullptr, "Error Resolving Input", ex.message());
             });
-            connect(reply, &QtTubePlugin::ResolveUrlReply::finished, this, [this](const QtTubePlugin::ResolveUrlData& data) {
+            connect(reply, &QtTubePlugin::ResolveUrlReply::finished, this, [this, plugin](const QtTubePlugin::ResolveUrlData& data) {
                 switch (data.target)
                 {
                 case QtTubePlugin::ResolveUrlTarget::Channel:
-                    ViewController::loadChannel(data.data);
+                    ViewController::loadChannel(data.data, plugin);
                     break;
                 case QtTubePlugin::ResolveUrlTarget::Search:
                     emit MainWindow::topbar()->searchBox->searchRequested(data.data, SearchBox::SearchType::ByQuery);
                     break;
                 case QtTubePlugin::ResolveUrlTarget::Video:
-                    ViewController::loadVideo(data.data, data.videoProgress, nullptr, data.continuePlayback);
+                    ViewController::loadVideo(data.data, plugin, data.videoProgress, nullptr, data.continuePlayback);
                     break;
                 case QtTubePlugin::ResolveUrlTarget::PlainUrl:
                     QDesktopServices::openUrl(data.data);

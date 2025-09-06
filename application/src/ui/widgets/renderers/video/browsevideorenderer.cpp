@@ -3,8 +3,8 @@
 #include "videothumbnailwidget.h"
 #include <QBoxLayout>
 
-BrowseVideoRenderer::BrowseVideoRenderer(QWidget* parent)
-    : VideoRenderer(parent), hbox(new QHBoxLayout(this)), textVbox(new QVBoxLayout)
+BrowseVideoRenderer::BrowseVideoRenderer(PluginData* plugin, QWidget* parent)
+    : VideoRenderer(plugin, parent), hbox(new QHBoxLayout(this)), textVbox(new QVBoxLayout)
 {
     thumbnail->setFixedSize(178, 100);
     textVbox->addWidget(titleLabel);

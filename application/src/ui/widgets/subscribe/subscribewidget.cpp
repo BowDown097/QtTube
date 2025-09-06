@@ -13,11 +13,11 @@ constexpr QLatin1String SubscribersCountStylesheet(R"(
     text-align: center;
 )");
 
-SubscribeWidget::SubscribeWidget(QWidget* parent)
+SubscribeWidget::SubscribeWidget(PluginData* plugin, QWidget* parent)
     : QWidget(parent),
       layout(new QHBoxLayout(this)),
-      notificationBell(new NotificationBell(this)),
-      subscribeLabel(new SubscribeLabel(this)),
+      notificationBell(new NotificationBell(plugin, this)),
+      subscribeLabel(new SubscribeLabel(plugin, this)),
       subscribersCountLabel(new TubeLabel(this))
 {
     layout->setContentsMargins(0, 0, 0, 0);

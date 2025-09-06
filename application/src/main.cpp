@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     if (parser.isSet("chat"))
     {
         qtTubeApp->doInitialSetup();
-        if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+        if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
         {
             if (QtTubePlugin::VideoReply* videoReply = plugin->interface->getVideo(parser.value("chat")))
             {
@@ -54,10 +54,10 @@ int main(int argc, char *argv[])
                     qDebug() << "Could not open live chat:" << ex.message();
                     qtTubeApp->exit(EXIT_FAILURE);
                 });
-                QObject::connect(videoReply, &QtTubePlugin::VideoReply::finished, [](const QtTubePlugin::VideoData& data) {
+                QObject::connect(videoReply, &QtTubePlugin::VideoReply::finished, [plugin](const QtTubePlugin::VideoData& data) {
                     if (data.initialLiveChatData.has_value())
                     {
-                        LiveChatWindow liveChatWindow;
+                        LiveChatWindow liveChatWindow(plugin);
                         liveChatWindow.show();
                         liveChatWindow.initialize(data.initialLiveChatData.value(), nullptr);
                     }

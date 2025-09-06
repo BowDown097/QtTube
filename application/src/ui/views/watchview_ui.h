@@ -5,6 +5,7 @@ QT_BEGIN_NAMESPACE
 
 class ChannelLabel;
 class IconLabel;
+struct PluginData;
 class QFrame;
 class QHBoxLayout;
 class QProgressBar;
@@ -46,15 +47,15 @@ public:
     TubeLabel* viewCount;
 
     void constructLikeBar();
-    void setupUi(QWidget* watchView);
+    void setupUi(QWidget* watchView, PluginData* plugin);
 private:
     void setupDate(QWidget* watchView);
     void setupDescription(QWidget* watchView);
-    void setupFeed(QWidget* watchView);
+    void setupFeed(QWidget* watchView, PluginData* plugin);
     void setupFrame(QWidget* watchView);
     void setupMenu(QWidget* watchView);
-    void setupPlayer(QWidget* watchView);
-    void setupPrimaryInfo(QWidget* watchView);
+    void setupPlayer(QWidget* watchView, PluginData* plugin);
+    void setupPrimaryInfo(QWidget* watchView, PluginData* plugin);
     void setupTitle(QWidget* watchView);
 public slots:
     void setShowMore(bool enabled);

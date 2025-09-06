@@ -7,9 +7,9 @@
 #include "videothumbnailwidget.h"
 #include <QMenu>
 
-VideoRenderer::VideoRenderer(QWidget* parent)
+VideoRenderer::VideoRenderer(PluginData* plugin, QWidget* parent)
     : QWidget(parent),
-      channelLabel(new ChannelLabel(this)),
+      channelLabel(new ChannelLabel(plugin, this)),
       metadataLabel(new TubeLabel(this)),
       thumbnail(new VideoThumbnailWidget(this)),
       titleLabel(new TubeLabel(this))
@@ -23,8 +23,8 @@ VideoRenderer::VideoRenderer(QWidget* parent)
     titleLabel->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
     titleLabel->setUnderlineOnHover(true);
 
-    connect(thumbnail, &VideoThumbnailWidget::clicked, this, &VideoRenderer::navigate);
-    connect(titleLabel, &TubeLabel::clicked, this, &VideoRenderer::navigate);
+    connect(thumbnail, &VideoThumbnailWidget::clicked, this, std::bind(&VideoRenderer::navigate, this, plugin));
+    connect(titleLabel, &TubeLabel::clicked, this, std::bind(&VideoRenderer::navigate, this, plugin));
     connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &VideoRenderer::showTitleContextMenu);
 }
 
@@ -33,9 +33,9 @@ void VideoRenderer::copyVideoUrl()
     UIUtils::copyToClipboard("https://www.youtube.com/watch?v=" + videoId);
 }
 
-void VideoRenderer::navigate()
+void VideoRenderer::navigate(PluginData* plugin)
 {
-    ViewController::loadVideo(videoId, progress, watchPreloadData.get());
+    ViewController::loadVideo(videoId, plugin, progress, watchPreloadData.get());
 }
 
 void VideoRenderer::setData(const QtTubePlugin::Video& video)

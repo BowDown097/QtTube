@@ -2,6 +2,7 @@
 #include <QWidget>
 
 class IconLabel;
+struct PluginData;
 class QHBoxLayout;
 class QVBoxLayout;
 class TubeLabel;
@@ -10,7 +11,7 @@ class AccountMenuWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AccountMenuWidget(QWidget* parent = nullptr);
+    explicit AccountMenuWidget(PluginData* plugin, QWidget* parent = nullptr);
 private:
     QVBoxLayout* accountLayout;
     TubeLabel* accountNameLabel;
@@ -22,7 +23,7 @@ private:
     IconLabel* switchAccountsLabel;
     IconLabel* yourChannelLabel;
 private slots:
-    void gotoChannel(const QString& channelId);
+    void gotoChannel(const QString& channelId, PluginData* plugin);
     void triggerSignOut();
 signals:
     void accountSwitcherRequested();

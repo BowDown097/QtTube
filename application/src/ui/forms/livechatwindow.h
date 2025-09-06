@@ -15,13 +15,14 @@ class LiveChatWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LiveChatWindow(QWidget* parent = nullptr);
+    explicit LiveChatWindow(PluginData* plugin, QWidget* parent = nullptr);
     ~LiveChatWindow();
 private:
     qint64 firstChatItemOffset{};
     qint64 lastChatItemOffset{};
     QTimer* messagesTimer;
     std::any nextData;
+    PluginData* plugin;
     bool populating{};
     QList<QtTubePlugin::LiveChatReplayItem> replayItems;
     std::any seekData;

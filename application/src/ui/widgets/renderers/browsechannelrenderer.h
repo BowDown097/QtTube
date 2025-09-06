@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class ChannelLabel;
+struct PluginData;
 class QHBoxLayout;
 class QVBoxLayout;
 class SubscribeWidget;
@@ -13,7 +14,7 @@ class BrowseChannelRenderer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit BrowseChannelRenderer(QWidget* parent = nullptr);
+    explicit BrowseChannelRenderer(PluginData* plugin, QWidget* parent = nullptr);
     void setData(const QtTubePlugin::Channel& channel);
 private:
     QString channelId;
@@ -24,6 +25,4 @@ private:
     QVBoxLayout* textVbox;
     TubeLabel* thumbLabel;
     ChannelLabel* titleLabel;
-private slots:
-    void navigateChannel();
 };

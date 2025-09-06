@@ -6,7 +6,7 @@
 #include <QDesktopServices>
 #include <QMenu>
 
-ChannelLabel::ChannelLabel(QWidget* parent)
+ChannelLabel::ChannelLabel(PluginData* plugin, QWidget* parent)
     : QWidget(parent), text(new TubeLabel(this)), badgeLayout(new QHBoxLayout), layout(new QHBoxLayout(this))
 {
     text->setClickable(true);
@@ -19,7 +19,7 @@ ChannelLabel::ChannelLabel(QWidget* parent)
     badgeLayout->setSpacing(2);
     layout->addLayout(badgeLayout);
 
-    connect(text, &TubeLabel::clicked, this, &ChannelLabel::navigate);
+    connect(text, &TubeLabel::clicked, this, [this, plugin] { ViewController::loadChannel(channelId, plugin); });
     connect(text, &TubeLabel::customContextMenuRequested, this, &ChannelLabel::showContextMenu);
 }
 
@@ -31,11 +31,6 @@ void ChannelLabel::addStretch()
 void ChannelLabel::copyChannelUrl()
 {
     UIUtils::copyToClipboard("https://www.youtube.com/channel/" + channelId);
-}
-
-void ChannelLabel::navigate()
-{
-    ViewController::loadChannel(channelId);
 }
 
 void ChannelLabel::reset()

@@ -47,16 +47,16 @@ void WatchView_Ui::moveFeed(WatchViewPlayer::ScaleMode scaleMode)
     }
 }
 
-void WatchView_Ui::setupUi(QWidget* watchView)
+void WatchView_Ui::setupUi(QWidget* watchView, PluginData* plugin)
 {
     setupFrame(watchView);
-    setupPlayer(watchView);
+    setupPlayer(watchView, plugin);
     setupTitle(watchView);
-    setupPrimaryInfo(watchView);
+    setupPrimaryInfo(watchView, plugin);
     setupMenu(watchView);
     setupDate(watchView);
     setupDescription(watchView);
-    setupFeed(watchView);
+    setupFeed(watchView, plugin);
     frameLayout->addStretch();
 }
 
@@ -92,9 +92,9 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
     connect(showMoreLabel, &TubeLabel::clicked, this, &WatchView_Ui::toggleShowMore);
 }
 
-void WatchView_Ui::setupFeed(QWidget* watchView)
+void WatchView_Ui::setupFeed(QWidget* watchView, PluginData* plugin)
 {
-    feed = new WatchNextFeed(watchView);
+    feed = new WatchNextFeed(plugin, watchView);
     if (player->scaleMode() == WatchViewPlayer::ScaleMode::NoScale)
     {
         frameLayout->addWidget(feed);
@@ -162,15 +162,15 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
     menuVbox->addLayout(topLevelButtons);
 }
 
-void WatchView_Ui::setupPlayer(QWidget* watchView)
+void WatchView_Ui::setupPlayer(QWidget* watchView, PluginData* plugin)
 {
-    player = new WatchViewPlayer(watchView, MainWindow::size());
+    player = new WatchViewPlayer(watchView, plugin, MainWindow::size());
     scrollArea->setMaximumWidth(player->size().width());
     frameLayout->addWidget(player->widget());
     connect(player, &WatchViewPlayer::scaleModeChanged, this, &WatchView_Ui::moveFeed);
 }
 
-void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
+void WatchView_Ui::setupPrimaryInfo(QWidget* watchView, PluginData* plugin)
 {
     primaryInfoWrapper = new QWidget(watchView);
     primaryInfoWrapper->setFixedWidth(player->size().width());
@@ -188,12 +188,12 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView)
 
     primaryInfoVbox = new QVBoxLayout;
 
-    channelLabel = new ChannelLabel(watchView);
+    channelLabel = new ChannelLabel(plugin, watchView);
     channelLabel->text->setFont(QFont(qApp->font().toString(), -1, QFont::Bold));
     channelLabel->addStretch();
     primaryInfoVbox->addWidget(channelLabel);
 
-    subscribeWidget = new SubscribeWidget(watchView);
+    subscribeWidget = new SubscribeWidget(plugin, watchView);
     subscribeWidget->layout->addStretch();
     primaryInfoVbox->addWidget(subscribeWidget);
 

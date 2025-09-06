@@ -4,11 +4,12 @@
 #include <QTabWidget>
 
 class ContinuableListWidget;
+struct PluginData;
 
 class WatchNextFeed : public QTabWidget
 {
 public:
-    explicit WatchNextFeed(QWidget* parent = nullptr);
+    explicit WatchNextFeed(PluginData* plugin, QWidget* parent = nullptr);
     void reset();
     void setData(
         const QString& videoId,
@@ -19,6 +20,7 @@ public:
 private:
     ContinuableListWidget* comments;
     std::any commentsContinuation;
+    PluginData* plugin;
     ContinuableListWidget* recommended;
     QString videoId;
 

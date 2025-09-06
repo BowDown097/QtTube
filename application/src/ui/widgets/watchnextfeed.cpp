@@ -1,15 +1,16 @@
 #include "watchnextfeed.h"
 #include "continuablelistwidget.h"
-#include "qttubeapplication.h"
+#include "plugins/pluginmanager.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/videothumbnailwidget.h"
 #include "utils/uiutils.h"
 #include <QMessageBox>
 
-WatchNextFeed::WatchNextFeed(QWidget* parent)
+WatchNextFeed::WatchNextFeed(PluginData* plugin, QWidget* parent)
     : QTabWidget(parent),
       comments(new ContinuableListWidget(this)),
+      plugin(plugin),
       recommended(new ContinuableListWidget(this))
 {
     addTab(recommended, "Recommended");
@@ -23,19 +24,15 @@ void WatchNextFeed::continueComments()
 
 void WatchNextFeed::continueRecommended()
 {
-    if (PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
+    if (QtTubePlugin::RecommendedContinuationReply* reply = plugin->interface->continueRecommended(videoId, recommended->continuationData))
     {
-        if (QtTubePlugin::RecommendedContinuationReply* reply = activePlugin->interface->continueRecommended(
-                videoId, recommended->continuationData))
-        {
-            recommended->setPopulatingFlag(true);
-            connect(reply, &QtTubePlugin::RecommendedContinuationReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
-                recommended->setPopulatingFlag(false);
-                QMessageBox::critical(nullptr, "Failed to Load Recommended Content", ex.message());
-            });
-            connect(reply, &QtTubePlugin::RecommendedContinuationReply::finished,
-                    this, &WatchNextFeed::continueRecommendedFinished);
-        }
+        recommended->setPopulatingFlag(true);
+        connect(reply, &QtTubePlugin::RecommendedContinuationReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
+            recommended->setPopulatingFlag(false);
+            QMessageBox::critical(nullptr, "Failed to Load Recommended Content", ex.message());
+        });
+        connect(reply, &QtTubePlugin::RecommendedContinuationReply::finished,
+                this, &WatchNextFeed::continueRecommendedFinished);
     }
 }
 
@@ -50,7 +47,7 @@ void WatchNextFeed::populateRecommended(const QList<QtTubePlugin::Video>& videos
 {
     for (const QtTubePlugin::Video& video : videos)
     {
-        BrowseVideoRenderer* renderer = new BrowseVideoRenderer;
+        BrowseVideoRenderer* renderer = new BrowseVideoRenderer(plugin);
         renderer->thumbnail->setFixedSize(167, 94);
         renderer->titleLabel->setMaximumLines(2);
         renderer->titleLabel->setWordWrap(true);

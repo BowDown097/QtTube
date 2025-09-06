@@ -1,7 +1,9 @@
 #include "accountcontrollerwidget.h"
 
-AccountControllerWidget::AccountControllerWidget(QWidget* parent)
-    : QStackedWidget(parent), accountMenu(new AccountMenuWidget), accountSwitcher(new AccountSwitcherWidget)
+AccountControllerWidget::AccountControllerWidget(PluginData* plugin, QWidget* parent)
+    : QStackedWidget(parent),
+      accountMenu(new AccountMenuWidget(plugin)),
+      accountSwitcher(new AccountSwitcherWidget(plugin))
 {
     addWidget(accountMenu);
     addWidget(accountSwitcher);

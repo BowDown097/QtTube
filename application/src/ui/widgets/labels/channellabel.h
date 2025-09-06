@@ -3,6 +3,7 @@
 #include "tubelabel.h"
 #include <QJsonValue>
 
+struct PluginData;
 class QHBoxLayout;
 
 class ChannelLabel : public QWidget
@@ -10,7 +11,8 @@ class ChannelLabel : public QWidget
     Q_OBJECT
 public:
     TubeLabel* text;
-    explicit ChannelLabel(QWidget* parent = nullptr);
+
+    explicit ChannelLabel(PluginData* plugin, QWidget* parent = nullptr);
     void addStretch();
     void setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTubePlugin::Badge>& badges);
     void setInfo(const QString& uploaderId, const QString& uploaderName);
@@ -21,6 +23,5 @@ private:
     void reset();
 private slots:
     void copyChannelUrl();
-    void navigate();
     void showContextMenu(const QPoint& pos);
 };

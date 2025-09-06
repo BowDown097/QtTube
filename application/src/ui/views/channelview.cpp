@@ -14,7 +14,7 @@ ChannelView::~ChannelView()
         mainWindow->setWindowTitle(QTTUBE_APP_NAME);
 }
 
-ChannelView::ChannelView(const QString& channelId)
+ChannelView::ChannelView(const QString& channelId, PluginData* plugin)
     : channelBanner(new TubeLabel(this)),
       channelHeaderContainer(new QWidget(this)),
       channelHeaderLayout(new QHBoxLayout(channelHeaderContainer)),
@@ -24,8 +24,9 @@ ChannelView::ChannelView(const QString& channelId)
       handleAndVideos(new TubeLabel(this)),
       metaHbox(new QHBoxLayout),
       metaVbox(new QVBoxLayout),
+      plugin(plugin),
       pageLayout(new QVBoxLayout(this)),
-      subscribeWidget(new SubscribeWidget(this))
+      subscribeWidget(new SubscribeWidget(plugin, this))
 {
     metaHbox->setContentsMargins(0, 0, 0, 0);
 
@@ -83,25 +84,22 @@ void ChannelView::hotLoadChannel(const QString& channelId)
 void ChannelView::loadChannel(const QString& channelId)
 {
     this->channelId = channelId;
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(channelId, {}, {}))
     {
-        if (QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(channelId, {}, {}))
-        {
-            QEventLoop loop;
-            connect(reply, &QtTubePlugin::ChannelReply::exception, this, [this, &loop](const QtTubePlugin::Exception& ex) {
-                loop.quit();
-                emit loadFailed(ex);
-            });
-            connect(reply, &QtTubePlugin::ChannelReply::finished, this, [this, &loop](const QtTubePlugin::ChannelData& data) {
-                loop.quit();
-                processData(data);
-            });
-            loop.exec();
-        }
-        else
-        {
-            emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
-        }
+        QEventLoop loop;
+        connect(reply, &QtTubePlugin::ChannelReply::exception, this, [this, &loop](const QtTubePlugin::Exception& ex) {
+            loop.quit();
+            emit loadFailed(ex);
+        });
+        connect(reply, &QtTubePlugin::ChannelReply::finished, this, [this, &loop](const QtTubePlugin::ChannelData& data) {
+            loop.quit();
+            processData(data);
+        });
+        loop.exec();
+    }
+    else
+    {
+        emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
     }
 }
 
@@ -184,5 +182,5 @@ void ChannelView::processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs)
         channelTabs->addTab(tabWidget, tabs[i].title);
     }
 
-    BrowseHelper::instance()->processChannelTabItems(firstListWidget, tabs.front().items);
+    BrowseHelper::instance()->processChannelTabItems(firstListWidget, plugin, tabs.front().items);
 }

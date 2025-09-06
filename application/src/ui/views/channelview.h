@@ -3,6 +3,7 @@
 #include "qttube-plugin/components/replytypes/channeldata.h"
 #include <QWidget>
 
+struct PluginData;
 class QHBoxLayout;
 class QTabWidget;
 class QVBoxLayout;
@@ -13,7 +14,7 @@ class ChannelView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ChannelView(const QString& channelId);
+    explicit ChannelView(const QString& channelId, PluginData* plugin);
     ~ChannelView();
     void hotLoadChannel(const QString& channelId);
 private:
@@ -28,6 +29,7 @@ private:
     QHBoxLayout* metaHbox;
     QVBoxLayout* metaVbox;
     QVBoxLayout* pageLayout;
+    PluginData* plugin;
     SubscribeWidget* subscribeWidget;
 
     void loadChannel(const QString& channelId);

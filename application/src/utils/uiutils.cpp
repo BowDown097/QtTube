@@ -40,9 +40,9 @@ namespace UIUtils
 {
     QString g_defaultStyle;
 
-    void addChannelToList(QListWidget* list, const QtTubePlugin::Channel& channel)
+    void addChannelToList(QListWidget* list, const QtTubePlugin::Channel& channel, PluginData* plugin)
     {
-        BrowseChannelRenderer* renderer = new BrowseChannelRenderer;
+        BrowseChannelRenderer* renderer = new BrowseChannelRenderer(plugin);
         renderer->setData(channel);
         addWidgetToList(list, renderer);
     }
@@ -95,12 +95,12 @@ namespace UIUtils
         list->setItemWidget(item, shelfLabel);
     }
 
-    void addVideoToList(QListWidget* list, const QtTubePlugin::Video& video)
+    void addVideoToList(QListWidget* list, const QtTubePlugin::Video& video, PluginData* plugin)
     {
         if (qtTubeApp->settings().videoIsFiltered(video))
             return;
 
-        VideoRenderer* renderer = constructVideoRenderer(list);
+        VideoRenderer* renderer = constructVideoRenderer(list, plugin);
         renderer->setData(video);
         addWidgetToList(list, renderer);
     }
@@ -126,13 +126,13 @@ namespace UIUtils
         }
     }
 
-    VideoRenderer* constructVideoRenderer(QListWidget* list)
+    VideoRenderer* constructVideoRenderer(QListWidget* list, PluginData* plugin)
     {
         VideoRenderer* renderer;
         if (list->flow() == QListWidget::LeftToRight)
-            renderer = new GridVideoRenderer(list);
+            renderer = new GridVideoRenderer(plugin, list);
         else
-            renderer = new BrowseVideoRenderer(list);
+            renderer = new BrowseVideoRenderer(plugin, list);
 
         return renderer;
     }

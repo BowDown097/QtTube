@@ -5,6 +5,7 @@
 
 class ChannelLabel;
 class HttpReply;
+struct PluginData;
 class TubeLabel;
 class VideoThumbnailWidget;
 
@@ -17,8 +18,7 @@ public:
     VideoThumbnailWidget* thumbnail;
     TubeLabel* titleLabel;
 
-    explicit VideoRenderer(QWidget* parent = nullptr);
-
+    explicit VideoRenderer(PluginData* plugin, QWidget* parent = nullptr);
     void setData(const QtTubePlugin::Video& video);
 private:
     int progress{};
@@ -26,6 +26,6 @@ private:
     std::unique_ptr<PreloadData::WatchView> watchPreloadData;
 private slots:
     void copyVideoUrl();
-    void navigate();
+    void navigate(PluginData* plugin);
     void showTitleContextMenu(const QPoint& pos);
 };

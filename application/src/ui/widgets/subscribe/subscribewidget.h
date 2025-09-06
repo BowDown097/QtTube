@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class NotificationBell;
+struct PluginData;
 class QHBoxLayout;
 class SubscribeLabel;
 class TubeLabel;
@@ -11,7 +12,7 @@ class TubeLabel;
 class SubscribeWidget : public QWidget
 {
 public:
-    explicit SubscribeWidget(QWidget* parent = nullptr);
+    explicit SubscribeWidget(PluginData* plugin, QWidget* parent = nullptr);
     void setData(const QtTubePlugin::SubscribeButton& data);
 
     QHBoxLayout* layout;

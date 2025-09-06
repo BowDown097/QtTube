@@ -7,7 +7,7 @@ class QVBoxLayout;
 class BrowseVideoRenderer : public VideoRenderer
 {
 public:
-    explicit BrowseVideoRenderer(QWidget* parent = nullptr);
+    explicit BrowseVideoRenderer(PluginData* plugin, QWidget* parent = nullptr);
 private:
     QHBoxLayout* hbox;
     QVBoxLayout* textVbox;

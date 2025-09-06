@@ -72,10 +72,6 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     qtTubeApp->doInitialSetup();
     connect(qtTubeApp, &QtTubeApplication::activePluginChanged, this, &MainWindow::activePluginChanged);
 
-    // just call activePluginChanged() to do setup for whatever plugin has been loaded
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
-        activePluginChanged(plugin);
-
 #ifdef Q_OS_LINUX
     if (qtTubeApp->settings().playerSettings.vaapi)
     {
@@ -84,10 +80,16 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
     }
 #endif
 
-    if (parser.isSet("channel"))
-        ViewController::loadChannel(parser.value("channel"));
-    else if (parser.isSet("video"))
-        ViewController::loadVideo(parser.value("video"));
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    {
+        // just call activePluginChanged() to do setup for whatever plugin has been loaded
+        activePluginChanged(plugin);
+
+        if (parser.isSet("channel"))
+            ViewController::loadChannel(parser.value("channel"), plugin);
+        else if (parser.isSet("video"))
+            ViewController::loadVideo(parser.value("video"), plugin);
+    }
 }
 
 void MainWindow::activePluginChanged(PluginData* activePlugin)
@@ -283,22 +285,25 @@ void MainWindow::searchWatchHistory()
 
 void MainWindow::showAccountMenu()
 {
-    if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>())
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
-        m_topbar->setAlwaysShow(ui->centralwidget->currentIndex() == 0);
-        accountController->deleteLater();
-        return;
-    }
+        if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>())
+        {
+            m_topbar->setAlwaysShow(ui->centralwidget->currentIndex() == 0);
+            accountController->deleteLater();
+            return;
+        }
 
-    m_topbar->setAlwaysShow(true);
+        m_topbar->setAlwaysShow(true);
 
-    AccountControllerWidget* accountController = new AccountControllerWidget(this);
-    accountController->show();
-    accountController->raise();
-    accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
-    connect(accountController, &AccountControllerWidget::resized, this, [this, accountController] {
+        AccountControllerWidget* accountController = new AccountControllerWidget(plugin, this);
+        accountController->show();
+        accountController->raise();
         accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
-    });
+        connect(accountController, &AccountControllerWidget::resized, this, [this, accountController] {
+            accountController->move(m_topbar->avatarButton->x() - accountController->width() + 20, 35);
+        });
+    }
 }
 
 void MainWindow::showNotifications()

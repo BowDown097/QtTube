@@ -1,5 +1,5 @@
 #include "notificationbell.h"
-#include "qttubeapplication.h"
+#include "plugins/pluginmanager.h"
 #include "utils/uiutils.h"
 #include <QMenu>
 #include <QMessageBox>
@@ -17,8 +17,8 @@ constexpr QLatin1String Stylesheet(R"(
     }
 )");
 
-NotificationBell::NotificationBell(QWidget* parent)
-    : QToolButton(parent), m_notificationMenu(new QMenu(this))
+NotificationBell::NotificationBell(PluginData* plugin, QWidget* parent)
+    : QToolButton(parent), m_notificationMenu(new QMenu(this)), m_plugin(plugin)
 {
     setFixedSize(24, 24);
     setStyleSheet(Stylesheet);
@@ -80,7 +80,6 @@ void NotificationBell::setVisualState(qsizetype index)
 
 void NotificationBell::setState(const QtTubePlugin::NotificationState& state)
 {
-    if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
-        if (!activePlugin->interface->setNotificationPreference(state.data))
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+    if (!m_plugin->interface->setNotificationPreference(state.data))
+        QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
 }

@@ -1,5 +1,5 @@
 #include "subscribelabel.h"
-#include "qttubeapplication.h"
+#include "plugins/pluginmanager.h"
 #include <QMessageBox>
 
 constexpr QLatin1String SubscribeStylesheet(R"(
@@ -27,11 +27,13 @@ constexpr QLatin1String UnsubscribeStylesheet(R"(
     padding: 0 6px 1px 2.5px;
 )");
 
-SubscribeLabel::SubscribeLabel(QWidget* parent) : ClickableWidget<QLabel>(parent)
+SubscribeLabel::SubscribeLabel(PluginData* plugin, QWidget* parent)
+    : ClickableWidget<QLabel>(parent)
 {
     setClickable(true);
     setFixedSize(80, 24);
-    connect(this, &ClickableWidget<QLabel>::clicked, this, &SubscribeLabel::trySubscribe);
+    connect(this, &ClickableWidget<QLabel>::clicked, this,
+            std::bind(&SubscribeLabel::trySubscribe, this, plugin));
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -118,33 +120,30 @@ void SubscribeLabel::toggleSubscriptionStatus()
     emit subscribeStatusChanged(subscribed);
 }
 
-void SubscribeLabel::trySubscribe()
+void SubscribeLabel::trySubscribe(PluginData* plugin)
 {
-    if (const PluginData* activePlugin = qtTubeApp->plugins().activePlugin())
+    if (!plugin->auth || plugin->auth->isEmpty())
     {
-        if (!activePlugin->auth || activePlugin->auth->isEmpty())
-        {
-            QMessageBox::warning(nullptr, "Login Required", "Local subscriptions are not yet available. You will need to log in.");
-            return;
-        }
+        QMessageBox::warning(nullptr, "Login Required", "Local subscriptions are not yet available. You will need to log in.");
+        return;
+    }
 
-        if (!subscribeData.has_value())
-        {
-            QMessageBox::critical(nullptr, "Failed to Subscribe", "Required data is missing or unavailable.");
-            return;
-        }
+    if (!subscribeData.has_value())
+    {
+        QMessageBox::critical(nullptr, "Failed to Subscribe", "Required data is missing or unavailable.");
+        return;
+    }
 
-        if (subscribed && QMessageBox::question(nullptr, localization.unsubscribeText, localization.unsubscribeDialogText) == QMessageBox::StandardButton::Yes)
-        {
-            toggleSubscriptionStatus();
-            if (!activePlugin->interface->unsubscribe(unsubscribeData))
-                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
-        }
-        else if (!subscribed)
-        {
-            toggleSubscriptionStatus();
-            if (!activePlugin->interface->subscribe(subscribeData))
-                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
-        }
+    if (subscribed && QMessageBox::question(nullptr, localization.unsubscribeText, localization.unsubscribeDialogText) == QMessageBox::StandardButton::Yes)
+    {
+        toggleSubscriptionStatus();
+        if (!plugin->interface->unsubscribe(unsubscribeData))
+            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+    }
+    else if (!subscribed)
+    {
+        toggleSubscriptionStatus();
+        if (!plugin->interface->subscribe(subscribeData))
+            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
     }
 }
