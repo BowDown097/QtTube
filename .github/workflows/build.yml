@@ -65,7 +65,7 @@ jobs:
         run: |
           sudo add-apt-repository universe
           sudo apt-get -y update
-          sudo apt-get -y install libxss-dev libfuse2 libxcb-cursor0
+          sudo apt-get -y install extra-cmake-modules libxss-dev libwayland-dev libfuse2 libxcb-cursor0
       
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -83,6 +83,7 @@ jobs:
           wget "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           wget "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage"
           wget "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+          chmod +x linuxdeploy-*.AppImage
       
       - name: Configure CMake
         run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
@@ -110,18 +111,28 @@ jobs:
       - name: Package (AppImage)
         if: runner.os == 'Linux'
         run: |
+          export EXTRA_PLATFORM_PLUGINS="libqwayland-egl.so;libqwayland-generic.so"
+          export EXTRA_QT_MODULES="sql;svg;waylandcompositor"
+          export LDAI_OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
+          export LINUXDEPLOY_EXCLUDED_LIBRARIES="libmysqlclient.so*;libqsqlmimer.so;libqsqlmysql.so;libqsqlodbc.so;libqsqlpsql.so"
+          
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
-          rm -f ${{ env.QT_ROOT_DIR }}/plugins/sqldrivers/libqsqlmimer.so
-          export OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
-          chmod +x linuxdeploy-*.AppImage
+          
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
+          
           cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           cp /usr/lib/x86_64-linux-gnu/libssl.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           cp /usr/lib/x86_64-linux-gnu/libicu*.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-          export V8_SNAPSHOT_FILE="${{ env.QT_ROOT_DIR }}/resources/v8_context_snapshot.bin"
-          [[ -e $V8_SNAPSHOT_FILE ]] && cp $V8_SNAPSHOT_FILE ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
-          ./linuxdeploy-x86_64.AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt --custom-apprun application/program_info/AppRun -d application/program_info/qttube.desktop -i application/res/qttube.svg
+          cp "${{ env.QT_ROOT_DIR }}/resources/v8_context_snapshot.bin" ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
+          
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir ${{ env.INSTALL_APPIMAGE_DIR }} \
+            --output appimage \
+            --plugin qt \
+            --custom-apprun application/program_info/AppRun \
+            -d application/program_info/qttube.desktop \
+            -i application/res/qttube.svg
       
       - name: Upload artifact (zip)
         if: runner.os == 'Windows'
