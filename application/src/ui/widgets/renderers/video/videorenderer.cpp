@@ -1,9 +1,9 @@
 #include "videorenderer.h"
-#include "qttube-plugin/plugininterface.h"
-#include "utils/uiutils.h"
+#include "plugins/pluginmanager.h"
 #include "ui/views/preloaddata.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/channellabel.h"
+#include "utils/uiutils.h"
 #include "videothumbnailwidget.h"
 #include <QMenu>
 
@@ -12,7 +12,8 @@ VideoRenderer::VideoRenderer(PluginData* plugin, QWidget* parent)
       channelLabel(new ChannelLabel(plugin, this)),
       metadataLabel(new TubeLabel(this)),
       thumbnail(new VideoThumbnailWidget(this)),
-      titleLabel(new TubeLabel(this))
+      titleLabel(new TubeLabel(this)),
+      plugin(plugin)
 {
     channelLabel->addStretch();
     channelLabel->hide();
@@ -23,8 +24,8 @@ VideoRenderer::VideoRenderer(PluginData* plugin, QWidget* parent)
     titleLabel->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
     titleLabel->setUnderlineOnHover(true);
 
-    connect(thumbnail, &VideoThumbnailWidget::clicked, this, std::bind(&VideoRenderer::navigate, this, plugin));
-    connect(titleLabel, &TubeLabel::clicked, this, std::bind(&VideoRenderer::navigate, this, plugin));
+    connect(thumbnail, &VideoThumbnailWidget::clicked, this, &VideoRenderer::navigate);
+    connect(titleLabel, &TubeLabel::clicked, this, &VideoRenderer::navigate);
     connect(titleLabel, &TubeLabel::customContextMenuRequested, this, &VideoRenderer::showTitleContextMenu);
 }
 
@@ -33,7 +34,7 @@ void VideoRenderer::copyVideoUrl()
     UIUtils::copyToClipboard("https://www.youtube.com/watch?v=" + videoId);
 }
 
-void VideoRenderer::navigate(PluginData* plugin)
+void VideoRenderer::navigate()
 {
     ViewController::loadVideo(videoId, plugin, progress, watchPreloadData.get());
 }
@@ -52,7 +53,7 @@ void VideoRenderer::setData(const QtTubePlugin::Video& video)
 
     thumbnail->setLengthText(video.lengthText);
     thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
-    thumbnail->setSourceIconUrl(video.sourceMetadata->image);
+    thumbnail->setSourceIconUrl(plugin->metadata.image);
 
     if (video.isVerticalVideo)
         thumbnail->setFixedSize(105, 186);

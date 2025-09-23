@@ -15,12 +15,7 @@ void QtTubeApplication::doInitialSetup()
     // on windows, rpath is not supported for plugins. add lib directories manually
 #ifdef Q_OS_WIN
     SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
-    const QStringList libraryLoadDirs = {
-        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QDir::separator() + "plugin-libs",
-        qApp->applicationDirPath() + QDir::separator() + "plugin-libs"
-    };
-
-    for (const QString& dir : libraryLoadDirs)
+    for (const QString& dir : qtTubeApp->plugins().libraryLoadDirs())
         AddDllDirectory(qUtf16Printable(QDir::toNativeSeparators(dir)));
 #endif
 

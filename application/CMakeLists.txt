@@ -16,17 +16,20 @@ endif()
 
 # Source files
 set(SOURCE_FILES
-    src/httprequest.cpp
     src/main.cpp
     src/mainwindow.cpp
     src/qttubeapplication.cpp
+    src/plugins/pluginbrowser.cpp
     src/plugins/pluginmanager.cpp
     src/stores/emojistore.cpp
     src/stores/settingsstore.cpp
     src/ui/browsehelper.cpp
     src/ui/forms/emojimenu.cpp
     src/ui/forms/livechatwindow.cpp
-    src/ui/forms/settings/addplugindialog.cpp
+    src/ui/forms/plugins/addplugindialog.cpp
+    src/ui/forms/plugins/basepluginentry.cpp
+    src/ui/forms/plugins/pluginbrowserview.cpp
+    src/ui/forms/plugins/pluginbuilddownloader.cpp
     src/ui/forms/settings/settingsform.cpp
     src/ui/forms/settings/termfilterview.cpp
     src/ui/views/channelview.cpp
@@ -39,7 +42,6 @@ set(SOURCE_FILES
     src/ui/widgets/dynamiclistwidgetitem.cpp
     src/ui/widgets/emojigraphicsitem.cpp
     src/ui/widgets/findbar.cpp
-    src/ui/widgets/pluginwidget.cpp
     src/ui/widgets/watchnextfeed.cpp
     src/ui/widgets/accountmenu/accountcontrollerwidget.cpp
     src/ui/widgets/accountmenu/accountentrywidget.cpp
@@ -75,16 +77,20 @@ set(SOURCE_FILES
 )
 
 set(HEADERS
-    src/httprequest.h
     src/mainwindow.h
     src/qttubeapplication.h
+    src/plugins/pluginbrowser.h
+    src/plugins/pluginbrowsercache.h
     src/plugins/pluginmanager.h
     src/stores/emojistore.h
     src/stores/settingsstore.h
     src/ui/browsehelper.h
     src/ui/forms/emojimenu.h
     src/ui/forms/livechatwindow.h
-    src/ui/forms/settings/addplugindialog.h
+    src/ui/forms/plugins/addplugindialog.h
+    src/ui/forms/plugins/basepluginentry.h
+    src/ui/forms/plugins/pluginbrowserview.h
+    src/ui/forms/plugins/pluginbuilddownloader.h
     src/ui/forms/settings/settingsform.h
     src/ui/forms/settings/termfilterview.h
     src/ui/views/channelview.h
@@ -99,7 +105,6 @@ set(HEADERS
     src/ui/widgets/dynamiclistwidgetitem.h
     src/ui/widgets/emojigraphicsitem.h
     src/ui/widgets/findbar.h
-    src/ui/widgets/pluginwidget.h
     src/ui/widgets/watchnextfeed.h
     src/ui/widgets/accountmenu/accountcontrollerwidget.h
     src/ui/widgets/accountmenu/accountentrywidget.h
@@ -137,7 +142,8 @@ set(FORMS
     src/mainwindow.ui
     src/ui/forms/emojimenu.ui
     src/ui/forms/livechatwindow.ui
-    src/ui/forms/settings/addplugindialog.ui
+    src/ui/forms/plugins/addplugindialog.ui
+    src/ui/forms/plugins/pluginbrowserview.ui
     src/ui/forms/settings/settingsform.ui
     src/ui/forms/settings/termfilterview.ui
 )
@@ -163,24 +169,24 @@ endif()
 
 # Add executable
 if(WIN32)
-    add_executable(${CMAKE_PROJECT_NAME} WIN32 ${SOURCE_FILES} ${HEADERS} ${FORMS})
+    add_executable(QtTube WIN32 ${SOURCE_FILES} ${HEADERS} ${FORMS})
 elseif(APPLE)
-    add_executable(${CMAKE_PROJECT_NAME} MACOSX_BUNDLE ${SOURCE_FILES} ${HEADERS} ${FORMS})
+    add_executable(QtTube MACOSX_BUNDLE ${SOURCE_FILES} ${HEADERS} ${FORMS})
 else()
-    add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} ${HEADERS} ${FORMS})
+    add_executable(QtTube ${SOURCE_FILES} ${HEADERS} ${FORMS})
 endif()
 
 # Wayland idle-inhibit stuff (continued)
 if(Wayland_FOUND)
-    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_WAYLAND)
-    target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${Wayland_INCLUDE_DIRS})
-    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::GuiPrivate ${Wayland_LIBRARIES})
+    target_compile_definitions(QtTube PRIVATE QTTUBE_HAS_WAYLAND)
+    target_include_directories(QtTube PRIVATE ${Wayland_INCLUDE_DIRS})
+    target_link_libraries(QtTube PRIVATE ${Wayland_LIBRARIES})
 endif()
 
 # Preprocessor definitions
 execute_process(COMMAND git rev-parse --abbrev-ref HEAD OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE QTTUBE_BRANCH)
 execute_process(COMMAND git rev-parse --short HEAD OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE QTTUBE_COMMIT_ID)
-target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+target_compile_definitions(QtTube PRIVATE
     QTTUBE_APP_DESC="${QTTUBE_APP_DESC}"
     QTTUBE_APP_NAME="${QTTUBE_APP_NAME}"
     QTTUBE_BRANCH="${QTTUBE_BRANCH}"
@@ -190,20 +196,34 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Include directories, libraries
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QtTube::PluginInterface)
+target_include_directories(QtTube PRIVATE src)
+target_link_libraries(QtTube PRIVATE Qt::GuiPrivate QtTube::PluginInterface)
+
+## HTML parser
+include(FetchContent)
+FetchContent_Declare(
+    HtmlParser
+    GIT_REPOSITORY https://github.com/JustCabbage/HtmlParser.git
+    GIT_TAG master)
+
+option(HTMLPARSER_BUILD_TESTS "Build tests" OFF)
+option(HTMLPARSER_BUILD_BENCHMARKS "Build benchmarks" OFF)
+option(HTMLPARSER_BUILD_EXAMPLES "Build examples" OFF)
+FetchContent_MakeAvailable(HtmlParser)
+
+target_link_libraries(QtTube PRIVATE HtmlParser)
 
 ## Platform-specific
 if(UNIX AND NOT APPLE)
     find_package(X11 QUIET)
     if(X11_FOUND AND X11_Xscreensaver_LIB)
-        target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${X11_INCLUDE_DIR})
-        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${X11_X11_LIB} ${X11_Xscreensaver_LIB})
-        target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_XSS)
+        target_include_directories(QtTube PRIVATE ${X11_INCLUDE_DIR})
+        target_link_libraries(QtTube PRIVATE ${X11_X11_LIB} ${X11_Xscreensaver_LIB})
+        target_compile_definitions(QtTube PRIVATE QTTUBE_HAS_XSS)
 
         if(TARGET Qt::X11Extras)
-            target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QTTUBE_HAS_X11EXTRAS)
-            target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::X11Extras)
+            target_compile_definitions(QtTube PRIVATE QTTUBE_HAS_X11EXTRAS)
+            target_link_libraries(QtTube PRIVATE Qt::X11Extras)
         endif()
     else()
         message(STATUS "XScreenSaver not found. Idle sleeping will not be functional.")
@@ -213,7 +233,7 @@ endif()
 # Installation
 include(GNUInstallDirs)
 
-install(TARGETS ${CMAKE_PROJECT_NAME}
+install(TARGETS QtTube
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

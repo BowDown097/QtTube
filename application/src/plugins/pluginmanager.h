@@ -49,7 +49,7 @@ struct PluginData
     QFileInfo fileInfo;
     std::unique_ptr<QLibrary, QLibraryDeleter> handle;
     std::unique_ptr<QtTubePlugin::PluginInterface> interface;
-    QtTubePlugin::PluginMetadata* metadata{};
+    QtTubePlugin::PluginMetadata metadata;
     QtTubePluginPlayerFunc playerFunc{};
     QtTubePlugin::SettingsStore* settings{};
 };
@@ -58,12 +58,16 @@ class PluginManager
 {
 public:
     PluginData* activePlugin();
+    bool containsPlugin(const QString& name);
     PluginData* findPlugin(const QString& name);
     PluginData* loadAndInitPlugin(PluginData&& plugin);
+    PluginData* loadAndInitPlugin(const QFileInfo& fileInfo);
     const QList<PluginData*> loadedPlugins();
     PluginData openPlugin(const QFileInfo& fileInfo);
-    static const QStringList& pluginLoadDirs();
     void reloadPlugins();
+
+    static const QStringList& libraryLoadDirs();
+    static const QStringList& pluginLoadDirs();
 private:
     std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
 

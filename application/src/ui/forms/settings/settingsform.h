@@ -28,6 +28,7 @@ private slots:
     void clearCache();
     void currentChanged(int index);
     void openAddPluginDialog();
+    void openPluginBrowser();
     void openTermFilterTable();
     void pluginActiveButtonToggled(QAbstractButton* button, bool checked);
     void selectExternalPlayer();

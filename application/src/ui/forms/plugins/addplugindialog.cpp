@@ -1,18 +1,21 @@
 #include "addplugindialog.h"
 #include "ui_addplugindialog.h"
-#include "httprequest.h"
+#include "qttube-plugin/utils/httprequest.h"
 #include "qttubeapplication.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QUuid>
 
+namespace
+{
 #if defined(Q_OS_WIN)
-constexpr QLatin1String LibraryExtension(".dll");
+const QString libraryExtension = QStringLiteral(".dll");
 #elif defined(Q_OS_MACOS)
-constexpr QLatin1String LibraryExtension(".dylib");
+const QString libraryExtension = QStringLiteral(".dylib");
 #else
-constexpr QLatin1String LibraryExtension(".so");
+const QString libraryExtension = QStringLiteral(".so");
 #endif
+}
 
 AddPluginDialog::AddPluginDialog(QWidget* parent)
     : QDialog(parent), ui(new Ui::AddPluginDialog)
@@ -52,7 +55,7 @@ void AddPluginDialog::attemptAdd()
             {
                 bool fullyTemp = !QLibrary::isLibrary(fileName);
                 QFile temporaryPluginFile(fullyTemp
-                    ? QDir::temp().filePath(QUuid::createUuid().toString(QUuid::Id128) + LibraryExtension)
+                    ? QDir::temp().filePath(QUuid::createUuid().toString(QUuid::Id128) + libraryExtension)
                     : QDir::temp().filePath(libraryUrl.fileName()));
                 temporaryPluginFile.open(QFile::WriteOnly);
 
@@ -81,19 +84,45 @@ void AddPluginDialog::attemptAdd()
         return;
     }
 
-    if (!qtTubeApp->plugins().activePlugin())
-        plugin.active = true;
-
     QFileInfo(pluginPath).dir().mkpath(".");
     QFile::rename(plugin.fileInfo.absoluteFilePath(), pluginPath);
     plugin.fileInfo.setFile(pluginPath);
 
-    emit qtTubeApp->activePluginChanged(qtTubeApp->plugins().loadAndInitPlugin(std::move(plugin)));
+    PluginData* loadedPlugin = qtTubeApp->plugins().loadAndInitPlugin(std::move(plugin));
+    if (!qtTubeApp->plugins().activePlugin() ||
+        QMessageBox::question(this, QString(), "Make this plugin the active plugin?") == QMessageBox::Yes)
+    {
+        loadedPlugin->active = true;
+        emit qtTubeApp->activePluginChanged(loadedPlugin);
+    }
+
     done(QDialog::Accepted);
 }
 
 void AddPluginDialog::getOpenFile()
 {
     ui->lineEdit->setText(QFileDialog::getOpenFileName(
-        this, "Select a library file...", {}, "Library files (*" + LibraryExtension + ')'));
+        this, "Select a library file...", {}, "Library files (*" + libraryExtension + ')'));
+}
+
+AddPluginDialogEntry::AddPluginDialogEntry(PluginData* data, QWidget* parent)
+    : BasePluginEntry(parent),
+      m_activeButton(new QRadioButton(this)),
+      m_data(data)
+{
+    m_activeButton->setChecked(data->active);
+    m_topLayout->insertWidget(0, m_activeButton);
+
+    if (data->settings->window())
+    {
+        QPushButton* openSettingsButton = new QPushButton("Open Settings", this);
+        m_buttonsLayout->addWidget(openSettingsButton);
+        connect(openSettingsButton, &QPushButton::clicked, this, [data] {
+            QWidget* window = data->settings->window();
+            window->setAttribute(Qt::WA_DeleteOnClose);
+            window->show();
+        });
+    }
+
+    m_buttonsLayout->addStretch();
 }

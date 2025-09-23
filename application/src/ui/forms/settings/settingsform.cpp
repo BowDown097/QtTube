@@ -3,8 +3,8 @@
 #include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "termfilterview.h"
-#include "addplugindialog.h"
-#include "ui/widgets/pluginwidget.h"
+#include "ui/forms/plugins/addplugindialog.h"
+#include "ui/forms/plugins/pluginbrowserview.h"
 #include "utils/uiutils.h"
 #include <QButtonGroup>
 #include <QFileDialog>
@@ -65,6 +65,7 @@ SettingsForm::SettingsForm(QWidget* parent)
 
     connect(pluginActiveButtonGroup, &QButtonGroup::buttonToggled, this, &SettingsForm::pluginActiveButtonToggled);
     connect(ui->addPluginButton, &QPushButton::clicked, this, &SettingsForm::openAddPluginDialog);
+    connect(ui->browsePluginsButton, &QPushButton::clicked, this, &SettingsForm::openPluginBrowser);
     connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
     connect(ui->externalPlayerButton, &QPushButton::clicked, this, &SettingsForm::selectExternalPlayer);
     connect(ui->externalPlayerEdit, &QLineEdit::textEdited, this, &SettingsForm::checkExternalPlayer);
@@ -120,9 +121,10 @@ void SettingsForm::currentChanged(int index)
 
     for (PluginData* plugin : qtTubeApp->plugins().loadedPlugins())
     {
-        PluginWidget* pluginWidget = new PluginWidget(plugin);
-        UIUtils::addWidgetToList(ui->pluginsListWidget, pluginWidget);
-        pluginActiveButtonGroup->addButton(pluginWidget->activeButton());
+        AddPluginDialogEntry* entry = new AddPluginDialogEntry(plugin);
+        UIUtils::addWidgetToList(ui->pluginsListWidget, entry);
+        entry->setData(plugin->metadata);
+        pluginActiveButtonGroup->addButton(entry->activeButton());
     }
 }
 
@@ -149,10 +151,19 @@ void SettingsForm::openAddPluginDialog()
     AddPluginDialog dialog;
     if (dialog.exec() == QDialog::Accepted)
     {
-        PluginWidget* pluginWidget = new PluginWidget(qtTubeApp->plugins().activePlugin());
-        UIUtils::addWidgetToList(ui->pluginsListWidget, pluginWidget);
-        pluginActiveButtonGroup->addButton(pluginWidget->activeButton());
+        PluginData* plugin = qtTubeApp->plugins().activePlugin();
+        AddPluginDialogEntry* entry = new AddPluginDialogEntry(plugin);
+        UIUtils::addWidgetToList(ui->pluginsListWidget, entry);
+        entry->setData(plugin->metadata);
+        pluginActiveButtonGroup->addButton(entry->activeButton());
     }
+}
+
+void SettingsForm::openPluginBrowser()
+{
+    PluginBrowserView* pv = new PluginBrowserView;
+    pv->show();
+    pv->startPopulating();
 }
 
 void SettingsForm::openTermFilterTable()
@@ -164,12 +175,12 @@ void SettingsForm::openTermFilterTable()
 
 void SettingsForm::pluginActiveButtonToggled(QAbstractButton* button, bool checked)
 {
-    if (PluginWidget* pluginWidget = qobject_cast<PluginWidget*>(button->parent()))
+    if (AddPluginDialogEntry* entry = qobject_cast<AddPluginDialogEntry*>(button->parent()))
     {
-        pluginWidget->data()->active = true;
-        qtTubeApp->settings().activePlugin = pluginWidget->data()->fileInfo.fileName();
+        entry->data()->active = true;
+        qtTubeApp->settings().activePlugin = entry->data()->fileInfo.fileName();
         ui->saveButton->setEnabled(true);
-        emit qtTubeApp->activePluginChanged(pluginWidget->data());
+        emit qtTubeApp->activePluginChanged(entry->data());
     }
 }
 

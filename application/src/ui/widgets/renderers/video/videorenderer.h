@@ -21,11 +21,12 @@ public:
     explicit VideoRenderer(PluginData* plugin, QWidget* parent = nullptr);
     void setData(const QtTubePlugin::Video& video);
 private:
+    PluginData* plugin;
     int progress{};
     QString videoId;
     std::unique_ptr<PreloadData::WatchView> watchPreloadData;
 private slots:
     void copyVideoUrl();
-    void navigate(PluginData* plugin);
+    void navigate();
     void showTitleContextMenu(const QPoint& pos);
 };

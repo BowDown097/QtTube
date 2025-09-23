@@ -26,8 +26,8 @@ PluginData* PluginManager::activePlugin()
 
 void PluginManager::checkPluginMetadata(const PluginData& data)
 {
-    QString pluginName = data.metadata->name;
-    QString pluginVersion = data.metadata->version;
+    QString pluginName = data.metadata.name;
+    QString pluginVersion = data.metadata.version;
 
     if (pluginName.isEmpty() || pluginVersion.isEmpty())
         throw PluginLoadException(MalformedMetadataError.arg(data.fileInfo.fileName()));
@@ -36,7 +36,7 @@ void PluginManager::checkPluginMetadata(const PluginData& data)
     {
         throw PluginLoadException(NameConflictError.arg(
             data.fileInfo.fileName(), pluginName,
-            it->second.fileInfo.fileName(), it->second.metadata->name));
+            it->second.fileInfo.fileName(), it->second.metadata.name));
     }
 }
 
@@ -60,12 +60,26 @@ void PluginManager::checkPluginTargetVersion(const PluginData& data)
     }
 }
 
+bool PluginManager::containsPlugin(const QString& name)
+{
+    return m_loadedPlugins.contains(name);
+}
+
 PluginData* PluginManager::findPlugin(const QString& name)
 {
     if (auto it = m_loadedPlugins.find(name); it != m_loadedPlugins.end())
         return &it->second;
     else
         return nullptr;
+}
+
+const QStringList& PluginManager::libraryLoadDirs()
+{
+    static const QStringList libraryLoadDirs = {
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QDir::separator() + "plugin-libs",
+        qApp->applicationDirPath() + QDir::separator() + "plugin-libs"
+    };
+    return libraryLoadDirs;
 }
 
 PluginData* PluginManager::loadAndInitPlugin(PluginData&& plugin)
@@ -81,10 +95,15 @@ PluginData* PluginManager::loadAndInitPlugin(PluginData&& plugin)
         plugin.auth->restoreFromActive();
     }
 
-    if (auto res = m_loadedPlugins.emplace(plugin.metadata->name, std::move(plugin)); res.second)
+    if (auto res = m_loadedPlugins.emplace(plugin.metadata.name, std::move(plugin)); res.second)
         return &res.first->second;
     else
         throw PluginLoadException(EmplaceError);
+}
+
+PluginData* PluginManager::loadAndInitPlugin(const QFileInfo& fileInfo)
+{
+    return loadAndInitPlugin(openPlugin(fileInfo));
 }
 
 const QList<PluginData*> PluginManager::loadedPlugins()

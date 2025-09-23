@@ -1,5 +1,5 @@
 #include "emojigraphicsitem.h"
-#include "httprequest.h"
+#include "qttube-plugin/utils/httprequest.h"
 #include <QBuffer>
 #include <QGraphicsSceneMouseEvent>
 #include <QImageReader>

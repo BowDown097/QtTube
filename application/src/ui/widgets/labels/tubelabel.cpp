@@ -1,5 +1,5 @@
 #include "tubelabel.h"
-#include "httprequest.h"
+#include "qttube-plugin/utils/httprequest.h"
 #include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include <QStyle>
