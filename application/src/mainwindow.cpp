@@ -1,19 +1,19 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "qttubeapplication.h"
-#include "stores/settingsstore.h"
 #include "ui/browsehelper.h"
+#include "ui/forms/plugins/pluginbrowserview.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/accountmenu/accountcontrollerwidget.h"
 #include "utils/uiutils.h"
 #include <QAction>
-#include <QComboBox>
 #include <QLineEdit>
-#include <QScrollBar>
+#include <QMessageBox>
 
 MainWindow::~MainWindow() { delete ui; }
 
-MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     setWindowTitle(QTTUBE_APP_NAME);
@@ -89,6 +89,18 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent) : QMai
             ViewController::loadChannel(parser.value("channel"), plugin);
         else if (parser.isSet("video"))
             ViewController::loadVideo(parser.value("video"), plugin);
+    }
+    else
+    {
+        // wrapped in this manner to avoid blocking displaying of the main window
+        QMetaObject::invokeMethod(this, [this] {
+            if (QMessageBox::question(this, "Browse Plugins?", "You have no plugins installed. Would you like to open the plugin browser?") == QMessageBox::Yes)
+            {
+                PluginBrowserView* pv = new PluginBrowserView;
+                pv->show();
+                pv->startPopulating();
+            }
+        }, Qt::QueuedConnection);
     }
 }
 

@@ -22,8 +22,12 @@ void BrowseHelper::browseChannel(
         }
         else
         {
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+            widget->addItem("This feature is not supported by the active plugin.");
         }
+    }
+    else
+    {
+        widget->addItem("No plugin available.");
     }
 }
 
@@ -47,8 +51,12 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
         }
         else
         {
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+            widget->addItem("This feature is not supported by the active plugin.");
         }
+    }
+    else
+    {
+        widget->addItem("No plugin available.");
     }
 }
 
@@ -66,8 +74,12 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
         }
         else
         {
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+            widget->addItem("This feature is not supported by the active plugin.");
         }
+    }
+    else
+    {
+        widget->addItem("No plugin available.");
     }
 }
 
@@ -85,8 +97,12 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
         }
         else
         {
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+            widget->addItem("This feature is not supported by the active plugin.");
         }
+    }
+    else
+    {
+        widget->addItem("No plugin available.");
     }
 }
 
@@ -110,8 +126,12 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
         }
         else
         {
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+            widget->addItem("This feature is not supported by the active plugin.");
         }
+    }
+    else
+    {
+        widget->addItem("No plugin available.");
     }
 }
 
@@ -129,8 +149,12 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
         }
         else
         {
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+            widget->addItem("This feature is not supported by the active plugin.");
         }
+    }
+    else
+    {
+        widget->addItem("No plugin available.");
     }
 }
 
@@ -149,8 +173,12 @@ void BrowseHelper::search(ContinuableListWidget* widget, QHBoxLayout* additional
         }
         else
         {
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+            widget->addItem("This feature is not supported by the active plugin.");
         }
+    }
+    else
+    {
+        widget->addItem("No plugin available.");
     }
 }
 
@@ -204,11 +232,9 @@ void BrowseHelper::processChannelTabItems(
 
 void BrowseHelper::browseFailed(const QString& title, ContinuableListWidget* widget, const QtTubePlugin::Exception& ex)
 {
-    if (widget)
-        widget->setPopulatingFlag(false);
-
+    widget->setPopulatingFlag(false);
     if (ex.severity() == QtTubePlugin::Exception::Severity::Normal)
-        QMessageBox::critical(nullptr, "Failed to Load " + title, ex.message());
+        widget->addItem(ex.message());
     else
         qWarning() << "Failed to Load" << title << ':' << ex.message();
 }

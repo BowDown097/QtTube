@@ -1,8 +1,6 @@
 #pragma once
 #include "qttube-plugin/components/replytypes/replytypes.h"
 #include "ui/widgets/continuablelistwidget.h"
-#include <QMessageBox>
-#include <QScrollBar>
 
 struct PluginData;
 class QHBoxLayout;

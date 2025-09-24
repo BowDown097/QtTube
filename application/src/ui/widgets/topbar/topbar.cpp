@@ -178,6 +178,7 @@ void TopBar::updateUIForSignInState(bool signedIn)
     if (signedIn)
     {
         avatarButton->show();
+        notificationBell->show();
         signInButton->hide();
     }
     else
