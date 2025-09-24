@@ -10,6 +10,7 @@ BrowseVideoRenderer::BrowseVideoRenderer(PluginData* plugin, QWidget* parent)
     textVbox->addWidget(titleLabel);
     textVbox->addWidget(channelLabel);
     textVbox->addWidget(metadataLabel);
+    textVbox->addLayout(badgesLayout);
     textVbox->addStretch();
 
     hbox->addWidget(thumbnail);

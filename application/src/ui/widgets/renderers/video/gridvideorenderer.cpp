@@ -27,5 +27,6 @@ GridVideoRenderer::GridVideoRenderer(PluginData* plugin, QWidget* parent)
     vbox->addWidget(titleLabel);
     vbox->addWidget(channelLabel);
     vbox->addWidget(metadataLabel);
+    vbox->addLayout(badgesLayout);
     vbox->addStretch();
 }

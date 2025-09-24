@@ -5,6 +5,7 @@
 
 class ChannelLabel;
 class HttpReply;
+class QHBoxLayout;
 struct PluginData;
 class TubeLabel;
 class VideoThumbnailWidget;
@@ -13,6 +14,7 @@ class VideoRenderer : public QWidget
 {
     Q_OBJECT
 public:
+    QHBoxLayout* badgesLayout;
     ChannelLabel* channelLabel;
     TubeLabel* metadataLabel;
     VideoThumbnailWidget* thumbnail;

@@ -2,13 +2,16 @@
 #include "plugins/pluginmanager.h"
 #include "ui/views/preloaddata.h"
 #include "ui/views/viewcontroller.h"
+#include "ui/widgets/labels/badgelabel.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "utils/uiutils.h"
 #include "videothumbnailwidget.h"
+#include <QBoxLayout>
 #include <QMenu>
 
 VideoRenderer::VideoRenderer(PluginData* plugin, QWidget* parent)
     : QWidget(parent),
+      badgesLayout(new QHBoxLayout),
       channelLabel(new ChannelLabel(plugin, this)),
       metadataLabel(new TubeLabel(this)),
       thumbnail(new VideoThumbnailWidget(this)),
@@ -23,6 +26,8 @@ VideoRenderer::VideoRenderer(PluginData* plugin, QWidget* parent)
     titleLabel->setElideMode(Qt::ElideRight);
     titleLabel->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
     titleLabel->setUnderlineOnHover(true);
+
+    badgesLayout->setContentsMargins(0, 0, 0, 0);
 
     connect(thumbnail, &VideoThumbnailWidget::clicked, this, &VideoRenderer::navigate);
     connect(titleLabel, &TubeLabel::clicked, this, &VideoRenderer::navigate);
@@ -62,6 +67,15 @@ void VideoRenderer::setData(const QtTubePlugin::Video& video)
 
     titleLabel->setText(video.title);
     titleLabel->setToolTip(video.title);
+
+    for (const QtTubePlugin::Badge& badge : video.badges)
+    {
+        BadgeLabel* badgeLabel = new BadgeLabel(this);
+        badgeLabel->setData(badge);
+        badgesLayout->addWidget(badgeLabel);
+    }
+
+    badgesLayout->addStretch();
 
     watchPreloadData.reset(new PreloadData::WatchView {
         .channelAvatarUrl = video.uploaderAvatarUrl,

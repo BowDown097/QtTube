@@ -1,5 +1,5 @@
 #include "channellabel.h"
-#include "channelbadgelabel.h"
+#include "badgelabel.h"
 #include "ui/views/viewcontroller.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
@@ -45,7 +45,8 @@ void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderNam
 
     for (const QtTubePlugin::Badge& badge : badges)
     {
-        ChannelBadgeLabel* badgeLabel = new ChannelBadgeLabel(this);
+        BadgeLabel* badgeLabel = new BadgeLabel(this);
+        badgeLabel->setFixedSize(13, 10);
         badgeLabel->setData(badge);
         badgeLayout->addWidget(badgeLabel);
     }
