@@ -79,13 +79,13 @@ const QStringList& PluginManager::libraryLoadDirs()
         if (!qtTubeApp->isPortableBuild())
         {
             return QStringList {
-                QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QDir::separator() + "plugin-libs",
-                qApp->applicationDirPath() + QDir::separator() + "plugin-libs"
+                FS::joinPaths(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), "plugin-libs"),
+                FS::joinPaths(qApp->applicationDirPath(), "plugin-libs")
             };
         }
         else
         {
-            return QStringList { qApp->applicationDirPath() + QDir::separator() + "plugin-libs" };
+            return QStringList { FS::joinPaths(qApp->applicationDirPath(), "plugin-libs") };
         }
     }();
     return libraryLoadDirs;
@@ -169,13 +169,13 @@ const QStringList& PluginManager::pluginLoadDirs()
         if (!qtTubeApp->isPortableBuild())
         {
             return QStringList {
-                QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QDir::separator() + "plugins",
-                qApp->applicationDirPath() + QDir::separator() + "plugins"
+                FS::joinPaths(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), "plugins"),
+                FS::joinPaths(qApp->applicationDirPath(), "plugins")
             };
         }
         else
         {
-            return QStringList { qApp->applicationDirPath() + QDir::separator() + "plugins" };
+            return QStringList { FS::joinPaths(qApp->applicationDirPath(), "plugins") };
         }
     }();
     return pluginLoadDirs;

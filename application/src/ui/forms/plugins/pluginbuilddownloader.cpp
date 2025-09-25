@@ -146,6 +146,7 @@ void PluginBuildDownloader::downloadFinished()
                     plugin->active = true;
                     emit qtTubeApp->activePluginChanged(plugin);
                 }
+                emit success();
             }
             catch (const PluginLoadException& ex)
             {

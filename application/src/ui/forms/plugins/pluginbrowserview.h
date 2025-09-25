@@ -25,21 +25,22 @@ private:
     PluginBrowser* m_browser;
     Ui::PluginBrowserView* ui;
 private slots:
+    void downloadBuild(BasePluginEntry* entry, const ReleaseData& data);
     void error(const QString& context, const QString& message);
-    void downloadBuild(const ReleaseData& data);
     void gotPluginMetadata(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata);
-    void gotReleaseData(const PluginEntryMetadataPtr& metadata, const std::optional<ReleaseData>& data);
+    void gotReleaseData(
+        BasePluginEntry* entry,
+        const PluginEntryMetadataPtr& metadata,
+        const std::optional<ReleaseData>& data);
     void gotRepositories(const QList<RepositoryItemPtr>& items);
 };
 
 class PluginBrowserViewEntry : public BasePluginEntry
 {
-    Q_OBJECT
+    friend class PluginBrowserView;
 public:
     explicit PluginBrowserViewEntry(QWidget* parent = nullptr);
     void setData(const PluginEntryMetadata& metadata) override;
 private:
     QPushButton* m_installButton;
-signals:
-    void installButtonClicked();
 };

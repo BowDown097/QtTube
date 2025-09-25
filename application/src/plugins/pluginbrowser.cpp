@@ -55,16 +55,20 @@ namespace
     }
 }
 
-void PluginBrowser::getExpandedAssets(const PluginEntryMetadataPtr& metadata, const QString& tagName)
+void PluginBrowser::getExpandedAssets(
+    BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata, const QString& tagName)
 {
     HttpReply* reply = HttpRequest().get(expandedAssetsFormat.arg(metadata->repoFullName, tagName));
-    connect(reply, &HttpReply::finished, this, [this, metadata, tagName](const HttpReply& reply) {
-        getExpandedAssetsFinished(metadata, tagName, reply);
+    connect(reply, &HttpReply::finished, this, [this, entry, metadata, tagName](const HttpReply& reply) {
+        getExpandedAssetsFinished(entry, metadata, tagName, reply);
     });
 }
 
 void PluginBrowser::getExpandedAssetsFinished(
-    const PluginEntryMetadataPtr& metadata, const QString& tagName, const HttpReply& reply)
+    BasePluginEntry* entry,
+    const PluginEntryMetadataPtr& metadata,
+    const QString& tagName,
+    const HttpReply& reply)
 {
     ReleaseData data = { .tagName = tagName };
 
@@ -95,12 +99,167 @@ void PluginBrowser::getExpandedAssetsFinished(
             }
         }
 
-        emit gotReleaseData(metadata, data);
+        emit gotReleaseData(entry, metadata, data);
     }
     catch (const std::runtime_error& ex)
     {
         emit error("Getting Release Data (fallback)", ex.what());
     }
+}
+
+void PluginBrowser::getMetadata(BasePluginEntry* entry, const RepositoryItemPtr& item)
+{
+    HttpReply* reply = HttpRequest().get(downloadUrlFormat.arg(item->fullName, item->defaultBranch));
+    connect(reply, &HttpReply::finished, this, [this, entry, item](const HttpReply& reply) {
+        getMetadataFinished(entry, item, reply);
+    });
+}
+
+void PluginBrowser::getMetadataFinished(
+    BasePluginEntry* entry, const RepositoryItemPtr& item, const HttpReply& reply)
+{
+    if (!reply.isSuccessful())
+    {
+        qWarning().noquote() << "Repository" << item->fullName << "has no metadata.";
+        emit gotPluginMetadata(entry, nullptr);
+        return;
+    }
+
+    QJsonObject obj = QJsonDocument::fromJson(reply.readAll()).object();
+
+    auto [it, _] = cache().metadata().emplace(item->fullName, PluginEntryMetadata {
+        .author = item->ownerLogin,
+        .defaultBranch = item->defaultBranch,
+        .description = obj["description"].toString(),
+        .image = obj["image"].toString(),
+        .name = obj["name"].toString(),
+        .repoFullName = item->fullName,
+        .url = obj["url"].toString(),
+        .version = obj["version"].toString()
+    });
+
+    if (it->second->author.isEmpty() || it->second->name.isEmpty() || it->second->version.isEmpty())
+    {
+        qWarning().noquote() << "Metadata for" << item->fullName << "is missing one or more required fields.";
+        emit gotPluginMetadata(entry, nullptr);
+    }
+    else
+    {
+        emit gotPluginMetadata(entry, it->second);
+    }
+}
+
+void PluginBrowser::getNightlyBuild(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata)
+{
+    HttpReply* reply = HttpRequest().get(
+        nightlyLinkFormat.arg(metadata->repoFullName, metadata->defaultBranch));
+    connect(reply, &HttpReply::finished, this, [this, entry](const HttpReply& reply) {
+        getNightlyBuildFinished(entry, reply);
+    });
+}
+
+void PluginBrowser::getNightlyBuildFinished(BasePluginEntry* entry, const HttpReply& reply)
+{
+    if (int statusCode = reply.statusCode(); statusCode == 404)
+    {
+        emit error("Getting Nightly Build", "No nightly build is available.");
+        return;
+    }
+    else if (statusCode < 200 || statusCode >= 300)
+    {
+        emit error("Getting Nightly Build", "Failed with code " + QString::number(reply.statusCode()));
+        return;
+    }
+
+    try
+    {
+        HtmlParser::Parser parser;
+        parser.SetStrict(true);
+
+        HtmlParser::DOM dom = parser.Parse(reply.readAll().toStdString());
+        HtmlParser::Query query(dom.Root());
+
+        // child queries just don't work... gonna have to get creative
+        std::vector<NodePtr> artifacts;
+        {
+            std::vector<NodePtr> downloadCells = query.Select("td");
+            for (NodePtr& cell : downloadCells)
+                for (NodePtr& child : cell->Children)
+                    if (child->Tag == "a")
+                        artifacts.emplace_back(std::move(child));
+        }
+
+        for (const NodePtr& artifact : artifacts)
+        {
+            QString href = QString::fromStdString(artifact->GetAttribute("href"));
+            if (isReleaseForPlatform(href))
+            {
+                emit gotNightlyBuild(entry, ReleaseData {
+                    .asset = ReleaseData::Asset {
+                        .downloadUrl = href,
+                        .name = href.section('/', -1),
+                        .updatedAt = QDateTime::currentDateTimeUtc().toString(Qt::ISODate)
+                    },
+                    .tagName = "nightly"
+                });
+                return;
+            }
+        }
+
+        emit error("Getting Nightly Build", "Could not find a suitable nightly build.");
+    }
+    catch (const std::runtime_error& ex)
+    {
+        emit error("Getting Nightly Build", ex.what());
+    }
+}
+
+void PluginBrowser::getReleaseData(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata)
+{
+    HttpReply* reply = HttpRequest().get(latestReleaseApiFormat.arg(metadata->repoFullName));
+    connect(reply, &HttpReply::finished, this, [this, entry, metadata](const HttpReply& reply) {
+        getReleaseDataFinished(entry, metadata, reply);
+    });
+}
+
+void PluginBrowser::getReleaseDataFinished(
+    BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata, const HttpReply& reply)
+{
+    // if 404, then there's no release at all. emit nullopt to prompt for nightly link fallback later
+    if (reply.statusCode() == 404)
+    {
+        emit gotReleaseData(entry, metadata, std::nullopt);
+        return;
+    }
+
+    QJsonObject obj = QJsonDocument::fromJson(reply.readAll()).object();
+
+    if (auto [errorType, msg] = resolveError(reply, obj); errorType == ErrorType::RateLimit)
+    {
+        releaseDataFallback(entry, metadata);
+        return;
+    }
+    else if (errorType != ErrorType::NoError)
+    {
+        emit error("Getting Release Data", msg);
+        return;
+    }
+
+    ReleaseData data = { .tagName = obj["tag_name"].toString() };
+
+    const QJsonArray assets = obj["assets"].toArray();
+    for (const QJsonValue& asset : assets)
+    {
+        if (QString downloadUrl = asset["browser_download_url"].toString(); isReleaseForPlatform(downloadUrl))
+        {
+            data.asset.downloadUrl = std::move(downloadUrl);
+            data.asset.name = asset["name"].toString();
+            data.asset.updatedAt = asset["updated_at"].toString();
+            break;
+        }
+    }
+
+    emit gotReleaseData(entry, metadata, data);
 }
 
 void PluginBrowser::getRepositories()
@@ -141,30 +300,31 @@ void PluginBrowser::getRepositoriesFinished(const HttpReply& reply)
         getRepositories();
 }
 
-void PluginBrowser::releaseDataFallback(const PluginEntryMetadataPtr& metadata)
+void PluginBrowser::releaseDataFallback(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata)
 {
     HttpReply* reply = HttpRequest()
         .withAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy)
         .head(latestReleaseWebFormat.arg(metadata->repoFullName));
-    connect(reply, &HttpReply::finished, this, [this, metadata](const HttpReply& reply) {
-        releaseDataFallbackFinished(metadata, reply);
+    connect(reply, &HttpReply::finished, this, [this, entry, metadata](const HttpReply& reply) {
+        releaseDataFallbackFinished(entry, metadata, reply);
     });
 }
 
-void PluginBrowser::releaseDataFallbackFinished(const PluginEntryMetadataPtr& metadata, const HttpReply& reply)
+void PluginBrowser::releaseDataFallbackFinished(
+    BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata, const HttpReply& reply)
 {
     if (QVariant redirect = reply.attribute(QNetworkRequest::RedirectionTargetAttribute); redirect.isValid())
     {
         if (QString path = redirect.toUrl().path(); path.contains("/releases/tag/"))
         {
-            getExpandedAssets(metadata, path.section('/', -1));
+            getExpandedAssets(entry, metadata, path.section('/', -1));
             return;
         }
     }
 
     // if we've gotten here, there's probably no release at all.
     // emit nullopt to prompt for nightly link fallback later
-    emit gotReleaseData(metadata, std::nullopt);
+    emit gotReleaseData(entry, metadata, std::nullopt);
 }
 
 std::pair<PluginBrowser::ErrorType, QString> PluginBrowser::resolveError(
@@ -188,156 +348,4 @@ std::pair<PluginBrowser::ErrorType, QString> PluginBrowser::resolveError(
     }
 
     return std::make_pair(ErrorType::Other, "Failed with code " + QString::number(statusCode));
-}
-
-void PluginBrowser::tryGetMetadata(const RepositoryItemPtr& item, BasePluginEntry* entry)
-{
-    HttpReply* reply = HttpRequest().get(downloadUrlFormat.arg(item->fullName, item->defaultBranch));
-    connect(reply, &HttpReply::finished, this, [this, entry, item](const HttpReply& reply) {
-        tryGetMetadataFinished(entry, item, reply);
-    });
-}
-
-void PluginBrowser::tryGetMetadataFinished(
-    BasePluginEntry* entry, const RepositoryItemPtr& item, const HttpReply& reply)
-{
-    if (!reply.isSuccessful())
-    {
-        qWarning().noquote() << "Repository" << item->fullName << "has no metadata.";
-        emit gotPluginMetadata(entry, nullptr);
-        return;
-    }
-
-    QJsonObject obj = QJsonDocument::fromJson(reply.readAll()).object();
-
-    auto [it, _] = cache().metadata().emplace(item->fullName, PluginEntryMetadata {
-        .author = item->ownerLogin,
-        .defaultBranch = item->defaultBranch,
-        .description = obj["description"].toString(),
-        .image = obj["image"].toString(),
-        .name = obj["name"].toString(),
-        .repoFullName = item->fullName,
-        .url = obj["url"].toString(),
-        .version = obj["version"].toString()
-    });
-
-    if (it->second->author.isEmpty() || it->second->name.isEmpty() || it->second->version.isEmpty())
-    {
-        qWarning().noquote() << "Metadata for" << item->fullName << "is missing one or more required fields.";
-        emit gotPluginMetadata(entry, nullptr);
-    }
-    else
-    {
-        emit gotPluginMetadata(entry, it->second);
-    }
-}
-
-void PluginBrowser::tryGetNightlyBuild(const PluginEntryMetadataPtr& metadata)
-{
-    HttpReply* reply = HttpRequest().get(
-        nightlyLinkFormat.arg(metadata->repoFullName, metadata->defaultBranch));
-    connect(reply, &HttpReply::finished, this, &PluginBrowser::tryGetNightlyBuildFinished);
-}
-
-void PluginBrowser::tryGetNightlyBuildFinished(const HttpReply& reply)
-{
-    if (int statusCode = reply.statusCode(); statusCode == 404)
-    {
-        emit error("Getting Nightly Build", "No nightly build is available.");
-        return;
-    }
-    else if (statusCode < 200 || statusCode >= 300)
-    {
-        emit error("Getting Nightly Build", "Failed with code " + QString::number(reply.statusCode()));
-        return;
-    }
-
-    try
-    {
-        HtmlParser::Parser parser;
-        parser.SetStrict(true);
-
-        HtmlParser::DOM dom = parser.Parse(reply.readAll().toStdString());
-        HtmlParser::Query query(dom.Root());
-
-        // child queries just don't work... gonna have to get creative
-        std::vector<NodePtr> artifacts;
-        {
-            std::vector<NodePtr> downloadCells = query.Select("td");
-            for (NodePtr& cell : downloadCells)
-                for (NodePtr& child : cell->Children)
-                    if (child->Tag == "a")
-                        artifacts.emplace_back(std::move(child));
-        }
-
-        for (const NodePtr& artifact : artifacts)
-        {
-            QString href = QString::fromStdString(artifact->GetAttribute("href"));
-            if (isReleaseForPlatform(href))
-            {
-                emit gotNightlyBuild(ReleaseData {
-                    .asset = ReleaseData::Asset {
-                        .downloadUrl = href,
-                        .name = href.section('/', -1),
-                        .updatedAt = QDateTime::currentDateTimeUtc().toString(Qt::ISODate)
-                    },
-                    .tagName = "nightly"
-                });
-                return;
-            }
-        }
-
-        emit error("Getting Nightly Build", "Could not find a suitable nightly build.");
-    }
-    catch (const std::runtime_error& ex)
-    {
-        emit error("Getting Nightly Build", ex.what());
-    }
-}
-
-void PluginBrowser::tryGetReleaseData(const PluginEntryMetadataPtr& metadata)
-{
-    HttpReply* reply = HttpRequest().get(latestReleaseApiFormat.arg(metadata->repoFullName));
-    connect(reply, &HttpReply::finished, this, [this, metadata](const HttpReply& reply) {
-        tryGetReleaseDataFinished(metadata, reply);
-    });
-}
-
-void PluginBrowser::tryGetReleaseDataFinished(const PluginEntryMetadataPtr& metadata, const HttpReply& reply)
-{
-    // if 404, then there's no release at all. emit nullopt to prompt for nightly link fallback later
-    if (reply.statusCode() == 404)
-    {
-        emit gotReleaseData(metadata, std::nullopt);
-        return;
-    }
-
-    QJsonObject obj = QJsonDocument::fromJson(reply.readAll()).object();
-
-    if (auto [errorType, msg] = resolveError(reply, obj); errorType == ErrorType::RateLimit)
-    {
-        releaseDataFallback(metadata);
-        return;
-    }
-    else if (errorType != ErrorType::NoError)
-    {
-        emit error("Getting Release Data", msg);
-        return;
-    }
-
-    ReleaseData data = { .tagName = obj["tag_name"].toString() };
-
-    const QJsonArray assets = obj["assets"].toArray();
-    for (const QJsonValue& asset : assets)
-    {
-        if (QString downloadUrl = asset["browser_download_url"].toString(); isReleaseForPlatform(downloadUrl))
-        {
-            data.asset.downloadUrl = std::move(downloadUrl);
-            data.asset.name = asset["name"].toString();
-            data.asset.updatedAt = asset["updated_at"].toString();
-            break;
-        }
-    }
-
-    emit gotReleaseData(metadata, data);
 }

@@ -24,10 +24,10 @@ public:
 
     static PluginBrowserCache& cache() { static PluginBrowserCache _cache; return _cache; }
 
+    void getMetadata(BasePluginEntry* entry, const RepositoryItemPtr& item);
+    void getNightlyBuild(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata);
+    void getReleaseData(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata);
     void getRepositories();
-    void tryGetMetadata(const RepositoryItemPtr& item, BasePluginEntry* entry);
-    void tryGetNightlyBuild(const PluginEntryMetadataPtr& metadata);
-    void tryGetReleaseData(const PluginEntryMetadataPtr& metadata);
 private:
     enum class ErrorType
     {
@@ -38,21 +38,30 @@ private:
 
     qint8 m_reposPage = 1;
 
-    void getExpandedAssets(const PluginEntryMetadataPtr& metadata, const QString& tagName);
-    void releaseDataFallback(const PluginEntryMetadataPtr& metadata);
+    void getExpandedAssets(
+        BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata, const QString& tagName);
+    void releaseDataFallback(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata);
     std::pair<ErrorType, QString> resolveError(const HttpReply& reply, const QJsonObject& obj);
 private slots:
     void getExpandedAssetsFinished(
-        const PluginEntryMetadataPtr& metadata, const QString& tagName, const HttpReply& reply);
+        BasePluginEntry* entry,
+        const PluginEntryMetadataPtr& metadata,
+        const QString& tagName,
+        const HttpReply& reply);
+    void getMetadataFinished(BasePluginEntry* entry, const RepositoryItemPtr& item, const HttpReply& reply);
+    void getNightlyBuildFinished(BasePluginEntry* entry, const HttpReply& reply);
+    void getReleaseDataFinished(
+        BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata, const HttpReply& reply);
     void getRepositoriesFinished(const HttpReply& reply);
-    void releaseDataFallbackFinished(const PluginEntryMetadataPtr& metadata, const HttpReply& reply);
-    void tryGetMetadataFinished(BasePluginEntry* entry, const RepositoryItemPtr& item, const HttpReply& reply);
-    void tryGetNightlyBuildFinished(const HttpReply& reply);
-    void tryGetReleaseDataFinished(const PluginEntryMetadataPtr& metadata, const HttpReply& reply);
+    void releaseDataFallbackFinished(
+        BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata, const HttpReply& reply);
 signals:
     void error(const QString& context, const QString& message);
-    void gotNightlyBuild(const ReleaseData& data);
+    void gotNightlyBuild(BasePluginEntry* entry, const ReleaseData& data);
     void gotPluginMetadata(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata);
-    void gotReleaseData(const PluginEntryMetadataPtr& metadata, const std::optional<ReleaseData>& data);
+    void gotReleaseData(
+        BasePluginEntry* entry,
+        const PluginEntryMetadataPtr& metadata,
+        const std::optional<ReleaseData>& data);
     void gotRepositories(const QList<RepositoryItemPtr>& items);
 };

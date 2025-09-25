@@ -9,6 +9,7 @@ struct ReleaseData;
 
 class PluginBuildDownloader : public QWidget
 {
+    Q_OBJECT
 public:
     explicit PluginBuildDownloader(const ReleaseData& data, QWidget* parent = nullptr);
 private:
@@ -21,4 +22,6 @@ private:
 private slots:
     void downloadFinished();
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+signals:
+    void success();
 };

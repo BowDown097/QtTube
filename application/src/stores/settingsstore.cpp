@@ -8,10 +8,8 @@
 SettingsStore::SettingsStore(QObject* parent)
     : QObject(parent),
       m_configPath(QtTubePlugin::isPortableBuild()
-          ? QCoreApplication::applicationDirPath() + QDir::separator() + "config"
-                + QDir::separator() + "settings.ini"
-          : QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)
-                + QDir::separator() + "settings.ini"),
+          ? FS::joinPaths(QCoreApplication::applicationDirPath(), "config", "settings.ini")
+          : FS::joinPaths(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation), "settings.ini")),
       m_saveDebounceTimer(new QTimer(this))
 {
     m_saveDebounceTimer->setInterval(500);

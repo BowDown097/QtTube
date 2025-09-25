@@ -24,16 +24,18 @@ PluginBrowserView::~PluginBrowserView()
     delete ui;
 }
 
+void PluginBrowserView::downloadBuild(BasePluginEntry* entry, const ReleaseData& data)
+{
+    PluginBuildDownloader* downloader = new PluginBuildDownloader(data);
+    downloader->show();
+    connect(downloader, &PluginBuildDownloader::success, this, [entry] {
+        static_cast<PluginBrowserViewEntry*>(entry)->m_installButton->setEnabled(false);
+    });
+}
+
 void PluginBrowserView::error(const QString& context, const QString& message)
 {
     QMessageBox::critical(this, "Failed " + context, message);
-}
-
-void PluginBrowserView::downloadBuild(const ReleaseData& data)
-{
-    // should get deleted on finish/close
-    PluginBuildDownloader* downloader = new PluginBuildDownloader(data);
-    downloader->show();
 }
 
 void PluginBrowserView::gotPluginMetadata(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata)
@@ -47,13 +49,15 @@ void PluginBrowserView::gotPluginMetadata(BasePluginEntry* entry, const PluginEn
     PluginBrowserViewEntry* viewEntry = static_cast<PluginBrowserViewEntry*>(entry);
     viewEntry->setData(*metadata);
     viewEntry->show();
-    connect(viewEntry, &PluginBrowserViewEntry::installButtonClicked, this, [this, metadata] {
-        m_browser->tryGetReleaseData(metadata);
+    connect(viewEntry->m_installButton, &QPushButton::clicked, this, [this, entry, metadata] {
+        m_browser->getReleaseData(entry, metadata);
     });
 }
 
 void PluginBrowserView::gotReleaseData(
-    const PluginEntryMetadataPtr& metadata, const std::optional<ReleaseData>& data)
+    BasePluginEntry* entry,
+    const PluginEntryMetadataPtr& metadata,
+    const std::optional<ReleaseData>& data)
 {
     if (!data)
     {
@@ -61,11 +65,11 @@ void PluginBrowserView::gotReleaseData(
             this, "No Release Found",
             "No release has been found for this plugin. Would you like to try to get a nightly build?");
         if (button == QMessageBox::Yes)
-            m_browser->tryGetNightlyBuild(metadata);
+            m_browser->getNightlyBuild(entry, metadata);
         return;
     }
 
-    downloadBuild(data.value());
+    downloadBuild(entry, data.value());
 }
 
 void PluginBrowserView::gotRepositories(const QList<RepositoryItemPtr>& items)
@@ -79,7 +83,7 @@ void PluginBrowserView::gotRepositories(const QList<RepositoryItemPtr>& items)
         if (PluginEntryMetadataPtr metadata = PluginBrowser::cache().metadata().find(item->fullName))
             gotPluginMetadata(entry, metadata);
         else
-            m_browser->tryGetMetadata(item, entry);
+            m_browser->getMetadata(entry, item);
     }
 }
 
@@ -122,7 +126,6 @@ PluginBrowserViewEntry::PluginBrowserViewEntry(QWidget* parent)
 {
     m_installButton->setEnabled(false);
     m_buttonsLayout->addWidget(m_installButton);
-    connect(m_installButton, &QPushButton::clicked, this, &PluginBrowserViewEntry::installButtonClicked);
 }
 
 void PluginBrowserViewEntry::setData(const PluginEntryMetadata& metadata)
