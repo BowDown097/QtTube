@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 project(QtTube
-    VERSION 0.1
+    VERSION 1.0
     DESCRIPTION "A Qt frontend for YouTube."
     HOMEPAGE_URL "https://github.com/BowDown097/QtTube"
     LANGUAGES CXX C)
