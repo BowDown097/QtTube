@@ -34,8 +34,9 @@ jobs:
     env:
       INSTALL_DIR: "install"
       INSTALL_APPIMAGE_DIR: "install-appimage"
+      INSTALL_PORTABLE_DIR: "install-portable"
       BUILD_DIR: "build"
-      BUILD_TYPE: Debug
+      BUILD_TYPE: Release
     
     steps:
       - name: Checkout
@@ -65,7 +66,7 @@ jobs:
         run: |
           sudo add-apt-repository universe
           sudo apt-get -y update
-          sudo apt-get -y install libxss-dev libfuse2 libxcb-cursor0
+          sudo apt-get -y install extra-cmake-modules libxss-dev libwayland-dev libfuse2 libxcb-cursor0
       
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -76,13 +77,14 @@ jobs:
           modules: ${{ matrix.qt_modules }}
           cache: true
           cache-key-prefix: ${{ matrix.qt_host }}-${{ matrix.qt_version }}-"${{ matrix.qt_modules }}"-qt_cache
-      
+
       - name: Prepare AppImage
         if: runner.os == 'Linux'
         run: |
           wget "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           wget "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage"
           wget "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+          chmod +x linuxdeploy-*.AppImage
       
       - name: Configure CMake
         run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
@@ -93,12 +95,25 @@ jobs:
       - name: Package (Windows)
         if: runner.os == 'Windows'
         run: cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_DIR }} --config ${{ env.BUILD_TYPE }}
-      
+
+      - name: Package (Windows, portable)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --config ${{ env.BUILD_TYPE }}
+          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }}/bin --component portable
+
+          call "${{ env.QT_ROOT_DIR }}\bin\qtenv2.bat"
+          for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
+          chdir /d %GITHUB_WORKSPACE%\${{ env.INSTALL_PORTABLE_DIR }}\bin
+          windeployqt -sql -svg --exclude-plugins qsqlibase,qsqlmimer,qsqloci,qsqlodbc,qsqlpsql --no-compiler-runtime --no-system-d3d-compiler --release QtTube.exe
+          copy "${{ env.QT_ROOT_DIR }}\resources\v8_context_snapshot.bin" resources\v8_context_snapshot.bin
+
       #- name: Package (Windows installer)
         #if: runner.os == 'Windows'
         #run: |
           #cd ${{ env.INSTALL_DIR }}
-          #makensis -NOCD "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/win_install.nsi"
+          #makensis -NOCD "${{ github.workspace }}/${{ env.BUILD_DIR }}/application/program_info/win_install.nsi"
       
       - name: Package (tarball)
         if: runner.os == 'Linux'
@@ -110,18 +125,29 @@ jobs:
       - name: Package (AppImage)
         if: runner.os == 'Linux'
         run: |
+          export EXTRA_PLATFORM_PLUGINS="libqwayland-egl.so;libqwayland-generic.so"
+          export EXTRA_QT_MODULES="sql;svg;waylandcompositor"
+          export LDAI_OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
+          export LINUXDEPLOY_EXCLUDED_LIBRARIES="libmysqlclient.so*;libqsqlmimer.so;libqsqlmysql.so;libqsqlodbc.so;libqsqlpsql.so"
+          
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
-          rm -f /home/runner/work/QtTube/Qt/${{ matrix.qt_version }}/gcc_64/plugins/sqldrivers/libqsqlmimer.so
-          export OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
-          chmod +x linuxdeploy-*.AppImage
+          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr/bin --component selfcontained
+          
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
+          
           cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           cp /usr/lib/x86_64-linux-gnu/libssl.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-          export V8_SNAPSHOT_FILE="/home/runner/work/QtTube/Qt/${{ matrix.qt_version }}/gcc_64/resources/v8_context_snapshot.bin"
-          [[ -e $V8_SNAPSHOT_FILE ]] && cp $V8_SNAPSHOT_FILE ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
-          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib"
-          ./linuxdeploy-x86_64.AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt -d program_info/qttube.desktop -i res/qttube.svg
+          cp /usr/lib/x86_64-linux-gnu/libicu*.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+          cp "${{ env.QT_ROOT_DIR }}/resources/v8_context_snapshot.bin" ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
+          
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir ${{ env.INSTALL_APPIMAGE_DIR }} \
+            --output appimage \
+            --plugin qt \
+            --custom-apprun application/program_info/AppRun \
+            -d application/program_info/qttube.desktop \
+            -i application/res/qttube.svg
       
       - name: Upload artifact (zip)
         if: runner.os == 'Windows'
@@ -129,6 +155,13 @@ jobs:
         with:
           name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
           path: ${{ env.INSTALL_DIR }}/**
+
+      - name: Upload artifact (zip, portable)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-Portable
+          path: ${{ env.INSTALL_PORTABLE_DIR }}/bin/**
           
       #- name: Upload artifact (installer)
         #if: runner.os == 'Windows'

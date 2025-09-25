@@ -1,4 +1,3 @@
-[submodule "lib/innertube-qt"]
-	path = lib/innertube-qt
-	url = https://github.com/BowDown097/innertube-qt
-	branch = master
+[submodule "plugin_interface"]
+	path = plugin_interface
+	url = https://github.com/BowDown097/qttube-plugin-interface

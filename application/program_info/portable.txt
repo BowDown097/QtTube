@@ -1,0 +1,5 @@
+This file enables the portable mode for the program.
+
+If this file is present in the root directory of the program, settings and plugins will be stored in it. Otherwise, they will be stored in the appdata directory.
+Furthermore, this enables the self-contained mode, meaning plugins will be able to be installed from the plugin browser.
+You can safely delete this file if you don't want the program to have this behavior.

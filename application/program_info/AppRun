@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+this_dir="$(readlink -f "$(dirname "$0")")"
+
+# include local /usr/lib in LD_LIBRARY_PATH for plugins
+export LD_LIBRARY_PATH="$this_dir/usr/lib:$LD_LIBRARY_PATH"
+
+exec "$this_dir"/usr/bin/QtTube "$@"
