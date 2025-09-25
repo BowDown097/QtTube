@@ -101,7 +101,7 @@ jobs:
         shell: cmd
         run: |
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --config ${{ env.BUILD_TYPE }}
-          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --component portable
+          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }}/bin --component portable
 
           call "${{ env.QT_ROOT_DIR }}\bin\qtenv2.bat"
           for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
