@@ -91,6 +91,23 @@ void PluginBrowserView::keyPressEvent(QKeyEvent* event)
         QWidget::keyPressEvent(event);
 }
 
+PluginBrowserView* PluginBrowserView::spawn()
+{
+    if (!qtTubeApp->isSelfContainedBuild() && QMessageBox::warning(nullptr, "Warning",
+            "Installing plugins from the plugin browser is not supported in this build "
+            "because it is not self-contained. You will have to build plugins yourself. "
+            "Do you wish to continue?",
+            QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+    {
+        return nullptr;
+    }
+
+    PluginBrowserView* inst = new PluginBrowserView;
+    inst->show();
+    inst->startPopulating();
+    return inst;
+}
+
 void PluginBrowserView::startPopulating()
 {
     if (PluginRepoCache& reposCache = PluginBrowser::cache().repos(); !reposCache.isEmpty())
@@ -110,6 +127,7 @@ PluginBrowserViewEntry::PluginBrowserViewEntry(QWidget* parent)
 
 void PluginBrowserViewEntry::setData(const PluginEntryMetadata& metadata)
 {
-    m_installButton->setEnabled(!qtTubeApp->plugins().containsPlugin(metadata.name));
+    m_installButton->setEnabled(
+        qtTubeApp->isSelfContainedBuild() &&!qtTubeApp->plugins().containsPlugin(metadata.name));
     BasePluginEntry::setData(metadata);
 }

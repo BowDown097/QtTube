@@ -14,6 +14,8 @@ class PluginBrowserView : public QWidget
 {
     Q_OBJECT
 public:
+    static PluginBrowserView* spawn();
+
     explicit PluginBrowserView(QWidget* parent = nullptr);
     ~PluginBrowserView();
     void startPopulating();

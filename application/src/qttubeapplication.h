@@ -16,6 +16,18 @@ public:
     QtTubeApplication(int& argc, char** argv) : QApplication(argc, argv) {}
     bool notify(QObject* receiver, QEvent* event) override;
 
+    static bool isPortableBuild()
+    {
+        static const bool result = QtTubePlugin::isPortableBuild();
+        return result;
+    }
+
+    static bool isSelfContainedBuild()
+    {
+        static const bool result = isPortableBuild() || QtTubePlugin::isSelfContainedBuild();
+        return result;
+    }
+
     void doInitialSetup();
     void handleUrlOrID(const QString& in);
 

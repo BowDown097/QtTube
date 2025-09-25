@@ -96,9 +96,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent)
         QMetaObject::invokeMethod(this, [this] {
             if (QMessageBox::question(this, "Browse Plugins?", "You have no plugins installed. Would you like to open the plugin browser?") == QMessageBox::Yes)
             {
-                PluginBrowserView* pv = new PluginBrowserView;
-                pv->show();
-                pv->startPopulating();
+                PluginBrowserView::spawn();
             }
         }, Qt::QueuedConnection);
     }

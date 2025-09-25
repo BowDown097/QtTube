@@ -233,8 +233,13 @@ endif()
 # Installation
 include(GNUInstallDirs)
 
+## Application
 install(TARGETS QtTube
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+## Portable and self-contained components
+install(FILES program_info/portable.txt DESTINATION "." COMPONENT portable EXCLUDE_FROM_ALL)
+install(FILES program_info/selfcontained.txt DESTINATION "." COMPONENT selfcontained EXCLUDE_FROM_ALL)

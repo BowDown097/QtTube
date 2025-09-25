@@ -161,9 +161,7 @@ void SettingsForm::openAddPluginDialog()
 
 void SettingsForm::openPluginBrowser()
 {
-    PluginBrowserView* pv = new PluginBrowserView;
-    pv->show();
-    pv->startPopulating();
+    PluginBrowserView::spawn();
 }
 
 void SettingsForm::openTermFilterTable()
