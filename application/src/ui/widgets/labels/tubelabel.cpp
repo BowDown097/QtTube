@@ -341,12 +341,15 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
 
             QRect cr = contentsRect();
             cr.adjust(margin(), margin(), margin(), margin());
-
             const qreal dpr = devicePixelRatio();
-            QPixmap scaledPixmap = pixmap.scaled(cr.size() * dpr, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+            QPixmap scaledPixmap = m_imageFlags & Rounded
+                ? UIUtils::pixmapRounded(pixmap)
+                      .scaled(cr.size() * dpr, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+                : pixmap.scaled(cr.size() * dpr, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
             scaledPixmap.setDevicePixelRatio(dpr);
 
-            QLabel::setPixmap(m_imageFlags & Rounded ? UIUtils::pixmapRounded(scaledPixmap) : scaledPixmap);
+            QLabel::setPixmap(scaledPixmap);
             return;
         }
     }
