@@ -250,7 +250,7 @@ void TubeLabel::processRemoteImages(QString text, ImageFlags flags)
         if (url.startsWith("//"))
             url.prepend("https:");
 
-        HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && flags & ImageFlag::Cached).get(url);
+        HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && flags & Cached).get(url);
         connect(reply, &HttpReply::finished, this, std::bind_front(&TubeLabel::remoteImageDownloaded, this, text));
         m_remoteImageReplyMap[reply] = std::move(match);
     }
@@ -281,7 +281,7 @@ void TubeLabel::resizeEvent(QResizeEvent* event)
 {
     if (!m_isImage)
         setText(m_rawText);
-    else if (hasScaledContents() && m_imageFlags & ImageFlag::KeepAspectRatio)
+    else if (m_scaledContents && m_imageFlags & KeepAspectRatio)
         updateMarginsForImageAspectRatio();
 
     QLabel::resizeEvent(event);
@@ -297,7 +297,7 @@ void TubeLabel::setImage(const QUrl& url, ImageFlags flags)
     m_lineRects.clear();
     m_rawText.clear();
 
-    HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && flags & ImageFlag::Cached).get(url);
+    HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && flags & Cached).get(url);
     connect(reply, &HttpReply::finished, this, &TubeLabel::setImageData);
 }
 
@@ -322,14 +322,42 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
     m_lineRects.clear();
     m_rawText.clear();
 
-    if (hasScaledContents() && m_imageFlags & ImageFlag::KeepAspectRatio)
+    if (m_scaledContents)
     {
-        m_imagePixmapHeight = pixmap.height();
-        m_imagePixmapWidth = pixmap.width();
-        updateMarginsForImageAspectRatio();
+        if (m_imageFlags & KeepAspectRatio)
+        {
+            m_imagePixmapHeight = pixmap.height();
+            m_imagePixmapWidth = pixmap.width();
+            updateMarginsForImageAspectRatio();
+        }
+
+        // by default, optimize for fixed size if it is set.
+        // this means unsetting the setScaledContents option to disable QLabel's scaling,
+        // creating a scaled version of the pixmap ourselves, and then using that.
+        // by doing this, the non-scaled pixmap will not be stored in memory.
+        if (minimumSize() == maximumSize() && !(m_imageFlags & NoOptimizeForFixedSize))
+        {
+            QLabel::setScaledContents(false);
+
+            QRect cr = contentsRect();
+            cr.adjust(margin(), margin(), margin(), margin());
+
+            const qreal dpr = devicePixelRatio();
+            QPixmap scaledPixmap = pixmap.scaled(cr.size() * dpr, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            scaledPixmap.setDevicePixelRatio(dpr);
+
+            QLabel::setPixmap(m_imageFlags & Rounded ? UIUtils::pixmapRounded(scaledPixmap) : scaledPixmap);
+            return;
+        }
     }
 
-    QLabel::setPixmap(m_imageFlags & ImageFlag::Rounded ? UIUtils::pixmapRounded(pixmap) : pixmap);
+    QLabel::setPixmap(m_imageFlags & Rounded ? UIUtils::pixmapRounded(pixmap) : pixmap);
+}
+
+void TubeLabel::setScaledContents(bool enable)
+{
+    m_scaledContents = enable;
+    QLabel::setScaledContents(enable);
 }
 
 void TubeLabel::setText(const QString& text, bool processRemoteImages, ImageFlags remoteImageFlags)

@@ -14,7 +14,8 @@ public:
         NoImageFlags = 0x0,
         Rounded = 0x1,
         Cached = 0x2,
-        KeepAspectRatio = 0x4
+        KeepAspectRatio = 0x4,
+        NoOptimizeForFixedSize = 0x8
     };
     Q_DECLARE_FLAGS(ImageFlags, ImageFlag)
 
@@ -22,15 +23,17 @@ public:
     explicit TubeLabel(const QString& text, QWidget* parent = nullptr);
 
     void setElideMode(Qt::TextElideMode mode) { m_elideMode = mode; }
-    void setImage(const QUrl& url, ImageFlags flags = ImageFlag::NoImageFlags);
+    void setImage(const QUrl& url, ImageFlags flags = NoImageFlags);
     void setMaximumLines(int lines);
     void setPixmap(const QPixmap& pixmap);
-    void setText(const QString& text, bool processRemoteImages = false, ImageFlags remoteImageFlags = ImageFlag::NoImageFlags);
+    void setScaledContents(bool enable);
+    void setText(const QString& text, bool processRemoteImages = false, ImageFlags remoteImageFlags = NoImageFlags);
 
     QRect alignedRect(QRect rect) const;
     QRect boundingRect() const;
     QRect boundingRectOfLineAt(const QPoint& point) const;
     Qt::TextElideMode elideMode() const { return m_elideMode; }
+    bool hasScaledContents() const { return m_scaledContents; }
     int heightForWidth(int w) const override;
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -45,7 +48,7 @@ protected:
 private:
     int m_calculatedMaximumHeight = -1;
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
-    ImageFlags m_imageFlags = ImageFlag::NoImageFlags;
+    ImageFlags m_imageFlags = NoImageFlags;
     int m_imagePixmapHeight{};
     int m_imagePixmapWidth{};
     bool m_isImage{};
@@ -54,6 +57,7 @@ private:
     QString m_rawText;
     QList<std::pair<QRegularExpressionMatch, QString>> m_remoteImageDataMap;
     std::unordered_map<const HttpReply*, QRegularExpressionMatch> m_remoteImageReplyMap;
+    bool m_scaledContents{};
 
     void calculateAndSetLineRects();
     std::unique_ptr<QTextDocument> createTextDocument(const QString& text, int textWidth) const;
