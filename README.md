@@ -1,4 +1,7 @@
-![QtTube Logo](https://user-images.githubusercontent.com/42720004/192839093-ff0565f2-862f-4cee-a026-5cc0cadb20b5.png)
+<p align="center">
+  <img src="./application/res/qttube-full.svg#gh-light-mode-only" alt="QtTube logo" width="50%"/>
+  <img src="./application/res/qttube-full-light.svg#gh-dark-mode-only" alt="QtTube logo" width="50%"/>
+</p>
 
 QtTube is a minimalist, cross-platform desktop app for streaming media. Watch videos and listen to music from the platforms you already use—without the bloat or tracking, but with the core features and functionality you expect. Log in to a platform to sync your activity, so you can switch to the official app when needed without missing a beat.
 
