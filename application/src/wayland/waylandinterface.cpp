@@ -9,7 +9,7 @@
 static void wl_global(void* data, wl_registry* registry, std::uint32_t name, const char* interface, std::uint32_t version)
 {
     WaylandInterface* wi = static_cast<WaylandInterface*>(data);
-    if (!strcmp(interface, zwp_idle_inhibit_manager_v1_interface.name))
+    if (strcmp(interface, zwp_idle_inhibit_manager_v1_interface.name) == 0)
     {
         wi->setInhibitManager(static_cast<zwp_idle_inhibit_manager_v1*>(
             wl_registry_bind(registry, name, &zwp_idle_inhibit_manager_v1_interface, 1)));
