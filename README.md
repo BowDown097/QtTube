@@ -1,28 +1,26 @@
 ![QtTube Logo](https://user-images.githubusercontent.com/42720004/192839093-ff0565f2-862f-4cee-a026-5cc0cadb20b5.png)
 
-QtTube is a Qt frontend for YouTube made in C++ that aims to emulate the normal YouTube experience as close as possible. It's more private and it supports logging in, and with that, total integration with the YouTube website and app. It also comes with considerable improvements to performance and resource usage over the YouTube website.
+QtTube is a minimalist, cross-platform desktop app for streaming media. Watch videos and listen to music from the platforms you already use—without the bloat or tracking, but with the core features and functionality you expect. Log in to a platform to sync your activity, so you can switch to the official app when needed without missing a beat.
 
 # Installation
-Linux development builds can be installed [through the AUR on Arch-based distros](https://aur.archlinux.org/packages/qttube-git/) or [as an AppImage or tarball](https://nightly.link/BowDown097/QtTube/workflows/build/master):<br>
+All official releases for QtTube can be found on the [Releases page](https://github.com/BowDown097/QtTube/releases).
+
+The latest development versions can be found [here](https://nightly.link/BowDown097/QtTube/workflows/build/master). These may have new features and fixes, but being on the bleeding edge, a stable experience is not guaranteed.
+
+These distributions may also be of interest:<br>
 [![qttube-git](https://img.shields.io/badge/aur-qttube--git-blue)](https://aur.archlinux.org/packages/qttube-git/)
 [![GitHub Actions](https://img.shields.io/github/actions/workflow/status/BowDown097/QtTube/build.yml)](https://github.com/BowDown097/QtTube/actions)
 
-Outside of that, you will need to build the program yourself - [instructions are provided if needed](https://github.com/BowDown097/QtTube/blob/master/BUILD_INSTRUCTIONS.md). There are no releases yet and there is no ETA for when there will be one.
-
-# Used Libraries
-- [AnnotationsRestored](https://github.com/isaackd/AnnotationsRestored)
-- [h264ify](https://github.com/erkserkserks/h264ify)
-- [innertube-qt](https://github.com/BowDown097/innertube-qt)
-- [QWebEngineYtPlayer](https://github.com/keshavbhatt/QWebengineYtPlayer)
-- [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
-- [SponsorBlock](https://github.com/ajayyy/SponsorBlock)
+Of course, you are also free to build the program yourself - [instructions are provided if needed](https://github.com/BowDown097/QtTube/blob/master/BUILD_INSTRUCTIONS.md).
 
 # Screenshots
-As of February 14th, 2023. Depending on how long it's been since said date, things may be different.
-<div display="flex">
-<img src="https://user-images.githubusercontent.com/42720004/218771944-0bbc6274-b035-49db-9164-25362063f830.png" width="348" height="261" />
-<img src="https://user-images.githubusercontent.com/42720004/218772018-54a62777-3b73-4691-b1f1-e86d32a57805.png" width="348" height="261" />
-<img src="https://user-images.githubusercontent.com/42720004/218772094-a689e1d8-ff9c-4013-b9ab-06f267e9cc52.png" width="348" height="261" />
-<img src="https://user-images.githubusercontent.com/42720004/218772224-d292ee5f-0c1a-4a7a-8beb-e5da35d213b3.png" width="348" height="261" />
-<img src="https://user-images.githubusercontent.com/42720004/218772152-bae43dd9-5950-4872-9f38-07c518d5d865.png" width="311" height="261" />
-</div>
+As of September 26th, 2025. Depending on how long it's been since said date, things may be different.
+<p align="center">
+<img width="524" height="261" alt="Screenshot_20250926_151356" src="https://github.com/user-attachments/assets/ac290daf-9d35-4e53-99e3-3f13cced267f" />
+&nbsp;&nbsp;
+<img width="347" height="261" alt="Screenshot_20250926_153045" src="https://github.com/user-attachments/assets/9aca425b-feea-4fdf-900d-bf2bc5341e8f" />
+&nbsp;&nbsp;
+<img width="347" height="261" alt="Screenshot_20250926_153130" src="https://github.com/user-attachments/assets/cb42db24-1a91-4313-a5f9-de0063c68ac1" />
+&nbsp;&nbsp;
+<img width="347" height="261" alt="Screenshot_20250926_153201" src="https://github.com/user-attachments/assets/e1f1fb0d-87ca-443b-862a-336e17b53a38" />
+</p>
