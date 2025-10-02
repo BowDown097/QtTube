@@ -17,13 +17,13 @@ These distributions may also be of interest:<br>
 Of course, you are also free to build the program yourself - [instructions are provided if needed](https://github.com/BowDown097/QtTube/blob/master/BUILD_INSTRUCTIONS.md).
 
 # Screenshots
-As of September 26th, 2025. Depending on how long it's been since said date, things may be different.
+As of October 2nd, 2025. Depending on how long it's been since said date, things may be different.
 <p align="center">
-<img width="524" height="261" alt="Screenshot_20250926_151356" src="https://github.com/user-attachments/assets/ac290daf-9d35-4e53-99e3-3f13cced267f" />
+<img width="524" height="261" alt="Screenshot_20251002_151024" src="https://github.com/user-attachments/assets/a018b847-c70f-46bd-a0bc-41b6d19c576e" />
 &nbsp;&nbsp;
-<img width="347" height="261" alt="Screenshot_20250926_153045" src="https://github.com/user-attachments/assets/9aca425b-feea-4fdf-900d-bf2bc5341e8f" />
+<img width="347" height="261" alt="Screenshot_20251002_150354" src="https://github.com/user-attachments/assets/a11113be-5b03-4e83-9d64-1ba3f3b3619c" />
 &nbsp;&nbsp;
 <img width="347" height="261" alt="Screenshot_20250926_153130" src="https://github.com/user-attachments/assets/cb42db24-1a91-4313-a5f9-de0063c68ac1" />
 &nbsp;&nbsp;
-<img width="347" height="261" alt="Screenshot_20250926_153201" src="https://github.com/user-attachments/assets/e1f1fb0d-87ca-443b-862a-336e17b53a38" />
+<img width="347" height="261" alt="Screenshot_20251002_150824" src="https://github.com/user-attachments/assets/2633ec77-0813-4af7-93f1-e8e5e6c189d8" />
 </p>
