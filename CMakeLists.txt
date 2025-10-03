@@ -48,6 +48,22 @@ if(APPLE)
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${QTTUBE_VERSION_NAME}")
 endif()
 
+# LTO
+option(ENABLE_LTO "Enable Link Time Optimization" OFF)
+if(ENABLE_LTO)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+
+    if(ipo_supported AND (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
+        message(STATUS "IPO / LTO enabled")
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+    elseif(ipo_supported)
+        message(STATUS "Not enabling IPO / LTO on debug builds")
+    else()
+        message(STATUS "IPO / LTO not supported: <${ipo_error}>")
+    endif()
+endif()
+
 # Components
 option(ENABLE_WEB_COMPONENTS "" ON)
 add_subdirectory(plugin_interface)
