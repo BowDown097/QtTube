@@ -81,7 +81,6 @@ void WatchView::hotLoadVideo(
         metadataUpdateTimer->deleteLater();
 
     UIUtils::clearLayout(ui->topLevelButtons);
-    disconnect(ui->channelLabel->text, &TubeLabel::clicked, nullptr, nullptr);
 
     if (preload)
         processPreloadData(preload);
