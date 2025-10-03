@@ -8,9 +8,9 @@ Name "@QTTUBE_APP_NAME@"
 InstallDir "$LOCALAPPDATA\Programs\@QTTUBE_APP_NAME@"
 InstallDirRegKey HKCU "Software\@QTTUBE_APP_NAME@" "InstallDir"
 RequestExecutionLevel user
-OutFile "../@QTTUBE_APP_NAME@-Setup.exe"
+OutFile "../../@QTTUBE_APP_NAME@-Setup.exe"
 
-!define MUI_ICON "../res/qttube.ico"
+!define MUI_ICON "../../application/res/qttube.ico"
 
 ;--------------------
 ; Pages
@@ -20,7 +20,7 @@ OutFile "../@QTTUBE_APP_NAME@-Setup.exe"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
-!define MUI_FINISHPAGE_RUN "$InstDir\@QTTUBE_APP_NAME@.exe"
+!define MUI_FINISHPAGE_RUN "$InstDir\@QTTUBE_BINARY_NAME@.exe"
 !insertmacro MUI_PAGE_FINISH
 
 !insertmacro MUI_UNPAGE_CONFIRM
@@ -37,7 +37,7 @@ OutFile "../@QTTUBE_APP_NAME@-Setup.exe"
 VIProductVersion "@QTTUBE_VERSION_NAME4@"
 VIFileVersion "@QTTUBE_VERSION_NAME4@"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "@QTTUBE_APP_NAME@"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "@QTTUBE_APP_DESC@"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "@QTTUBE_APP_NAME@ Installer"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "@QTTUBE_VERSION_NAME4@"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "@QTTUBE_VERSION_NAME4@"
 
@@ -46,17 +46,24 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "@QTTUBE_VERSION_NAME4@"
 
 Section "@QTTUBE_APP_NAME@"
     SectionIn RO
-    nsExec::Exec /TIMEOUT=2000 'TaskKill /IM @QTTUBE_APP_NAME@.exe /F'
+    nsExec::Exec /TIMEOUT=2000 'TaskKill /IM @QTTUBE_BINARY_NAME@.exe /F'
     SetOutPath $INSTDIR
 
-    File "@QTTUBE_APP_NAME@.exe"
-    File /nonfatal "qt.conf"
+    File *.exe
     File *.dll
+    File "selfcontained.txt"
+    File /nonfatal /r "generic"
+    File /nonfatal /r "iconengines"
     File /nonfatal /r "imageformats"
+    File /nonfatal /r "networkinformation"
     File /nonfatal /r "platforms"
     File /nonfatal /r "position"
+    File /nonfatal /r "qmltooling"
+    File /nonfatal /r "resources"
+    File /nonfatal /r "sqldrivers"
     File /nonfatal /r "styles"
     File /nonfatal /r "tls"
+    File /nonfatal /r "translations"
 
     ; Write the installation path into the registry
     WriteRegStr HKCU Software\@QTTUBE_APP_NAME@ "InstallDir" "$INSTDIR"
@@ -67,7 +74,7 @@ Section "@QTTUBE_APP_NAME@"
     ${If} ${Errors}
         !define UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\@QTTUBE_APP_NAME@"
         WriteRegStr HKCU "${UNINST_KEY}" "DisplayName" "@QTTUBE_APP_NAME@"
-        WriteRegStr HKCU "${UNINST_KEY}" "DisplayIcon" "$INSTDIR\@QTTUBE_APP_NAME@.exe"
+        WriteRegStr HKCU "${UNINST_KEY}" "DisplayIcon" "$INSTDIR\@QTTUBE_BINARY_NAME@.exe"
         WriteRegStr HKCU "${UNINST_KEY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
         WriteRegStr HKCU "${UNINST_KEY}" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
         WriteRegStr HKCU "${UNINST_KEY}" "InstallLocation" "$INSTDIR"
@@ -85,33 +92,38 @@ Section "@QTTUBE_APP_NAME@"
 SectionEnd
 
 Section "Start Menu Shortcut" SM_SHORTCUTS
-    CreateShortcut "$SMPROGRAMS\@QTTUBE_APP_NAME@.lnk" "$INSTDIR\@QTTUBE_APP_NAME@.exe" "" "$INSTDIR\@QTTUBE_APP_NAME@.exe" 0
+    CreateShortcut "$SMPROGRAMS\@QTTUBE_APP_NAME@.lnk" "$INSTDIR\@QTTUBE_BINARY_NAME@.exe" "" "$INSTDIR\@QTTUBE_BINARY_NAME@.exe" 0
 SectionEnd
 
 Section "Desktop Shortcut" DESKTOP_SHORTCUTS
-    CreateShortcut "$DESKTOP\@QTTUBE_APP_NAME@.lnk" "$INSTDIR\@QTTUBE_APP_NAME@.exe" "" "$INSTDIR\@QTTUBE_APP_NAME@.exe" 0
+    CreateShortcut "$DESKTOP\@QTTUBE_APP_NAME@.lnk" "$INSTDIR\@QTTUBE_BINARY_NAME@.exe" "" "$INSTDIR\@QTTUBE_BINARY_NAME@.exe" 0
 SectionEnd
 
 ; --------------------
 ; Uninstaller
 
 Section "Uninstall"
-    nsExec::Exec /TIMEOUT=2000 'TaskKill /IM @QTTUBE_APP_NAME@.exe /F'
+    nsExec::Exec /TIMEOUT=2000 'TaskKill /IM @QTTUBE_BINARY_NAME@.exe /F'
 
     DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\@QTTUBE_APP_NAME@"
     DeleteRegKey HKCU SOFTWARE\@QTTUBE_APP_NAME@
 
-    Delete $INSTDIR\@QTTUBE_APP_NAME@.exe
-    Delete $INSTDIR\qt.conf
+    Delete $INSTDIR\*.exe
     Delete $INSTDIR\*.dll
+    Delete $INSTDIR\selfcontained.txt
 
-    Delete $INSTDIR\uninstall.exe
-
+    RMDir /r $INSTDIR\generic
+    RMDir /r $INSTDIR\iconengines
     RMDir /r $INSTDIR\imageformats
+    RMDir /r $INSTDIR\networkinformation
     RMDir /r $INSTDIR\platforms
     RMDir /r $INSTDIR\position
+    RMDir /r $INSTDIR\qmltooling
+    RMDir /r $INSTDIR\resources
+    RMDir /r $INSTDIR\sqldrivers
     RMDir /r $INSTDIR\styles
     RMDir /r $INSTDIR\tls
+    RMDir /r $INSTDIR\translations
 
     Delete "$SMPROGRAMS\@QTTUBE_APP_NAME@.lnk"
     Delete "$DESKTOP\@QTTUBE_APP_NAME@.lnk"
@@ -126,8 +138,8 @@ Function .onInit
     ${GetParameters} $R0
     ${GetOptions} $R0 "/NoShortcuts" $R1
     ${IfNot} ${Errors}
-    ${OrIf} ${FileExists} "$INSTDIR\@QTTUBE_APP_NAME@.exe"
-        !insertmacro UnselectSelection ${SM_SHORTCUTS}
-        !insertmacro UnselectSelection ${DESKTOP_SHORTCUTS}
+    ${OrIf} ${FileExists} "$INSTDIR\@QTTUBE_BINARY_NAME@.exe"
+        !insertmacro UnselectSection ${SM_SHORTCUTS}
+        !insertmacro UnselectSection ${DESKTOP_SHORTCUTS}
     ${EndIf}
 FunctionEnd

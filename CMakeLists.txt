@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 project(QtTube
     VERSION 1.0
-    DESCRIPTION "A Qt frontend for YouTube."
+    DESCRIPTION "A minimalist, cross-platform desktop app for streaming media."
     HOMEPAGE_URL "https://github.com/BowDown097/QtTube"
     LANGUAGES CXX C)
 
@@ -25,6 +25,7 @@ endif()
 ## App
 set(QTTUBE_APP_DESC "${CMAKE_PROJECT_DESCRIPTION}")
 set(QTTUBE_APP_NAME "${CMAKE_PROJECT_NAME}")
+string(TOLOWER "${QTTUBE_APP_NAME}" QTTUBE_BINARY_NAME)
 ## Version name
 set(QTTUBE_VERSION_MAJOR "${CMAKE_PROJECT_VERSION_MAJOR}")
 set(QTTUBE_VERSION_MINOR "${CMAKE_PROJECT_VERSION_MINOR}")
@@ -66,5 +67,6 @@ endif()
 
 # Components
 option(ENABLE_WEB_COMPONENTS "" ON)
+add_subdirectory(program_info)
 add_subdirectory(plugin_interface)
 add_subdirectory(application)

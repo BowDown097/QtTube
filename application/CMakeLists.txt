@@ -9,11 +9,6 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug" AND QTTUBE_ENABLE_ASAN)
     add_link_options(-fsanitize=address,undefined)
 endif()
 
-# Configure files
-if(WIN32)
-    configure_file(program_info/win_install.nsi.in program_info/win_install.nsi @ONLY)
-endif()
-
 # Source files
 set(SOURCE_FILES
     src/main.cpp
@@ -234,12 +229,9 @@ endif()
 include(GNUInstallDirs)
 
 ## Application
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME "${QTTUBE_BINARY_NAME}")
 install(TARGETS ${CMAKE_PROJECT_NAME}
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-
-## Portable and self-contained components
-install(FILES program_info/portable.txt DESTINATION "." COMPONENT portable EXCLUDE_FROM_ALL)
-install(FILES program_info/selfcontained.txt DESTINATION "." COMPONENT selfcontained EXCLUDE_FROM_ALL)

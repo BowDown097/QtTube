@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=@QTTUBE_APP_NAME@
+Comment=@QTTUBE_APP_DESC@
+Icon=qttube
+Exec=@QTTUBE_BINARY_NAME@
+Categories=AudioVideo;Video;
