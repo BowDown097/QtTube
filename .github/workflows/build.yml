@@ -143,6 +143,11 @@ jobs:
           cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           cp /usr/lib/x86_64-linux-gnu/libssl.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           cp /usr/lib/x86_64-linux-gnu/libicu*.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+
+          cp -L ${{ env.QT_ROOT_DIR }}/lib/libQt6QuickWidgets.so.${{ matrix.qt_ver }} \
+                ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+          cp -L ${{ env.QT_ROOT_DIR }}/lib/libQt6WebEngineWidgets.so.${{ matrix.qt_ver }} \
+                ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           
           ./linuxdeploy-x86_64.AppImage \
             --appdir ${{ env.INSTALL_APPIMAGE_DIR }} \
