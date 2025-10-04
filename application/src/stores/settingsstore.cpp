@@ -33,7 +33,7 @@ void SettingsStore::initialize()
     playerSettings.h264Only = settings.value("player/h264Only").toBool();
     playerSettings.preferredQuality = static_cast<QtTubePlugin::PlayerSettings::Quality>(
         settings.value("player/preferredQuality").toInt());
-    playerSettings.preferredVolume = settings.value("player/preferredVolume").toInt();
+    playerSettings.preferredVolume = settings.value("player/preferredVolume", 100).toInt();
     playerSettings.qualityFromPlayer = settings.value("player/qualityFromPlayer").toBool();
     playerSettings.vaapi = settings.value("player/vaapi").toBool();
     playerSettings.volumeFromPlayer = settings.value("player/volumeFromPlayer").toBool();
