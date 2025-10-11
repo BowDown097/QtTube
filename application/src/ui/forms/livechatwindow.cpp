@@ -2,7 +2,7 @@
 #include "ui_livechatwindow.h"
 #include "plugins/pluginmanager.h"
 #include "stores/emojistore.h"
-#include "ui/forms/emojimenu.h"
+#include "ui/widgets/emoji/emojimenu.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/livechat/giftredemptionmessage.h"
 #include "ui/widgets/livechat/paidmessage.h"

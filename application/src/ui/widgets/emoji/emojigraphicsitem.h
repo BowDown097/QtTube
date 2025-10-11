@@ -2,13 +2,17 @@
 #include "qttube-plugin/objects/emoji.h"
 #include <QGraphicsItem>
 
-class HttpReply;
+class CachedNetworkWorker;
+class QNetworkReply;
 
 class EmojiGraphicsItem : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
-    explicit EmojiGraphicsItem(const QtTubePlugin::Emoji& data, QGraphicsItem* parent = nullptr);
+    explicit EmojiGraphicsItem(
+        const QtTubePlugin::Emoji& data,
+        CachedNetworkWorker* netWorker,
+        QGraphicsItem* parent = nullptr);
     const QtTubePlugin::Emoji& data() const { return m_data; }
     void setSize(int w, int h) { m_size = QSize(w, h); }
     void setSize(QSize size) { m_size = size; }
@@ -34,7 +38,7 @@ private:
     QSize m_size;
 private slots:
     void nextFrame();
-    void setImageData(const HttpReply& reply);
+    void setImageData(QNetworkReply* reply);
     void updateWithData();
 signals:
     void clicked();

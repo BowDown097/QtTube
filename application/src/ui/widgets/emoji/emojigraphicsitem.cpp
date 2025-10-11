@@ -1,14 +1,14 @@
 #include "emojigraphicsitem.h"
-#include "qttube-plugin/utils/httprequest.h"
+#include "cachednetworkworker.h"
 #include <QBuffer>
 #include <QGraphicsSceneMouseEvent>
 #include <QImageReader>
 #include <QPainter>
 #include <QStyleOption>
-#include <QThreadPool>
 #include <QTimer>
 
-EmojiGraphicsItem::EmojiGraphicsItem(const QtTubePlugin::Emoji& data, QGraphicsItem* parent)
+EmojiGraphicsItem::EmojiGraphicsItem(
+    const QtTubePlugin::Emoji& data, CachedNetworkWorker* netWorker, QGraphicsItem* parent)
     : QObject(), QGraphicsPixmapItem(parent), m_data(data)
 {
     setAcceptHoverEvents(true);
@@ -17,8 +17,10 @@ EmojiGraphicsItem::EmojiGraphicsItem(const QtTubePlugin::Emoji& data, QGraphicsI
     setToolTip(data.shortcodes.front());
     setTransformationMode(Qt::SmoothTransformation);
 
-    HttpReply* reply = HttpRequest().withDiskCache(true).get(data.url);
-    connect(reply, &HttpReply::finished, this, &EmojiGraphicsItem::setImageData);
+    QMetaObject::invokeMethod(netWorker, [this, netWorker, url = data.url] {
+        QNetworkReply* reply = netWorker->get(url);
+        QObject::connect(reply, &QNetworkReply::finished, [this, reply] { setImageData(reply); });
+    });
 }
 
 QRectF EmojiGraphicsItem::boundingRect() const
@@ -58,38 +60,36 @@ void EmojiGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*
     painter->drawPixmap(boundingRect(), pixmap(), QRectF());
 }
 
-void EmojiGraphicsItem::setImageData(const HttpReply& reply)
+void EmojiGraphicsItem::setImageData(QNetworkReply* reply)
 {
-    QThreadPool::globalInstance()->start([this, data = reply.readAll(), file = reply.url().fileName()] {
-        QBuffer buffer;
-        buffer.setData(data);
+    QBuffer buffer;
+    buffer.setData(reply->readAll());
 
-        QImageReader reader(&buffer);
-        if (!reader.canRead())
+    QImageReader reader(&buffer);
+    if (!reader.canRead())
+    {
+        qWarning() << "Could not read emoji from" << reply->url().fileName();
+        return;
+    }
+
+    int imageCount = reader.imageCount();
+    if (reader.size().isEmpty() || imageCount <= 0)
+        return;
+
+    m_frames.reserve(imageCount);
+    for (int i = 0; i < imageCount; ++i)
+    {
+        if (QPixmap pixmap = QPixmap::fromImageReader(&reader); !pixmap.isNull())
         {
-            qWarning() << "Could not read emoji from" << file;
-            return;
+            int duration = reader.nextImageDelay();
+            if (duration <= 10)
+                duration = 100;
+            duration = std::max(20, duration);
+            m_frames.emplaceBack(duration, pixmap);
         }
+    }
 
-        int imageCount = reader.imageCount();
-        if (reader.size().isEmpty() || imageCount <= 0)
-            return;
-
-        m_frames.reserve(imageCount);
-        for (int i = 0; i < imageCount; ++i)
-        {
-            if (QPixmap pixmap = QPixmap::fromImageReader(&reader); !pixmap.isNull())
-            {
-                int duration = reader.nextImageDelay();
-                if (duration <= 10)
-                    duration = 100;
-                duration = std::max(20, duration);
-                m_frames.emplaceBack(duration, pixmap);
-            }
-        }
-
-        QMetaObject::invokeMethod(this, &EmojiGraphicsItem::updateWithData, Qt::QueuedConnection);
-    });
+    QMetaObject::invokeMethod(this, &EmojiGraphicsItem::updateWithData, Qt::QueuedConnection);
 }
 
 // fall back to QGraphicsItem::shape(), as QGraphicsPixmapItem::shape() relies on the full pixmap size rather than bounding rect

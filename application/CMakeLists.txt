@@ -19,7 +19,6 @@ set(SOURCE_FILES
     src/stores/emojistore.cpp
     src/stores/settingsstore.cpp
     src/ui/browsehelper.cpp
-    src/ui/forms/emojimenu.cpp
     src/ui/forms/livechatwindow.cpp
     src/ui/forms/plugins/addplugindialog.cpp
     src/ui/forms/plugins/basepluginentry.cpp
@@ -35,13 +34,15 @@ set(SOURCE_FILES
     src/ui/widgets/closebutton.cpp
     src/ui/widgets/continuablelistwidget.cpp
     src/ui/widgets/dynamiclistwidgetitem.cpp
-    src/ui/widgets/emojigraphicsitem.cpp
     src/ui/widgets/findbar.cpp
     src/ui/widgets/watchnextfeed.cpp
     src/ui/widgets/accountmenu/accountcontrollerwidget.cpp
     src/ui/widgets/accountmenu/accountentrywidget.cpp
     src/ui/widgets/accountmenu/accountmenuwidget.cpp
     src/ui/widgets/accountmenu/accountswitcherwidget.cpp
+    src/ui/widgets/emoji/cachednetworkworker.cpp
+    src/ui/widgets/emoji/emojigraphicsitem.cpp
+    src/ui/widgets/emoji/emojimenu.cpp
     src/ui/widgets/labels/badgelabel.cpp
     src/ui/widgets/labels/channellabel.cpp
     src/ui/widgets/labels/iconlabel.cpp
@@ -80,7 +81,6 @@ set(HEADERS
     src/stores/emojistore.h
     src/stores/settingsstore.h
     src/ui/browsehelper.h
-    src/ui/forms/emojimenu.h
     src/ui/forms/livechatwindow.h
     src/ui/forms/plugins/addplugindialog.h
     src/ui/forms/plugins/basepluginentry.h
@@ -98,13 +98,15 @@ set(HEADERS
     src/ui/widgets/closebutton.h
     src/ui/widgets/continuablelistwidget.h
     src/ui/widgets/dynamiclistwidgetitem.h
-    src/ui/widgets/emojigraphicsitem.h
     src/ui/widgets/findbar.h
     src/ui/widgets/watchnextfeed.h
     src/ui/widgets/accountmenu/accountcontrollerwidget.h
     src/ui/widgets/accountmenu/accountentrywidget.h
     src/ui/widgets/accountmenu/accountmenuwidget.h
     src/ui/widgets/accountmenu/accountswitcherwidget.h
+    src/ui/widgets/emoji/cachednetworkworker.h
+    src/ui/widgets/emoji/emojigraphicsitem.h
+    src/ui/widgets/emoji/emojimenu.h
     src/ui/widgets/labels/badgelabel.h
     src/ui/widgets/labels/channellabel.h
     src/ui/widgets/labels/iconlabel.h
@@ -135,12 +137,12 @@ set(HEADERS
 
 set(FORMS
     src/mainwindow.ui
-    src/ui/forms/emojimenu.ui
     src/ui/forms/livechatwindow.ui
     src/ui/forms/plugins/addplugindialog.ui
     src/ui/forms/plugins/pluginbrowserview.ui
     src/ui/forms/settings/settingsform.ui
     src/ui/forms/settings/termfilterview.ui
+    src/ui/widgets/emoji/emojimenu.ui
 )
 
 # Wayland idle-inhibit stuff

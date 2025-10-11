@@ -1,17 +1,24 @@
 #include "emojimenu.h"
 #include "ui_emojimenu.h"
+#include "cachednetworkworker.h"
+#include "emojigraphicsitem.h"
 #include "stores/emojistore.h"
-#include "ui/widgets/emojigraphicsitem.h"
+#include <QThread>
 #include <QTimer>
 #include <ranges>
 
-EmojiMenu::~EmojiMenu() { delete ui; }
-
 EmojiMenu::EmojiMenu(QWidget* parent, Qt::WindowFlags f)
-    : QWidget(parent, f), m_scene(new QGraphicsScene(this)), ui(new Ui::EmojiMenu)
+    : QWidget(parent, f),
+      m_netThread(new QThread(this)),
+      m_netWorker(new CachedNetworkWorker),
+      m_scene(new QGraphicsScene(this)),
+      ui(new Ui::EmojiMenu)
 {
     ui->setupUi(this);
     ui->graphicsView->setScene(m_scene);
+
+    m_netWorker->moveToThread(m_netThread);
+    m_netThread->start();
 
     connect(ui->emojiSearch, &QLineEdit::textEdited, this, &EmojiMenu::beginSearch);
 
@@ -27,6 +34,14 @@ EmojiMenu::EmojiMenu(QWidget* parent, Qt::WindowFlags f)
     }
 }
 
+EmojiMenu::~EmojiMenu()
+{
+    delete ui;
+    m_netThread->quit();
+    m_netThread->wait();
+    m_netWorker->deleteLater();
+}
+
 void EmojiMenu::add(const QList<EmojiGroup>& emojiGroups)
 {
     for (const EmojiGroup& emojiGroup : emojiGroups)
@@ -39,7 +54,7 @@ void EmojiMenu::add(const QList<EmojiGroup>& emojiGroups)
 
         for (const QtTubePlugin::Emoji& emoji : emojiGroup.emojis)
         {
-            EmojiGraphicsItem* emojiItem = new EmojiGraphicsItem(emoji);
+            EmojiGraphicsItem* emojiItem = new EmojiGraphicsItem(emoji, m_netWorker);
             m_scene->addItem(emojiItem);
             connect(emojiItem, &EmojiGraphicsItem::clicked, this, [this, emojiItem] { emit emojiClicked(emojiItem->data()); });
             groupEmojiItems.append(emojiItem);

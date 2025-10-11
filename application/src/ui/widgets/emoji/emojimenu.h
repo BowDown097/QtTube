@@ -6,6 +6,7 @@ namespace Ui {
 class EmojiMenu;
 }
 
+class CachedNetworkWorker;
 class EmojiGraphicsItem;
 struct EmojiGroup;
 class QGraphicsScene;
@@ -22,6 +23,8 @@ protected:
     void showEvent(QShowEvent* event) override;
 private:
     QList<std::pair<QGraphicsTextItem*, QList<EmojiGraphicsItem*>>> m_emojiGroupItems;
+    QThread* m_netThread;
+    CachedNetworkWorker* m_netWorker;
     QGraphicsScene* m_scene;
     Ui::EmojiMenu* ui;
 
