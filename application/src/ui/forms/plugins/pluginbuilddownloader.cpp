@@ -54,7 +54,7 @@ namespace
         }
         else
         {
-            QMessageBox::critical(nullptr, "Failed Installing Plugin", "Could not open " + name + " for writing.");
+            QMessageBox::critical(nullptr, "Failed to Install Plugin", "Could not open " + name + " for writing.");
             return false;
         }
     }
@@ -68,11 +68,16 @@ PluginBuildDownloader::PluginBuildDownloader(const ReleaseData& data, QWidget* p
       m_progressBar(new QProgressBar(this)),
       m_tempFile(new QTemporaryFile(this))
 {
+    if (!m_tempFile->open())
+    {
+        QMessageBox::critical(this, "Failed to Install Plugin", "Could not open plugin file for writing.");
+        deleteLater();
+        return;
+    }
+
     setAttribute(Qt::WA_DeleteOnClose);
     setFixedSize(width(), 100);
     setWindowTitle("Plugin Downloader");
-
-    m_tempFile->open();
 
     m_progressBar->setFixedHeight(50);
 
@@ -150,13 +155,13 @@ void PluginBuildDownloader::downloadFinished()
             }
             catch (const PluginLoadException& ex)
             {
-                QMessageBox::critical(this, "Failed Installing Plugin", ex.message());
+                QMessageBox::critical(this, "Failed to Install Plugin", ex.message());
                 QFile::remove(pluginFile->absoluteFilePath());
             }
         }
         else
         {
-            QMessageBox::critical(this, "Failed Installing Plugin", "No plugin file found.");
+            QMessageBox::critical(this, "Failed to Install Plugin", "No plugin file found.");
         }
     }
 

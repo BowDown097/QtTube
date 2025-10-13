@@ -57,7 +57,12 @@ void AddPluginDialog::attemptAdd()
                 QFile temporaryPluginFile(fullyTemp
                     ? QDir::temp().filePath(QUuid::createUuid().toString(QUuid::Id128) + libraryExtension)
                     : QDir::temp().filePath(libraryUrl.fileName()));
-                temporaryPluginFile.open(QFile::WriteOnly);
+                if (!temporaryPluginFile.open(QFile::WriteOnly))
+                {
+                    QMessageBox::critical(this, QString(), "Could not open plugin file for writing.");
+                    done(QDialog::Rejected);
+                    return;
+                }
 
                 HttpReply* reply = HttpRequest().writingToIODevice(&temporaryPluginFile).get(libraryUrl);
                 QEventLoop loop;
@@ -74,6 +79,8 @@ void AddPluginDialog::attemptAdd()
             else
             {
                 QMessageBox::critical(this, "Invalid Input", "The provided input is not a valid URL.");
+                done(QDialog::Rejected);
+                return;
             }
         }
     }
@@ -85,7 +92,14 @@ void AddPluginDialog::attemptAdd()
     }
 
     QFileInfo(pluginPath).dir().mkpath(".");
-    QFile::rename(plugin.fileInfo.absoluteFilePath(), pluginPath);
+
+    if (!QFile::rename(plugin.fileInfo.absoluteFilePath(), pluginPath))
+    {
+        QMessageBox::critical(this, QString(), "Could not relocate plugin file to plugin folder.");
+        done(QDialog::Rejected);
+        return;
+    }
+
     plugin.fileInfo.setFile(pluginPath);
 
     PluginData* loadedPlugin = qtTubeApp->plugins().loadAndInitPlugin(std::move(plugin));

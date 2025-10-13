@@ -1,5 +1,9 @@
 # Qt packages
 find_package(Qt6 REQUIRED COMPONENTS Network WebEngineWidgets Widgets)
+if(Qt6Core_VERSION VERSION_GREATER_EQUAL 6.10.0)
+    set(QT_NO_PRIVATE_MODULE_WARNING ON)
+    find_package(Qt6 REQUIRED COMPONENTS GuiPrivate)
+endif()
 
 # Address sanitizer
 option(QTTUBE_ENABLE_ASAN "Enable AddressSanitizer to detect memory errors in debug builds." OFF)
