@@ -62,7 +62,7 @@ public:
     PluginData* findPlugin(const QString& name);
     PluginData* loadAndInitPlugin(PluginData&& plugin);
     PluginData* loadAndInitPlugin(const QFileInfo& fileInfo);
-    const QList<PluginData*> loadedPlugins();
+    QList<PluginData*> loadedPlugins();
     PluginData openPlugin(const QFileInfo& fileInfo);
     void reloadPlugins();
 
@@ -71,6 +71,6 @@ public:
 private:
     std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
 
-    void checkPluginMetadata(const PluginData& data);
-    void checkPluginTargetVersion(const PluginData& data);
+    void checkPluginMetadata(const PluginData& plugin);
+    void checkPluginTargetVersion(const PluginData& plugin);
 };

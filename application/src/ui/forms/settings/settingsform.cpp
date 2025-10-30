@@ -215,7 +215,7 @@ void SettingsForm::saveSettings()
     store.filterLengthEnabled = ui->filterLengthCheck->isChecked();
 
     store.save();
-    store.initialize();
+    store.init();
 
     UIUtils::setAppStyle(store.appStyle, store.darkTheme);
     QMessageBox::information(this, "Settings Saved", "Settings saved successfully.");

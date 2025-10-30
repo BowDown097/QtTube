@@ -20,7 +20,7 @@ void QtTubeApplication::doInitialSetup()
 #endif
 
     m_plugins.reloadPlugins();
-    m_settings.initialize();
+    m_settings.init();
 
     UIUtils::g_defaultStyle = style()->objectName();
     UIUtils::setAppStyle(m_settings.appStyle, m_settings.darkTheme);

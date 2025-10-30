@@ -7,19 +7,17 @@
 
 SettingsStore::SettingsStore(QObject* parent)
     : QObject(parent),
-      m_configPath(QtTubePlugin::isPortableBuild()
-          ? FS::joinPaths(QCoreApplication::applicationDirPath(), "config", "settings.ini")
-          : FS::joinPaths(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation), "settings.ini")),
       m_saveDebounceTimer(new QTimer(this))
 {
+    setConfigPath(resolveConfigPath("", "settings", QtTubePlugin::isPortableBuild()));
     m_saveDebounceTimer->setInterval(500);
     m_saveDebounceTimer->setSingleShot(true);
     connect(m_saveDebounceTimer, &QTimer::timeout, this, &SettingsStore::save);
 }
 
-void SettingsStore::initialize()
+void SettingsStore::init()
 {
-    QSettings settings(m_configPath, QSettings::IniFormat);
+    QSettings settings(configPath(), QSettings::IniFormat);
 
     // general
     activePlugin = settings.value("activePlugin").toString();
@@ -40,7 +38,7 @@ void SettingsStore::initialize()
     // filtering
     filterLength = settings.value("filtering/filterLength", 0).toInt();
     filterLengthEnabled = settings.value("filtering/filterLengthEnabled", false).toBool();
-    readIntoStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
+    readIntoList(settings, filteredTerms, "filtering/filteredTerms", "term");
 
     connect(&playerSettings, &QtTubePlugin::PlayerSettings::preferredQualityChanged, this, [this] {
         m_saveDebounceTimer->start();
@@ -50,22 +48,9 @@ void SettingsStore::initialize()
     });
 }
 
-void SettingsStore::readIntoStringList(QSettings& settings, QStringList& list, const QString& prefix, const QString& key)
-{
-    list.clear();
-
-    int sz = settings.beginReadArray(prefix);
-    for (int i = 0; i < sz; i++)
-    {
-        settings.setArrayIndex(i);
-        list.append(settings.value(key).toString());
-    }
-    settings.endArray();
-}
-
 void SettingsStore::save()
 {
-    QSettings settings(m_configPath, QSettings::IniFormat);
+    QSettings settings(configPath(), QSettings::IniFormat);
 
     // general
     settings.setValue("activePlugin", activePlugin);
@@ -85,7 +70,7 @@ void SettingsStore::save()
     // filtering
     settings.setValue("filtering/filterLength", filterLength);
     settings.setValue("filtering/filterLengthEnabled", filterLengthEnabled);
-    writeStringList(settings, filteredTerms, "filtering/filteredTerms", "term");
+    writeList(settings, filteredTerms, "filtering/filteredTerms", "term");
 }
 
 bool SettingsStore::strHasFilteredTerm(const QString& str) const
@@ -101,15 +86,4 @@ bool SettingsStore::videoIsFiltered(const QtTubePlugin::Video& video) const
         if (QTime length = video.length(); length.isValid() && QTime(0, 0).secsTo(length) <= filterLength)
             return true;
     return false;
-}
-
-void SettingsStore::writeStringList(QSettings& settings, const QStringList& list, const QString& prefix, const QString& key)
-{
-    settings.beginWriteArray(prefix);
-    for (int i = 0; i < list.size(); i++)
-    {
-        settings.setArrayIndex(i);
-        settings.setValue(key, list.at(i));
-    }
-    settings.endArray();
 }
