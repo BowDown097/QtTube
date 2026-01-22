@@ -35,7 +35,7 @@ BrowseNotificationRenderer::BrowseNotificationRenderer(QWidget* parent)
 void BrowseNotificationRenderer::setData(const QtTubePlugin::Notification& notification)
 {
     bodyLabel->setText(notification.body);
-    channelIconLabel->setImage(notification.channelAvatarUrl);
+    channelIconLabel->setImage(notification.channelAvatarUrl, TubeLabel::LazyLoaded);
     sentTimeLabel->setText(notification.sentTimeText);
-    thumbLabel->setImage(notification.thumbnailUrl);
+    thumbLabel->setImage(notification.thumbnailUrl, TubeLabel::LazyLoaded);
 }

@@ -2,7 +2,7 @@
 #include "ui/widgets/clickablewidget.h"
 #include <QLabel>
 
-class TopBarBell : public ClickableWidget<QWidget>
+class TopBarBell : public ClickableWidget<>
 {
     Q_OBJECT
 public:

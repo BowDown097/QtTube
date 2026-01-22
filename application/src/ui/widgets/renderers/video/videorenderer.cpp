@@ -63,7 +63,7 @@ void VideoRenderer::setData(const QtTubePlugin::Video& video)
     if (video.isVerticalVideo)
         thumbnail->setFixedSize(105, 186);
 
-    thumbnail->setImage(video.thumbnailUrl);
+    thumbnail->setImage(video.thumbnailUrl, TubeLabel::LazyLoaded);
 
     titleLabel->setText(video.title);
     titleLabel->setToolTip(video.title);

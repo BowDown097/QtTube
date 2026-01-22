@@ -3,10 +3,7 @@
 #include <QMouseEvent>
 #include <QWidget>
 
-template<typename T>
-concept WidgetType = std::derived_from<T, QWidget>;
-
-template<WidgetType W>
+template<std::derived_from<QWidget> W = QWidget>
 class ClickableWidget : public W
 {
     W_OBJECT(ClickableWidget)
@@ -61,4 +58,4 @@ private:
     bool m_underlineOnHover{};
 };
 
-W_OBJECT_IMPL_INLINE(ClickableWidget<W>, template<WidgetType W>)
+W_OBJECT_IMPL_INLINE(ClickableWidget<W>, template<std::derived_from<QWidget> W>)

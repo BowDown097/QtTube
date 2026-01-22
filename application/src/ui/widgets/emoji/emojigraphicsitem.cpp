@@ -9,18 +9,13 @@
 
 EmojiGraphicsItem::EmojiGraphicsItem(
     const QtTubePlugin::Emoji& data, CachedNetworkWorker* netWorker, QGraphicsItem* parent)
-    : QObject(), QGraphicsPixmapItem(parent), m_data(data)
+    : QObject(), QGraphicsPixmapItem(parent), m_data(data), m_netWorker(netWorker)
 {
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
     setSize(24, 24);
     setToolTip(data.shortcodes.front());
     setTransformationMode(Qt::SmoothTransformation);
-
-    QMetaObject::invokeMethod(netWorker, [this, netWorker, url = data.url] {
-        QNetworkReply* reply = netWorker->get(url);
-        QObject::connect(reply, &QNetworkReply::finished, [this, reply] { setImageData(reply); });
-    });
 }
 
 QRectF EmojiGraphicsItem::boundingRect() const
@@ -56,6 +51,16 @@ void EmojiGraphicsItem::nextFrame()
 
 void EmojiGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
+    if (!m_processed)
+    {
+        m_processed = true;
+        QMetaObject::invokeMethod(m_netWorker, [this] {
+            QNetworkReply* reply = m_netWorker->get(m_data.url);
+            QObject::connect(reply, &QNetworkReply::finished,
+                std::bind(&EmojiGraphicsItem::setImageData, this, reply));
+        });
+    }
+
     painter->setRenderHint(QPainter::SmoothPixmapTransform, transformationMode() == Qt::SmoothTransformation);
     painter->drawPixmap(boundingRect(), pixmap(), QRectF());
 }

@@ -187,6 +187,18 @@ int TubeLabel::heightForWidth(int w) const
     return (contentsSize + contentsMargin).expandedTo(minimumSize()).height();
 }
 
+bool TubeLabel::isCachingImages() const
+{
+    assert(m_imageData.has_value());
+    return qtTubeApp->settings().imageCaching && (m_imageData->flags & Cached);
+}
+
+bool TubeLabel::isLazyLoadingImages() const
+{
+    assert(m_imageData.has_value());
+    return qtTubeApp->settings().imageLazyLoading && (m_imageData->flags & LazyLoaded);
+}
+
 void TubeLabel::leaveEvent(QEvent* event)
 {
     unsetCursor();
@@ -235,53 +247,71 @@ void TubeLabel::mouseReleaseEvent(QMouseEvent* event)
     QLabel::mouseReleaseEvent(event); // clazy:exclude=skipped-base-method
 }
 
+void TubeLabel::paintEvent(QPaintEvent* event)
+{
+    if (m_imageData.has_value() && m_imageData->processing)
+    {
+        m_imageData->processing = false;
+        HttpReply* reply = HttpRequest().withDiskCache(isCachingImages()).get(m_imageData->lazyUrl);
+        connect(reply, &HttpReply::finished, this, &TubeLabel::setImageData);
+    }
+
+    ClickableWidget<QLabel>::paintEvent(event);
+}
+
 void TubeLabel::processRemoteImages(QString text, ImageFlags flags)
 {
     static QRegularExpression imgTagRegex(R"~(<img[^>]+src="((?:https?:)?//[^"]+)")~");
-    QRegularExpressionMatchIterator it = imgTagRegex.globalMatch(text);
 
-    m_remoteImageDataMap.clear();
-    m_remoteImageReplyMap.clear();
-
-    while (it.hasNext())
+    // collect matches into a QList to prevent potential race condition with remoteImageDownloaded()
+    QList<QRegularExpressionMatch> matches;
     {
-        QRegularExpressionMatch match = it.next();
+        QRegularExpressionMatchIterator it = imgTagRegex.globalMatch(text);
+        while (it.hasNext())
+            matches.append(it.next());
+    }
+
+    m_pendingRemoteImages = matches.size();
+    m_remoteImageDataMap.clear();
+
+    for (const QRegularExpressionMatch& match : matches)
+    {
         QString url = match.captured(1);
         if (url.startsWith("//"))
             url.prepend("https:");
 
-        HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && flags & Cached).get(url);
-        connect(reply, &HttpReply::finished, this, std::bind_front(&TubeLabel::remoteImageDownloaded, this, text));
-        m_remoteImageReplyMap[reply] = std::move(match);
+        HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && (flags & Cached)).get(url);
+        connect(reply, &HttpReply::finished, this,
+            std::bind_front(&TubeLabel::remoteImageDownloaded, this, text, match));
     }
 }
 
-void TubeLabel::remoteImageDownloaded(QString text, const HttpReply& reply)
+void TubeLabel::remoteImageDownloaded(QString text, QRegularExpressionMatch match, const HttpReply& reply)
 {
     QByteArray mimeType = reply.header(QNetworkRequest::ContentTypeHeader);
     if (mimeType.isEmpty()) // use image/png as fallback, i guess
         mimeType = "image/png";
 
-    auto it = m_remoteImageReplyMap.find(&reply);
+    --m_pendingRemoteImages;
     m_remoteImageDataMap.emplaceBack(
-        std::move(it->second), QStringLiteral("data:%1;base64,%2").arg(mimeType, reply.readAll().toBase64()));
-    m_remoteImageReplyMap.erase(it);
+        std::move(match),
+        QStringLiteral("data:%1;base64,%2").arg(mimeType, reply.readAll().toBase64()));
 
-    if (m_remoteImageReplyMap.empty())
+    if (m_pendingRemoteImages == 0)
     {
         std::ranges::sort(m_remoteImageDataMap, std::greater{}, [](const auto& p) { return p.first.capturedStart(); });
-        for (auto it = m_remoteImageDataMap.begin(); it != m_remoteImageDataMap.end(); it = m_remoteImageDataMap.erase(it))
-            text.replace(it->first.capturedStart(1), it->first.capturedLength(1), it->second);
+        for (const auto& [match, data] : std::as_const(m_remoteImageDataMap))
+            text.replace(match.capturedStart(1), match.capturedLength(1), data);
+        m_remoteImageDataMap.clear();
+        QLabel::setText(text);
     }
-
-    QLabel::setText(text);
 }
 
 void TubeLabel::resizeEvent(QResizeEvent* event)
 {
-    if (!m_isImage)
+    if (!m_imageData.has_value())
         setText(m_rawText);
-    else if (m_scaledContents && m_imageFlags & KeepAspectRatio)
+    else if (m_scaledContents && (m_imageData->flags & KeepAspectRatio))
         updateMarginsForImageAspectRatio();
 
     QLabel::resizeEvent(event);
@@ -292,13 +322,24 @@ void TubeLabel::setImage(const QUrl& url, ImageFlags flags)
     if (!url.isValid())
         return;
 
-    m_imageFlags = flags;
-    m_isImage = true;
+    if (!m_imageData.has_value())
+        m_imageData.emplace();
+
+    m_imageData->flags = flags;
     m_lineRects.clear();
     m_rawText.clear();
 
-    HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && flags & Cached).get(url);
-    connect(reply, &HttpReply::finished, this, &TubeLabel::setImageData);
+    if (isLazyLoadingImages())
+    {
+        m_imageData->lazyUrl = url;
+        m_imageData->processing = true;
+    }
+    else
+    {
+        m_imageData->processing = false;
+        HttpReply* reply = HttpRequest().withDiskCache(isCachingImages()).get(url);
+        connect(reply, &HttpReply::finished, this, &TubeLabel::setImageData);
+    }
 }
 
 void TubeLabel::setImageData(const HttpReply& reply)
@@ -318,16 +359,18 @@ void TubeLabel::setMaximumLines(int lines)
 
 void TubeLabel::setPixmap(const QPixmap& pixmap)
 {
-    m_isImage = true;
+    if (!m_imageData.has_value())
+        m_imageData.emplace();
+
+    m_imageData->processing = false;
     m_lineRects.clear();
     m_rawText.clear();
 
     if (m_scaledContents)
     {
-        if (m_imageFlags & KeepAspectRatio)
+        if (m_imageData->flags & KeepAspectRatio)
         {
-            m_imagePixmapHeight = pixmap.height();
-            m_imagePixmapWidth = pixmap.width();
+            m_imageData->size = pixmap.size();
             updateMarginsForImageAspectRatio();
         }
 
@@ -335,7 +378,7 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
         // this means unsetting the setScaledContents option to disable QLabel's scaling,
         // creating a scaled version of the pixmap ourselves, and then using that.
         // by doing this, the non-scaled pixmap will not be stored in memory.
-        if (minimumSize() == maximumSize() && !(m_imageFlags & NoOptimizeForFixedSize))
+        if (minimumSize() == maximumSize() && !(m_imageData->flags & NoOptimizeForFixedSize))
         {
             QLabel::setScaledContents(false);
 
@@ -343,7 +386,7 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
             cr.adjust(margin(), margin(), margin(), margin());
             const qreal dpr = devicePixelRatio();
 
-            QPixmap scaledPixmap = m_imageFlags & Rounded
+            QPixmap scaledPixmap = m_imageData->flags & Rounded
                 ? UIUtils::pixmapRounded(pixmap)
                       .scaled(cr.size() * dpr, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
                 : pixmap.scaled(cr.size() * dpr, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
@@ -354,7 +397,7 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
         }
     }
 
-    QLabel::setPixmap(m_imageFlags & Rounded ? UIUtils::pixmapRounded(pixmap) : pixmap);
+    QLabel::setPixmap(m_imageData->flags & Rounded ? UIUtils::pixmapRounded(pixmap) : pixmap);
 }
 
 void TubeLabel::setScaledContents(bool enable)
@@ -365,7 +408,7 @@ void TubeLabel::setScaledContents(bool enable)
 
 void TubeLabel::setText(const QString& text, bool processRemoteImages, ImageFlags remoteImageFlags)
 {
-    m_isImage = false;
+    m_imageData.reset();
     m_rawText = text;
 
     if (maximumHeight() == m_calculatedMaximumHeight)
@@ -430,17 +473,19 @@ int TubeLabel::textLineWidth() const
 
 void TubeLabel::updateMarginsForImageAspectRatio()
 {
-    if (m_imagePixmapHeight <= 0 || m_imagePixmapWidth <= 0 || width() <= 0 || height() <= 0)
+    assert(m_imageData.has_value());
+
+    if (m_imageData->size.isEmpty() || size().isEmpty())
         return;
 
-    if (width() * m_imagePixmapHeight > height() * m_imagePixmapWidth)
+    if (width() * m_imageData->size.height() > height() * m_imageData->size.width())
     {
-        int m = (width() - (m_imagePixmapWidth * height() / m_imagePixmapHeight)) / 2;
+        int m = (width() - (m_imageData->size.width() * height() / m_imageData->size.height())) / 2;
         setContentsMargins(m, 0, m, 0);
     }
     else
     {
-        int m = (height() - (m_imagePixmapHeight * width() / m_imagePixmapWidth)) / 2;
+        int m = (height() - (m_imageData->size.height() * width() / m_imageData->size.width())) / 2;
         setContentsMargins(0, m, 0, m);
     }
 }

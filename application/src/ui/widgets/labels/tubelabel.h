@@ -15,7 +15,8 @@ public:
         Rounded = 0x1,
         Cached = 0x2,
         KeepAspectRatio = 0x4,
-        NoOptimizeForFixedSize = 0x8
+        NoOptimizeForFixedSize = 0x8,
+        LazyLoaded = 0x10
     };
     Q_DECLARE_FLAGS(ImageFlags, ImageFlag)
 
@@ -44,28 +45,36 @@ protected:
     void leaveEvent(QEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 private:
+    struct ImageData
+    {
+        ImageFlags flags = NoImageFlags;
+        QUrl lazyUrl;
+        bool processing{};
+        QSize size;
+    };
+
     int m_calculatedMaximumHeight = -1;
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
-    ImageFlags m_imageFlags = NoImageFlags;
-    int m_imagePixmapHeight{};
-    int m_imagePixmapWidth{};
-    bool m_isImage{};
+    std::optional<ImageData> m_imageData;
     QList<QRect> m_lineRects;
     int m_maximumLines = -1;
+    int m_pendingRemoteImages{};
     QString m_rawText;
     QList<std::pair<QRegularExpressionMatch, QString>> m_remoteImageDataMap;
-    std::unordered_map<const HttpReply*, QRegularExpressionMatch> m_remoteImageReplyMap;
     bool m_scaledContents{};
 
     void calculateAndSetLineRects();
     std::unique_ptr<QTextDocument> createTextDocument(const QString& text, int textWidth) const;
+    bool isCachingImages() const;
+    bool isLazyLoadingImages() const;
     void processRemoteImages(QString text, ImageFlags flags);
     int textLineWidth() const;
     void updateMarginsForImageAspectRatio();
 private slots:
-    void remoteImageDownloaded(QString text, const HttpReply& reply);
+    void remoteImageDownloaded(QString text, QRegularExpressionMatch match, const HttpReply& reply);
     void setImageData(const HttpReply& reply);
 signals:
     void imageSet();

@@ -1,7 +1,8 @@
 #include "topbarbell.h"
 #include "utils/uiutils.h"
 
-TopBarBell::TopBarBell(QWidget* parent) : ClickableWidget<QWidget>(parent), bell(new QLabel(this)), count(new QLabel(this))
+TopBarBell::TopBarBell(QWidget* parent)
+    : ClickableWidget<>(parent), bell(new QLabel(this)), count(new QLabel(this))
 {
     setClickable(true);
     setFixedSize(30, 30);

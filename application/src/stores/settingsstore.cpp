@@ -25,6 +25,7 @@ void SettingsStore::init()
     autoHideTopBar = settings.value("autoHideTopBar", true).toBool();
     darkTheme = settings.value("darkTheme", false).toBool();
     imageCaching = settings.value("imageCaching", true).toBool();
+    imageLazyLoading = settings.value("imageLazyLoading", true).toBool();
     preferLists = settings.value("preferLists", false).toBool();
     // player
     externalPlayerPath = settings.value("player/externalPlayerPath").toString();
@@ -58,6 +59,7 @@ void SettingsStore::save()
     settings.setValue("autoHideTopBar", autoHideTopBar);
     settings.setValue("darkTheme", darkTheme);
     settings.setValue("imageCaching", imageCaching);
+    settings.setValue("imageLazyLoading", imageLazyLoading);
     settings.setValue("preferLists", preferLists);
     // player
     settings.setValue("player/externalPlayerPath", externalPlayerPath);

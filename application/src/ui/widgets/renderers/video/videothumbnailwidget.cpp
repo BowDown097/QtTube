@@ -64,6 +64,7 @@ void VideoThumbnailWidget::setSourceIconUrl(const char* sourceIconUrl)
     if (sourceIconUrl)
     {
         m_hasSourceIcon = true;
-        m_sourceIconLabel->setImage(QUrl(sourceIconUrl), TubeLabel::Cached | TubeLabel::KeepAspectRatio);
+        m_sourceIconLabel->setImage(QUrl(sourceIconUrl),
+            TubeLabel::Cached | TubeLabel::KeepAspectRatio | TubeLabel::LazyLoaded);
     }
 }

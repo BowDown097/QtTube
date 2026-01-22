@@ -43,7 +43,7 @@ void BrowseChannelRenderer::setData(const QtTubePlugin::Channel& channel)
 {
     this->channelId = channel.channelId;
     subscribeWidget->setData(channel.subscribeButton);
-    thumbLabel->setImage(channel.channelAvatarUrl);
+    thumbLabel->setImage(channel.channelAvatarUrl, TubeLabel::LazyLoaded);
     titleLabel->setInfo(channelId, channel.channelName, channel.channelBadges);
 
     if (channel.description.isEmpty())

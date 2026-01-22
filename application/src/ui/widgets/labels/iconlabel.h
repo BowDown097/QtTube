@@ -4,7 +4,7 @@
 
 class QHBoxLayout;
 
-class IconLabel : public ClickableWidget<QWidget>
+class IconLabel : public ClickableWidget<>
 {
     Q_OBJECT
 public:

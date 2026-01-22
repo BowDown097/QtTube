@@ -35,6 +35,8 @@ private:
     const QtTubePlugin::Emoji& m_data;
     QList<Frame> m_frames;
     QTimer* m_frameTimer;
+    CachedNetworkWorker* m_netWorker;
+    bool m_processed{};
     QSize m_size;
 private slots:
     void nextFrame();

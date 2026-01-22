@@ -50,7 +50,7 @@
             <x>0</x>
             <y>0</y>
             <width>476</width>
-            <height>152</height>
+            <height>185</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -86,6 +86,13 @@
             <widget class="QCheckBox" name="preferLists">
              <property name="text">
               <string>Prefer list layouts over grid layouts</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="imageLazyLoading">
+             <property name="text">
+              <string>Enable lazy loading of images</string>
              </property>
             </widget>
            </item>

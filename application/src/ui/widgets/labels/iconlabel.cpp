@@ -4,7 +4,7 @@
 #include <QMouseEvent>
 
 IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, const QSize& size, QWidget* parent)
-    : ClickableWidget<QWidget>(parent), icon(new QLabel(this)), textLabel(new QLabel(this)), layout(new QHBoxLayout(this))
+    : ClickableWidget<>(parent), icon(new QLabel(this)), textLabel(new QLabel(this)), layout(new QHBoxLayout(this))
 {
     setClickable(true);
     icon->setFixedSize(size);

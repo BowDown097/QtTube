@@ -12,15 +12,16 @@ class SettingsStore : public QObject, public QtTubePlugin::ConfigStore
 public:
     QString activePlugin;
     QString appStyle;
-    bool autoHideTopBar{};
-    bool darkTheme{};
+    bool autoHideTopBar;
+    bool darkTheme;
     QString externalPlayerPath;
-    int filterLength{};
-    bool filterLengthEnabled{};
+    int filterLength;
+    bool filterLengthEnabled;
     QStringList filteredTerms;
-    bool imageCaching{};
+    bool imageCaching;
+    bool imageLazyLoading;
     QtTubePlugin::PlayerSettings playerSettings;
-    bool preferLists{};
+    bool preferLists;
 
     explicit SettingsStore(QObject* parent = nullptr);
     void init() override;

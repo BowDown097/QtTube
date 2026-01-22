@@ -46,6 +46,7 @@ SettingsForm::SettingsForm(QWidget* parent)
     // general
     ui->autoHideTopBar->setChecked(store.autoHideTopBar);
     ui->imageCaching->setChecked(store.imageCaching);
+    ui->imageLazyLoading->setChecked(store.imageLazyLoading);
     ui->preferLists->setChecked(store.preferLists);
     // player
     ui->externalPlayerEdit->setText(store.externalPlayerPath);
@@ -200,6 +201,7 @@ void SettingsForm::saveSettings()
     store.autoHideTopBar = ui->autoHideTopBar->isChecked();
     store.darkTheme = ui->darkTheme->isChecked();
     store.imageCaching = ui->imageCaching->isChecked();
+    store.imageLazyLoading = ui->imageLazyLoading->isChecked();
     store.preferLists = ui->preferLists->isChecked();
     // player
     store.externalPlayerPath = ui->externalPlayerEdit->text();

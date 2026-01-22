@@ -3,7 +3,7 @@
 #include <QBoxLayout>
 
 AccountEntryWidget::AccountEntryWidget(const QtTubePlugin::AuthUser& user, QWidget* parent)
-    : ClickableWidget<QWidget>(parent),
+    : ClickableWidget<>(parent),
       avatarLabel(new TubeLabel(this)),
       layout(new QHBoxLayout(this)),
       nameLabel(new TubeLabel(this))

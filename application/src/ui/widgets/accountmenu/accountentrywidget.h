@@ -5,7 +5,7 @@
 class QHBoxLayout;
 class TubeLabel;
 
-class AccountEntryWidget : public ClickableWidget<QWidget>
+class AccountEntryWidget : public ClickableWidget<>
 {
     Q_OBJECT
 public:
