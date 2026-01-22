@@ -50,34 +50,44 @@ protected:
 private:
     struct ImageData
     {
-        ImageFlags flags = NoImageFlags;
         QUrl lazyUrl;
-        bool processing{};
         QSize size;
+        ImageFlags flags = NoImageFlags;
+        bool processing{};
     };
 
-    int m_calculatedMaximumHeight = -1;
-    Qt::TextElideMode m_elideMode = Qt::ElideNone;
     std::optional<ImageData> m_imageData;
-    QList<QRect> m_lineRects;
-    int m_maximumLines = -1;
-    int m_pendingRemoteImages{};
     QString m_rawText;
-    QList<std::pair<QRegularExpressionMatch, QString>> m_remoteImageDataMap;
+    QList<QRect> m_lineRects;
+    int m_calculatedMaximumHeight = -1;
+    int m_maximumLines = -1;
+    Qt::TextElideMode m_elideMode = Qt::ElideNone;
     bool m_scaledContents{};
 
     void calculateAndSetLineRects();
     std::unique_ptr<QTextDocument> createTextDocument(const QString& text, int textWidth) const;
     bool isCachingImages() const;
     bool isLazyLoadingImages() const;
-    void processRemoteImages(QString text, ImageFlags flags);
     int textLineWidth() const;
     void updateMarginsForImageAspectRatio();
 private slots:
-    void remoteImageDownloaded(QString text, QRegularExpressionMatch match, const HttpReply& reply);
     void setImageData(const HttpReply& reply);
 signals:
     void imageSet();
+};
+
+class RemoteImageProcessor : public QObject
+{
+    Q_OBJECT
+public:
+    RemoteImageProcessor(QString text, TubeLabel::ImageFlags flags, QObject* parent = nullptr);
+private:
+    QList<std::pair<QRegularExpressionMatch, QString>> m_dataMap;
+    size_t m_pending;
+private slots:
+    void downloaded(QString text, QRegularExpressionMatch match, const HttpReply& reply);
+signals:
+    void textReady(const QString& text);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(TubeLabel::ImageFlags)

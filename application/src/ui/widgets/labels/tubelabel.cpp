@@ -259,54 +259,6 @@ void TubeLabel::paintEvent(QPaintEvent* event)
     ClickableWidget<QLabel>::paintEvent(event);
 }
 
-void TubeLabel::processRemoteImages(QString text, ImageFlags flags)
-{
-    static QRegularExpression imgTagRegex(R"~(<img[^>]+src="((?:https?:)?//[^"]+)")~");
-
-    // collect matches into a QList to prevent potential race condition with remoteImageDownloaded()
-    QList<QRegularExpressionMatch> matches;
-    {
-        QRegularExpressionMatchIterator it = imgTagRegex.globalMatch(text);
-        while (it.hasNext())
-            matches.append(it.next());
-    }
-
-    m_pendingRemoteImages = matches.size();
-    m_remoteImageDataMap.clear();
-
-    for (const QRegularExpressionMatch& match : matches)
-    {
-        QString url = match.captured(1);
-        if (url.startsWith("//"))
-            url.prepend("https:");
-
-        HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && (flags & Cached)).get(url);
-        connect(reply, &HttpReply::finished, this,
-            std::bind_front(&TubeLabel::remoteImageDownloaded, this, text, match));
-    }
-}
-
-void TubeLabel::remoteImageDownloaded(QString text, QRegularExpressionMatch match, const HttpReply& reply)
-{
-    QByteArray mimeType = reply.header(QNetworkRequest::ContentTypeHeader);
-    if (mimeType.isEmpty()) // use image/png as fallback, i guess
-        mimeType = "image/png";
-
-    --m_pendingRemoteImages;
-    m_remoteImageDataMap.emplaceBack(
-        std::move(match),
-        QStringLiteral("data:%1;base64,%2").arg(mimeType, reply.readAll().toBase64()));
-
-    if (m_pendingRemoteImages == 0)
-    {
-        std::ranges::sort(m_remoteImageDataMap, std::greater{}, [](const auto& p) { return p.first.capturedStart(); });
-        for (const auto& [match, data] : std::as_const(m_remoteImageDataMap))
-            text.replace(match.capturedStart(1), match.capturedLength(1), data);
-        m_remoteImageDataMap.clear();
-        QLabel::setText(text);
-    }
-}
-
 void TubeLabel::resizeEvent(QResizeEvent* event)
 {
     if (!m_imageData.has_value())
@@ -463,7 +415,11 @@ void TubeLabel::setText(const QString& text, bool processRemoteImages, ImageFlag
     calculateAndSetLineRects();
 
     if (processRemoteImages && Qt::mightBeRichText(outText))
-        TubeLabel::processRemoteImages(outText, remoteImageFlags);
+    {
+        RemoteImageProcessor* proc = new RemoteImageProcessor(outText, remoteImageFlags, this);
+        connect(proc, &RemoteImageProcessor::textReady, proc, &RemoteImageProcessor::deleteLater);
+        connect(proc, &RemoteImageProcessor::textReady, this, &QLabel::setText);
+    }
 }
 
 int TubeLabel::textLineWidth() const
@@ -487,5 +443,53 @@ void TubeLabel::updateMarginsForImageAspectRatio()
     {
         int m = (height() - (m_imageData->size.height() * width() / m_imageData->size.width())) / 2;
         setContentsMargins(0, m, 0, m);
+    }
+}
+
+RemoteImageProcessor::RemoteImageProcessor(QString text, TubeLabel::ImageFlags flags, QObject* parent)
+    : QObject(parent)
+{
+    static QRegularExpression imgTagRegex(R"~(<img[^>]+src="((?:https?:)?//[^"]+)")~");
+
+    // collect matches into a QList to prevent potential race condition with remoteImageDownloaded()
+    QList<QRegularExpressionMatch> matches;
+    {
+        QRegularExpressionMatchIterator it = imgTagRegex.globalMatch(text);
+        while (it.hasNext())
+            matches.append(it.next());
+    }
+
+    m_pending = matches.size();
+
+    for (const QRegularExpressionMatch& match : matches)
+    {
+        QString url = match.captured(1);
+        if (url.startsWith("//"))
+            url.prepend("https:");
+
+        HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && (flags & TubeLabel::Cached)).get(url);
+        connect(reply, &HttpReply::finished, this,
+            std::bind_front(&RemoteImageProcessor::downloaded, this, text, match));
+    }
+}
+
+void RemoteImageProcessor::downloaded(
+    QString text, QRegularExpressionMatch match, const HttpReply& reply)
+{
+    QByteArray mimeType = reply.header(QNetworkRequest::ContentTypeHeader);
+    if (mimeType.isEmpty()) // use image/png as fallback, i guess
+        mimeType = "image/png";
+
+    --m_pending;
+    m_dataMap.emplaceBack(
+        std::move(match),
+        QStringLiteral("data:%1;base64,%2").arg(mimeType, reply.readAll().toBase64()));
+
+    if (m_pending == 0)
+    {
+        std::ranges::sort(m_dataMap, std::greater{}, [](const auto& p) { return p.first.capturedStart(); });
+        for (const auto& [match, data] : std::as_const(m_dataMap))
+            text.replace(match.capturedStart(1), match.capturedLength(1), data);
+        emit textReady(text);
     }
 }
