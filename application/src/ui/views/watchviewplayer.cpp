@@ -14,7 +14,7 @@ WatchViewPlayer::WatchViewPlayer(QWidget* watchView, PluginData* plugin, const Q
 {
     if (qtTubeApp->settings().externalPlayerPath.isEmpty())
     {
-        m_player = plugin->playerFunc(watchView);
+        m_player = plugin->playerFunc(&qtTubeApp->settings().playerSettings, watchView);
         connect(m_player, &QtTubePlugin::Player::copyToClipboardRequested, this, &WatchViewPlayer::copyToClipboard);
         connect(m_player, &QtTubePlugin::Player::newState, this, &WatchViewPlayer::newState);
         connect(m_player, &QtTubePlugin::Player::progressChanged, this, &WatchViewPlayer::progressChanged);
@@ -98,7 +98,7 @@ void WatchViewPlayer::play(const QString& videoId, int progress)
     }
     else
     {
-        m_player->play(videoId, progress, &qtTubeApp->settings().playerSettings);
+        m_player->play(videoId, progress);
     }
 }
 
