@@ -69,35 +69,11 @@ jobs:
 
       - name: Package (AppImage)
         run: |
-          # everything but sql, svg, and waylandcompositor should be auto-detected but aren't, because LTO is enabled
-          export EXTRA_QT_MODULES="opengl;positioning;printsupport;qml;qmlmodels;qmlworkerscript;quick;quickwidgets;sql;svg;waylandcompositor;webchannel;webenginecore;webenginewidgets"
-
-          export EXTRA_PLATFORM_PLUGINS="libqwayland-egl.so;libqwayland-generic.so"
-          export LDAI_OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
-          export LINUXDEPLOY_EXCLUDED_LIBRARIES="libmysqlclient.so*;libqsqlmimer.so;libqsqlmysql.so;libqsqlodbc.so;libqsqlpsql.so;libnss3.so;libnssutil3.so"
-
-          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
-          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr/bin --component selfcontained
-
-          mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-          mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
-
-          cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-          cp /usr/lib/x86_64-linux-gnu/libssl.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-          cp /usr/lib/x86_64-linux-gnu/libicu*.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-
-          cp -L ${{ env.QT_ROOT_DIR }}/lib/libQt6QuickWidgets.so.${{ matrix.qt_ver }} \
-                ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-          cp -L ${{ env.QT_ROOT_DIR }}/lib/libQt6WebEngineWidgets.so.${{ matrix.qt_ver }} \
-                ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-
-          ./linuxdeploy-x86_64.AppImage \
-            --appdir ${{ env.INSTALL_APPIMAGE_DIR }} \
-            --output appimage \
-            --plugin qt \
-            --custom-apprun "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/AppRun" \
-            -d "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/qttube.desktop" \
-            -i application/res/qttube.svg
+          export LIBS_ROOT_DIR=/usr/lib/x86_64-linux-gnu
+          export QT_VER=${{ matrix.qt_ver }}
+          export RUNNER_OS=${{ runner.os }}
+          export SOURCE_DIR="${{ github.workspace }}/${{ env.BUILD_DIR }}"
+          ./.github/workflows/scripts/create_appimage.sh
 
       - name: Upload artifact (tarball)
         uses: actions/upload-artifact@v4
