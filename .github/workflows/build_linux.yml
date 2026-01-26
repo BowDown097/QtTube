@@ -1,0 +1,112 @@
+name: "Build: Linux"
+
+on:
+  workflow_call:
+    inputs:
+      qt_modules:
+        description: "Qt modules to use"
+        required: true
+        type: string
+      qt_version:
+        description: "Qt version to use"
+        required: true
+        type: string
+      qt_version_major:
+        description: "Major Qt version"
+        required: true
+        type: string
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            qt_host: linux
+            qt_target: desktop
+            qt_ver: ${{ inputs.qt_version_major }}
+            qt_version: ${{ inputs.qt_version }}
+            qt_modules: ${{ inputs.qt_modules }}
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      INSTALL_APPIMAGE_DIR: "install-appimage"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Install dependencies
+        run: |
+          sudo add-apt-repository universe
+          sudo apt-get -y update
+          sudo apt-get -y install extra-cmake-modules libxss-dev libwayland-dev libfuse2 libxcb-cursor0
+
+      - name: Run composite build steps
+        uses: ./.github/actions/build_init
+        with:
+          qt_host: ${{ matrix.qt_host }}
+          qt_modules: ${{ matrix.qt_modules }}
+          qt_target: ${{ matrix.qt_target }}
+          qt_version: ${{ matrix.qt_version }}
+
+      - name: Download AppImage deployment programs
+        run: |
+          wget "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+          wget "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage"
+          wget "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+          chmod +x linuxdeploy-*.AppImage
+
+      - name: Package (tarball)
+        run: |
+          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_DIR }}
+          cd ${{ env.INSTALL_DIR }}
+          tar --owner root --group root -czf ../QtTube.tar.gz *
+
+      - name: Package (AppImage)
+        run: |
+          # everything but sql, svg, and waylandcompositor should be auto-detected but aren't, because LTO is enabled
+          export EXTRA_QT_MODULES="opengl;positioning;printsupport;qml;qmlmodels;qmlworkerscript;quick;quickwidgets;sql;svg;waylandcompositor;webchannel;webenginecore;webenginewidgets"
+
+          export EXTRA_PLATFORM_PLUGINS="libqwayland-egl.so;libqwayland-generic.so"
+          export LDAI_OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
+          export LINUXDEPLOY_EXCLUDED_LIBRARIES="libmysqlclient.so*;libqsqlmimer.so;libqsqlmysql.so;libqsqlodbc.so;libqsqlpsql.so;libnss3.so;libnssutil3.so"
+
+          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
+          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr/bin --component selfcontained
+
+          mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+          mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/resources
+
+          cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+          cp /usr/lib/x86_64-linux-gnu/libssl.so.3 ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+          cp /usr/lib/x86_64-linux-gnu/libicu*.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+
+          cp -L ${{ env.QT_ROOT_DIR }}/lib/libQt6QuickWidgets.so.${{ matrix.qt_ver }} \
+                ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+          cp -L ${{ env.QT_ROOT_DIR }}/lib/libQt6WebEngineWidgets.so.${{ matrix.qt_ver }} \
+                ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
+
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir ${{ env.INSTALL_APPIMAGE_DIR }} \
+            --output appimage \
+            --plugin qt \
+            --custom-apprun "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/AppRun" \
+            -d "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/qttube.desktop" \
+            -i application/res/qttube.svg
+
+      - name: Upload artifact (tarball)
+        uses: actions/upload-artifact@v4
+        with:
+          name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}
+          path: QtTube.tar.gz
+      
+      - name: Upload artifact (AppImage)
+        uses: actions/upload-artifact@v4
+        with:
+          name: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage
+          path: QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage

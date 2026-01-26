@@ -1,0 +1,29 @@
+name: "Build All"
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+
+jobs:
+  linux:
+    name: Linux
+    uses: ./.github/workflows/build_linux.yml
+    with:
+      qt_modules: "qtserialport qtpositioning qtwebchannel qtwebengine"
+      qt_version: "6.8.1"
+      qt_version_major: "6"
+
+  windows:
+    name: Windows
+    uses: ./.github/workflows/build_windows.yml
+    with:
+      qt_modules: "qtserialport qtpositioning qtwebchannel qtwebengine"
+      qt_version: "6.8.1"
+      qt_version_major: "6"

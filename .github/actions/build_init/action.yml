@@ -1,0 +1,40 @@
+name: "Composite Build Steps"
+
+inputs:
+  qt_host:
+    required: true
+  qt_modules:
+    required: true
+  qt_target:
+    required: true
+  qt_version:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set environment variables
+      shell: bash
+      run: |
+        echo "BUILD_DIR=build" >> $GITHUB_ENV
+        echo "BUILD_TYPE=Release" >> $GITHUB_ENV
+        echo "INSTALL_DIR=install" >> $GITHUB_ENV
+        echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ inputs.qt_version }}
+        host: ${{ inputs.qt_host }}
+        target: ${{ inputs.qt_target }}
+        modules: ${{ inputs.qt_modules }}
+        cache: true
+        cache-key-prefix: ${{ inputs.qt_host }}-${{ inputs.qt_version }}-${{ inputs.qt_modules }}-qt_cache
+
+    - name: Configure CMake
+      shell: bash
+      run: cmake -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DENABLE_LTO=ON
+
+    - name: Build
+      shell: bash
+      run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }}
