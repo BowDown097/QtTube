@@ -33,7 +33,8 @@ AddPluginDialog::~AddPluginDialog()
 void AddPluginDialog::attemptAdd()
 {
     PluginData plugin;
-    QString pluginPath = qtTubeApp->plugins().pluginLoadDirs().front() + QDir::separator();
+    const QDir& pluginsDir = qtTubeApp->plugins().pluginLoadDirs().front();
+    QString pluginPath;
 
     try
     {
@@ -41,7 +42,7 @@ void AddPluginDialog::attemptAdd()
         if (QFileInfo libraryFileInfo(libraryInput); libraryFileInfo.exists())
         {
             plugin = qtTubeApp->plugins().openPlugin(libraryFileInfo);
-            pluginPath += libraryFileInfo.fileName();
+            pluginPath = pluginsDir.filePath(libraryFileInfo.fileName());
         }
         else if (QUrl libraryUrl(libraryInput); libraryUrl.isValid())
         {
@@ -49,7 +50,7 @@ void AddPluginDialog::attemptAdd()
             {
                 QFileInfo localFileInfo(libraryUrl.toLocalFile());
                 plugin = qtTubeApp->plugins().openPlugin(localFileInfo);
-                pluginPath += localFileInfo.fileName();
+                pluginPath = pluginsDir.filePath(localFileInfo.fileName());
             }
             else if (QString fileName = libraryUrl.fileName(); !fileName.isEmpty())
             {
@@ -74,7 +75,10 @@ void AddPluginDialog::attemptAdd()
                 plugin = qtTubeApp->plugins().openPlugin(QFileInfo(temporaryPluginFile));
 
                 QString dispFileName = reply->getFileName();
-                pluginPath += (fullyTemp && !dispFileName.isEmpty()) ? dispFileName : fileName;
+                if (fullyTemp && !dispFileName.isEmpty())
+                    pluginPath = pluginsDir.filePath(dispFileName);
+                else
+                    pluginPath = pluginsDir.filePath(fileName);
             }
             else
             {
@@ -91,7 +95,7 @@ void AddPluginDialog::attemptAdd()
         return;
     }
 
-    QFileInfo(pluginPath).dir().mkpath(".");
+    pluginsDir.mkpath(".");
 
     if (!QFile::rename(plugin.fileInfo.absoluteFilePath(), pluginPath))
     {

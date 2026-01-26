@@ -107,8 +107,8 @@ void PluginBuildDownloader::downloadFinished()
 {
     m_tempFile->seek(0);
 
-    QDir libsDir(qtTubeApp->plugins().libraryLoadDirs().front());
-    QDir pluginsDir(qtTubeApp->plugins().pluginLoadDirs().front());
+    const QDir& libsDir = qtTubeApp->plugins().libraryLoadDirs().front();
+    const QDir& pluginsDir = qtTubeApp->plugins().pluginLoadDirs().front();
 
     libsDir.mkpath(".");
     pluginsDir.mkpath(".");
@@ -121,16 +121,15 @@ void PluginBuildDownloader::downloadFinished()
         QZipReader zipReader(m_tempFile);
         const QList<QZipReader::FileInfo> files = zipReader.fileInfoList();
 
-        for (auto it = files.begin(); it != files.end() && !failure; ++it)
+        for (const QZipReader::FileInfo& info : files)
         {
-            const QString& path = it->filePath;
-            if (it->isFile && QLibrary::isLibrary(path))
-            {
-                if (path.startsWith("libs/"))
-                    failure = !writeFile(libsDir.filePath(path.section('/', -1)), zipReader.fileData(path));
-                else if (!pluginFile && !path.contains('/'))
-                    failure = !writeFile(pluginsDir.filePath(path), zipReader.fileData(path), &pluginFile);
-            }
+            if (!info.isFile || !QLibrary::isLibrary(info.filePath))
+                continue;
+
+            if (info.filePath.startsWith("libs/"))
+                failure = !writeFile(libsDir.filePath(info.filePath.section('/', -1)), zipReader.fileData(info.filePath));
+            else if (!pluginFile && !info.filePath.contains('/'))
+                failure = !writeFile(pluginsDir.filePath(info.filePath), zipReader.fileData(info.filePath), &pluginFile);
         }
     }
     else

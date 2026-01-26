@@ -73,19 +73,19 @@ PluginData* PluginManager::findPlugin(const QString& name)
         return nullptr;
 }
 
-const QStringList& PluginManager::libraryLoadDirs()
+const QList<QDir>& PluginManager::libraryLoadDirs()
 {
-    static const QStringList libraryLoadDirs = [] {
+    static const QList<QDir> libraryLoadDirs = []() -> QList<QDir> {
         if (!qtTubeApp->isPortableBuild())
         {
-            return QStringList {
+            return {
                 FS::joinPaths(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), "plugin-libs"),
                 FS::joinPaths(qApp->applicationDirPath(), "plugin-libs")
             };
         }
         else
         {
-            return QStringList { FS::joinPaths(qApp->applicationDirPath(), "plugin-libs") };
+            return { FS::joinPaths(qApp->applicationDirPath(), "plugin-libs") };
         }
     }();
     return libraryLoadDirs;
@@ -163,19 +163,19 @@ PluginData PluginManager::openPlugin(const QFileInfo& fileInfo)
     return plugin;
 }
 
-const QStringList& PluginManager::pluginLoadDirs()
+const QList<QDir>& PluginManager::pluginLoadDirs()
 {
-    static const QStringList pluginLoadDirs = [] {
+    static const QList<QDir> pluginLoadDirs = []() -> QList<QDir> {
         if (!qtTubeApp->isPortableBuild())
         {
-            return QStringList {
+            return {
                 FS::joinPaths(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), "plugins"),
                 FS::joinPaths(qApp->applicationDirPath(), "plugins")
             };
         }
         else
         {
-            return QStringList { FS::joinPaths(qApp->applicationDirPath(), "plugins") };
+            return { FS::joinPaths(qApp->applicationDirPath(), "plugins") };
         }
     }();
     return pluginLoadDirs;
@@ -192,9 +192,9 @@ void PluginManager::reloadPlugins()
     m_loadedPlugins.clear();
 
     QList<QFileInfo> pluginsToLoad;
-    for (const QString& pluginLoadDir : pluginLoadDirs())
+    for (const QDir& pluginLoadDir : pluginLoadDirs())
     {
-        for (QDirIterator it(pluginLoadDir, QDir::Files); it.hasNext();)
+        for (QDirIterator it(pluginLoadDir.path(), QDir::Files); it.hasNext();)
         {
             if (QFileInfo fileInfo(it.next()); QLibrary::isLibrary(fileInfo.absoluteFilePath()))
             {

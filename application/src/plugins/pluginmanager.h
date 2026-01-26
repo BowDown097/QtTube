@@ -66,8 +66,8 @@ public:
     PluginData openPlugin(const QFileInfo& fileInfo);
     void reloadPlugins();
 
-    static const QStringList& libraryLoadDirs();
-    static const QStringList& pluginLoadDirs();
+    static const QList<QDir>& libraryLoadDirs();
+    static const QList<QDir>& pluginLoadDirs();
 private:
     std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
 

@@ -90,7 +90,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent)
         else if (parser.isSet("video"))
             ViewController::loadVideo(parser.value("video"), plugin);
     }
-    else
+    else if (std::ranges::all_of(qtTubeApp->plugins().pluginLoadDirs(), [](const QDir& d) { return d.isEmpty(); }))
     {
         // wrapped in this manner to avoid blocking displaying of the main window
         QMetaObject::invokeMethod(this, [this] {
