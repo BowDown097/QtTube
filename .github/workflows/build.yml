@@ -123,7 +123,7 @@ jobs:
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_DIR }}
           cd ${{ env.INSTALL_DIR }}
           tar --owner root --group root -czf ../QtTube.tar.gz *
-      
+
       - name: Package (AppImage)
         if: runner.os == 'Linux'
         run: |
@@ -132,7 +132,7 @@ jobs:
 
           export EXTRA_PLATFORM_PLUGINS="libqwayland-egl.so;libqwayland-generic.so"
           export LDAI_OUTPUT="QtTube-${{ runner.os }}-${{ env.VERSION }}-Qt${{ matrix.qt_ver }}-${{ env.BUILD_TYPE }}-x86_64.AppImage"
-          export LINUXDEPLOY_EXCLUDED_LIBRARIES="libmysqlclient.so*;libqsqlmimer.so;libqsqlmysql.so;libqsqlodbc.so;libqsqlpsql.so"
+          export LINUXDEPLOY_EXCLUDED_LIBRARIES="libmysqlclient.so*;libqsqlmimer.so;libqsqlmysql.so;libqsqlodbc.so;libqsqlpsql.so;libnss3.so;libnssutil3.so"
           
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr/bin --component selfcontained
