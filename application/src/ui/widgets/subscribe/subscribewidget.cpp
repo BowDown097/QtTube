@@ -47,21 +47,24 @@ void SubscribeWidget::setData(const QtTubePlugin::SubscribeButton& data)
     subscribeLabel->setData(data);
     subscribeLabel->show();
 
-    if (data.countText.isEmpty())
-    {
-        layout->removeWidget(subscribersCountLabel);
-        subscribersCountLabel->deleteLater();
-    }
-    else
+    if (!data.countText.isEmpty())
     {
         subscribersCountLabel->show();
         subscribersCountLabel->setText(data.countText);
         subscribersCountLabel->adjustSize();
+    }
+    else
+    {
+        subscribersCountLabel->hide();
     }
 
     if (!data.notificationBell.states.isEmpty())
     {
         notificationBell->setData(data.notificationBell);
         notificationBell->setVisible(data.subscribed);
+    }
+    else
+    {
+        notificationBell->hide();
     }
 }

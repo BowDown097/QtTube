@@ -42,18 +42,18 @@ void SubscribeLabel::enterEvent(QEnterEvent* event)
 void SubscribeLabel::enterEvent(QEvent* event)
 #endif
 {
-    ClickableWidget<QLabel>::enterEvent(event);
-    setStyle(subscribed, true);
+    setStyle(true);
     if (subscribed)
         setText(localization.unsubscribeText);
+    ClickableWidget<QLabel>::enterEvent(event);
 }
 
 void SubscribeLabel::leaveEvent(QEvent* event)
 {
-    ClickableWidget<QLabel>::leaveEvent(event);
-    setStyle(subscribed, false);
+    setStyle(false);
     if (subscribed)
         setText(localization.subscribedText);
+    ClickableWidget<QLabel>::leaveEvent(event);
 }
 
 void SubscribeLabel::setData(const QtTubePlugin::SubscribeButton& data)
@@ -64,11 +64,11 @@ void SubscribeLabel::setData(const QtTubePlugin::SubscribeButton& data)
     subscribeData = data.subscribeData;
     unsubscribeData = data.unsubscribeData;
 
-    setStyle(subscribed, false);
+    setStyle(false);
     setText(subscribed ? localization.subscribedText : localization.subscribeText);
 }
 
-void SubscribeLabel::setStyle(bool subscribed, bool hovered)
+void SubscribeLabel::setStyle(bool hovered)
 {
     QString *background, *border, *foreground;
     QString stylesheet;
@@ -115,7 +115,7 @@ void SubscribeLabel::setStyle(bool subscribed, bool hovered)
 void SubscribeLabel::toggleSubscriptionStatus()
 {
     subscribed = !subscribed;
-    setStyle(subscribed, false);
+    setStyle(false);
     setText(subscribed ? localization.subscribedText : localization.subscribeText);
     emit subscribeStatusChanged(subscribed);
 }

@@ -147,8 +147,13 @@ void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
 
     if (hasAvatar)
         channelIcon->setImage(header.avatarUrl);
+    else
+        channelIcon->setPixmap(QPixmap());
+
     if (hasBanner)
         channelBanner->setImage(header.bannerUrl);
+    else
+        channelBanner->setPixmap(QPixmap());
 }
 
 void ChannelView::processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs)

@@ -25,7 +25,7 @@ private:
     bool subscribed{};
     std::any unsubscribeData;
 
-    void setStyle(bool subscribed, bool hovered);
+    void setStyle(bool hovered);
     void toggleSubscriptionStatus();
 private slots:
     void trySubscribe(PluginData* plugin);
