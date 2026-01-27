@@ -12,7 +12,7 @@ The latest development versions can be found [here](https://nightly.link/BowDown
 
 These distributions may also be of interest:<br>
 [![qttube-git](https://img.shields.io/badge/aur-qttube--git-blue)](https://aur.archlinux.org/packages/qttube-git/)
-[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/BowDown097/QtTube/build.yml)](https://github.com/BowDown097/QtTube/actions)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/BowDown097/QtTube/build_all.yml)](https://github.com/BowDown097/QtTube/actions)
 
 Of course, you are also free to build the program yourself - [instructions are provided if needed](https://github.com/BowDown097/QtTube/blob/master/BUILD_INSTRUCTIONS.md).
 
