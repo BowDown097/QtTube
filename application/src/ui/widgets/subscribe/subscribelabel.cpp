@@ -30,7 +30,6 @@ constexpr QLatin1String UnsubscribeStylesheet(R"(
 SubscribeLabel::SubscribeLabel(PluginData* plugin, QWidget* parent)
     : ClickableWidget<QLabel>(parent)
 {
-    setClickable(true);
     setFixedSize(80, 24);
     connect(this, &ClickableWidget<QLabel>::clicked, this,
             std::bind(&SubscribeLabel::trySubscribe, this, plugin));
@@ -59,11 +58,13 @@ void SubscribeLabel::leaveEvent(QEvent* event)
 void SubscribeLabel::setData(const QtTubePlugin::SubscribeButton& data)
 {
     colorPalette = data.colorPalette;
+    enabled = data.enabled;
     localization = data.localization;
     subscribed = data.subscribed;
     subscribeData = data.subscribeData;
     unsubscribeData = data.unsubscribeData;
 
+    setClickable(enabled);
     setStyle(false);
     setText(subscribed ? localization.subscribedText : localization.subscribeText);
 }
@@ -73,7 +74,14 @@ void SubscribeLabel::setStyle(bool hovered)
     QString *background, *border, *foreground;
     QString stylesheet;
 
-    if (subscribed && hovered)
+    if (!enabled)
+    {
+        background = &colorPalette.subscribeDisabledBackground;
+        border = &colorPalette.subscribeDisabledBorder;
+        foreground = &colorPalette.subscribeDisabledForeground;
+        stylesheet = SubscribeStylesheet;
+    }
+    else if (subscribed && hovered)
     {
         background = &colorPalette.unsubscribeBackground;
         border = &colorPalette.unsubscribeBorder;

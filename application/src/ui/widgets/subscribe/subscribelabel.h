@@ -20,6 +20,7 @@ protected:
     void leaveEvent(QEvent* event) override;
 private:
     QtTubePlugin::SubscribeButton::ColorPalette colorPalette;
+    bool enabled{};
     QtTubePlugin::SubscribeButton::Localization localization;
     std::any subscribeData;
     bool subscribed{};
