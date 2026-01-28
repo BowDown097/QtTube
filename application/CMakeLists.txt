@@ -199,20 +199,6 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::GuiPrivate QtTube::PluginInterface)
 
-## HTML parser
-include(FetchContent)
-FetchContent_Declare(
-    HtmlParser
-    GIT_REPOSITORY https://github.com/JustCabbage/HtmlParser.git
-    GIT_TAG master)
-
-option(HTMLPARSER_BUILD_TESTS "Build tests" OFF)
-option(HTMLPARSER_BUILD_BENCHMARKS "Build benchmarks" OFF)
-option(HTMLPARSER_BUILD_EXAMPLES "Build examples" OFF)
-FetchContent_MakeAvailable(HtmlParser)
-
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE HtmlParser)
-
 ## Platform-specific
 if(UNIX AND NOT APPLE)
     find_package(X11 QUIET)
