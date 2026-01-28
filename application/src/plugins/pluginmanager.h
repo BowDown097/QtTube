@@ -60,6 +60,7 @@ public:
     PluginData* activePlugin();
     bool containsPlugin(const QString& name);
     PluginData* findPlugin(const QString& name);
+    bool hasLoadablePlugins() const { return m_foundPluginFile; }
     PluginData* loadAndInitPlugin(PluginData&& plugin);
     PluginData* loadAndInitPlugin(const QFileInfo& fileInfo);
     QList<PluginData*> loadedPlugins();
@@ -69,6 +70,7 @@ public:
     static const QList<QDir>& libraryLoadDirs();
     static const QList<QDir>& pluginLoadDirs();
 private:
+    bool m_foundPluginFile{};
     std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
 
     void checkPluginMetadata(const PluginData& plugin);

@@ -183,34 +183,39 @@ const QList<QDir>& PluginManager::pluginLoadDirs()
 
 void PluginManager::reloadPlugins()
 {
-    QString presentlyActivePluginName;
+    QString activePluginName;
     if (const PluginData* plugin = activePlugin())
-        presentlyActivePluginName = plugin->fileInfo.fileName();
+        activePluginName = plugin->fileInfo.fileName();
     else if (!qtTubeApp->settings().activePlugin.isEmpty())
-        presentlyActivePluginName = qtTubeApp->settings().activePlugin;
+        activePluginName = qtTubeApp->settings().activePlugin;
 
+    m_foundPluginFile = false;
     m_loadedPlugins.clear();
 
     QList<QFileInfo> pluginsToLoad;
-    for (const QDir& pluginLoadDir : pluginLoadDirs())
+
+    for (const QDir& dir : pluginLoadDirs())
     {
-        for (QDirIterator it(pluginLoadDir.path(), QDir::Files); it.hasNext();)
+        for (QDirIterator it(dir.path(), QDir::Files); it.hasNext();)
         {
-            if (QFileInfo fileInfo(it.next()); QLibrary::isLibrary(fileInfo.absoluteFilePath()))
-            {
-                pluginsToLoad.append(fileInfo);
-                if (presentlyActivePluginName.isEmpty())
-                    presentlyActivePluginName = fileInfo.fileName();
-            }
+            QString fileName = it.next();
+            if (!QLibrary::isLibrary(fileName))
+                continue;
+
+            QFileInfo& fileInfo = pluginsToLoad.emplaceBack(fileName);
+            if (activePluginName.isEmpty())
+                activePluginName = fileInfo.fileName();
         }
     }
+
+    m_foundPluginFile = !pluginsToLoad.isEmpty();
 
     for (const QFileInfo& fileInfo : pluginsToLoad)
     {
         try
         {
             PluginData plugin = openPlugin(fileInfo);
-            if (fileInfo.fileName() == presentlyActivePluginName)
+            if (fileInfo.fileName() == activePluginName)
                 plugin.active = true;
             loadAndInitPlugin(std::move(plugin));
         }
