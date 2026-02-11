@@ -2,6 +2,8 @@
 #include "accountentrywidget.h"
 #include "mainwindow.h"
 #include "plugins/pluginmanager.h"
+#include "ui/widgets/topbar/topbar.h"
+#include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QPushButton>
 
@@ -54,6 +56,6 @@ void AccountSwitcherWidget::switchAccount(QtTubePlugin::AuthUser* oldUser, QtTub
 
     hide();
     auth->restoreFromActive();
-    MainWindow::topbar()->postSignInSetup();
+    UIUtils::getMainWindow()->topbar()->postSignInSetup();
     emit closeRequested();
 }

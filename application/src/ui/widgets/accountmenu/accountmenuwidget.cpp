@@ -3,6 +3,8 @@
 #include "plugins/pluginmanager.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
+#include "ui/widgets/topbar/topbar.h"
+#include "utils/uiutils.h"
 #include <QBoxLayout>
 
 AccountMenuWidget::AccountMenuWidget(PluginData* plugin, QWidget* parent)
@@ -63,6 +65,6 @@ void AccountMenuWidget::gotoChannel(const QString& channelId, PluginData* plugin
 void AccountMenuWidget::triggerSignOut()
 {
     hide();
-    MainWindow::topbar()->signOut();
+    UIUtils::getMainWindow()->topbar()->signOut();
     emit closeRequested();
 }

@@ -1,16 +1,18 @@
 #pragma once
-#include "ui/widgets/continuablelistwidget.h"
-#include "ui/widgets/findbar.h"
-#include "ui/widgets/topbar/topbar.h"
-#include <QCommandLineParser>
-#include <QKeyEvent>
+#include "ui/widgets/topbar/searchbox.h"
 #include <QMainWindow>
-#include <QResizeEvent>
-#include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+class ContinuableListWidget;
+class FindBar;
+class QCommandLineParser;
+class QKeyEvent;
+class QResizeEvent;
+class QStackedWidget;
+class TopBar;
 
 class MainWindow : public QMainWindow
 {
@@ -19,9 +21,8 @@ public:
     explicit MainWindow(const QCommandLineParser& parser, QWidget* parent = nullptr);
     ~MainWindow();
 
-    static QStackedWidget* centralWidget() { return m_centralWidget; }
-    static QSize size() { return m_size; }
-    static TopBar* topbar() { return m_topbar; }
+    QStackedWidget* centralWidget();
+    TopBar* topbar();
 public slots:
     void showAccountMenu();
     void showNotifications();
@@ -39,13 +40,10 @@ private:
     void browse();
     void searchByQuery(const QString& query);
 
-    static inline QStackedWidget* m_centralWidget;
-    static inline QSize m_size;
-    static inline TopBar* m_topbar;
-
-    bool doNotBrowse = false;
-    FindBar* findbar;
-    QString lastSearchQuery;
-    ContinuableListWidget* notificationMenu;
+    bool m_doNotBrowse = false;
+    FindBar* m_findbar;
+    QString m_lastSearchQuery;
+    ContinuableListWidget* m_notificationMenu;
+    TopBar* m_topbar;
     Ui::MainWindow* ui;
 };

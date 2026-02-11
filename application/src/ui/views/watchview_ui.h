@@ -5,6 +5,7 @@ QT_BEGIN_NAMESPACE
 
 class ChannelLabel;
 class IconLabel;
+class MainWindow;
 struct PluginData;
 class QFrame;
 class QHBoxLayout;
@@ -47,14 +48,14 @@ public:
     TubeLabel* viewCount;
 
     void constructLikeBar();
-    void setupUi(QWidget* watchView, PluginData* plugin);
+    void setupUi(QWidget* watchView, MainWindow* mainWindow, PluginData* plugin);
 private:
     void setupDate(QWidget* watchView);
     void setupDescription(QWidget* watchView);
-    void setupFeed(QWidget* watchView, PluginData* plugin);
-    void setupFrame(QWidget* watchView);
+    void setupFeed(QWidget* watchView, MainWindow* mainWindow, PluginData* plugin);
+    void setupFrame(QWidget* watchView, MainWindow* mainWindow);
     void setupMenu(QWidget* watchView);
-    void setupPlayer(QWidget* watchView, PluginData* plugin);
+    void setupPlayer(QWidget* watchView, MainWindow* mainWindow, PluginData* plugin);
     void setupPrimaryInfo(QWidget* watchView, PluginData* plugin);
     void setupTitle(QWidget* watchView);
 public slots:

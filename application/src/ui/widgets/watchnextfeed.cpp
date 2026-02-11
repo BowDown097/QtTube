@@ -43,6 +43,11 @@ void WatchNextFeed::continueRecommendedFinished(const QtTubePlugin::RecommendedC
     recommended->setPopulatingFlag(false);
 }
 
+ContinuableListWidget* WatchNextFeed::currentList()
+{
+    return qobject_cast<ContinuableListWidget*>(currentWidget());
+}
+
 void WatchNextFeed::populateRecommended(const QList<QtTubePlugin::Video>& videos)
 {
     for (const QtTubePlugin::Video& video : videos)

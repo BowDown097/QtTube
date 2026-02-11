@@ -1,9 +1,11 @@
 #include "qttubeapplication.h"
 #include "mainwindow.h"
 #include "ui/views/viewcontroller.h"
+#include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QStyle>
 
 #ifdef Q_OS_WIN
 #define WIN32_LEAN_AND_MEAN
@@ -42,7 +44,7 @@ void QtTubeApplication::handleUrlOrID(const QString& in)
                     ViewController::loadChannel(data.data, plugin);
                     break;
                 case QtTubePlugin::ResolveUrlTarget::Search:
-                    emit MainWindow::topbar()->searchBox->searchRequested(data.data, SearchBox::SearchType::ByQuery);
+                    emit UIUtils::getMainWindow()->topbar()->searchBox->searchRequested(data.data, SearchBox::SearchType::ByQuery);
                     break;
                 case QtTubePlugin::ResolveUrlTarget::Video:
                     ViewController::loadVideo(data.data, plugin, data.videoProgress, nullptr, data.continuePlayback);
@@ -66,6 +68,6 @@ void QtTubeApplication::handleUrlOrID(const QString& in)
 bool QtTubeApplication::notify(QObject* receiver, QEvent* event)
 {
     if (m_settings.autoHideTopBar && event->type() == QEvent::MouseMove && receiver->objectName() == "MainWindowWindow")
-        MainWindow::topbar()->handleMouseEvent(static_cast<QMouseEvent*>(event));
+        UIUtils::getMainWindow()->topbar()->handleMouseEvent(static_cast<QMouseEvent*>(event));
     return QApplication::notify(receiver, event);
 }

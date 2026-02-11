@@ -1,6 +1,7 @@
 #include "qttubeapplication.h"
 #include "mainwindow.h"
 #include "ui/forms/livechatwindow.h"
+#include <QCommandLineParser>
 
 int main(int argc, char *argv[])
 {

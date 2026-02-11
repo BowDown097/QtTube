@@ -4,10 +4,10 @@
 
 namespace QtTubePlugin { struct Channel; struct Notification; struct Video; }
 
+class MainWindow;
 class QLayout;
 class QListWidget;
 class QListWidgetItem;
-class QMainWindow;
 class QTabWidget;
 struct PluginData;
 class VideoRenderer;
@@ -26,7 +26,7 @@ namespace UIUtils
     void clearLayout(QLayout* layout);
     VideoRenderer* constructVideoRenderer(QListWidget* list, PluginData* plugin);
     void copyToClipboard(const QString& text);
-    QMainWindow* getMainWindow();
+    MainWindow* getMainWindow();
     QIcon iconThemed(const QString& name, const QPalette& pal = {});
     QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius = 9999, double yRadius = 9999);
     QPixmap pixmapThemed(const QString& name, const QPalette& pal = {});

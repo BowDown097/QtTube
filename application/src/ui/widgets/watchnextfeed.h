@@ -10,13 +10,12 @@ class WatchNextFeed : public QTabWidget
 {
 public:
     explicit WatchNextFeed(PluginData* plugin, QWidget* parent = nullptr);
+    ContinuableListWidget* currentList();
     void reset();
     void setData(
         const QString& videoId,
         const QList<QtTubePlugin::Video>& recommendedVideos,
         const QtTubePlugin::VideoData::Continuations& continuations);
-
-    ContinuableListWidget* currentList() { return qobject_cast<ContinuableListWidget*>(currentWidget()); }
 private:
     ContinuableListWidget* comments;
     std::any commentsContinuation;

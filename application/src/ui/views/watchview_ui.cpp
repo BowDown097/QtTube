@@ -1,8 +1,10 @@
 #include "watchview_ui.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
+#include "ui/widgets/continuablelistwidget.h"
 #include "ui/widgets/labels/channellabel.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
+#include "ui/widgets/topbar/topbar.h"
 #include "ui/widgets/watchnextfeed.h"
 #include "watchviewplayer.h"
 #include <QBoxLayout>
@@ -47,16 +49,16 @@ void WatchView_Ui::moveFeed(WatchViewPlayer::ScaleMode scaleMode)
     }
 }
 
-void WatchView_Ui::setupUi(QWidget* watchView, PluginData* plugin)
+void WatchView_Ui::setupUi(QWidget* watchView, MainWindow* mainWindow, PluginData* plugin)
 {
-    setupFrame(watchView);
-    setupPlayer(watchView, plugin);
+    setupFrame(watchView, mainWindow);
+    setupPlayer(watchView, mainWindow, plugin);
     setupTitle(watchView);
     setupPrimaryInfo(watchView, plugin);
     setupMenu(watchView);
     setupDate(watchView);
     setupDescription(watchView);
-    setupFeed(watchView, plugin);
+    setupFeed(watchView, mainWindow, plugin);
     frameLayout->addStretch();
 }
 
@@ -92,7 +94,7 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
     connect(showMoreLabel, &TubeLabel::clicked, this, &WatchView_Ui::toggleShowMore);
 }
 
-void WatchView_Ui::setupFeed(QWidget* watchView, PluginData* plugin)
+void WatchView_Ui::setupFeed(QWidget* watchView, MainWindow* mainWindow, PluginData* plugin)
 {
     feed = new WatchNextFeed(plugin, watchView);
     if (player->scaleMode() == WatchViewPlayer::ScaleMode::NoScale)
@@ -104,14 +106,14 @@ void WatchView_Ui::setupFeed(QWidget* watchView, PluginData* plugin)
     else if (player->scaleMode() == WatchViewPlayer::ScaleMode::Scaled)
     {
         primaryLayout->addWidget(feed);
-        feed->setMaximumWidth(MainWindow::size().width() - player->size().width() - primaryLayout->spacing());
+        feed->setMaximumWidth(mainWindow->width() - player->size().width() - primaryLayout->spacing());
     }
 }
 
-void WatchView_Ui::setupFrame(QWidget* watchView)
+void WatchView_Ui::setupFrame(QWidget* watchView, MainWindow* mainWindow)
 {
     scrollArea = new QScrollArea(watchView);
-    scrollArea->setMaximumHeight(MainWindow::size().height());
+    scrollArea->setMaximumHeight(mainWindow->height());
     scrollArea->setFrameShape(QFrame::NoFrame);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -125,7 +127,7 @@ void WatchView_Ui::setupFrame(QWidget* watchView)
     if (qtTubeApp->settings().autoHideTopBar)
         primaryLayout->setContentsMargins(0, 0, 0, 0);
     else
-        primaryLayout->setContentsMargins(0, MainWindow::topbar()->height(), 0, 0);
+        primaryLayout->setContentsMargins(0, mainWindow->topbar()->height(), 0, 0);
 
     frame = new QFrame(scrollArea);
     frameLayout = new QVBoxLayout;
@@ -162,9 +164,9 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
     menuVbox->addLayout(topLevelButtons);
 }
 
-void WatchView_Ui::setupPlayer(QWidget* watchView, PluginData* plugin)
+void WatchView_Ui::setupPlayer(QWidget* watchView, MainWindow* mainWindow, PluginData* plugin)
 {
-    player = new WatchViewPlayer(watchView, plugin, MainWindow::size());
+    player = new WatchViewPlayer(watchView, plugin, mainWindow->size());
     scrollArea->setMaximumWidth(player->size().width());
     frameLayout->addWidget(player->widget());
     connect(player, &WatchViewPlayer::scaleModeChanged, this, &WatchView_Ui::moveFeed);

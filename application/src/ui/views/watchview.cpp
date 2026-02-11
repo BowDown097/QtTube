@@ -7,6 +7,7 @@
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/modals/sharemodal.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
+#include "ui/widgets/topbar/topbar.h"
 #include "ui/widgets/watchnextfeed.h"
 #include "utils/osutils.h"
 #include "utils/uiutils.h"
@@ -21,13 +22,14 @@ WatchView::WatchView(const QString& videoId, PluginData* plugin, int progress,
                      PreloadData::WatchView* preload, QWidget* parent)
     : QWidget(parent), plugin(plugin), ui(new Ui::WatchView)
 {
+    MainWindow* mainWindow = UIUtils::getMainWindow();
     if (qtTubeApp->settings().autoHideTopBar)
     {
-        MainWindow::topbar()->hide();
-        MainWindow::topbar()->setAlwaysShow(false);
+        mainWindow->topbar()->hide();
+        mainWindow->topbar()->setAlwaysShow(false);
     }
 
-    ui->setupUi(this, plugin);
+    ui->setupUi(this, mainWindow, plugin);
 
     if (preload)
         processPreloadData(preload);
@@ -48,12 +50,10 @@ WatchView::WatchView(const QString& videoId, PluginData* plugin, int progress,
 
 WatchView::~WatchView()
 {
-    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
+    MainWindow* mainWindow = UIUtils::getMainWindow();
+    disconnect(mainWindow->topbar()->logo, &TubeLabel::clicked, this, nullptr);
     OSUtils::suspendIdleSleep(false);
-
-    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
-        mainWindow->setWindowTitle(QTTUBE_APP_NAME);
-
+    mainWindow->setWindowTitle(QTTUBE_APP_NAME);
     delete ui;
 }
 
@@ -111,9 +111,7 @@ void WatchView::processData(const QtTubePlugin::VideoData& data)
     videoId = data.videoId;
     videoUrlPrefix = data.videoUrlPrefix;
 
-    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
-        mainWindow->setWindowTitle(data.titleText + " - " + QTTUBE_APP_NAME);
-
+    UIUtils::getMainWindow()->setWindowTitle(data.titleText + " - " + QTTUBE_APP_NAME);
     ui->channelIcon->setImage(data.channel.channelAvatarUrl);
     ui->channelLabel->setInfo(data.channel.channelId, data.channel.channelName, data.channel.channelBadges);
     ui->date->setText(data.dateText);

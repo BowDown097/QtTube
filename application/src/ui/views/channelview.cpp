@@ -3,15 +3,16 @@
 #include "qttubeapplication.h"
 #include "ui/browsehelper.h"
 #include "ui/widgets/subscribe/subscribewidget.h"
+#include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QScrollBar>
 
 ChannelView::~ChannelView()
 {
-    disconnect(MainWindow::topbar()->logo, &TubeLabel::clicked, this, nullptr);
-    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
-        mainWindow->setWindowTitle(QTTUBE_APP_NAME);
+    MainWindow* mainWindow = UIUtils::getMainWindow();
+    mainWindow->setWindowTitle(QTTUBE_APP_NAME);
+    disconnect(mainWindow->topbar()->logo, &TubeLabel::clicked, this, nullptr);
 }
 
 ChannelView::ChannelView(const QString& channelId, PluginData* plugin)
@@ -39,7 +40,7 @@ ChannelView::ChannelView(const QString& channelId, PluginData* plugin)
     if (qtTubeApp->settings().autoHideTopBar)
         pageLayout->setContentsMargins(0, 0, 0, 0);
     else
-        pageLayout->setContentsMargins(0, MainWindow::topbar()->height(), 0, 0);
+        pageLayout->setContentsMargins(0, UIUtils::getMainWindow()->topbar()->height(), 0, 0);
 
     channelHeaderContainer->setFixedHeight(63);
     channelHeaderContainer->setAutoFillBackground(true);
@@ -128,8 +129,8 @@ void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
     handleAndVideos->setText(header.channelSubtext);
     subscribeWidget->setData(header.subscribeButton);
 
-    if (QMainWindow* mainWindow = UIUtils::getMainWindow())
-        mainWindow->setWindowTitle(header.channelText + " - " + QTTUBE_APP_NAME);
+    MainWindow* mainWindow = UIUtils::getMainWindow();
+    mainWindow->setWindowTitle(header.channelText + " - " + QTTUBE_APP_NAME);
 
     bool hasAvatar = !header.avatarUrl.isEmpty();
     bool hasBanner = !header.bannerUrl.isEmpty();
@@ -137,12 +138,12 @@ void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
     if (hasBanner)
         channelBanner->setFixedHeight(129);
     else if (qtTubeApp->settings().autoHideTopBar)
-        channelBanner->setFixedHeight(MainWindow::topbar()->height() + 20);
+        channelBanner->setFixedHeight(mainWindow->topbar()->height() + 20);
 
     if (qtTubeApp->settings().autoHideTopBar)
     {
-        MainWindow::topbar()->setAlwaysShow(!hasBanner);
-        MainWindow::topbar()->setVisible(!hasBanner);
+        mainWindow->topbar()->setAlwaysShow(!hasBanner);
+        mainWindow->topbar()->setVisible(!hasBanner);
     }
 
     if (hasAvatar)

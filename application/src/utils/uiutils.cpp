@@ -7,6 +7,7 @@
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/gridvideorenderer.h"
+#include "ui/widgets/topbar/topbar.h"
 #include <QClipboard>
 #include <QFile>
 #include <QLayout>
@@ -146,13 +147,15 @@ namespace UIUtils
             clipboard->setText(text, QClipboard::Selection);
     }
 
-    QMainWindow* getMainWindow()
+    MainWindow* getMainWindow()
     {
         const QWidgetList widgets = qApp->topLevelWidgets();
+
         for (QWidget* window : widgets)
-            if (QMainWindow* mainWindow = qobject_cast<QMainWindow*>(window))
+            if (MainWindow* mainWindow = qobject_cast<MainWindow*>(window))
                 return mainWindow;
-        return nullptr;
+
+        throw std::runtime_error("Failed to find main window. This shouldn't happen!");
     }
 
     QIcon iconThemed(const QString& name, const QPalette& pal)
@@ -201,6 +204,7 @@ namespace UIUtils
         else if (QStyle* style = QStyleFactory::create(styleName))
             qApp->setStyle(style);
 
+        MainWindow* mainWindow = getMainWindow();
         if (dark)
         {
             QPalette darkPalette;
@@ -220,17 +224,17 @@ namespace UIUtils
             darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
             qApp->setPalette(darkPalette);
             qApp->setStyleSheet(DarkStylesheet);
-            MainWindow::topbar()->updatePalette(darkPalette);
+            mainWindow->topbar()->updatePalette(darkPalette);
         }
         else if (qApp->styleSheet() == DarkStylesheet)
         {
             qApp->setPalette(qApp->style()->standardPalette());
             qApp->setStyleSheet(QString());
-            MainWindow::topbar()->updatePalette(qApp->palette());
+            mainWindow->topbar()->updatePalette(qApp->palette());
         }
 
     #ifdef Q_OS_WIN // for some reason, wrong palette is applied to topbar on windows
-        MainWindow::topbar()->updatePalette(qApp->palette());
+        mainWindow->topbar()->updatePalette(qApp->palette());
     #endif
     }
 

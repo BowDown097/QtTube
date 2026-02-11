@@ -1,6 +1,7 @@
 #include "browsehelper.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
+#include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QComboBox>
@@ -316,8 +317,8 @@ void BrowseHelper::setupNotifications(
     }
 
     widget->continuationData = reply->continuationData;
-    MainWindow::topbar()->updateNotificationCount(0);
     widget->setPopulatingFlag(false);
+    UIUtils::getMainWindow()->topbar()->updateNotificationCount(0);
 }
 
 void BrowseHelper::setupSearch(

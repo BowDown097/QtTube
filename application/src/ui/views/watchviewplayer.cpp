@@ -1,4 +1,5 @@
 #include "watchviewplayer.h"
+#include "mainwindow.h"
 #include "qttubeapplication.h"
 #include "ui/views/viewcontroller.h"
 #include "utils/osutils.h"
@@ -60,11 +61,9 @@ void WatchViewPlayer::copyToClipboard(const QString& text)
 void WatchViewPlayer::newState(QtTubePlugin::Player::PlayerState state)
 {
     auto setWindowTitleSuffix = [](const QString& suffix) {
-        if (QMainWindow* mainWindow = UIUtils::getMainWindow())
-        {
-            static QRegularExpression suffixRegex(R"( \[(Playing|Paused)\]$)");
-            mainWindow->setWindowTitle(mainWindow->windowTitle().remove(suffixRegex).append(' ').append(suffix));
-        }
+        static QRegularExpression suffixRegex(R"( \[(Playing|Paused)\]$)");
+        MainWindow* mainWindow = UIUtils::getMainWindow();
+        mainWindow->setWindowTitle(mainWindow->windowTitle().remove(suffixRegex).append(' ').append(suffix));
     };
 
     switch (state)

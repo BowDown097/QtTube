@@ -5,6 +5,7 @@
 #include "termfilterview.h"
 #include "ui/forms/plugins/addplugindialog.h"
 #include "ui/forms/plugins/pluginbrowserview.h"
+#include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QButtonGroup>
 #include <QFileDialog>
@@ -194,7 +195,7 @@ void SettingsForm::saveSettings()
 
     // force show top bar if auto hiding has been turned off
     if (store.autoHideTopBar && !ui->autoHideTopBar->isChecked())
-        MainWindow::topbar()->show();
+        UIUtils::getMainWindow()->topbar()->show();
 
     // general
     store.appStyle = ui->appStyle->currentText();
