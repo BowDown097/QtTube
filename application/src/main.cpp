@@ -3,6 +3,43 @@
 #include "ui/forms/livechatwindow.h"
 #include <QCommandLineParser>
 
+int showChat(QtTubeApplication& a, QCommandLineParser& parser)
+{
+    a.doInitialSetup();
+
+    PluginData* plugin = parser.isSet("use-plugin")
+        ? a.plugins().findPlugin(parser.value("use-plugin"))
+        : a.plugins().activePlugin();
+    if (!plugin)
+    {
+        qCritical() << "Could not open live chat: Plugin not found.";
+        return EXIT_FAILURE;
+    }
+
+    QtTubePlugin::VideoReply* videoReply = plugin->interface->getVideo(parser.value("chat"));
+    if (!videoReply)
+    {
+        qCritical() << "Could not open live chat: No method has been provided.";
+        return EXIT_FAILURE;
+    }
+
+    QObject::connect(videoReply, &QtTubePlugin::VideoReply::exception, [&a](const QtTubePlugin::Exception& ex) {
+        qCritical() << "Could not open live chat:" << ex.message();
+        a.exit(EXIT_FAILURE);
+    });
+
+    QObject::connect(videoReply, &QtTubePlugin::VideoReply::finished, [plugin](const QtTubePlugin::VideoData& data) {
+        if (data.initialLiveChatData.has_value())
+        {
+            LiveChatWindow* window = new LiveChatWindow(plugin);
+            window->show();
+            window->initialize(data.initialLiveChatData.value(), nullptr);
+        }
+    });
+
+    return a.exec();
+}
+
 int main(int argc, char *argv[])
 {
     QApplication::setApplicationName(QTTUBE_APP_NAME);
@@ -22,61 +59,21 @@ int main(int argc, char *argv[])
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QTTUBE_APP_DESC);
-
-    QCommandLineOption channel(QStringList() << "c" << "channel", "View a channel.", "Channel ID", "");
-    parser.addOption(channel);
-
-    QCommandLineOption chat("chat", "Open a live chat window.", "Video ID");
-    parser.addOption(chat);
-
-    QCommandLineOption version("version", "Displays version information.");
-    parser.addOption(version);
-
-    QCommandLineOption video(QStringList() << "v" << "video", "Play a video.", "Video ID", "");
-    parser.addOption(video);
-
     parser.addHelpOption();
-
+    parser.addOption(QCommandLineOption({"c",  "channel"}, "View a channel.", "channel ID"));
+    parser.addOption(QCommandLineOption("chat", "Open a live chat window.", "video ID"));
+    parser.addOption(QCommandLineOption("use-plugin", "The plugin to use for this session.", "plugin name"));
+    parser.addOption(QCommandLineOption("version", "Displays version information."));
+    parser.addOption(QCommandLineOption({"v", "video"}, "Play a video.", "video ID"));
     parser.parse(QCoreApplication::arguments());
 
+    // immediately returning options
+    if (parser.isSet("chat"))
+        return showChat(a, parser);
     if (parser.isSet("help"))
         parser.showHelp();
     if (parser.isSet("version"))
         parser.showVersion();
-
-    if (parser.isSet("chat"))
-    {
-        qtTubeApp->doInitialSetup();
-        if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
-        {
-            if (QtTubePlugin::VideoReply* videoReply = plugin->interface->getVideo(parser.value("chat")))
-            {
-                QObject::connect(videoReply, &QtTubePlugin::VideoReply::exception, [](const QtTubePlugin::Exception& ex) {
-                    qDebug() << "Could not open live chat:" << ex.message();
-                    qtTubeApp->exit(EXIT_FAILURE);
-                });
-                QObject::connect(videoReply, &QtTubePlugin::VideoReply::finished, [plugin](const QtTubePlugin::VideoData& data) {
-                    if (data.initialLiveChatData.has_value())
-                    {
-                        LiveChatWindow liveChatWindow(plugin);
-                        liveChatWindow.show();
-                        liveChatWindow.initialize(data.initialLiveChatData.value(), nullptr);
-                    }
-                });
-                return a.exec();
-            }
-            else
-            {
-                qDebug() << "Could not open live chat: No method has been provided.";
-                qtTubeApp->exit(EXIT_FAILURE);
-            }
-        }
-        else
-        {
-            qDebug() << "Could not open live chat: No active plugin found.";
-            qtTubeApp->exit(EXIT_FAILURE);
-        }
-    }
 
     MainWindow w(parser);
     w.show();

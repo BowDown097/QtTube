@@ -81,7 +81,11 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent)
     }
 #endif
 
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    PluginData* plugin = parser.isSet("use-plugin")
+        ? qtTubeApp->plugins().findPlugin(parser.value("use-plugin"))
+        : qtTubeApp->plugins().activePlugin();
+
+    if (plugin)
     {
         // just call activePluginChanged() to do setup for whatever plugin has been loaded
         activePluginChanged(plugin);
@@ -91,14 +95,17 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent)
         else if (parser.isSet("video"))
             ViewController::loadVideo(parser.value("video"), plugin);
     }
+    else if (parser.isSet("use-plugin"))
+    {
+        qCritical() << "Plugin not found.";
+        exit(EXIT_FAILURE);
+    }
     else if (!qtTubeApp->plugins().hasLoadablePlugins())
     {
         // wrapped in this manner to avoid blocking displaying of the main window
         QMetaObject::invokeMethod(this, [this] {
             if (QMessageBox::question(this, "Browse Plugins?", "You have no plugins installed. Would you like to open the plugin browser?") == QMessageBox::Yes)
-            {
                 PluginBrowserView::spawn();
-            }
         }, Qt::QueuedConnection);
     }
 }

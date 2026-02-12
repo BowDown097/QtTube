@@ -147,7 +147,7 @@ namespace UIUtils
             clipboard->setText(text, QClipboard::Selection);
     }
 
-    MainWindow* getMainWindow()
+    MainWindow* getMainWindow(bool throwOnFail)
     {
         const QWidgetList widgets = qApp->topLevelWidgets();
 
@@ -155,7 +155,10 @@ namespace UIUtils
             if (MainWindow* mainWindow = qobject_cast<MainWindow*>(window))
                 return mainWindow;
 
-        throw std::runtime_error("Failed to find main window. This shouldn't happen!");
+        if (throwOnFail)
+            throw std::runtime_error("Failed to find main window. This shouldn't happen!");
+        else
+            return nullptr;
     }
 
     QIcon iconThemed(const QString& name, const QPalette& pal)
@@ -204,7 +207,7 @@ namespace UIUtils
         else if (QStyle* style = QStyleFactory::create(styleName))
             qApp->setStyle(style);
 
-        MainWindow* mainWindow = getMainWindow();
+        MainWindow* mainWindow = getMainWindow(false);
         if (dark)
         {
             QPalette darkPalette;
@@ -224,18 +227,18 @@ namespace UIUtils
             darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
             qApp->setPalette(darkPalette);
             qApp->setStyleSheet(DarkStylesheet);
-            mainWindow->topbar()->updatePalette(darkPalette);
+
+            if (mainWindow)
+                mainWindow->topbar()->updatePalette(darkPalette);
         }
         else if (qApp->styleSheet() == DarkStylesheet)
         {
             qApp->setPalette(qApp->style()->standardPalette());
             qApp->setStyleSheet(QString());
-            mainWindow->topbar()->updatePalette(qApp->palette());
-        }
 
-    #ifdef Q_OS_WIN // for some reason, wrong palette is applied to topbar on windows
-        mainWindow->topbar()->updatePalette(qApp->palette());
-    #endif
+            if (mainWindow)
+                mainWindow->topbar()->updatePalette(qApp->palette());
+        }
     }
 
     void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes)

@@ -26,7 +26,7 @@ namespace UIUtils
     void clearLayout(QLayout* layout);
     VideoRenderer* constructVideoRenderer(QListWidget* list, PluginData* plugin);
     void copyToClipboard(const QString& text);
-    MainWindow* getMainWindow();
+    MainWindow* getMainWindow(bool throwOnFail = true);
     QIcon iconThemed(const QString& name, const QPalette& pal = {});
     QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius = 9999, double yRadius = 9999);
     QPixmap pixmapThemed(const QString& name, const QPalette& pal = {});
