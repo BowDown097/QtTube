@@ -15,9 +15,10 @@ constexpr QLatin1String TargetVersionNotFoundError("Could not find target versio
 
 PluginData* PluginManager::activePlugin()
 {
-    auto it = std::ranges::find_if(m_loadedPlugins, [](const std::pair<const QString, PluginData>& p) {
-        return p.second.active;
-    });
+    if (QCommandLineParser& parser = qtTubeApp->commandLineParser(); parser.isSet("use-plugin"))
+        return findPlugin(parser.value("use-plugin"));
+
+    auto it = std::ranges::find_if(m_loadedPlugins, [](const auto& p) { return p.second.active; });
     if (it != m_loadedPlugins.end())
         return &it->second;
     else

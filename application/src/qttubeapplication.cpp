@@ -12,6 +12,19 @@
 #include <Windows.h>
 #endif
 
+QtTubeApplication::QtTubeApplication(int& argc, char** argv)
+    : QApplication(argc, argv)
+{
+    m_commandLineParser.setApplicationDescription(QTTUBE_APP_DESC);
+    m_commandLineParser.addHelpOption();
+    m_commandLineParser.addOption(QCommandLineOption({"c",  "channel"}, "View a channel.", "channel ID"));
+    m_commandLineParser.addOption(QCommandLineOption("chat", "Open a live chat window.", "video ID"));
+    m_commandLineParser.addOption(QCommandLineOption("use-plugin", "The plugin to use for this session.", "plugin name"));
+    m_commandLineParser.addOption(QCommandLineOption("version", "Displays version information."));
+    m_commandLineParser.addOption(QCommandLineOption({"v", "video"}, "Play a video.", "video ID"));
+    m_commandLineParser.parse(arguments());
+}
+
 void QtTubeApplication::doInitialSetup()
 {
     // on windows, rpath is not supported for plugins, so we'll add lib directories manually
@@ -63,6 +76,18 @@ void QtTubeApplication::handleUrlOrID(const QString& in)
             QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
         }
     }
+}
+
+bool QtTubeApplication::isPortableBuild()
+{
+    static const bool result = QtTubePlugin::isPortableBuild();
+    return result;
+}
+
+bool QtTubeApplication::isSelfContainedBuild()
+{
+    static const bool result = isPortableBuild() || QtTubePlugin::isSelfContainedBuild();
+    return result;
 }
 
 bool QtTubeApplication::notify(QObject* receiver, QEvent* event)

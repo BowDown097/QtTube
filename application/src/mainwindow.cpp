@@ -10,13 +10,12 @@
 #include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QAction>
-#include <QCommandLineParser>
 #include <QLineEdit>
 #include <QMessageBox>
 
 MainWindow::~MainWindow() { delete ui; }
 
-MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent)
+MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -83,11 +82,8 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent)
     }
 #endif
 
-    PluginData* plugin = parser.isSet("use-plugin")
-        ? qtTubeApp->plugins().findPlugin(parser.value("use-plugin"))
-        : qtTubeApp->plugins().activePlugin();
-
-    if (plugin)
+    QCommandLineParser& parser = qtTubeApp->commandLineParser();
+    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
         // just call activePluginChanged() to do setup for whatever plugin has been loaded
         activePluginChanged(plugin);

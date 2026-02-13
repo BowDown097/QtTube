@@ -8,7 +8,6 @@ QT_END_NAMESPACE
 
 class ContinuableListWidget;
 class FindBar;
-class QCommandLineParser;
 class QKeyEvent;
 class QResizeEvent;
 class QStackedWidget;
@@ -19,7 +18,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit MainWindow(const QCommandLineParser& parser, QWidget* parent = nullptr);
+    explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
     QStackedWidget* centralWidget();

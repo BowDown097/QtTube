@@ -7,9 +7,7 @@ int showChat(QtTubeApplication& a, QCommandLineParser& parser)
 {
     a.doInitialSetup();
 
-    PluginData* plugin = parser.isSet("use-plugin")
-        ? a.plugins().findPlugin(parser.value("use-plugin"))
-        : a.plugins().activePlugin();
+    PluginData* plugin = a.plugins().activePlugin();
     if (!plugin)
     {
         qCritical() << "Could not open live chat: Plugin not found.";
@@ -56,18 +54,9 @@ int main(int argc, char *argv[])
 #endif
 
     QtTubeApplication a(argc, argv);
+    QCommandLineParser& parser = a.commandLineParser();
 
-    QCommandLineParser parser;
-    parser.setApplicationDescription(QTTUBE_APP_DESC);
-    parser.addHelpOption();
-    parser.addOption(QCommandLineOption({"c",  "channel"}, "View a channel.", "channel ID"));
-    parser.addOption(QCommandLineOption("chat", "Open a live chat window.", "video ID"));
-    parser.addOption(QCommandLineOption("use-plugin", "The plugin to use for this session.", "plugin name"));
-    parser.addOption(QCommandLineOption("version", "Displays version information."));
-    parser.addOption(QCommandLineOption({"v", "video"}, "Play a video.", "video ID"));
-    parser.parse(QCoreApplication::arguments());
-
-    // immediately returning options
+    // these options all immediately return
     if (parser.isSet("chat"))
         return showChat(a, parser);
     if (parser.isSet("help"))
@@ -75,7 +64,7 @@ int main(int argc, char *argv[])
     if (parser.isSet("version"))
         parser.showVersion();
 
-    MainWindow w(parser);
+    MainWindow w;
     w.show();
 
 #ifdef QTTUBE_HAS_WAYLAND

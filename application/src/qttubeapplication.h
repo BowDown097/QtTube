@@ -2,6 +2,7 @@
 #include "plugins/pluginmanager.h"
 #include "stores/settingsstore.h"
 #include <QApplication>
+#include <QCommandLineParser>
 
 #ifdef QTTUBE_HAS_WAYLAND
 #include "wayland/waylandinterface.h"
@@ -13,24 +14,16 @@ class QtTubeApplication final : public QApplication
 {
     Q_OBJECT
 public:
-    QtTubeApplication(int& argc, char** argv) : QApplication(argc, argv) {}
+    QtTubeApplication(int& argc, char** argv);
     bool notify(QObject* receiver, QEvent* event) override;
 
-    static bool isPortableBuild()
-    {
-        static const bool result = QtTubePlugin::isPortableBuild();
-        return result;
-    }
-
-    static bool isSelfContainedBuild()
-    {
-        static const bool result = isPortableBuild() || QtTubePlugin::isSelfContainedBuild();
-        return result;
-    }
+    static bool isPortableBuild();
+    static bool isSelfContainedBuild();
 
     void doInitialSetup();
     void handleUrlOrID(const QString& in);
 
+    QCommandLineParser& commandLineParser() { return m_commandLineParser; }
     PluginManager& plugins() { return m_plugins; }
     SettingsStore& settings() { return m_settings; }
 
@@ -38,6 +31,7 @@ public:
     WaylandInterface& waylandInterface() { return m_waylandInterface; }
 #endif
 private:
+    QCommandLineParser m_commandLineParser;
     PluginManager m_plugins;
     SettingsStore m_settings;
 
