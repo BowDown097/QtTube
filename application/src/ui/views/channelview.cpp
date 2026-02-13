@@ -10,9 +10,11 @@
 
 ChannelView::~ChannelView()
 {
-    MainWindow* mainWindow = UIUtils::getMainWindow();
-    mainWindow->setWindowTitle(QTTUBE_APP_NAME);
-    disconnect(mainWindow->topbar()->logo, &TubeLabel::clicked, this, nullptr);
+    if (MainWindow* mainWindow = UIUtils::getMainWindow(false))
+    {
+        mainWindow->setWindowTitle(QTTUBE_APP_NAME);
+        disconnect(mainWindow->topbar()->logo, &TubeLabel::clicked, this, nullptr);
+    }
 }
 
 ChannelView::ChannelView(const QString& channelId, PluginData* plugin)

@@ -50,10 +50,13 @@ WatchView::WatchView(const QString& videoId, PluginData* plugin, int progress,
 
 WatchView::~WatchView()
 {
-    MainWindow* mainWindow = UIUtils::getMainWindow();
-    disconnect(mainWindow->topbar()->logo, &TubeLabel::clicked, this, nullptr);
+    if (MainWindow* mainWindow = UIUtils::getMainWindow(false))
+    {
+        disconnect(mainWindow->topbar()->logo, &TubeLabel::clicked, this, nullptr);
+        mainWindow->setWindowTitle(QTTUBE_APP_NAME);
+    }
+
     OSUtils::suspendIdleSleep(false);
-    mainWindow->setWindowTitle(QTTUBE_APP_NAME);
     delete ui;
 }
 
