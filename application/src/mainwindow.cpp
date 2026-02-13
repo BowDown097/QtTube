@@ -6,6 +6,7 @@
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/accountmenu/accountcontrollerwidget.h"
 #include "ui/widgets/findbar.h"
+#include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QAction>
@@ -34,8 +35,8 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent)
     });
 
     connect(m_topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
-    connect(m_topbar->avatarButton, &TubeLabel::clicked, this, &MainWindow::showAccountMenu);
-    connect(m_topbar->notificationBell, &TopBarBell::clicked, this, &MainWindow::showNotifications);
+    connect(m_topbar->avatarButton, &TubeLabel::clicked, this, &MainWindow::toggleAccountMenu);
+    connect(m_topbar->notificationBell, &TopBarBell::clicked, this, &MainWindow::toggleNotificationMenu);
     connect(m_topbar->searchBox, &SearchBox::searchRequested, this, &MainWindow::search);
 
     ui->tabWidget->setTabEnabled(4, false);
@@ -72,6 +73,7 @@ MainWindow::MainWindow(const QCommandLineParser& parser, QWidget* parent)
 
     qtTubeApp->doInitialSetup();
     connect(qtTubeApp, &QtTubeApplication::activePluginChanged, this, &MainWindow::activePluginChanged);
+    connect(&qtTubeApp->plugins(), &PluginManager::foundUpdate, this, &MainWindow::pluginUpdateAvailable);
 
 #ifdef Q_OS_LINUX
     if (qtTubeApp->settings().playerSettings.vaapi)
@@ -186,6 +188,13 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         m_findbar->setReveal(m_findbar->isHidden());
 
     QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::pluginUpdateAvailable(const QString&, const ReleaseData&)
+{
+    m_topbar->updateNotificationCount(m_topbar->notificationBell->count->text().toInt() + 1);
+    // TODO: it would be nice to have this display a system notification as well.
+    // that's why some stuff is being sent through the signal. not now though.
 }
 
 void MainWindow::reloadCurrentTab()
@@ -305,7 +314,7 @@ void MainWindow::searchWatchHistory()
     BrowseHelper::instance()->browseHistory(ui->historySearchWidget, m_lastSearchQuery);
 }
 
-void MainWindow::showAccountMenu()
+void MainWindow::toggleAccountMenu()
 {
     if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
     {
@@ -328,7 +337,7 @@ void MainWindow::showAccountMenu()
     }
 }
 
-void MainWindow::showNotifications()
+void MainWindow::toggleNotificationMenu()
 {
     if (m_notificationMenu->isVisible())
     {
@@ -340,7 +349,16 @@ void MainWindow::showNotifications()
 
     m_topbar->setAlwaysShow(true);
     m_notificationMenu->show();
-    BrowseHelper::instance()->browseNotificationMenu(m_notificationMenu);
+
+    for (const auto& [name, data] : qtTubeApp->plugins().updatablePlugins())
+    {
+        BrowseNotificationRenderer* notif = new BrowseNotificationRenderer;
+        notif->setData(name, data);
+        UIUtils::addWidgetToList(m_notificationMenu, notif);
+    }
+
+    if (qtTubeApp->plugins().hasAuthenticated())
+        BrowseHelper::instance()->browseNotificationMenu(m_notificationMenu);
 }
 
 TopBar* MainWindow::topbar()

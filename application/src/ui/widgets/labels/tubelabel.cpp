@@ -309,10 +309,12 @@ void TubeLabel::setMaximumLines(int lines)
         setText(m_rawText);
 }
 
-void TubeLabel::setPixmap(const QPixmap& pixmap)
+void TubeLabel::setPixmap(const QPixmap& pixmap, ImageFlags flags)
 {
     if (!m_imageData.has_value())
         m_imageData.emplace();
+    if (flags == NoImageFlags)
+        flags = m_imageData->flags;
 
     m_imageData->processing = false;
     m_lineRects.clear();
@@ -320,7 +322,7 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
 
     if (m_scaledContents)
     {
-        if (m_imageData->flags & KeepAspectRatio)
+        if (flags & KeepAspectRatio)
         {
             m_imageData->size = pixmap.size();
             updateMarginsForImageAspectRatio();
@@ -330,7 +332,7 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
         // this means unsetting the setScaledContents option to disable QLabel's scaling,
         // creating a scaled version of the pixmap ourselves, and then using that.
         // by doing this, the non-scaled pixmap will not be stored in memory.
-        if (minimumSize() == maximumSize() && !(m_imageData->flags & NoOptimizeForFixedSize))
+        if (minimumSize() == maximumSize() && !(flags & NoOptimizeForFixedSize))
         {
             QLabel::setScaledContents(false);
 
@@ -338,7 +340,7 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
             cr.adjust(margin(), margin(), margin(), margin());
             const qreal dpr = devicePixelRatio();
 
-            QPixmap scaledPixmap = m_imageData->flags & Rounded
+            QPixmap scaledPixmap = flags & Rounded
                 ? UIUtils::pixmapRounded(pixmap)
                       .scaled(cr.size() * dpr, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
                 : pixmap.scaled(cr.size() * dpr, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
@@ -349,7 +351,7 @@ void TubeLabel::setPixmap(const QPixmap& pixmap)
         }
     }
 
-    QLabel::setPixmap(m_imageData->flags & Rounded ? UIUtils::pixmapRounded(pixmap) : pixmap);
+    QLabel::setPixmap(flags & Rounded ? UIUtils::pixmapRounded(pixmap) : pixmap);
 }
 
 void TubeLabel::setScaledContents(bool enable)
@@ -414,7 +416,7 @@ void TubeLabel::setText(const QString& text, bool processRemoteImages, ImageFlag
     QLabel::setText(outText);
     calculateAndSetLineRects();
 
-    if (processRemoteImages && Qt::mightBeRichText(outText))
+    if (processRemoteImages && outText.contains("<img"))
     {
         RemoteImageProcessor* proc = new RemoteImageProcessor(outText, remoteImageFlags, this);
         connect(proc, &RemoteImageProcessor::textReady, proc, &RemoteImageProcessor::deleteLater);

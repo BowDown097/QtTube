@@ -9,12 +9,6 @@
 #include <QPushButton>
 #include <QTabBar>
 
-inline bool hasAuthenticated()
-{
-    const PluginData* plugin = qtTubeApp->plugins().activePlugin();
-    return plugin && plugin->auth && !plugin->auth->isEmpty();
-}
-
 TopBar::TopBar(QWidget* parent)
     : QWidget(parent),
       animation(new QPropertyAnimation(this, "geometry", this)),
@@ -32,29 +26,33 @@ TopBar::TopBar(QWidget* parent)
     animation->setDuration(250);
     animation->setEasingCurve(QEasingCurve::InOutQuint);
 
+    logo->move(10, 2);
+    logo->resize(134, 30);
+    logo->setClickable(true);
+    logo->setScaledContents(true);
+    // for some reason, this is rather low-res when using just pixmapThemed...
+    logo->setPixmap(UIUtils::iconThemed("qttube-full").pixmap(logo->size()));
+
+    searchBox->move(logo->width() + logo->x() + 8, 0);
+    searchBox->resize(475, 35);
+
+    notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
+    notificationBell->updatePixmap(false, palette());
+
+    settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 3);
+    settingsButton->resize(30, 30);
+    settingsButton->setClickable(true);
+    settingsButton->setScaledContents(true);
+    settingsButton->setPixmap(UIUtils::pixmapThemed("settings"));
+    connect(settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);
+
     avatarButton->hide();
-    avatarButton->move(673, 3);
+    avatarButton->move(searchBox->width() + searchBox->x() + 8, 3);
     avatarButton->resize(30, 30);
     avatarButton->setClickable(true);
     avatarButton->setScaledContents(true);
 
-    logo->move(10, 2);
-    logo->resize(134, 30);
-    logo->setClickable(true);
-    logo->setPixmap(UIUtils::iconThemed("qttube-full").pixmap(logo->size()));
-    logo->setScaledContents(true);
-
-    searchBox->move(152, 0);
-    searchBox->resize(513, 35);
-
-    settingsButton->move(673, 3);
-    settingsButton->resize(30, 30);
-    settingsButton->setClickable(true);
-    settingsButton->setPixmap(UIUtils::pixmapThemed("settings"));
-    settingsButton->setScaledContents(true);
-    connect(settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);
-
-    signInButton->move(711, 0);
+    signInButton->move(settingsButton->width() + settingsButton->x() + 8, 0);
     signInButton->resize(80, 35);
     signInButton->setText("Sign in");
     connect(signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
@@ -120,7 +118,7 @@ void TopBar::postSignInSetup()
 
 void TopBar::scaleAppropriately()
 {
-    if (hasAuthenticated())
+    if (qtTubeApp->plugins().hasAuthenticated())
     {
         searchBox->resize(502 + width() - 800, 35);
         notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
@@ -129,8 +127,9 @@ void TopBar::scaleAppropriately()
     }
     else
     {
-        searchBox->resize(490 + width() - 800, 35);
-        settingsButton->move(searchBox->width() + searchBox->x() + 8, 4);
+        searchBox->resize(452 + width() - 800, 35);
+        notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
+        settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 4);
         signInButton->move(settingsButton->width() + settingsButton->x() + 8, 0);
     }
 }
@@ -168,9 +167,6 @@ void TopBar::updatePalette(const QPalette& palette)
     notificationBell->updatePixmap(notificationBell->count->isVisible(), palette);
     searchBox->updatePalette(palette);
     settingsButton->setPixmap(UIUtils::pixmapThemed("settings", palette));
-
-    if (!hasAuthenticated())
-        notificationBell->hide();
 }
 
 void TopBar::updateUIForSignInState(bool signedIn)
@@ -178,13 +174,11 @@ void TopBar::updateUIForSignInState(bool signedIn)
     if (signedIn)
     {
         avatarButton->show();
-        notificationBell->show();
         signInButton->hide();
     }
     else
     {
         avatarButton->hide();
-        notificationBell->hide();
         signInButton->show();
     }
 

@@ -31,6 +31,7 @@ namespace UIUtils
     QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius = 9999, double yRadius = 9999);
     QPixmap pixmapThemed(const QString& name, const QPalette& pal = {});
     bool preferDark(const QPalette& pal = {});
+    QString relativeTimeString(const QDateTime& target, const QDateTime& reference);
     QString resolveThemedIconName(const QString& name, const QPalette& pal = {});
     void setAppStyle(const QString& styleName, bool dark);
     void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);

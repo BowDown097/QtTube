@@ -1,6 +1,6 @@
 #include "pluginbrowserview.h"
 #include "ui_pluginbrowserview.h"
-#include "pluginbuilddownloader.h"
+#include "plugindownloaddialog.h"
 #include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include <QMessageBox>
@@ -13,7 +13,6 @@ PluginBrowserView::PluginBrowserView(QWidget* parent)
     ui->setupUi(this);
 
     connect(m_browser, &PluginBrowser::error, this, &PluginBrowserView::error);
-    connect(m_browser, &PluginBrowser::gotNightlyBuild, this, &PluginBrowserView::downloadBuild);
     connect(m_browser, &PluginBrowser::gotPluginMetadata, this, &PluginBrowserView::gotPluginMetadata);
     connect(m_browser, &PluginBrowser::gotReleaseData, this, &PluginBrowserView::gotReleaseData);
     connect(m_browser, &PluginBrowser::gotRepositories, this, &PluginBrowserView::gotRepositories);
@@ -24,11 +23,11 @@ PluginBrowserView::~PluginBrowserView()
     delete ui;
 }
 
-void PluginBrowserView::downloadBuild(BasePluginEntry* entry, const ReleaseData& data)
+void PluginBrowserView::downloadBuild(BasePluginEntry* entry, ReleaseData data)
 {
-    PluginBuildDownloader* downloader = new PluginBuildDownloader(data);
-    downloader->show();
-    connect(downloader, &PluginBuildDownloader::success, this, [entry] {
+    PluginDownloadDialog* dialog = new PluginDownloadDialog(entry->pluginName(), std::move(data));
+    dialog->show();
+    connect(dialog, &PluginDownloadDialog::success, this, [entry] {
         static_cast<PluginBrowserViewEntry*>(entry)->m_installButton->setEnabled(false);
     });
 }
@@ -49,27 +48,24 @@ void PluginBrowserView::gotPluginMetadata(BasePluginEntry* entry, const PluginEn
     PluginBrowserViewEntry* viewEntry = static_cast<PluginBrowserViewEntry*>(entry);
     viewEntry->setData(*metadata);
     viewEntry->show();
-    connect(viewEntry->m_installButton, &QPushButton::clicked, this, [this, entry, metadata] {
-        m_browser->getReleaseData(entry, metadata);
+    connect(viewEntry->m_installButton, &QPushButton::clicked, this, [=, this] {
+        m_browser->getReleaseData(entry, metadata->repoFullName, metadata->defaultBranch);
     });
 }
 
-void PluginBrowserView::gotReleaseData(
-    BasePluginEntry* entry,
-    const PluginEntryMetadataPtr& metadata,
-    const std::optional<ReleaseData>& data)
+void PluginBrowserView::gotReleaseData(BasePluginEntry* entry, ReleaseData data)
 {
-    if (!data)
+    if (!data.isNightly && !data.asset.has_value())
     {
         QMessageBox::StandardButton button = QMessageBox::question(
             this, "No Release Found",
             "No release has been found for this plugin. Would you like to try to get a nightly build?");
         if (button == QMessageBox::Yes)
-            m_browser->getNightlyBuild(entry, metadata);
+            m_browser->getNightlyBuild(entry, data.fullName, data.defaultBranch);
         return;
     }
 
-    downloadBuild(entry, data.value());
+    downloadBuild(entry, std::move(data));
 }
 
 void PluginBrowserView::gotRepositories(const QList<RepositoryItemPtr>& items)

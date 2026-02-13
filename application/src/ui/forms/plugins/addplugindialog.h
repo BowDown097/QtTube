@@ -18,7 +18,15 @@ public:
     explicit AddPluginDialog(QWidget* parent = nullptr);
     ~AddPluginDialog();
 private:
+    struct PluginSource
+    {
+        QFileInfo fileInfo;
+        QString targetFileName;
+    };
+
     Ui::AddPluginDialog* ui;
+
+    PluginSource resolvePluginSource(const QString& input);
 private slots:
     void attemptAdd();
     void getOpenFile();

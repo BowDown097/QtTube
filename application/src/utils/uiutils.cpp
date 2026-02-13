@@ -193,6 +193,128 @@ namespace UIUtils
                 : pal.alternateBase().color().lightness() < 60;
     }
 
+    QString relativeTimeString(const QDateTime& target, const QDateTime& reference)
+    {
+        if (target == reference)
+            return QLatin1String("now");
+
+        enum DateTimeUnit { YEAR, MONTH, WEEK, DAY, HOUR, MINUTE, SECOND };
+        struct DateTimeUnitInfo { int unitDuration; DateTimeUnit unit; int threshold = 1; };
+        struct PluralSelector { QLatin1String one; QLatin1String other; };
+        struct RDTFSymbol { PluralSelector P; PluralSelector F; };
+
+        static constexpr std::array dateTimeUnits = {
+            DateTimeUnitInfo { .unitDuration = int(604800), .unit = WEEK, .threshold = 2 },
+            DateTimeUnitInfo { .unitDuration = int(86400), .unit = DAY },
+            DateTimeUnitInfo { .unitDuration = int(3600), .unit = HOUR },
+            DateTimeUnitInfo { .unitDuration = int(60), .unit = MINUTE },
+            DateTimeUnitInfo { .unitDuration = int(1), .unit = SECOND }
+        };
+
+        static constexpr std::array rdtfSymbols = {
+            RDTFSymbol { // year
+                .P = {
+                    .one = QLatin1String("%1 year ago"),
+                    .other = QLatin1String("%1 years ago")
+                },
+                .F = {
+                    .one = QLatin1String("in %1 year"),
+                    .other = QLatin1String("in %1 years")
+                }
+            },
+            RDTFSymbol { // month
+                .P = {
+                    .one = QLatin1String("%1 month ago"),
+                    .other = QLatin1String("%1 months ago")
+                },
+                .F = {
+                    .one = QLatin1String("in %1 month"),
+                    .other = QLatin1String("in %1 months")
+                }
+            },
+            RDTFSymbol { // week
+                .P = {
+                    .one = QLatin1String("%1 week ago"),
+                    .other = QLatin1String("%1 weeks ago")
+                },
+                .F = {
+                    .one = QLatin1String("in %1 week"),
+                    .other = QLatin1String("in %1 weeks")
+                }
+            },
+            RDTFSymbol { // day
+                .P = {
+                    .one = QLatin1String("%1 day ago"),
+                    .other = QLatin1String("%1 days ago")
+                },
+                .F = {
+                    .one = QLatin1String("in %1 day"),
+                    .other = QLatin1String("in %1 days")
+                }
+            },
+            RDTFSymbol { // hour
+                .P = {
+                    .one = QLatin1String("%1 hour ago"),
+                    .other = QLatin1String("%1 hours ago")
+                },
+                .F = {
+                    .one = QLatin1String("in %1 hour"),
+                    .other = QLatin1String("in %1 hours")
+                }
+            },
+            RDTFSymbol { // minute
+                .P = {
+                    .one = QLatin1String("%1 minute ago"),
+                    .other = QLatin1String("%1 minutes ago")
+                },
+                .F = {
+                    .one = QLatin1String("in %1 minute"),
+                    .other = QLatin1String("in %1 minutes")
+                }
+            },
+            RDTFSymbol { // second
+                .P = {
+                    .one = QLatin1String("%1 second ago"),
+                    .other = QLatin1String("%1 seconds ago")
+                },
+                .F = {
+                    .one = QLatin1String("in %1 second"),
+                    .other = QLatin1String("in %1 seconds")
+                }
+            },
+        };
+
+        auto format = [](qint64 num, DateTimeUnit unit) -> QString {
+            bool future = num > 0;
+            const PluralSelector& sel = future ? rdtfSymbols[unit].F : rdtfSymbols[unit].P;
+
+            num = std::abs(num);
+            QLatin1String pattern = num == 1 ? sel.one : sel.other;
+            return pattern.arg(QString::number(num));
+        };
+
+        bool future = reference > target;
+        const QDateTime& start = future ? target : reference;
+        const QDateTime& end = future ? reference : target;
+
+        int v = 0;
+        while (start.addMonths(12 * (v + 1)) < end) ++v;
+        if (v > 0)
+            return format(future ? v : -v, YEAR);
+
+        v = 0;
+        while (start.addMonths(v + 1) < end) ++v;
+        if (v > 0)
+            return format(future ? v : -v, MONTH);
+
+        qint64 secs = start.secsTo(end);
+        for (const DateTimeUnitInfo& u : dateTimeUnits)
+            if (qint64 n = secs / u.unitDuration; n >= u.threshold)
+                return format(future ? n : -n, u.unit);
+
+        return {};
+    }
+
     QString resolveThemedIconName(const QString& name, const QPalette& pal)
     {
         const QString baseFile = ":/" + name + ".svg";

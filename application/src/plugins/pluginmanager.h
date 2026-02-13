@@ -1,5 +1,6 @@
 #pragma once
 #include "qttube-plugin/plugininterface.h"
+#include "pluginbrowser.h"
 #include <QFileInfo>
 #include <QLibrary>
 
@@ -54,25 +55,32 @@ struct PluginData
     QtTubePlugin::SettingsStore* settings{};
 };
 
-class PluginManager
+class PluginManager : public QObject
 {
+    Q_OBJECT
 public:
     PluginData* activePlugin();
     bool containsPlugin(const QString& name);
     PluginData* findPlugin(const QString& name);
+    bool hasAuthenticated() const;
     bool hasLoadablePlugins() const { return m_foundPluginFile; }
     PluginData* loadAndInitPlugin(PluginData&& plugin);
     PluginData* loadAndInitPlugin(const QFileInfo& fileInfo);
     QList<PluginData*> loadedPlugins();
     PluginData openPlugin(const QFileInfo& fileInfo);
     void reloadPlugins();
+    std::unordered_map<QString, ReleaseData>& updatablePlugins() { return m_updatablePlugins; }
 
     static const QList<QDir>& libraryLoadDirs();
     static const QList<QDir>& pluginLoadDirs();
 private:
     bool m_foundPluginFile{};
     std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
+    std::unordered_map<QString, ReleaseData> m_updatablePlugins;
 
     void checkPluginMetadata(const PluginData& plugin);
     void checkPluginTargetVersion(const PluginData& plugin);
+    void checkUpdate(const QString& pluginName, const QFileInfo& updateFile);
+signals:
+    void foundUpdate(const QString& name, const ReleaseData& data);
 };

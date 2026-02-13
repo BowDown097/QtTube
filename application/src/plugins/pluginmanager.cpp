@@ -60,6 +60,31 @@ void PluginManager::checkPluginTargetVersion(const PluginData& plugin)
     }
 }
 
+void PluginManager::checkUpdate(const QString& name, const QFileInfo& updateFile)
+{
+    std::shared_ptr<PluginBrowser> browser(new PluginBrowser, [](PluginBrowser* p) { p->deleteLater(); });
+    QSettings settings(updateFile.filePath(), QSettings::IniFormat);
+
+    QString defaultBranch = settings.value("defaultBranch").toString();
+    bool isNightly = settings.value("isNightly").toBool();
+    QString repoName = settings.value("repoName").toString();
+    QDateTime updatedAt = settings.value("updatedAt").toDateTime();
+
+    if (isNightly)
+        browser->getNightlyBuild(nullptr, repoName, defaultBranch);
+    else
+        browser->getReleaseData(nullptr, repoName, defaultBranch);
+
+    QObject::connect(browser.get(), &PluginBrowser::gotReleaseData,
+    [this, browser, name, updatedAt](BasePluginEntry*, ReleaseData data) {
+        if (data.asset && data.asset->updatedAt > updatedAt)
+        {
+            auto [it, _] = m_updatablePlugins.emplace(name, std::move(data));
+            emit foundUpdate(it->first, it->second);
+        }
+    });
+}
+
 bool PluginManager::containsPlugin(const QString& name)
 {
     return m_loadedPlugins.contains(name);
@@ -71,6 +96,12 @@ PluginData* PluginManager::findPlugin(const QString& name)
         return &it->second;
     else
         return nullptr;
+}
+
+bool PluginManager::hasAuthenticated() const
+{
+    const PluginData* plugin = qtTubeApp->plugins().activePlugin();
+    return plugin && plugin->auth && !plugin->auth->isEmpty();
 }
 
 const QList<QDir>& PluginManager::libraryLoadDirs()
@@ -193,18 +224,38 @@ void PluginManager::reloadPlugins()
     m_loadedPlugins.clear();
 
     QList<QFileInfo> pluginsToLoad;
+    auto storeInfo = [&](QFileInfo&& info) {
+        QFileInfo& stored = pluginsToLoad.emplaceBack(std::move(info));
+        if (activePluginName.isEmpty())
+            activePluginName = stored.fileName();
+    };
 
     for (const QDir& dir : pluginLoadDirs())
     {
-        for (QDirIterator it(dir.path(), QDir::Files); it.hasNext();)
+        constexpr QDir::Filters filters = QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot;
+        for (QDirIterator it(dir.path(), filters); it.hasNext();)
         {
-            QString fileName = it.next();
-            if (!QLibrary::isLibrary(fileName))
-                continue;
-
-            QFileInfo& fileInfo = pluginsToLoad.emplaceBack(fileName);
-            if (activePluginName.isEmpty())
-                activePluginName = fileInfo.fileName();
+            QFileInfo info(it.next());
+            if (info.isDir())
+            {
+                for (QDirIterator it2(info.filePath(), filters); it2.hasNext();)
+                {
+                    if (QFileInfo info2(it2.next()); info2.fileName() == "update.ini")
+                    {
+                        QString pluginName = info.fileName();
+                        if (!m_updatablePlugins.contains(pluginName))
+                            checkUpdate(pluginName, info2);
+                    }
+                    else if (QLibrary::isLibrary(info2.filePath()))
+                    {
+                        storeInfo(std::move(info2));
+                    }
+                }
+            }
+            else if (QLibrary::isLibrary(info.filePath()))
+            {
+                storeInfo(std::move(info));
+            }
         }
     }
 

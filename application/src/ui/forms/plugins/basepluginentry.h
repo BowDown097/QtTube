@@ -21,6 +21,7 @@ class BasePluginEntry : public QWidget
 {
 public:
     explicit BasePluginEntry(QWidget* parent = nullptr);
+    QString pluginName() const { return m_nameLabel->text(); }
     virtual void setData(const PluginEntryMetadata& metadata);
     void setData(const QtTubePlugin::PluginMetadata& metadata);
 protected:

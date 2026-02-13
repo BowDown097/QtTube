@@ -12,6 +12,7 @@ class QCommandLineParser;
 class QKeyEvent;
 class QResizeEvent;
 class QStackedWidget;
+struct ReleaseData;
 class TopBar;
 
 class MainWindow : public QMainWindow
@@ -24,13 +25,14 @@ public:
     QStackedWidget* centralWidget();
     TopBar* topbar();
 public slots:
-    void showAccountMenu();
-    void showNotifications();
+    void toggleAccountMenu();
+    void toggleNotificationMenu();
 protected:
     void keyPressEvent(QKeyEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 private slots:
     void activePluginChanged(struct PluginData* activePlugin);
+    void pluginUpdateAvailable(const QString& name, const ReleaseData& data);
     void reloadCurrentTab();
     void returnFromSearch();
     void returnFromWatchHistorySearch();

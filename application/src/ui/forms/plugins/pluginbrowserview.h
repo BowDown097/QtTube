@@ -25,13 +25,10 @@ private:
     PluginBrowser* m_browser;
     Ui::PluginBrowserView* ui;
 private slots:
-    void downloadBuild(BasePluginEntry* entry, const ReleaseData& data);
+    void downloadBuild(BasePluginEntry* entry, ReleaseData data);
     void error(const QString& context, const QString& message);
     void gotPluginMetadata(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata);
-    void gotReleaseData(
-        BasePluginEntry* entry,
-        const PluginEntryMetadataPtr& metadata,
-        const std::optional<ReleaseData>& data);
+    void gotReleaseData(BasePluginEntry* entry, ReleaseData data);
     void gotRepositories(const QList<RepositoryItemPtr>& items);
 };
 

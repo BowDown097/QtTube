@@ -19,6 +19,7 @@ set(SOURCE_FILES
     src/mainwindow.cpp
     src/qttubeapplication.cpp
     src/plugins/pluginbrowser.cpp
+    src/plugins/pluginbuilddownloader.cpp
     src/plugins/pluginmanager.cpp
     src/stores/emojistore.cpp
     src/stores/settingsstore.cpp
@@ -27,7 +28,7 @@ set(SOURCE_FILES
     src/ui/forms/plugins/addplugindialog.cpp
     src/ui/forms/plugins/basepluginentry.cpp
     src/ui/forms/plugins/pluginbrowserview.cpp
-    src/ui/forms/plugins/pluginbuilddownloader.cpp
+    src/ui/forms/plugins/plugindownloaddialog.cpp
     src/ui/forms/settings/settingsform.cpp
     src/ui/forms/settings/termfilterview.cpp
     src/ui/views/channelview.cpp
@@ -81,6 +82,7 @@ set(HEADERS
     src/qttubeapplication.h
     src/plugins/pluginbrowser.h
     src/plugins/pluginbrowsercache.h
+    src/plugins/pluginbuilddownloader.h
     src/plugins/pluginmanager.h
     src/stores/emojistore.h
     src/stores/settingsstore.h
@@ -89,7 +91,7 @@ set(HEADERS
     src/ui/forms/plugins/addplugindialog.h
     src/ui/forms/plugins/basepluginentry.h
     src/ui/forms/plugins/pluginbrowserview.h
-    src/ui/forms/plugins/pluginbuilddownloader.h
+    src/ui/forms/plugins/plugindownloaddialog.h
     src/ui/forms/settings/settingsform.h
     src/ui/forms/settings/termfilterview.h
     src/ui/views/channelview.h

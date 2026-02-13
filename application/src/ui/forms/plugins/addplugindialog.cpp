@@ -32,61 +32,15 @@ AddPluginDialog::~AddPluginDialog()
 
 void AddPluginDialog::attemptAdd()
 {
-    PluginData plugin;
     const QDir& pluginsDir = qtTubeApp->plugins().pluginLoadDirs().front();
+    PluginData plugin;
     QString pluginPath;
 
     try
     {
-        QString libraryInput = ui->lineEdit->text();
-        if (QFileInfo libraryFileInfo(libraryInput); libraryFileInfo.exists())
-        {
-            plugin = qtTubeApp->plugins().openPlugin(libraryFileInfo);
-            pluginPath = pluginsDir.filePath(libraryFileInfo.fileName());
-        }
-        else if (QUrl libraryUrl(libraryInput); libraryUrl.isValid())
-        {
-            if (libraryUrl.isLocalFile())
-            {
-                QFileInfo localFileInfo(libraryUrl.toLocalFile());
-                plugin = qtTubeApp->plugins().openPlugin(localFileInfo);
-                pluginPath = pluginsDir.filePath(localFileInfo.fileName());
-            }
-            else if (QString fileName = libraryUrl.fileName(); !fileName.isEmpty())
-            {
-                bool fullyTemp = !QLibrary::isLibrary(fileName);
-                QFile temporaryPluginFile(fullyTemp
-                    ? QDir::temp().filePath(QUuid::createUuid().toString(QUuid::Id128) + libraryExtension)
-                    : QDir::temp().filePath(libraryUrl.fileName()));
-                if (!temporaryPluginFile.open(QFile::WriteOnly))
-                {
-                    QMessageBox::critical(this, QString(), "Could not open plugin file for writing.");
-                    done(QDialog::Rejected);
-                    return;
-                }
-
-                HttpReply* reply = HttpRequest().writingToIODevice(&temporaryPluginFile).get(libraryUrl);
-                QEventLoop loop;
-                connect(reply, &HttpReply::finished, &loop, &QEventLoop::quit);
-                loop.exec();
-
-                temporaryPluginFile.close();
-
-                plugin = qtTubeApp->plugins().openPlugin(QFileInfo(temporaryPluginFile));
-
-                QString dispFileName = reply->getFileName();
-                if (fullyTemp && !dispFileName.isEmpty())
-                    pluginPath = pluginsDir.filePath(dispFileName);
-                else
-                    pluginPath = pluginsDir.filePath(fileName);
-            }
-            else
-            {
-                QMessageBox::critical(this, "Invalid Input", "The provided input is not a valid URL.");
-                done(QDialog::Rejected);
-                return;
-            }
-        }
+        PluginSource source = resolvePluginSource(ui->lineEdit->text());
+        plugin = qtTubeApp->plugins().openPlugin(source.fileInfo);
+        pluginPath = pluginsDir.filePath(source.targetFileName);
     }
     catch (const PluginLoadException& ex)
     {
@@ -97,7 +51,7 @@ void AddPluginDialog::attemptAdd()
 
     pluginsDir.mkpath(".");
 
-    if (!QFile::rename(plugin.fileInfo.absoluteFilePath(), pluginPath))
+    if (!QFile::rename(plugin.fileInfo.filePath(), pluginPath))
     {
         QMessageBox::critical(this, QString(), "Could not relocate plugin file to plugin folder.");
         done(QDialog::Rejected);
@@ -121,6 +75,62 @@ void AddPluginDialog::getOpenFile()
 {
     ui->lineEdit->setText(QFileDialog::getOpenFileName(
         this, "Select a library file...", {}, "Library files (*" + libraryExtension + ')'));
+}
+
+AddPluginDialog::PluginSource AddPluginDialog::resolvePluginSource(const QString& input)
+{
+    // case 1: direct file path
+    if (QFileInfo fileInfo(input); fileInfo.exists())
+    {
+        return {
+            .fileInfo = fileInfo,
+            .targetFileName = fileInfo.fileName()
+        };
+    }
+
+    QUrl url(input);
+    if (!url.isValid())
+        throw PluginLoadException("The provided input is not a valid file or URL.");
+
+    // case 2: local file URL
+    if (url.isLocalFile())
+    {
+        QFileInfo fileInfo(url.toLocalFile());
+        if (!fileInfo.exists())
+            throw PluginLoadException("The provided URL points to a nonexistent local file.");
+
+        return {
+            .fileInfo = fileInfo,
+            .targetFileName = fileInfo.fileName()
+        };
+    }
+
+    // case 3: remote URL
+    QString fileName = url.fileName();
+    if (fileName.isEmpty())
+        throw PluginLoadException("The provided URL does not point to a local or remote file.");
+
+    bool fullyTemp = !QLibrary::isLibrary(fileName);
+    QFile tempFile(fullyTemp
+        ? QDir::temp().filePath(QUuid::createUuid().toString(QUuid::Id128) + libraryExtension)
+        : QDir::temp().filePath(fileName));
+
+    if (!tempFile.open(QFile::WriteOnly))
+        throw PluginLoadException("Could not open plugin file for writing.");
+
+    HttpReply* reply = HttpRequest().writingToIODevice(&tempFile).get(url);
+
+    QEventLoop loop;
+    connect(reply, &HttpReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    tempFile.close();
+    QString displayFileName = reply->getFileName();
+
+    return {
+        .fileInfo = QFileInfo(tempFile),
+        .targetFileName = (fullyTemp && !displayFileName.isEmpty()) ? displayFileName : fileName
+    };
 }
 
 AddPluginDialogEntry::AddPluginDialogEntry(PluginData* data, QWidget* parent)

@@ -56,21 +56,20 @@ namespace
 }
 
 void PluginBrowser::getExpandedAssets(
-    BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata, const QString& tagName)
+    BasePluginEntry* entry, const QString& fullName,
+    const QString& defaultBranch, const QString& tagName)
 {
-    HttpReply* reply = HttpRequest().get(expandedAssetsFormat.arg(metadata->repoFullName, tagName));
-    connect(reply, &HttpReply::finished, this, [this, entry, metadata, tagName](const HttpReply& reply) {
-        getExpandedAssetsFinished(entry, metadata, tagName, reply);
+    HttpReply* reply = HttpRequest().get(expandedAssetsFormat.arg(fullName, tagName));
+    connect(reply, &HttpReply::finished, this, [=, this](const HttpReply& reply) {
+        getExpandedAssetsFinished(entry, fullName, defaultBranch, reply);
     });
 }
 
 void PluginBrowser::getExpandedAssetsFinished(
-    BasePluginEntry* entry,
-    const PluginEntryMetadataPtr& metadata,
-    const QString& tagName,
-    const HttpReply& reply)
+    BasePluginEntry* entry, const QString& fullName,
+    const QString& defaultBranch, const HttpReply& reply)
 {
-    ReleaseData data = { .tagName = tagName };
+    ReleaseData data = { .defaultBranch = defaultBranch, .fullName = fullName };
 
     try
     {
@@ -78,28 +77,28 @@ void PluginBrowser::getExpandedAssetsFinished(
         parser.SetStrict(true);
 
         HtmlParser::DOM dom = parser.Parse(reply.readAll().toStdString());
-
-        std::vector<NodePtr> items = dom.GetElementsByTagName("li");
-        for (const NodePtr& item : items)
+        for (const NodePtr& item : dom.GetElementsByTagName("li"))
         {
             HtmlParser::Query query(item);
-            if (NodePtr truncate = query.SelectFirst(".Truncate"))
-            {
-                if (QString href = QString::fromStdString(truncate->GetAttribute("href"));
-                    isReleaseForPlatform(href))
-                {
-                    data.asset.downloadUrl = "https://github.com" + std::move(href);
-                    data.asset.name = getAssetName(truncate);
-                    if (NodePtr time = query.SelectFirst("relative-time"))
-                        data.asset.updatedAt = QString::fromStdString(time->GetAttribute("datetime"));
-                    else
-                        data.asset.updatedAt = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
-                    break;
-                }
-            }
+            NodePtr truncate = query.SelectFirst(".Truncate");
+            NodePtr time = query.SelectFirst("relative-time");
+            if (!truncate || !time)
+                continue;
+
+            QString href = QString::fromStdString(truncate->GetAttribute("href"));
+            if (!isReleaseForPlatform(href))
+                continue;
+
+            data.asset = ReleaseData::Asset {
+                .downloadUrl = "https://github.com" + std::move(href),
+                .name = getAssetName(truncate),
+                .updatedAt = QDateTime::fromString(
+                    QString::fromStdString(time->GetAttribute("datetime")), Qt::ISODate)
+            };
+            break;
         }
 
-        emit gotReleaseData(entry, metadata, data);
+        emit gotReleaseData(entry, std::move(data));
     }
     catch (const std::runtime_error& ex)
     {
@@ -110,7 +109,7 @@ void PluginBrowser::getExpandedAssetsFinished(
 void PluginBrowser::getMetadata(BasePluginEntry* entry, const RepositoryItemPtr& item)
 {
     HttpReply* reply = HttpRequest().get(downloadUrlFormat.arg(item->fullName, item->defaultBranch));
-    connect(reply, &HttpReply::finished, this, [this, entry, item](const HttpReply& reply) {
+    connect(reply, &HttpReply::finished, this, [=, this](const HttpReply& reply) {
         getMetadataFinished(entry, item, reply);
     });
 }
@@ -149,16 +148,17 @@ void PluginBrowser::getMetadataFinished(
     }
 }
 
-void PluginBrowser::getNightlyBuild(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata)
+void PluginBrowser::getNightlyBuild(BasePluginEntry* entry, const QString& fullName, const QString& defaultBranch)
 {
-    HttpReply* reply = HttpRequest().get(
-        nightlyLinkFormat.arg(metadata->repoFullName, metadata->defaultBranch));
-    connect(reply, &HttpReply::finished, this, [this, entry](const HttpReply& reply) {
-        getNightlyBuildFinished(entry, reply);
+    HttpReply* reply = HttpRequest().get(nightlyLinkFormat.arg(fullName, defaultBranch));
+    connect(reply, &HttpReply::finished, this, [=, this](const HttpReply& reply) {
+        getNightlyBuildFinished(entry, fullName, defaultBranch, reply);
     });
 }
 
-void PluginBrowser::getNightlyBuildFinished(BasePluginEntry* entry, const HttpReply& reply)
+void PluginBrowser::getNightlyBuildFinished(
+    BasePluginEntry* entry, const QString& fullName,
+    const QString& defaultBranch, const HttpReply& reply)
 {
     if (int statusCode = reply.statusCode(); statusCode == 404)
     {
@@ -192,21 +192,42 @@ void PluginBrowser::getNightlyBuildFinished(BasePluginEntry* entry, const HttpRe
         for (const NodePtr& artifact : artifacts)
         {
             QString href = QString::fromStdString(artifact->GetAttribute("href"));
-            if (isReleaseForPlatform(href))
-            {
-                emit gotNightlyBuild(entry, ReleaseData {
-                    .asset = ReleaseData::Asset {
-                        .downloadUrl = href,
-                        .name = href.section('/', -1),
-                        .updatedAt = QDateTime::currentDateTimeUtc().toString(Qt::ISODate)
-                    },
-                    .tagName = "nightly"
+            if (!isReleaseForPlatform(href))
+                continue;
+
+            QNetworkRequest req(href);
+            req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
+
+            QNetworkReply* netReply = HttpReply::networkAccessManager()->get(req);
+            connect(netReply, &QNetworkReply::finished, this, [=, this] {
+                QVariant redirectTarget = netReply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+                if (!redirectTarget.isValid())
+                {
+                    emit error("Getting Nightly Build", "Nightly link has no redirect target. This should not happen!");
+                    return;
+                }
+
+                HttpReply* reply = HttpRequest().head(redirectTarget.toUrl());
+                connect(reply, &HttpReply::finished, this, [=, this](const HttpReply& reply) {
+                    emit gotReleaseData(entry, ReleaseData {
+                        .asset = ReleaseData::Asset {
+                            .downloadUrl = href,
+                            .name = href.section('/', -1),
+                            .updatedAt = QDateTime::fromString(
+                                reply.header("Last-Modified").replace(" GMT", " +0000"), Qt::RFC2822Date)
+                        },
+                        .defaultBranch = defaultBranch,
+                        .fullName = fullName,
+                        .isNightly = true
+                    });
                 });
-                return;
-            }
+            });
+            return;
         }
 
-        emit error("Getting Nightly Build", "Could not find a suitable nightly build.");
+        // emit error if we didn't find a suitable asset, because we have no fallback.
+        // in the release check, we do not emit an error, and instead prompt for nightly fallback.
+        emit error("Getting Nightly Build", "Could not find a suitable asset.");
     }
     catch (const std::runtime_error& ex)
     {
@@ -214,29 +235,30 @@ void PluginBrowser::getNightlyBuildFinished(BasePluginEntry* entry, const HttpRe
     }
 }
 
-void PluginBrowser::getReleaseData(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata)
+void PluginBrowser::getReleaseData(BasePluginEntry* entry, const QString& fullName, const QString& defaultBranch)
 {
-    HttpReply* reply = HttpRequest().get(latestReleaseApiFormat.arg(metadata->repoFullName));
-    connect(reply, &HttpReply::finished, this, [this, entry, metadata](const HttpReply& reply) {
-        getReleaseDataFinished(entry, metadata, reply);
+    HttpReply* reply = HttpRequest().get(latestReleaseApiFormat.arg(fullName));
+    connect(reply, &HttpReply::finished, this, [=, this](const HttpReply& reply) {
+        getReleaseDataFinished(entry, fullName, defaultBranch, reply);
     });
 }
 
 void PluginBrowser::getReleaseDataFinished(
-    BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata, const HttpReply& reply)
+    BasePluginEntry* entry, const QString& fullName,
+    const QString& defaultBranch, const HttpReply& reply)
 {
-    // if 404, then there's no release at all. emit nullopt to prompt for nightly link fallback later
+    // if 404, then there's no release at all.
+    // emit with no asset to prompt for nightly fallback later.
     if (reply.statusCode() == 404)
     {
-        emit gotReleaseData(entry, metadata, std::nullopt);
+        emit gotReleaseData(entry, ReleaseData { .defaultBranch = defaultBranch, .fullName = fullName });
         return;
     }
 
     QJsonObject obj = QJsonDocument::fromJson(reply.readAll()).object();
-
     if (auto [errorType, msg] = resolveError(reply, obj); errorType == ErrorType::RateLimit)
     {
-        releaseDataFallback(entry, metadata);
+        releaseDataFallback(entry, fullName, defaultBranch);
         return;
     }
     else if (errorType != ErrorType::NoError)
@@ -245,21 +267,23 @@ void PluginBrowser::getReleaseDataFinished(
         return;
     }
 
-    ReleaseData data = { .tagName = obj["tag_name"].toString() };
-
+    ReleaseData data = { .defaultBranch = defaultBranch, .fullName = fullName };
     const QJsonArray assets = obj["assets"].toArray();
+
     for (const QJsonValue& asset : assets)
     {
-        if (QString downloadUrl = asset["browser_download_url"].toString(); isReleaseForPlatform(downloadUrl))
+        QString downloadUrl = asset["browser_download_url"].toString();
+        if (isReleaseForPlatform(downloadUrl))
         {
-            data.asset.downloadUrl = std::move(downloadUrl);
-            data.asset.name = asset["name"].toString();
-            data.asset.updatedAt = asset["updated_at"].toString();
-            break;
+            data.asset = ReleaseData::Asset {
+                .downloadUrl = std::move(downloadUrl),
+                .name = asset["name"].toString(),
+                .updatedAt = QDateTime::fromString(asset["updated_at"].toString(), Qt::ISODate)
+            };
         }
     }
 
-    emit gotReleaseData(entry, metadata, data);
+    emit gotReleaseData(entry, std::move(data));
 }
 
 void PluginBrowser::getRepositories()
@@ -271,7 +295,6 @@ void PluginBrowser::getRepositories()
 void PluginBrowser::getRepositoriesFinished(const HttpReply& reply)
 {
     QJsonObject obj = QJsonDocument::fromJson(reply.readAll()).object();
-
     if (auto [errorType, msg] = resolveError(reply, obj); errorType != ErrorType::NoError)
     {
         emit error("Getting Repositories", msg);
@@ -300,31 +323,32 @@ void PluginBrowser::getRepositoriesFinished(const HttpReply& reply)
         getRepositories();
 }
 
-void PluginBrowser::releaseDataFallback(BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata)
+void PluginBrowser::releaseDataFallback(BasePluginEntry* entry, const QString& fullName, const QString& defaultBranch)
 {
     HttpReply* reply = HttpRequest()
         .withAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy)
-        .head(latestReleaseWebFormat.arg(metadata->repoFullName));
-    connect(reply, &HttpReply::finished, this, [this, entry, metadata](const HttpReply& reply) {
-        releaseDataFallbackFinished(entry, metadata, reply);
+        .head(latestReleaseWebFormat.arg(fullName));
+    connect(reply, &HttpReply::finished, this, [=, this](const HttpReply& reply) {
+        releaseDataFallbackFinished(entry, fullName, defaultBranch, reply);
     });
 }
 
 void PluginBrowser::releaseDataFallbackFinished(
-    BasePluginEntry* entry, const PluginEntryMetadataPtr& metadata, const HttpReply& reply)
+    BasePluginEntry* entry, const QString& fullName,
+    const QString& defaultBranch, const HttpReply& reply)
 {
     if (QVariant redirect = reply.attribute(QNetworkRequest::RedirectionTargetAttribute); redirect.isValid())
     {
         if (QString path = redirect.toUrl().path(); path.contains("/releases/tag/"))
         {
-            getExpandedAssets(entry, metadata, path.section('/', -1));
+            getExpandedAssets(entry, fullName, defaultBranch, path.section('/', -1));
             return;
         }
     }
 
     // if we've gotten here, there's probably no release at all.
-    // emit nullopt to prompt for nightly link fallback later
-    emit gotReleaseData(entry, metadata, std::nullopt);
+    // emit with no asset to prompt for nightly fallback later.
+    emit gotReleaseData(entry, ReleaseData { .defaultBranch = defaultBranch, .fullName = fullName });
 }
 
 std::pair<PluginBrowser::ErrorType, QString> PluginBrowser::resolveError(

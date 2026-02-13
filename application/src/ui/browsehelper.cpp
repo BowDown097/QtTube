@@ -318,7 +318,7 @@ void BrowseHelper::setupNotifications(
 
     widget->continuationData = reply->continuationData;
     widget->setPopulatingFlag(false);
-    UIUtils::getMainWindow()->topbar()->updateNotificationCount(0);
+    UIUtils::getMainWindow()->topbar()->updateNotificationCount(qtTubeApp->plugins().updatablePlugins().size());
 }
 
 void BrowseHelper::setupSearch(

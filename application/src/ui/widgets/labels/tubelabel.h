@@ -26,7 +26,7 @@ public:
     void setElideMode(Qt::TextElideMode mode) { m_elideMode = mode; }
     void setImage(const QUrl& url, ImageFlags flags = NoImageFlags);
     void setMaximumLines(int lines);
-    void setPixmap(const QPixmap& pixmap);
+    void setPixmap(const QPixmap& pixmap, ImageFlags flags = NoImageFlags);
     void setScaledContents(bool enable);
     void setText(const QString& text, bool processRemoteImages = false, ImageFlags remoteImageFlags = NoImageFlags);
 
