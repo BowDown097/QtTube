@@ -9,18 +9,18 @@
 
 AccountSwitcherWidget::AccountSwitcherWidget(PluginData* plugin, QWidget* parent)
     : QWidget(parent),
-      addAccountButton(new QPushButton(this)),
-      backButton(new QPushButton(this)),
-      layout(new QVBoxLayout(this))
+      m_addAccountButton(new QPushButton(this)),
+      m_backButton(new QPushButton(this)),
+      m_layout(new QVBoxLayout(this))
 {
-    addAccountButton->setText("Add account");
-    backButton->setText("Back");
-    layout->setSizeConstraint(QLayout::SetFixedSize);
+    m_addAccountButton->setText("Add account");
+    m_backButton->setText("Back");
+    m_layout->setSizeConstraint(QLayout::SetFixedSize);
     setAutoFillBackground(true);
 
-    layout->addWidget(backButton);
+    m_layout->addWidget(m_backButton);
 
-    if (!(this->auth = plugin->auth))
+    if (!(m_auth = plugin->auth))
         throw std::runtime_error("Account switcher somehow opened without auth support.");
 
     QtTubePlugin::AuthUser* activeUser = plugin->auth->activeBaseLogin();
@@ -32,20 +32,20 @@ AccountSwitcherWidget::AccountSwitcherWidget(PluginData* plugin, QWidget* parent
         AccountEntryWidget* accountEntry = new AccountEntryWidget(*user, this);
         accountEntry->setClickable(user->id != activeUser->id);
         connect(accountEntry, &AccountEntryWidget::clicked, this, [this, activeUser, user] { switchAccount(activeUser, user); });
-        layout->addWidget(accountEntry);
+        m_layout->addWidget(accountEntry);
     }
 
-    layout->addWidget(addAccountButton);
+    m_layout->addWidget(m_addAccountButton);
 
-    connect(addAccountButton, &QPushButton::clicked, this, &AccountSwitcherWidget::addAccount);
-    connect(backButton, &QPushButton::clicked, this, &AccountSwitcherWidget::accountMenuRequested);
+    connect(m_addAccountButton, &QPushButton::clicked, this, &AccountSwitcherWidget::addAccount);
+    connect(m_backButton, &QPushButton::clicked, this, &AccountSwitcherWidget::accountMenuRequested);
 }
 
 void AccountSwitcherWidget::addAccount()
 {
     hide();
-    auth->unauthenticate();
-    auth->startAuthRoutine();
+    m_auth->unauthenticate();
+    m_auth->startAuthRoutine();
     emit closeRequested();
 }
 
@@ -55,7 +55,7 @@ void AccountSwitcherWidget::switchAccount(QtTubePlugin::AuthUser* oldUser, QtTub
     newUser->active = true;
 
     hide();
-    auth->restoreFromActive();
+    m_auth->restoreFromActive();
     UIUtils::getMainWindow()->topbar()->postSignInSetup();
     emit closeRequested();
 }

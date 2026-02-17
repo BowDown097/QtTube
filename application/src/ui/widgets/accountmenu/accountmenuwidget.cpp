@@ -9,15 +9,15 @@
 
 AccountMenuWidget::AccountMenuWidget(PluginData* plugin, QWidget* parent)
     : QWidget(parent),
-      accountLayout(new QVBoxLayout),
-      accountNameLabel(new TubeLabel(this)),
-      avatar(new TubeLabel(this)),
-      handleLabel(new TubeLabel(this)),
-      headerLayout(new QHBoxLayout),
-      layout(new QVBoxLayout(this)),
-      signOutLabel(new IconLabel("sign-out", "Sign out", QMargins(), QSize(24, 24), this)),
-      switchAccountsLabel(new IconLabel("switch-accounts", "Switch account", QMargins(), QSize(24, 24), this)),
-      yourChannelLabel(new IconLabel("your-channel", "Your channel", QMargins(), QSize(24, 24), this))
+      m_accountLayout(new QVBoxLayout),
+      m_accountNameLabel(new TubeLabel(this)),
+      m_avatar(new TubeLabel(this)),
+      m_handleLabel(new TubeLabel(this)),
+      m_headerLayout(new QHBoxLayout),
+      m_layout(new QVBoxLayout(this)),
+      m_signOutLabel(new IconLabel("sign-out", "Sign out", QMargins(), QSize(24, 24), this)),
+      m_switchAccountsLabel(new IconLabel("switch-accounts", "Switch account", QMargins(), QSize(24, 24), this)),
+      m_yourChannelLabel(new IconLabel("your-channel", "Your channel", QMargins(), QSize(24, 24), this))
 {
     if (!plugin->auth)
         throw std::runtime_error("Account menu somehow opened without auth support.");
@@ -28,30 +28,30 @@ AccountMenuWidget::AccountMenuWidget(PluginData* plugin, QWidget* parent)
 
     setAutoFillBackground(true);
 
-    accountNameLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
-    accountNameLabel->setText(user->username);
-    accountLayout->addWidget(accountNameLabel);
+    m_accountNameLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
+    m_accountNameLabel->setText(user->username);
+    m_accountLayout->addWidget(m_accountNameLabel);
 
-    handleLabel->setText(user->handle);
-    accountLayout->addWidget(handleLabel);
+    m_handleLabel->setText(user->handle);
+    m_accountLayout->addWidget(m_handleLabel);
 
-    avatar->setFixedSize(48, 48);
-    avatar->setScaledContents(true);
-    avatar->setImage(user->avatar, TubeLabel::Cached | TubeLabel::Rounded);
-    headerLayout->addWidget(avatar);
+    m_avatar->setFixedSize(48, 48);
+    m_avatar->setScaledContents(true);
+    m_avatar->setImage(user->avatar, TubeLabel::Cached | TubeLabel::Rounded);
+    m_headerLayout->addWidget(m_avatar);
 
-    headerLayout->addLayout(accountLayout);
+    m_headerLayout->addLayout(m_accountLayout);
 
-    layout->addLayout(headerLayout);
-    layout->addWidget(switchAccountsLabel);
-    layout->addWidget(yourChannelLabel);
-    layout->addWidget(signOutLabel);
-    layout->addStretch();
-    layout->setSizeConstraint(QLayout::SetFixedSize);
+    m_layout->addLayout(m_headerLayout);
+    m_layout->addWidget(m_switchAccountsLabel);
+    m_layout->addWidget(m_yourChannelLabel);
+    m_layout->addWidget(m_signOutLabel);
+    m_layout->addStretch();
+    m_layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(switchAccountsLabel, &IconLabel::clicked, this, &AccountMenuWidget::accountSwitcherRequested);
-    connect(signOutLabel, &IconLabel::clicked, this, &AccountMenuWidget::triggerSignOut);
-    connect(yourChannelLabel, &IconLabel::clicked, this,
+    connect(m_switchAccountsLabel, &IconLabel::clicked, this, &AccountMenuWidget::accountSwitcherRequested);
+    connect(m_signOutLabel, &IconLabel::clicked, this, &AccountMenuWidget::triggerSignOut);
+    connect(m_yourChannelLabel, &IconLabel::clicked, this,
             std::bind(&AccountMenuWidget::gotoChannel, this, user->id, plugin));
 }
 

@@ -6,9 +6,9 @@ class QNetworkAccessManager;
 
 struct EmojiGroup
 {
-    bool builtin{};
     QString name;
     QList<QtTubePlugin::Emoji> emojis;
+    bool builtin{};
 };
 
 class EmojiStore : public QObject
@@ -27,8 +27,8 @@ public:
     bool hasBuiltinEmojis() const { return m_hasBuiltinEmojis; }
 private:
     QList<EmojiGroup> m_emojiGroups;
-    bool m_hasBuiltinEmojis{};
     QNetworkAccessManager* m_networkAccessManager;
+    bool m_hasBuiltinEmojis{};
 signals:
     void gotBuiltinEmojis();
 };

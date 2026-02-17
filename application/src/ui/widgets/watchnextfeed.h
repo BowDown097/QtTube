@@ -17,11 +17,10 @@ public:
         const QList<QtTubePlugin::Video>& recommendedVideos,
         const QtTubePlugin::VideoData::Continuations& continuations);
 private:
-    ContinuableListWidget* comments;
-    std::any commentsContinuation;
-    PluginData* plugin;
-    ContinuableListWidget* recommended;
-    QString videoId;
+    ContinuableListWidget* m_commentsList;
+    PluginData* m_plugin;
+    ContinuableListWidget* m_recommendedList;
+    QString m_videoId;
 
     void populateRecommended(const QList<QtTubePlugin::Video>& videos);
 private slots:

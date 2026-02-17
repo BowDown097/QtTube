@@ -10,7 +10,7 @@ class GiftRedemptionMessage : public QWidget
 public:
     GiftRedemptionMessage(const QtTubePlugin::GiftRedemptionMessage& data, QWidget* parent);
 private:
-    TubeLabel* authorLabel;
-    QHBoxLayout* layout;
-    TubeLabel* messageLabel;
+    TubeLabel* m_authorLabel;
+    QHBoxLayout* m_layout;
+    TubeLabel* m_messageLabel;
 };

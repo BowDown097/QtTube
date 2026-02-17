@@ -11,33 +11,33 @@ constexpr QLatin1String Stylesheet(R"(
 
 SpecialMessage::SpecialMessage(const QtTubePlugin::SpecialMessage& data, QWidget* parent)
     : QWidget(parent),
-      header(new TubeLabel(this)),
-      layout(new QVBoxLayout(this)),
-      subtext(new TubeLabel(this))
+      m_headerLabel(new TubeLabel(this)),
+      m_layout(new QVBoxLayout(this)),
+      m_subtextLabel(new TubeLabel(this))
 {
     setAutoFillBackground(true);
     setStyleSheet(Stylesheet.arg(data.backgroundColor));
-    layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
 
     if (!data.header.isEmpty())
     {
         QFont headerFont(font().toString(), -1, QFont::Bold);
         headerFont.setStyle(data.headerStyle);
 
-        header->setAlignment(Qt::AlignCenter);
-        header->setFont(headerFont);
-        header->setText(data.header);
-        header->setWordWrap(true);
-        layout->addWidget(header);
+        m_headerLabel->setAlignment(Qt::AlignCenter);
+        m_headerLabel->setFont(headerFont);
+        m_headerLabel->setText(data.header);
+        m_headerLabel->setWordWrap(true);
+        m_layout->addWidget(m_headerLabel);
     }
 
     QFont subtextFont(font().toString());
     subtextFont.setStyle(data.contentStyle);
 
-    subtext->setAlignment(Qt::AlignCenter);
-    subtext->setFont(subtextFont);
-    subtext->setTextFormat(Qt::RichText);
-    subtext->setWordWrap(true);
-    subtext->setText(data.content, true, TubeLabel::Cached);
-    layout->addWidget(subtext);
+    m_subtextLabel->setAlignment(Qt::AlignCenter);
+    m_subtextLabel->setFont(subtextFont);
+    m_subtextLabel->setTextFormat(Qt::RichText);
+    m_subtextLabel->setWordWrap(true);
+    m_subtextLabel->setText(data.content, true, TubeLabel::Cached);
+    m_layout->addWidget(m_subtextLabel);
 }

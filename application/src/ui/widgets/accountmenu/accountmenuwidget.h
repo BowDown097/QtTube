@@ -13,15 +13,15 @@ class AccountMenuWidget : public QWidget
 public:
     explicit AccountMenuWidget(PluginData* plugin, QWidget* parent = nullptr);
 private:
-    QVBoxLayout* accountLayout;
-    TubeLabel* accountNameLabel;
-    TubeLabel* avatar;
-    TubeLabel* handleLabel;
-    QHBoxLayout* headerLayout;
-    QVBoxLayout* layout;
-    IconLabel* signOutLabel;
-    IconLabel* switchAccountsLabel;
-    IconLabel* yourChannelLabel;
+    QVBoxLayout* m_accountLayout;
+    TubeLabel* m_accountNameLabel;
+    TubeLabel* m_avatar;
+    TubeLabel* m_handleLabel;
+    QHBoxLayout* m_headerLayout;
+    QVBoxLayout* m_layout;
+    IconLabel* m_signOutLabel;
+    IconLabel* m_switchAccountsLabel;
+    IconLabel* m_yourChannelLabel;
 private slots:
     void gotoChannel(const QString& channelId, PluginData* plugin);
     void triggerSignOut();

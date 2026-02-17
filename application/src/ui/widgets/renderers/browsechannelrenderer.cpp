@@ -8,61 +8,44 @@
 
 BrowseChannelRenderer::BrowseChannelRenderer(PluginData* plugin, QWidget* parent)
     : QWidget(parent),
-      descriptionLabel(new TubeLabel(this)),
-      hbox(new QHBoxLayout(this)),
-      metadataLabel(new TubeLabel(this)),
-      subscribeWidget(new SubscribeWidget(plugin, this)),
-      textVbox(new QVBoxLayout),
-      thumbLabel(new TubeLabel(this)),
-      titleLabel(new ChannelLabel(plugin, this))
+      m_descriptionLabel(new TubeLabel(this)),
+      m_layout(new QHBoxLayout(this)),
+      m_metadataLabel(new TubeLabel(this)),
+      m_subscribeWidget(new SubscribeWidget(plugin, this)),
+      m_textLayout(new QVBoxLayout),
+      m_thumbLabel(new TubeLabel(this)),
+      m_titleLabel(new ChannelLabel(plugin, this))
 {
-    titleLabel->text->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
-    titleLabel->addStretch();
-    textVbox->addWidget(titleLabel);
+    m_titleLabel->text->setFont(QFont(font().toString(), font().pointSize() + 2, QFont::Bold));
+    m_titleLabel->addStretch();
+    m_textLayout->addWidget(m_titleLabel);
 
-    textVbox->addWidget(metadataLabel);
+    m_textLayout->addWidget(m_metadataLabel);
 
-    descriptionLabel->setMaximumLines(2);
-    descriptionLabel->setWordWrap(true);
-    textVbox->addWidget(descriptionLabel);
+    m_descriptionLabel->setMaximumLines(2);
+    m_descriptionLabel->setWordWrap(true);
+    m_textLayout->addWidget(m_descriptionLabel);
 
-    subscribeWidget->layout->addStretch();
-    textVbox->addWidget(subscribeWidget);
+    m_subscribeWidget->layout->addStretch();
+    m_textLayout->addWidget(m_subscribeWidget);
 
-    thumbLabel->setClickable(true);
-    thumbLabel->setFixedSize(80, 80);
-    thumbLabel->setScaledContents(true);
-    hbox->addWidget(thumbLabel);
+    m_thumbLabel->setClickable(true);
+    m_thumbLabel->setFixedSize(80, 80);
+    m_thumbLabel->setScaledContents(true);
+    m_layout->addWidget(m_thumbLabel);
 
-    hbox->addLayout(textVbox);
+    m_layout->addLayout(m_textLayout);
 
-    connect(thumbLabel, &TubeLabel::clicked, this, [this, plugin] { ViewController::loadChannel(channelId, plugin); });
+    connect(m_thumbLabel, &TubeLabel::clicked, this, [this, plugin] { ViewController::loadChannel(m_channelId, plugin); });
 }
 
 void BrowseChannelRenderer::setData(const QtTubePlugin::Channel& channel)
 {
-    this->channelId = channel.channelId;
-    subscribeWidget->setData(channel.subscribeButton);
-    thumbLabel->setImage(channel.channelAvatarUrl, TubeLabel::LazyLoaded);
-    titleLabel->setInfo(channelId, channel.channelName, channel.channelBadges);
+    m_channelId = channel.channelId;
 
-    if (channel.description.isEmpty())
-    {
-        textVbox->removeWidget(descriptionLabel);
-        descriptionLabel->deleteLater();
-    }
-    else
-    {
-        descriptionLabel->setText(channel.description);
-    }
-
-    if (channel.metadataText.isEmpty())
-    {
-        textVbox->removeWidget(metadataLabel);
-        metadataLabel->deleteLater();
-    }
-    else
-    {
-        metadataLabel->setText(channel.metadataText);
-    }
+    m_descriptionLabel->setText(channel.description);
+    m_metadataLabel->setText(channel.metadataText);
+    m_subscribeWidget->setData(channel.subscribeButton);
+    m_thumbLabel->setImage(channel.channelAvatarUrl, TubeLabel::LazyLoaded);
+    m_titleLabel->setInfo(m_channelId, channel.channelName, channel.channelBadges);
 }

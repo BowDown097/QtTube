@@ -4,7 +4,7 @@
 #include <QBoxLayout>
 
 GridVideoRenderer::GridVideoRenderer(PluginData* plugin, QWidget* parent)
-    : VideoRenderer(plugin, parent), vbox(new QVBoxLayout(this))
+    : VideoRenderer(plugin, parent), m_layout(new QVBoxLayout(this))
 {
     thumbnail->setFixedSize(205, 115);
 
@@ -23,10 +23,10 @@ GridVideoRenderer::GridVideoRenderer(PluginData* plugin, QWidget* parent)
     metadataLabel->setMaximumWidth(205);
     metadataLabel->setWordWrap(true);
 
-    vbox->addWidget(thumbnail);
-    vbox->addWidget(titleLabel);
-    vbox->addWidget(channelLabel);
-    vbox->addWidget(metadataLabel);
-    vbox->addLayout(badgesLayout);
-    vbox->addStretch();
+    m_layout->addWidget(thumbnail);
+    m_layout->addWidget(titleLabel);
+    m_layout->addWidget(channelLabel);
+    m_layout->addWidget(metadataLabel);
+    m_layout->addLayout(badgesLayout);
+    m_layout->addStretch();
 }

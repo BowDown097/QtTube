@@ -7,48 +7,48 @@
 
 SearchBox::SearchBox(QWidget* parent)
     : QWidget(parent),
-      layout(new QHBoxLayout(this)),
-      searchButton(new ExtToolButton(this)),
-      searchForm(new QLineEdit(this)),
-      searchTypeActionLink(new QAction(UIUtils::iconThemed("link"), "Link/ID", this)),
-      searchTypeActionQuery(new QAction(UIUtils::iconThemed("search"), "Query", this)),
-      searchTypeMenu(new ExtMenu(this))
+      m_layout(new QHBoxLayout(this)),
+      m_lineEdit(new QLineEdit(this)),
+      m_searchButton(new ExtToolButton(this)),
+      m_searchTypeActionLink(new QAction(UIUtils::iconThemed("link"), "Link/ID", this)),
+      m_searchTypeActionQuery(new QAction(UIUtils::iconThemed("search"), "Query", this)),
+      m_searchTypeMenu(new ExtMenu(this))
 {
     setFixedHeight(35);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
 
-    connect(searchTypeActionLink, &QAction::triggered, this, [this] { emit searchRequested(searchForm->text(), SearchType::ByLink); });
-    connect(searchTypeActionQuery, &QAction::triggered, this, [this] { emit searchRequested(searchForm->text(), SearchType::ByQuery); });
+    connect(m_searchTypeActionLink, &QAction::triggered, this, [this] { emit searchRequested(m_lineEdit->text(), SearchType::ByLink); });
+    connect(m_searchTypeActionQuery, &QAction::triggered, this, [this] { emit searchRequested(m_lineEdit->text(), SearchType::ByQuery); });
 
-    searchTypeMenu->addAction(searchTypeActionQuery);
-    searchTypeMenu->addAction(searchTypeActionLink);
-    connect(searchTypeMenu, &ExtMenu::switchActionRequested, searchButton, &QToolButton::setDefaultAction);
+    m_searchTypeMenu->addAction(m_searchTypeActionQuery);
+    m_searchTypeMenu->addAction(m_searchTypeActionLink);
+    connect(m_searchTypeMenu, &ExtMenu::switchActionRequested, m_searchButton, &QToolButton::setDefaultAction);
 
-    searchButton->setDefaultAction(searchTypeActionQuery);
-    searchButton->setFixedSize(35, 35);
-    searchButton->setIconSize(QSize(20, 20));
-    searchButton->setMenu(searchTypeMenu);
-    searchButton->setPopupMode(QToolButton::DelayedPopup);
-    searchButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    m_searchButton->setDefaultAction(m_searchTypeActionQuery);
+    m_searchButton->setFixedSize(35, 35);
+    m_searchButton->setIconSize(QSize(20, 20));
+    m_searchButton->setMenu(m_searchTypeMenu);
+    m_searchButton->setPopupMode(QToolButton::DelayedPopup);
+    m_searchButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
-    searchForm->setClearButtonEnabled(true);
-    searchForm->setFixedHeight(35);
-    searchForm->setPlaceholderText("Search");
-    connect(searchForm, &QLineEdit::returnPressed, this, [this] {
+    m_lineEdit->setClearButtonEnabled(true);
+    m_lineEdit->setFixedHeight(35);
+    m_lineEdit->setPlaceholderText("Search");
+    connect(m_lineEdit, &QLineEdit::returnPressed, this, [this] {
         emit searchRequested(
-            searchForm->text(),
-            searchButton->defaultAction() == searchTypeActionQuery ? SearchType::ByQuery : SearchType::ByLink
+            m_lineEdit->text(),
+            m_searchButton->defaultAction() == m_searchTypeActionQuery ? SearchType::ByQuery : SearchType::ByLink
         );
     });
 
-    layout->addWidget(searchForm);
-    layout->addWidget(searchButton);
+    m_layout->addWidget(m_lineEdit);
+    m_layout->addWidget(m_searchButton);
 }
 
 void SearchBox::updatePalette(const QPalette& pal)
 {
     setPalette(pal);
-    searchTypeActionLink->setIcon(UIUtils::iconThemed("link", pal));
-    searchTypeActionQuery->setIcon(UIUtils::iconThemed("search", pal));
+    m_searchTypeActionLink->setIcon(UIUtils::iconThemed("link", pal));
+    m_searchTypeActionQuery->setIcon(UIUtils::iconThemed("search", pal));
 }

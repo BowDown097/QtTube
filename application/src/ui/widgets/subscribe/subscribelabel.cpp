@@ -42,31 +42,25 @@ void SubscribeLabel::enterEvent(QEvent* event)
 #endif
 {
     setStyle(true);
-    if (subscribed)
-        setText(localization.unsubscribeText);
+    if (m_data.subscribed)
+        setText(m_data.localization.unsubscribeText);
     ClickableWidget<QLabel>::enterEvent(event);
 }
 
 void SubscribeLabel::leaveEvent(QEvent* event)
 {
     setStyle(false);
-    if (subscribed)
-        setText(localization.subscribedText);
+    if (m_data.subscribed)
+        setText(m_data.localization.subscribedText);
     ClickableWidget<QLabel>::leaveEvent(event);
 }
 
 void SubscribeLabel::setData(const QtTubePlugin::SubscribeButton& data)
 {
-    colorPalette = data.colorPalette;
-    enabled = data.enabled;
-    localization = data.localization;
-    subscribed = data.subscribed;
-    subscribeData = data.subscribeData;
-    unsubscribeData = data.unsubscribeData;
-
-    setClickable(enabled);
+    m_data = data;
+    setClickable(m_data.enabled);
     setStyle(false);
-    setText(subscribed ? localization.subscribedText : localization.subscribeText);
+    setText(m_data.subscribed ? m_data.localization.subscribedText : m_data.localization.subscribeText);
 }
 
 void SubscribeLabel::setStyle(bool hovered)
@@ -74,39 +68,39 @@ void SubscribeLabel::setStyle(bool hovered)
     QString *background, *border, *foreground;
     QString stylesheet;
 
-    if (!enabled)
+    if (!m_data.enabled)
     {
-        background = &colorPalette.subscribeDisabledBackground;
-        border = &colorPalette.subscribeDisabledBorder;
-        foreground = &colorPalette.subscribeDisabledForeground;
+        background = &m_data.colorPalette.subscribeDisabledBackground;
+        border = &m_data.colorPalette.subscribeDisabledBorder;
+        foreground = &m_data.colorPalette.subscribeDisabledForeground;
         stylesheet = SubscribeStylesheet;
     }
-    else if (subscribed && hovered)
+    else if (m_data.subscribed && hovered)
     {
-        background = &colorPalette.unsubscribeBackground;
-        border = &colorPalette.unsubscribeBorder;
-        foreground = &colorPalette.unsubscribeForeground;
+        background = &m_data.colorPalette.unsubscribeBackground;
+        border = &m_data.colorPalette.unsubscribeBorder;
+        foreground = &m_data.colorPalette.unsubscribeForeground;
         stylesheet = UnsubscribeStylesheet;
     }
-    else if (subscribed)
+    else if (m_data.subscribed)
     {
-        background = &colorPalette.subscribedBackground;
-        border = &colorPalette.subscribedBorder;
-        foreground = &colorPalette.subscribedForeground;
+        background = &m_data.colorPalette.subscribedBackground;
+        border = &m_data.colorPalette.subscribedBorder;
+        foreground = &m_data.colorPalette.subscribedForeground;
         stylesheet = SubscribedStylesheet;
     }
     else if (hovered)
     {
-        background = &colorPalette.subscribeHoveredBackground;
-        border = &colorPalette.subscribeHoveredBorder;
-        foreground = &colorPalette.subscribeHoveredForeground;
+        background = &m_data.colorPalette.subscribeHoveredBackground;
+        border = &m_data.colorPalette.subscribeHoveredBorder;
+        foreground = &m_data.colorPalette.subscribeHoveredForeground;
         stylesheet = SubscribeHoveredStylesheet;
     }
     else
     {
-        background = &colorPalette.subscribeBackground;
-        border = &colorPalette.subscribeBorder;
-        foreground = &colorPalette.subscribeForeground;
+        background = &m_data.colorPalette.subscribeBackground;
+        border = &m_data.colorPalette.subscribeBorder;
+        foreground = &m_data.colorPalette.subscribeForeground;
         stylesheet = SubscribeStylesheet;
     }
 
@@ -122,10 +116,10 @@ void SubscribeLabel::setStyle(bool hovered)
 
 void SubscribeLabel::toggleSubscriptionStatus()
 {
-    subscribed = !subscribed;
+    m_data.subscribed = !m_data.subscribed;
     setStyle(false);
-    setText(subscribed ? localization.subscribedText : localization.subscribeText);
-    emit subscribeStatusChanged(subscribed);
+    setText(m_data.subscribed ? m_data.localization.subscribedText : m_data.localization.subscribeText);
+    emit subscribeStatusChanged(m_data.subscribed);
 }
 
 void SubscribeLabel::trySubscribe(PluginData* plugin)
@@ -136,22 +130,27 @@ void SubscribeLabel::trySubscribe(PluginData* plugin)
         return;
     }
 
-    if (!subscribeData.has_value())
+    if (!m_data.subscribeData.has_value())
     {
         QMessageBox::critical(nullptr, "Failed to Subscribe", "Required data is missing or unavailable.");
         return;
     }
 
-    if (subscribed && QMessageBox::question(nullptr, localization.unsubscribeText, localization.unsubscribeDialogText) == QMessageBox::StandardButton::Yes)
+    if (m_data.subscribed)
     {
-        toggleSubscriptionStatus();
-        if (!plugin->interface->unsubscribe(unsubscribeData))
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+        QMessageBox::StandardButton response = QMessageBox::question(
+            nullptr, m_data.localization.unsubscribeText, m_data.localization.unsubscribeDialogText);
+        if (response == QMessageBox::StandardButton::Yes)
+        {
+            toggleSubscriptionStatus();
+            if (!plugin->interface->unsubscribe(m_data.unsubscribeData))
+                QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+        }
     }
-    else if (!subscribed)
+    else
     {
         toggleSubscriptionStatus();
-        if (!plugin->interface->subscribe(subscribeData))
+        if (!plugin->interface->subscribe(m_data.subscribeData))
             QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
     }
 }

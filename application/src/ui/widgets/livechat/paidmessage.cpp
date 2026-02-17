@@ -20,50 +20,50 @@ constexpr QLatin1String MessageStylesheet(R"(
 
 PaidMessage::PaidMessage(const QtTubePlugin::PaidMessage& data, QWidget* parent)
     : QWidget(parent),
-      amountLabel(new TubeLabel(data.paidAmountText, this)),
-      authorIcon(new TubeLabel(this)),
-      authorLabel(new TubeLabel(data.authorName, this)),
-      header(new QWidget(this)),
-      headerLayout(new QHBoxLayout(header)),
-      innerHeaderLayout(new QVBoxLayout),
-      layout(new QVBoxLayout(this)),
-      messageLabel(new TubeLabel(this))
+      m_amountLabel(new TubeLabel(data.paidAmountText, this)),
+      m_authorIcon(new TubeLabel(this)),
+      m_authorLabel(new TubeLabel(data.authorName, this)),
+      m_header(new QWidget(this)),
+      m_headerLayout(new QHBoxLayout(m_header)),
+      m_innerHeaderLayout(new QVBoxLayout),
+      m_layout(new QVBoxLayout(this)),
+      m_messageLabel(new TubeLabel(this))
 {
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
 
-    header->setAutoFillBackground(true);
-    header->setStyleSheet(HeaderStylesheet.arg(data.headerBackgroundColor, data.headerTextColor));
-    layout->addWidget(header);
+    m_header->setAutoFillBackground(true);
+    m_header->setStyleSheet(HeaderStylesheet.arg(data.headerBackgroundColor, data.headerTextColor));
+    m_layout->addWidget(m_header);
 
-    headerLayout->setContentsMargins(5, 0, 0, 0);
-    headerLayout->setSpacing(0);
+    m_headerLayout->setContentsMargins(5, 0, 0, 0);
+    m_headerLayout->setSpacing(0);
 
-    authorIcon->setFixedSize(32, 32);
-    authorIcon->setImage(data.authorAvatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
-    authorIcon->setScaledContents(true);
-    headerLayout->addWidget(authorIcon);
-    headerLayout->addSpacerItem(new QSpacerItem(6, 0));
+    m_authorIcon->setFixedSize(32, 32);
+    m_authorIcon->setImage(data.authorAvatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
+    m_authorIcon->setScaledContents(true);
+    m_headerLayout->addWidget(m_authorIcon);
+    m_headerLayout->addSpacerItem(new QSpacerItem(6, 0));
 
-    innerHeaderLayout->setContentsMargins(0, 0, 0, 0);
-    innerHeaderLayout->setSpacing(0);
-    headerLayout->addLayout(innerHeaderLayout);
+    m_innerHeaderLayout->setContentsMargins(0, 0, 0, 0);
+    m_innerHeaderLayout->setSpacing(0);
+    m_headerLayout->addLayout(m_innerHeaderLayout);
 
-    authorLabel->setWordWrap(true);
-    innerHeaderLayout->addWidget(authorLabel);
+    m_authorLabel->setWordWrap(true);
+    m_innerHeaderLayout->addWidget(m_authorLabel);
 
-    amountLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
-    amountLabel->setWordWrap(true);
-    innerHeaderLayout->addWidget(amountLabel);
+    m_amountLabel->setFont(QFont(font().toString(), -1, QFont::Bold));
+    m_amountLabel->setWordWrap(true);
+    m_innerHeaderLayout->addWidget(m_amountLabel);
 
     if (!data.content.isEmpty())
     {
-        messageLabel->setAlignment(Qt::AlignCenter);
-        messageLabel->setAutoFillBackground(true);
-        messageLabel->setStyleSheet(MessageStylesheet.arg(data.contentBackgroundColor, data.contentTextColor));
-        messageLabel->setTextFormat(Qt::RichText);
-        messageLabel->setWordWrap(true);
-        messageLabel->setText(data.content, true, TubeLabel::Cached);
-        layout->addWidget(messageLabel);
+        m_messageLabel->setAlignment(Qt::AlignCenter);
+        m_messageLabel->setAutoFillBackground(true);
+        m_messageLabel->setStyleSheet(MessageStylesheet.arg(data.contentBackgroundColor, data.contentTextColor));
+        m_messageLabel->setTextFormat(Qt::RichText);
+        m_messageLabel->setWordWrap(true);
+        m_messageLabel->setText(data.content, true, TubeLabel::Cached);
+        m_layout->addWidget(m_messageLabel);
     }
 }

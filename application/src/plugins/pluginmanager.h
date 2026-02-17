@@ -45,14 +45,17 @@ private:
 
 struct PluginData
 {
-    bool active{};
-    QtTubePlugin::AuthStoreBase* auth{};
     QFileInfo fileInfo;
+    QtTubePlugin::PluginMetadata metadata;
+
     std::unique_ptr<QLibrary, QLibraryDeleter> handle;
     std::unique_ptr<QtTubePlugin::PluginInterface> interface;
-    QtTubePlugin::PluginMetadata metadata;
+
+    QtTubePlugin::AuthStoreBase* auth{};
     QtTubePluginPlayerFunc playerFunc{};
     QtTubePlugin::SettingsStore* settings{};
+
+    bool active{};
 };
 
 class PluginManager : public QObject
@@ -74,9 +77,9 @@ public:
     static const QList<QDir>& libraryLoadDirs();
     static const QList<QDir>& pluginLoadDirs();
 private:
-    bool m_foundPluginFile{};
     std::unordered_map<QString, PluginData, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
     std::unordered_map<QString, ReleaseData> m_updatablePlugins;
+    bool m_foundPluginFile{};
 
     void checkPluginMetadata(const PluginData& plugin);
     void checkPluginTargetVersion(const PluginData& plugin);

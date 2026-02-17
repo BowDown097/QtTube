@@ -1,6 +1,5 @@
 #pragma once
 #include "qttube-plugin/objects/channel.h"
-#include <QPointer>
 #include <QWidget>
 
 class NotificationBell;
@@ -16,8 +15,8 @@ public:
     void setData(const QtTubePlugin::SubscribeButton& data);
 
     QHBoxLayout* layout;
-    QPointer<TubeLabel> subscribersCountLabel;
+    TubeLabel* subscribersCountLabel;
 private:
-    NotificationBell* notificationBell;
-    SubscribeLabel* subscribeLabel;
+    NotificationBell* m_notificationBell;
+    SubscribeLabel* m_subscribeLabel;
 };

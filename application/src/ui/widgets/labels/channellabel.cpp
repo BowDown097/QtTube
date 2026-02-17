@@ -7,36 +7,36 @@
 #include <QMenu>
 
 ChannelLabel::ChannelLabel(PluginData* plugin, QWidget* parent)
-    : QWidget(parent), text(new TubeLabel(this)), badgeLayout(new QHBoxLayout), layout(new QHBoxLayout(this))
+    : QWidget(parent), text(new TubeLabel(this)), m_badgeLayout(new QHBoxLayout), m_layout(new QHBoxLayout(this))
 {
     text->setClickable(true);
     text->setContextMenuPolicy(Qt::CustomContextMenu);
     text->setUnderlineOnHover(true);
 
-    layout->addWidget(text);
-    layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->addWidget(text);
+    m_layout->setContentsMargins(0, 0, 0, 0);
 
-    badgeLayout->setSpacing(2);
-    layout->addLayout(badgeLayout);
+    m_badgeLayout->setSpacing(2);
+    m_layout->addLayout(m_badgeLayout);
 
-    connect(text, &TubeLabel::clicked, this, [this, plugin] { ViewController::loadChannel(channelId, plugin); });
+    connect(text, &TubeLabel::clicked, this, [this, plugin] { ViewController::loadChannel(m_channelId, plugin); });
     connect(text, &TubeLabel::customContextMenuRequested, this, &ChannelLabel::showContextMenu);
 }
 
 void ChannelLabel::addStretch()
 {
-    layout->addStretch();
+    m_layout->addStretch();
 }
 
 void ChannelLabel::copyChannelUrl()
 {
-    UIUtils::copyToClipboard("https://www.youtube.com/channel/" + channelId);
+    UIUtils::copyToClipboard("https://www.youtube.com/channel/" + m_channelId);
 }
 
 void ChannelLabel::reset()
 {
     text->clear();
-    UIUtils::clearLayout(badgeLayout);
+    UIUtils::clearLayout(m_badgeLayout);
 }
 
 void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTubePlugin::Badge>& badges)
@@ -48,17 +48,17 @@ void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderNam
         BadgeLabel* badgeLabel = new BadgeLabel(this);
         badgeLabel->setFixedSize(13, 10);
         badgeLabel->setData(badge);
-        badgeLayout->addWidget(badgeLabel);
+        m_badgeLayout->addWidget(badgeLabel);
     }
 
-    if (badgeLayout->count() > 0)
-        badgeLayout->addStretch();
+    if (m_badgeLayout->count() > 0)
+        m_badgeLayout->addStretch();
 }
 
 void ChannelLabel::setInfo(const QString& uploaderId, const QString& uploaderName)
 {
     reset();
-    this->channelId = uploaderId;
+    m_channelId = uploaderId;
 
     text->setClickable(!uploaderId.isEmpty());
     text->setText(uploaderName);

@@ -4,15 +4,15 @@
 
 AccountEntryWidget::AccountEntryWidget(const QtTubePlugin::AuthUser& user, QWidget* parent)
     : ClickableWidget<>(parent),
-      avatarLabel(new TubeLabel(this)),
-      layout(new QHBoxLayout(this)),
-      nameLabel(new TubeLabel(this))
+      m_avatar(new TubeLabel(this)),
+      m_layout(new QHBoxLayout(this)),
+      m_nameLabel(new TubeLabel(this))
 {
-    avatarLabel->setFixedSize(30, 30);
-    avatarLabel->setScaledContents(true);
-    avatarLabel->setImage(user.avatar, TubeLabel::Cached | TubeLabel::Rounded);
-    layout->addWidget(avatarLabel);
+    m_avatar->setFixedSize(30, 30);
+    m_avatar->setScaledContents(true);
+    m_avatar->setImage(user.avatar, TubeLabel::Cached | TubeLabel::Rounded);
+    m_layout->addWidget(m_avatar);
 
-    nameLabel->setText(user.username);
-    layout->addWidget(nameLabel);
+    m_nameLabel->setText(user.username);
+    m_layout->addWidget(m_nameLabel);
 }

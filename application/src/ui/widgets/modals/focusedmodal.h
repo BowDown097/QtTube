@@ -13,7 +13,7 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
 private:
     // has to be a child of parent for layering to work, so we can't rely on the standard ownership model for deletion
-    QScopedPointer<QWidget, QScopedPointerDeleteLater> backdrop;
+    QScopedPointer<QWidget, QScopedPointerDeleteLater> m_backdrop;
 
     QPropertyAnimation* animationFor(QWidget* widget);
 };

@@ -14,14 +14,14 @@ class ShareModal : public FocusedModal
 public:
     ShareModal(const QString& videoUrlPrefix, const QString& videoId, QWidget* parent);
 private:
-    QToolButton* copyButton;
-    QAction* copyButtonAction;
-    CloseButton* headerCloseButton;
-    TubeLabel* headerLabel;
-    QHBoxLayout* headerLayout;
-    QVBoxLayout* layout;
-    QLineEdit* lineEdit;
-    QHBoxLayout* urlLayout;
+    QToolButton* m_copyButton;
+    QAction* m_copyButtonAction;
+    CloseButton* m_headerCloseButton;
+    TubeLabel* m_headerLabel;
+    QHBoxLayout* m_headerLayout;
+    QVBoxLayout* m_layout;
+    QLineEdit* m_lineEdit;
+    QHBoxLayout* m_urlLayout;
 private slots:
     void copyUrl();
 };

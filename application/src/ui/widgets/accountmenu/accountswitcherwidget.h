@@ -12,10 +12,10 @@ class AccountSwitcherWidget : public QWidget
 public:
     explicit AccountSwitcherWidget(PluginData* plugin, QWidget* parent = nullptr);
 private:
-    QPushButton* addAccountButton;
-    QtTubePlugin::AuthStoreBase* auth;
-    QPushButton* backButton;
-    QVBoxLayout* layout;
+    QPushButton* m_addAccountButton;
+    QtTubePlugin::AuthStoreBase* m_auth;
+    QPushButton* m_backButton;
+    QVBoxLayout* m_layout;
 private slots:
     void addAccount();
     void switchAccount(QtTubePlugin::AuthUser* oldUser, QtTubePlugin::AuthUser* newUser);

@@ -9,12 +9,12 @@
 
 WatchNextFeed::WatchNextFeed(PluginData* plugin, QWidget* parent)
     : QTabWidget(parent),
-      comments(new ContinuableListWidget(this)),
-      plugin(plugin),
-      recommended(new ContinuableListWidget(this))
+      m_commentsList(new ContinuableListWidget(this)),
+      m_plugin(plugin),
+      m_recommendedList(new ContinuableListWidget(this))
 {
-    addTab(recommended, "Recommended");
-    addTab(comments, "Comments");
+    addTab(m_recommendedList, "Recommended");
+    addTab(m_commentsList, "Comments");
     setTabVisible(1, false);
 }
 
@@ -24,11 +24,12 @@ void WatchNextFeed::continueComments()
 
 void WatchNextFeed::continueRecommended()
 {
-    if (QtTubePlugin::RecommendedContinuationReply* reply = plugin->interface->continueRecommended(videoId, recommended->continuationData))
+    if (QtTubePlugin::RecommendedContinuationReply* reply = m_plugin->interface->continueRecommended(
+            m_videoId, m_recommendedList->continuationData))
     {
-        recommended->setPopulatingFlag(true);
+        m_recommendedList->setPopulatingFlag(true);
         connect(reply, &QtTubePlugin::RecommendedContinuationReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
-            recommended->setPopulatingFlag(false);
+            m_recommendedList->setPopulatingFlag(false);
             QMessageBox::critical(nullptr, "Failed to Load Recommended Content", ex.message());
         });
         connect(reply, &QtTubePlugin::RecommendedContinuationReply::finished,
@@ -38,9 +39,9 @@ void WatchNextFeed::continueRecommended()
 
 void WatchNextFeed::continueRecommendedFinished(const QtTubePlugin::RecommendedContinuationData& data)
 {
-    recommended->continuationData = data.nextContinuation;
+    m_recommendedList->continuationData = data.nextContinuation;
     populateRecommended(data.videos);
-    recommended->setPopulatingFlag(false);
+    m_recommendedList->setPopulatingFlag(false);
 }
 
 ContinuableListWidget* WatchNextFeed::currentList()
@@ -52,13 +53,13 @@ void WatchNextFeed::populateRecommended(const QList<QtTubePlugin::Video>& videos
 {
     for (const QtTubePlugin::Video& video : videos)
     {
-        BrowseVideoRenderer* renderer = new BrowseVideoRenderer(plugin);
+        BrowseVideoRenderer* renderer = new BrowseVideoRenderer(m_plugin);
         renderer->thumbnail->setFixedSize(167, 94);
         renderer->titleLabel->setMaximumLines(2);
         renderer->titleLabel->setWordWrap(true);
         renderer->setData(video);
 
-        UIUtils::addWidgetToList(recommended, renderer);
+        UIUtils::addWidgetToList(m_recommendedList, renderer);
         QCoreApplication::processEvents();
     }
 }
@@ -67,8 +68,8 @@ void WatchNextFeed::reset()
 {
     setCurrentIndex(0);
     setTabVisible(1, false);
-    comments->clear();
-    recommended->clear();
+    m_commentsList->clear();
+    m_recommendedList->clear();
 }
 
 void WatchNextFeed::setData(
@@ -76,19 +77,19 @@ void WatchNextFeed::setData(
     const QList<QtTubePlugin::Video>& recommendedVideos,
     const QtTubePlugin::VideoData::Continuations& continuations)
 {
-    this->videoId = videoId;
+    m_videoId = videoId;
 
     if (continuations.comments.has_value())
     {
         setTabVisible(1, true);
-        commentsContinuation = continuations.comments;
-        connect(comments, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueComments);
+        m_commentsList->continuationData = continuations.comments;
+        connect(m_commentsList, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueComments);
     }
 
     if (continuations.recommended.has_value())
     {
-        recommended->continuationData = continuations.recommended;
-        connect(recommended, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueRecommended);
+        m_recommendedList->continuationData = continuations.recommended;
+        connect(m_recommendedList, &ContinuableListWidget::continuationReady, this, &WatchNextFeed::continueRecommended);
     }
 
     populateRecommended(recommendedVideos);

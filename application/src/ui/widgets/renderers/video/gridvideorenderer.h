@@ -8,5 +8,5 @@ class GridVideoRenderer : public VideoRenderer
 public:
     explicit GridVideoRenderer(PluginData* plugin, QWidget* parent = nullptr);
 private:
-    QVBoxLayout* vbox;
+    QVBoxLayout* m_layout;
 };

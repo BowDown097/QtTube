@@ -17,8 +17,8 @@ void ContinuableListWidget::clear()
 
 void ContinuableListWidget::scrollValueChanged(int value)
 {
-    if (count() > 0 && value >= verticalScrollBar()->maximum() - continuationThreshold &&
-        continuationData.has_value() && !populating)
+    if (count() > 0 && value >= verticalScrollBar()->maximum() - m_continuationThreshold &&
+        continuationData.has_value() && !m_populating)
     {
         emit continuationReady();
     }

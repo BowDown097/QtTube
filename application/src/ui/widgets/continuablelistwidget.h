@@ -9,17 +9,17 @@ public:
     std::any continuationData;
 
     explicit ContinuableListWidget(QWidget* parent = nullptr);
-    void setContinuationThreshold(int threshold) { continuationThreshold = threshold; }
+    void setContinuationThreshold(int threshold) { m_continuationThreshold = threshold; }
     void toggleListGridLayout();
 
-    bool isPopulating() const { return populating; }
-    void setPopulatingFlag(bool populating) { this->populating = populating; }
+    bool isPopulating() const { return m_populating; }
+    void setPopulatingFlag(bool populating) { m_populating = populating; }
 protected:
     void updateGeometries() override;
     void wheelEvent(QWheelEvent* event) override;
 private:
-    int continuationThreshold = 10;
-    bool populating{};
+    int m_continuationThreshold = 10;
+    bool m_populating{};
 public slots:
     void clear();
 private slots:

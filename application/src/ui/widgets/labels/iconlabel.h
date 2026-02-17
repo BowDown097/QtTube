@@ -24,5 +24,5 @@ public:
     void setText(const QString& text) { textLabel->setText(text); }
     QString text() const { return textLabel->text(); }
 private:
-    QHBoxLayout* layout;
+    QHBoxLayout* m_layout;
 };

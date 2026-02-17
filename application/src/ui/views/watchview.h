@@ -23,11 +23,11 @@ public:
 protected:
     void resizeEvent(QResizeEvent* event) override;
 private:
-    QPointer<QTimer> metadataUpdateTimer;
-    PluginData* plugin;
+    QPointer<QTimer> m_metadataUpdateTimer;
+    PluginData* m_plugin;
+    QString m_videoId;
+    QString m_videoUrlPrefix;
     Ui::WatchView* ui;
-    QString videoId;
-    QString videoUrlPrefix;
 
     void openLiveChat(const QtTubePlugin::InitialLiveChatData& data);
     void processPreloadData(PreloadData::WatchView* preload);

@@ -9,6 +9,6 @@ class BrowseVideoRenderer : public VideoRenderer
 public:
     explicit BrowseVideoRenderer(PluginData* plugin, QWidget* parent = nullptr);
 private:
-    QHBoxLayout* hbox;
-    QVBoxLayout* textVbox;
+    QHBoxLayout* m_layout;
+    QVBoxLayout* m_textLayout;
 };

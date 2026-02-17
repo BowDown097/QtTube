@@ -6,5 +6,5 @@ class CloseButton : public QToolButton
 public:
     explicit CloseButton(QWidget* parent = nullptr);
 private:
-    QAction* action;
+    QAction* m_action;
 };

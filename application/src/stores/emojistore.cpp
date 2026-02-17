@@ -24,7 +24,7 @@ EmojiStore::EmojiStore(QObject* parent)
         const QJsonArray data = doc.array();
         for (const QJsonValue& groupData : data)
         {
-            EmojiGroup group = { .builtin = true, .name = groupData["group"].toString() };
+            EmojiGroup group = { .name = groupData["group"].toString(), .builtin = true };
             const QJsonArray emojis = groupData["emoji"].toArray();
 
             for (const QJsonValue& emojiData : emojis)
@@ -76,13 +76,13 @@ void EmojiStore::add(const QString& group, const QList<QtTubePlugin::Emoji>& emo
     }
     else
     {
-        m_emojiGroups.emplaceFront(false, group, emojis);
+        m_emojiGroups.emplaceFront(group, emojis);
     }
 }
 
 QString& EmojiStore::emojize(QString& text) const
 {
-    constexpr QLatin1String EmojizeFormat("{{{%1||%2||%3}}}");
+    static const QString EmojizeFormat = QStringLiteral("{{{%1||%2||%3}}}");
 
     for (const EmojiGroup& emojiGroup : m_emojiGroups)
     {

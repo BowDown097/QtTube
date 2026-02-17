@@ -16,36 +16,36 @@ constexpr QLatin1String SubscribersCountStylesheet(R"(
 SubscribeWidget::SubscribeWidget(PluginData* plugin, QWidget* parent)
     : QWidget(parent),
       layout(new QHBoxLayout(this)),
-      notificationBell(new NotificationBell(plugin, this)),
-      subscribeLabel(new SubscribeLabel(plugin, this)),
+      m_notificationBell(new NotificationBell(plugin, this)),
+      m_subscribeLabel(new SubscribeLabel(plugin, this)),
       subscribersCountLabel(new TubeLabel(this))
 {
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    subscribeLabel->hide();
-    layout->addWidget(subscribeLabel);
+    m_subscribeLabel->hide();
+    layout->addWidget(m_subscribeLabel);
 
-    notificationBell->hide();
-    layout->addWidget(notificationBell);
+    m_notificationBell->hide();
+    layout->addWidget(m_notificationBell);
 
     subscribersCountLabel->hide();
     subscribersCountLabel->setFixedHeight(24);
     subscribersCountLabel->setStyleSheet(SubscribersCountStylesheet);
     layout->addWidget(subscribersCountLabel);
 
-    connect(subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
+    connect(m_subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
     {
-        if (qsizetype defaultState = notificationBell->defaultEnabledStateIndex(); defaultState >= 0)
-            notificationBell->setVisualState(defaultState);
-        notificationBell->setVisible(subscribed);
+        if (qsizetype defaultState = m_notificationBell->defaultEnabledStateIndex(); defaultState >= 0)
+            m_notificationBell->setVisualState(defaultState);
+        m_notificationBell->setVisible(subscribed);
     });
 }
 
 void SubscribeWidget::setData(const QtTubePlugin::SubscribeButton& data)
 {
-    subscribeLabel->setData(data);
-    subscribeLabel->show();
+    m_subscribeLabel->setData(data);
+    m_subscribeLabel->show();
 
     if (!data.countText.isEmpty())
     {
@@ -60,11 +60,11 @@ void SubscribeWidget::setData(const QtTubePlugin::SubscribeButton& data)
 
     if (!data.notificationBell.states.isEmpty())
     {
-        notificationBell->setData(data.notificationBell);
-        notificationBell->setVisible(data.subscribed);
+        m_notificationBell->setData(data.notificationBell);
+        m_notificationBell->setVisible(data.subscribed);
     }
     else
     {
-        notificationBell->hide();
+        m_notificationBell->hide();
     }
 }

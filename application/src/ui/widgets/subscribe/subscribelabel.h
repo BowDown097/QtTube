@@ -19,12 +19,7 @@ protected:
 #endif
     void leaveEvent(QEvent* event) override;
 private:
-    QtTubePlugin::SubscribeButton::ColorPalette colorPalette;
-    bool enabled{};
-    QtTubePlugin::SubscribeButton::Localization localization;
-    std::any subscribeData;
-    bool subscribed{};
-    std::any unsubscribeData;
+    QtTubePlugin::SubscribeButton m_data;
 
     void setStyle(bool hovered);
     void toggleSubscriptionStatus();

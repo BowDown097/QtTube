@@ -18,19 +18,19 @@ public:
     ~ChannelView();
     void hotLoadChannel(const QString& channelId);
 private:
-    TubeLabel* channelBanner;
-    QWidget* channelHeaderContainer;
-    QHBoxLayout* channelHeaderLayout;
-    TubeLabel* channelIcon;
-    QString channelId;
-    TubeLabel* channelName;
-    QTabWidget* channelTabs;
-    TubeLabel* handleAndVideos;
-    QHBoxLayout* metaHbox;
-    QVBoxLayout* metaVbox;
-    QVBoxLayout* pageLayout;
-    PluginData* plugin;
-    SubscribeWidget* subscribeWidget;
+    TubeLabel* m_channelBanner;
+    QWidget* m_channelHeaderContainer;
+    QHBoxLayout* m_channelHeaderLayout;
+    TubeLabel* m_channelIcon;
+    QString m_channelId;
+    TubeLabel* m_channelNameLabel;
+    QTabWidget* m_channelTabs;
+    QHBoxLayout* m_metaHbox;
+    QVBoxLayout* m_metaVbox;
+    QVBoxLayout* m_pageLayout;
+    PluginData* m_plugin;
+    SubscribeWidget* m_subscribeWidget;
+    TubeLabel* m_subtextLabel;
 
     void loadChannel(const QString& channelId);
 private slots:

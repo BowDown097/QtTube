@@ -19,14 +19,14 @@ public:
     void handleMouseEvent(QMouseEvent* event);
     void postSignInSetup();
     void scaleAppropriately();
-    void setAlwaysShow(bool alwaysShow) { this->alwaysShow = alwaysShow; }
+    void setAlwaysShow(bool alwaysShow) { m_alwaysShow = alwaysShow; }
     void updatePalette(const QPalette& palette);
     void updateUIForSignInState(bool signedIn);
 private:
-    bool alwaysShow = true;
-    QPropertyAnimation* animation;
-    TubeLabel* settingsButton;
-    QPushButton* signInButton;
+    bool m_alwaysShow = true;
+    QPropertyAnimation* m_animation;
+    TubeLabel* m_settingsButton;
+    QPushButton* m_signInButton;
 public slots:
     void signOut();
     void updateNotificationCount(int value);

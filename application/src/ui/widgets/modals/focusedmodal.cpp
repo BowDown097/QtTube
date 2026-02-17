@@ -5,7 +5,7 @@
 #include <QPropertyAnimation>
 
 FocusedModal::FocusedModal(QWidget* parent)
-    : QWidget(parent), backdrop(new QWidget(parent))
+    : QWidget(parent), m_backdrop(new QWidget(parent))
 {
     if (!parent)
         throw std::runtime_error("FocusedModal created with null parent");
@@ -13,9 +13,9 @@ FocusedModal::FocusedModal(QWidget* parent)
     QPalette backdropPalette;
     backdropPalette.setColor(QPalette::Window, QColor(0, 0, 0, 180));
 
-    backdrop->setAutoFillBackground(true);
-    backdrop->setPalette(backdropPalette);
-    backdrop->raise();
+    m_backdrop->setAutoFillBackground(true);
+    m_backdrop->setPalette(backdropPalette);
+    m_backdrop->raise();
 
     setAttribute(Qt::WA_DeleteOnClose);
     setAutoFillBackground(true);
@@ -25,14 +25,14 @@ FocusedModal::FocusedModal(QWidget* parent)
     setFocus(Qt::PopupFocusReason);
 
     QPropertyAnimation* thisAnim = animationFor(this);
-    QPropertyAnimation* backdropAnim = animationFor(backdrop.get());
+    QPropertyAnimation* backdropAnim = animationFor(m_backdrop.get());
 
     QParallelAnimationGroup* animGroup = new QParallelAnimationGroup;
     animGroup->addAnimation(thisAnim);
     animGroup->addAnimation(backdropAnim);
     animGroup->start(QAbstractAnimation::DeleteWhenStopped);
 
-    backdrop->show();
+    m_backdrop->show();
     show();
 
     parent->installEventFilter(this);
@@ -69,7 +69,7 @@ void FocusedModal::keyPressEvent(QKeyEvent* event)
 
 void FocusedModal::reorient()
 {
-    backdrop->setGeometry(parentWidget()->rect());
-    move((backdrop->width() - width()) / 2,
-         (backdrop->height() - height()) / 2);
+    m_backdrop->setGeometry(parentWidget()->rect());
+    move((m_backdrop->width() - width()) / 2,
+         (m_backdrop->height() - height()) / 2);
 }

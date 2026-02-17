@@ -20,7 +20,7 @@
 
 WatchView::WatchView(const QString& videoId, PluginData* plugin, int progress,
                      PreloadData::WatchView* preload, QWidget* parent)
-    : QWidget(parent), plugin(plugin), ui(new Ui::WatchView)
+    : QWidget(parent), m_plugin(plugin), ui(new Ui::WatchView)
 {
     MainWindow* mainWindow = UIUtils::getMainWindow();
     if (qtTubeApp->settings().autoHideTopBar)
@@ -80,15 +80,15 @@ void WatchView::hotLoadVideo(
     ui->feed->reset();
     ui->setShowMore(false);
 
-    if (metadataUpdateTimer)
-        metadataUpdateTimer->deleteLater();
+    if (m_metadataUpdateTimer)
+        m_metadataUpdateTimer->deleteLater();
 
     UIUtils::clearLayout(ui->topLevelButtons);
 
     if (preload)
         processPreloadData(preload);
 
-    if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
+    if (QtTubePlugin::VideoReply* reply = m_plugin->interface->getVideo(videoId))
     {
         connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
         connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
@@ -103,7 +103,7 @@ void WatchView::hotLoadVideo(
 
 void WatchView::openLiveChat(const QtTubePlugin::InitialLiveChatData& data)
 {
-    LiveChatWindow* window = new LiveChatWindow(plugin);
+    LiveChatWindow* window = new LiveChatWindow(m_plugin);
     window->setAttribute(Qt::WA_DeleteOnClose);
     window->show();
     window->initialize(data, ui->player);
@@ -111,8 +111,8 @@ void WatchView::openLiveChat(const QtTubePlugin::InitialLiveChatData& data)
 
 void WatchView::processData(const QtTubePlugin::VideoData& data)
 {
-    videoId = data.videoId;
-    videoUrlPrefix = data.videoUrlPrefix;
+    m_videoId = data.videoId;
+    m_videoUrlPrefix = data.videoUrlPrefix;
 
     UIUtils::getMainWindow()->setWindowTitle(data.titleText + " - " + QTTUBE_APP_NAME);
     ui->channelIcon->setImage(data.channel.channelAvatarUrl);
@@ -176,10 +176,10 @@ void WatchView::processData(const QtTubePlugin::VideoData& data)
 
     if (data.isLiveContent)
     {
-        metadataUpdateTimer = new QTimer(this);
-        metadataUpdateTimer->setInterval(60000);
-        connect(metadataUpdateTimer, &QTimer::timeout, this, std::bind(&WatchView::updateMetadata, this, data.videoId));
-        metadataUpdateTimer->start();
+        m_metadataUpdateTimer = new QTimer(this);
+        m_metadataUpdateTimer->setInterval(60000);
+        connect(m_metadataUpdateTimer, &QTimer::timeout, this, std::bind(&WatchView::updateMetadata, this, data.videoId));
+        m_metadataUpdateTimer->start();
     }
 
     ui->feed->setData(data.videoId, data.recommendedVideos, data.continuations);
@@ -209,7 +209,7 @@ void WatchView::rate(bool like, const std::any& addData, const std::any& removeD
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count + 1));
 
-        if (!plugin->interface->rate(videoId, like, false, addData))
+        if (!m_plugin->interface->rate(m_videoId, like, false, addData))
             QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
     }
     else
@@ -219,7 +219,7 @@ void WatchView::rate(bool like, const std::any& addData, const std::any& removeD
         if (textIsNumber)
             senderLabel->setText(QLocale::system().toString(count - 1));
 
-        if (!plugin->interface->rate(videoId, like, true, removeData))
+        if (!m_plugin->interface->rate(m_videoId, like, true, removeData))
             QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
     }
 }
@@ -245,16 +245,16 @@ void WatchView::resizeEvent(QResizeEvent* event)
 
 void WatchView::showShareModal()
 {
-    new ShareModal(videoUrlPrefix, videoId, UIUtils::getMainWindow());
+    new ShareModal(m_videoUrlPrefix, m_videoId, UIUtils::getMainWindow());
 }
 
 void WatchView::updateMetadata(const QString& videoId)
 {
-    if (QtTubePlugin::VideoReply* reply = plugin->interface->getVideo(videoId))
+    if (QtTubePlugin::VideoReply* reply = m_plugin->interface->getVideo(videoId))
     {
         connect(reply, &QtTubePlugin::VideoReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
             qDebug() << ex.message() << "Stream/premiere could have ended - killing update timer.";
-            metadataUpdateTimer->deleteLater();
+            m_metadataUpdateTimer->deleteLater();
         });
         connect(reply, &QtTubePlugin::VideoReply::finished, this, [this](const QtTubePlugin::VideoData& data) {
             ui->date->setText(data.dateText);

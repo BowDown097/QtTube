@@ -4,18 +4,18 @@
 
 GiftRedemptionMessage::GiftRedemptionMessage(const QtTubePlugin::GiftRedemptionMessage& data, QWidget* parent)
     : QWidget(parent),
-      authorLabel(new TubeLabel(data.authorName, this)),
-      layout(new QHBoxLayout(this)),
-      messageLabel(new TubeLabel(" " + data.content, this))
+      m_authorLabel(new TubeLabel(data.authorName, this)),
+      m_layout(new QHBoxLayout(this)),
+      m_messageLabel(new TubeLabel(" " + data.content, this))
 {
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
 
-    authorLabel->setStyleSheet("font-weight: bold; color: #2ba640");
-    layout->addWidget(authorLabel);
+    m_authorLabel->setStyleSheet("font-weight: bold; color: #2ba640");
+    m_layout->addWidget(m_authorLabel);
 
-    messageLabel->setFixedWidth(parent->width() - 40);
-    messageLabel->setFont(QFont(font().toString(), -1, -1, true));
-    messageLabel->setWordWrap(true);
-    layout->addWidget(messageLabel);
+    m_messageLabel->setFixedWidth(parent->width() - 40);
+    m_messageLabel->setFont(QFont(font().toString(), -1, -1, true));
+    m_messageLabel->setWordWrap(true);
+    m_layout->addWidget(m_messageLabel);
 }

@@ -18,16 +18,16 @@ public:
     explicit LiveChatWindow(PluginData* plugin, QWidget* parent = nullptr);
     ~LiveChatWindow();
 private:
-    qint64 firstChatItemOffset{};
-    qint64 lastChatItemOffset{};
-    QTimer* messagesTimer;
-    std::any nextData;
-    PluginData* plugin;
-    bool populating{};
-    QList<QtTubePlugin::LiveChatReplayItem> replayItems;
-    std::any seekData;
+    QList<QtTubePlugin::LiveChatReplayItem> m_replayItems;
+    std::unordered_map<QString, std::any> m_viewOptions;
+    QTimer* m_messagesTimer;
+    PluginData* m_plugin;
+    std::any m_nextData;
+    std::any m_seekData;
+    qint64 m_firstChatItemOffset{};
+    qint64 m_lastChatItemOffset{};
+    bool m_populating{};
     Ui::LiveChatWindow* ui;
-    std::unordered_map<QString, std::any> viewOptions;
 
     void addChatItemToList(const QtTubePlugin::LiveChatItem& item);
     void addNewChatReplayItems(qint64 progress, qint64 previousProgress, bool seeked);

@@ -28,7 +28,7 @@ protected:
     TubeLabel* m_authorLabel;
     QHBoxLayout* m_buttonsLayout;
     TubeLabel* m_descriptionLabel;
-    TubeLabel* m_imageLabel;
+    TubeLabel* m_image;
     QVBoxLayout* m_layout;
     QVBoxLayout* m_nameAndAuthorLayout;
     TubeLabel* m_nameLabel;

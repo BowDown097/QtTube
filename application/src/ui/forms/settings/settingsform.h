@@ -19,7 +19,7 @@ public:
     bool savePending() const override;
     void saveSettings() override;
 private:
-    QButtonGroup* pluginActiveButtonGroup;
+    QButtonGroup* m_pluginActiveButtonGroup;
     Ui::SettingsForm* ui;
 
     static QString extractPath(const QString& str);

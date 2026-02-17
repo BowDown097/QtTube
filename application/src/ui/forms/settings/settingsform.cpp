@@ -25,7 +25,7 @@ SettingsForm::~SettingsForm() { delete ui; }
 
 SettingsForm::SettingsForm(QWidget* parent)
     : QtTubePlugin::SettingsWindow(parent),
-      pluginActiveButtonGroup(new QButtonGroup(this)),
+      m_pluginActiveButtonGroup(new QButtonGroup(this)),
       ui(new Ui::SettingsForm)
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -65,7 +65,7 @@ SettingsForm::SettingsForm(QWidget* parent)
     ui->filterLength->setValue(store.filterLength);
     ui->filterLengthCheck->setChecked(store.filterLengthEnabled);
 
-    connect(pluginActiveButtonGroup, &QButtonGroup::buttonToggled, this, &SettingsForm::pluginActiveButtonToggled);
+    connect(m_pluginActiveButtonGroup, &QButtonGroup::buttonToggled, this, &SettingsForm::pluginActiveButtonToggled);
     connect(ui->addPluginButton, &QPushButton::clicked, this, &SettingsForm::openAddPluginDialog);
     connect(ui->browsePluginsButton, &QPushButton::clicked, this, &SettingsForm::openPluginBrowser);
     connect(ui->clearCache, &QPushButton::clicked, this, &SettingsForm::clearCache);
@@ -118,7 +118,7 @@ void SettingsForm::clearCache()
 
 void SettingsForm::currentChanged(int index)
 {
-    if (ui->tabWidget->tabText(index) != "Plugins" || !pluginActiveButtonGroup->buttons().isEmpty())
+    if (ui->tabWidget->tabText(index) != "Plugins" || !m_pluginActiveButtonGroup->buttons().isEmpty())
         return;
 
     for (PluginData* plugin : qtTubeApp->plugins().loadedPlugins())
@@ -126,7 +126,7 @@ void SettingsForm::currentChanged(int index)
         AddPluginDialogEntry* entry = new AddPluginDialogEntry(plugin);
         UIUtils::addWidgetToList(ui->pluginsListWidget, entry);
         entry->setData(plugin->metadata);
-        pluginActiveButtonGroup->addButton(entry->activeButton());
+        m_pluginActiveButtonGroup->addButton(entry->activeButton());
     }
 }
 
@@ -157,7 +157,7 @@ void SettingsForm::openAddPluginDialog()
         AddPluginDialogEntry* entry = new AddPluginDialogEntry(plugin);
         UIUtils::addWidgetToList(ui->pluginsListWidget, entry);
         entry->setData(plugin->metadata);
-        pluginActiveButtonGroup->addButton(entry->activeButton());
+        m_pluginActiveButtonGroup->addButton(entry->activeButton());
     }
 }
 

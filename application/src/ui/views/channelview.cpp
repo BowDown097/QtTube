@@ -18,76 +18,76 @@ ChannelView::~ChannelView()
 }
 
 ChannelView::ChannelView(const QString& channelId, PluginData* plugin)
-    : channelBanner(new TubeLabel(this)),
-      channelHeaderContainer(new QWidget(this)),
-      channelHeaderLayout(new QHBoxLayout(channelHeaderContainer)),
-      channelIcon(new TubeLabel(this)),
-      channelName(new TubeLabel(this)),
-      channelTabs(new QTabWidget(this)),
-      handleAndVideos(new TubeLabel(this)),
-      metaHbox(new QHBoxLayout),
-      metaVbox(new QVBoxLayout),
-      plugin(plugin),
-      pageLayout(new QVBoxLayout(this)),
-      subscribeWidget(new SubscribeWidget(plugin, this))
+    : m_channelBanner(new TubeLabel(this)),
+      m_channelHeaderContainer(new QWidget(this)),
+      m_channelHeaderLayout(new QHBoxLayout(m_channelHeaderContainer)),
+      m_channelIcon(new TubeLabel(this)),
+      m_channelNameLabel(new TubeLabel(this)),
+      m_channelTabs(new QTabWidget(this)),
+      m_subtextLabel(new TubeLabel(this)),
+      m_metaHbox(new QHBoxLayout),
+      m_metaVbox(new QVBoxLayout),
+      m_plugin(plugin),
+      m_pageLayout(new QVBoxLayout(this)),
+      m_subscribeWidget(new SubscribeWidget(plugin, this))
 {
-    metaHbox->setContentsMargins(0, 0, 0, 0);
+    m_metaHbox->setContentsMargins(0, 0, 0, 0);
 
-    pageLayout->setSpacing(0);
+    m_pageLayout->setSpacing(0);
 
-    channelBanner->setMinimumSize(1, 1);
-    channelBanner->setScaledContents(true);
-    pageLayout->addWidget(channelBanner);
+    m_channelBanner->setMinimumSize(1, 1);
+    m_channelBanner->setScaledContents(true);
+    m_pageLayout->addWidget(m_channelBanner);
 
     if (qtTubeApp->settings().autoHideTopBar)
-        pageLayout->setContentsMargins(0, 0, 0, 0);
+        m_pageLayout->setContentsMargins(0, 0, 0, 0);
     else
-        pageLayout->setContentsMargins(0, UIUtils::getMainWindow()->topbar()->height(), 0, 0);
+        m_pageLayout->setContentsMargins(0, UIUtils::getMainWindow()->topbar()->height(), 0, 0);
 
-    channelHeaderContainer->setFixedHeight(63);
-    channelHeaderContainer->setAutoFillBackground(true);
-    channelHeaderLayout->setSpacing(10);
+    m_channelHeaderContainer->setFixedHeight(63);
+    m_channelHeaderContainer->setAutoFillBackground(true);
+    m_channelHeaderLayout->setSpacing(10);
 
-    channelIcon->setFixedSize(48, 48);
-    channelIcon->setScaledContents(true);
-    metaHbox->addWidget(channelIcon);
-    metaHbox->addSpacerItem(new QSpacerItem(7, 0));
+    m_channelIcon->setFixedSize(48, 48);
+    m_channelIcon->setScaledContents(true);
+    m_metaHbox->addWidget(m_channelIcon);
+    m_metaHbox->addSpacerItem(new QSpacerItem(7, 0));
 
-    metaVbox->addWidget(channelName);
+    m_metaVbox->addWidget(m_channelNameLabel);
 
-    handleAndVideos->setFont(QFont(font().toString(), font().pointSize() - 2));
-    metaVbox->addWidget(handleAndVideos);
+    m_subtextLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
+    m_metaVbox->addWidget(m_subtextLabel);
 
-    metaHbox->addLayout(metaVbox);
-    channelHeaderLayout->addLayout(metaHbox);
+    m_metaHbox->addLayout(m_metaVbox);
+    m_channelHeaderLayout->addLayout(m_metaHbox);
 
-    subscribeWidget->layout->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    channelHeaderLayout->addWidget(subscribeWidget);
+    m_subscribeWidget->layout->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_channelHeaderLayout->addWidget(m_subscribeWidget);
 
-    pageLayout->addWidget(channelHeaderContainer);
+    m_pageLayout->addWidget(m_channelHeaderContainer);
 
-    channelTabs->tabBar()->setAutoFillBackground(true);
-    channelTabs->tabBar()->setDocumentMode(true);
-    channelTabs->tabBar()->setExpanding(false);
-    pageLayout->addWidget(channelTabs);
+    m_channelTabs->tabBar()->setAutoFillBackground(true);
+    m_channelTabs->tabBar()->setDocumentMode(true);
+    m_channelTabs->tabBar()->setExpanding(false);
+    m_pageLayout->addWidget(m_channelTabs);
 
     loadChannel(channelId);
 }
 
 void ChannelView::hotLoadChannel(const QString& channelId)
 {
-    if (this->channelId != channelId)
+    if (m_channelId != channelId)
     {
-        disconnect(channelTabs, &QTabWidget::currentChanged, nullptr, nullptr);
-        channelTabs->clear();
+        disconnect(m_channelTabs, &QTabWidget::currentChanged, nullptr, nullptr);
+        m_channelTabs->clear();
         loadChannel(channelId);
     }
 }
 
 void ChannelView::loadChannel(const QString& channelId)
 {
-    this->channelId = channelId;
-    if (QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(channelId, {}, {}))
+    m_channelId = channelId;
+    if (QtTubePlugin::ChannelReply* reply = m_plugin->interface->getChannel(channelId, {}, {}))
     {
         QEventLoop loop;
         connect(reply, &QtTubePlugin::ChannelReply::exception, this, [this, &loop](const QtTubePlugin::Exception& ex) {
@@ -108,28 +108,28 @@ void ChannelView::loadChannel(const QString& channelId)
 
 void ChannelView::loadTab(std::any requestData, int index)
 {
-    const QList<ContinuableListWidget*> tabWidgets = channelTabs->findChildren<ContinuableListWidget*>();
+    const QList<ContinuableListWidget*> tabWidgets = m_channelTabs->findChildren<ContinuableListWidget*>();
     for (ContinuableListWidget* list : tabWidgets)
         list->clear();
 
-    ContinuableListWidget* list = channelTabs->widget(index)->findChild<ContinuableListWidget*>();
-    BrowseHelper::instance()->browseChannel(list, index, channelId, requestData);
+    ContinuableListWidget* list = m_channelTabs->widget(index)->findChild<ContinuableListWidget*>();
+    BrowseHelper::instance()->browseChannel(list, index, m_channelId, requestData);
 }
 
 void ChannelView::processData(const QtTubePlugin::ChannelData& data)
 {
     processHeader(data.header.value());
     processTabs(data.tabs);
-    connect(channelTabs, &QTabWidget::currentChanged, this, [this, tabs = data.tabs](int index) {
+    connect(m_channelTabs, &QTabWidget::currentChanged, this, [this, tabs = data.tabs](int index) {
         loadTab(tabs.at(index).requestData, index);
     });
 }
 
 void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
 {
-    channelName->setText(header.channelText);
-    handleAndVideos->setText(header.channelSubtext);
-    subscribeWidget->setData(header.subscribeButton);
+    m_channelNameLabel->setText(header.channelText);
+    m_subtextLabel->setText(header.channelSubtext);
+    m_subscribeWidget->setData(header.subscribeButton);
 
     MainWindow* mainWindow = UIUtils::getMainWindow();
     mainWindow->setWindowTitle(header.channelText + " - " + QTTUBE_APP_NAME);
@@ -138,9 +138,9 @@ void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
     bool hasBanner = !header.bannerUrl.isEmpty();
 
     if (hasBanner)
-        channelBanner->setFixedHeight(129);
+        m_channelBanner->setFixedHeight(129);
     else if (qtTubeApp->settings().autoHideTopBar)
-        channelBanner->setFixedHeight(mainWindow->topbar()->height() + 20);
+        m_channelBanner->setFixedHeight(mainWindow->topbar()->height() + 20);
 
     if (qtTubeApp->settings().autoHideTopBar)
     {
@@ -149,14 +149,14 @@ void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
     }
 
     if (hasAvatar)
-        channelIcon->setImage(header.avatarUrl);
+        m_channelIcon->setImage(header.avatarUrl);
     else
-        channelIcon->setPixmap(QPixmap());
+        m_channelIcon->setPixmap(QPixmap());
 
     if (hasBanner)
-        channelBanner->setImage(header.bannerUrl);
+        m_channelBanner->setImage(header.bannerUrl);
     else
-        channelBanner->setPixmap(QPixmap());
+        m_channelBanner->setPixmap(QPixmap());
 }
 
 void ChannelView::processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs)
@@ -184,11 +184,11 @@ void ChannelView::processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs)
 
         connect(list, &ContinuableListWidget::continuationReady, this, [this, data = tabs[i].requestData, i, list] {
             if (list->continuationData.has_value())
-                BrowseHelper::instance()->browseChannel(list, i, channelId, data);
+                BrowseHelper::instance()->browseChannel(list, i, m_channelId, data);
         });
 
-        channelTabs->addTab(tabWidget, tabs[i].title);
+        m_channelTabs->addTab(tabWidget, tabs[i].title);
     }
 
-    BrowseHelper::instance()->processChannelTabItems(firstListWidget, plugin, tabs.front().items);
+    BrowseHelper::instance()->processChannelTabItems(firstListWidget, m_plugin, tabs.front().items);
 }

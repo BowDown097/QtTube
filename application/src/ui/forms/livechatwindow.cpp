@@ -13,7 +13,7 @@
 #include <QTimer>
 
 LiveChatWindow::LiveChatWindow(PluginData* plugin, QWidget* parent)
-    : QWidget(parent), messagesTimer(new QTimer(this)), plugin(plugin), ui(new Ui::LiveChatWindow)
+    : QWidget(parent), m_messagesTimer(new QTimer(this)), m_plugin(plugin), ui(new Ui::LiveChatWindow)
 {
     ui->setupUi(this);
     ui->chatModeSwitcher->hide();
@@ -25,7 +25,7 @@ LiveChatWindow::LiveChatWindow(PluginData* plugin, QWidget* parent)
 LiveChatWindow::~LiveChatWindow()
 {
     // avoid use-after-free when closing
-    if (populating)
+    if (m_populating)
         waitForPopulation();
 
     delete ui;
@@ -45,13 +45,13 @@ void LiveChatWindow::addChatItemToList(const QtTubePlugin::LiveChatItem& item)
 
 void LiveChatWindow::addNewChatReplayItems(qint64 progress, qint64 previousProgress, bool seeked)
 {
-    for (auto it = replayItems.begin(); it != replayItems.end();)
+    for (auto it = m_replayItems.begin(); it != m_replayItems.end();)
     {
         qint64 videoOffsetSec = it->videoOffsetMs / 1000;
         if ((seeked || videoOffsetSec >= previousProgress) && videoOffsetSec <= progress)
         {
             addChatItemToList(it->item);
-            it = replayItems.erase(it);
+            it = m_replayItems.erase(it);
         }
         else
         {
@@ -62,7 +62,7 @@ void LiveChatWindow::addNewChatReplayItems(qint64 progress, qint64 previousProgr
 
 void LiveChatWindow::chatModeChanged(const QString& name)
 {
-    if (auto it = viewOptions.find(name); it != viewOptions.end())
+    if (auto it = m_viewOptions.find(name); it != m_viewOptions.end())
     {
         if (!it->second.has_value())
         {
@@ -70,23 +70,23 @@ void LiveChatWindow::chatModeChanged(const QString& name)
             return;
         }
 
-        if (populating)
+        if (m_populating)
             waitForPopulation();
 
-        nextData = it->second;
+        m_nextData = it->second;
         ui->listWidget->clear();
     }
 }
 
 void LiveChatWindow::chatReplayTick(qint64 progress, qint64 previousProgress)
 {
-    if (!populating)
+    if (!m_populating)
     {
-        populating = true;
+        m_populating = true;
         if (previousProgress > 0 && std::abs(progress - previousProgress) > 5)
         {
             ui->listWidget->clear();
-            if (QtTubePlugin::LiveChatReplayReply* reply = plugin->interface->getLiveChatReplay(seekData, progress * 1000))
+            if (QtTubePlugin::LiveChatReplayReply* reply = m_plugin->interface->getLiveChatReplay(m_seekData, progress * 1000))
             {
                 connect(reply, &QtTubePlugin::LiveChatReplayReply::finished, this,
                     std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, true));
@@ -97,9 +97,9 @@ void LiveChatWindow::chatReplayTick(qint64 progress, qint64 previousProgress)
                 deleteLater();
             }
         }
-        else if (progress < firstChatItemOffset || progress > lastChatItemOffset)
+        else if (progress < m_firstChatItemOffset || progress > m_lastChatItemOffset)
         {
-            if (QtTubePlugin::LiveChatReplayReply* reply = plugin->interface->getLiveChatReplay(nextData, progress * 1000))
+            if (QtTubePlugin::LiveChatReplayReply* reply = m_plugin->interface->getLiveChatReplay(m_nextData, progress * 1000))
             {
                 connect(reply, &QtTubePlugin::LiveChatReplayReply::finished, this,
                     std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, false));
@@ -119,10 +119,10 @@ void LiveChatWindow::chatReplayTick(qint64 progress, qint64 previousProgress)
 
 void LiveChatWindow::chatTick()
 {
-    if (!populating)
+    if (!m_populating)
     {
-        populating = true;
-        if (QtTubePlugin::LiveChatReply* reply = plugin->interface->getLiveChat(nextData))
+        m_populating = true;
+        if (QtTubePlugin::LiveChatReply* reply = m_plugin->interface->getLiveChat(m_nextData))
         {
             connect(reply, &QtTubePlugin::LiveChatReply::finished, this, &LiveChatWindow::processChatData);
         }
@@ -150,7 +150,7 @@ void LiveChatWindow::createEmojiMenuWidgets()
 
 void LiveChatWindow::initialize(const QtTubePlugin::InitialLiveChatData& data, WatchViewPlayer* player)
 {
-    nextData = data.data;
+    m_nextData = data.data;
     if (data.isReplay)
     {
         ui->chatModeSwitcher->hide();
@@ -164,8 +164,8 @@ void LiveChatWindow::initialize(const QtTubePlugin::InitialLiveChatData& data, W
         createEmojiMenuWidgets();
         if (!data.platformEmojis.isEmpty())
             EmojiStore::instance()->add("Platform", data.platformEmojis, false);
-        messagesTimer->start(data.updateIntervalMs);
-        connect(messagesTimer, &QTimer::timeout, this, &LiveChatWindow::chatTick);
+        m_messagesTimer->start(data.updateIntervalMs);
+        connect(m_messagesTimer, &QTimer::timeout, this, &LiveChatWindow::chatTick);
     }
 }
 
@@ -188,7 +188,7 @@ void LiveChatWindow::processChatData(const QtTubePlugin::LiveChat& data)
     {
         for (const QtTubePlugin::LiveChatViewOption& option : data.viewOptions)
         {
-            viewOptions.emplace(option.name, option.data);
+            m_viewOptions.emplace(option.name, option.data);
             ui->chatModeSwitcher->addItem(option.name);
         }
 
@@ -200,9 +200,9 @@ void LiveChatWindow::processChatData(const QtTubePlugin::LiveChat& data)
         addChatItemToList(item);
 
     if (data.nextData.has_value())
-        nextData = data.nextData;
+        m_nextData = data.nextData;
     else
-        messagesTimer->stop();
+        m_messagesTimer->stop();
 
     processingEnd();
 }
@@ -214,7 +214,7 @@ void LiveChatWindow::processChatReplayData(
     {
         for (const QtTubePlugin::LiveChatViewOption& option : data.viewOptions)
         {
-            viewOptions.emplace(option.name, option.data);
+            m_viewOptions.emplace(option.name, option.data);
             ui->chatModeSwitcher->addItem(option.name);
         }
 
@@ -222,15 +222,15 @@ void LiveChatWindow::processChatReplayData(
         connect(ui->chatModeSwitcher, &QComboBox::currentTextChanged, this, &LiveChatWindow::chatModeChanged);
     }
 
-    replayItems = data.items;
+    m_replayItems = data.items;
     addNewChatReplayItems(progress, previousProgress, seeked);
 
     if (data.nextData.has_value())
-        nextData = data.nextData;
+        m_nextData = data.nextData;
 
-    firstChatItemOffset = replayItems.first().videoOffsetMs / 1000;
-    lastChatItemOffset = replayItems.last().videoOffsetMs / 1000;
-    seekData = data.seekData;
+    m_firstChatItemOffset = m_replayItems.first().videoOffsetMs / 1000;
+    m_lastChatItemOffset = m_replayItems.last().videoOffsetMs / 1000;
+    m_seekData = data.seekData;
 
     processingEnd();
 }
@@ -242,7 +242,7 @@ void LiveChatWindow::processingEnd()
             delete ui->listWidget->takeItem(i);
 
     ui->listWidget->scrollToBottom();
-    populating = false;
+    m_populating = false;
     emit getLiveChatFinished();
 }
 
@@ -250,7 +250,7 @@ void LiveChatWindow::sendMessage()
 {
     if (QString trimmedText = ui->messageBox->text().trimmed(); !trimmedText.isEmpty())
     {
-        if (plugin->interface->sendLiveChatMessage(EmojiStore::instance()->emojize(trimmedText)))
+        if (m_plugin->interface->sendLiveChatMessage(EmojiStore::instance()->emojize(trimmedText)))
             ui->messageBox->clear();
         else
             QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");

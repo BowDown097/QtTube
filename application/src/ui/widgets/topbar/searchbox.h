@@ -11,15 +11,16 @@ class SearchBox : public QWidget
     Q_OBJECT
 public:
     enum class SearchType { ByQuery, ByLink };
+
     explicit SearchBox(QWidget* parent = nullptr);
     void updatePalette(const QPalette& pal);
 private:
-    QHBoxLayout* layout;
-    ExtToolButton* searchButton;
-    QLineEdit* searchForm;
-    QAction* searchTypeActionLink;
-    QAction* searchTypeActionQuery;
-    ExtMenu* searchTypeMenu;
+    QHBoxLayout* m_layout;
+    QLineEdit* m_lineEdit;
+    ExtToolButton* m_searchButton;
+    QAction* m_searchTypeActionLink;
+    QAction* m_searchTypeActionQuery;
+    ExtMenu* m_searchTypeMenu;
 signals:
     void searchRequested(const QString& query, SearchBox::SearchType searchType);
 };

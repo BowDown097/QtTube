@@ -17,9 +17,10 @@ public:
     void setInfo(const QString& uploaderId, const QString& uploaderName, const QList<QtTubePlugin::Badge>& badges);
     void setInfo(const QString& uploaderId, const QString& uploaderName);
 private:
-    QHBoxLayout* badgeLayout;
-    QString channelId;
-    QHBoxLayout* layout;
+    QHBoxLayout* m_badgeLayout;
+    QString m_channelId;
+    QHBoxLayout* m_layout;
+
     void reset();
 private slots:
     void copyChannelUrl();

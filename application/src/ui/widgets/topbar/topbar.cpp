@@ -11,20 +11,20 @@
 
 TopBar::TopBar(QWidget* parent)
     : QWidget(parent),
-      animation(new QPropertyAnimation(this, "geometry", this)),
+      m_animation(new QPropertyAnimation(this, "geometry", this)),
       avatarButton(new TubeLabel(this)),
       logo(new TubeLabel(this)),
       notificationBell(new TopBarBell(this)),
       searchBox(new SearchBox(this)),
-      settingsButton(new TubeLabel(this)),
-      signInButton(new QPushButton(this))
+      m_settingsButton(new TubeLabel(this)),
+      m_signInButton(new QPushButton(this))
 {
     resize(parent->width(), 35);
     setAutoFillBackground(true);
     setPalette(qApp->palette().alternateBase().color());
 
-    animation->setDuration(250);
-    animation->setEasingCurve(QEasingCurve::InOutQuint);
+    m_animation->setDuration(250);
+    m_animation->setEasingCurve(QEasingCurve::InOutQuint);
 
     logo->move(10, 2);
     logo->resize(134, 30);
@@ -39,12 +39,12 @@ TopBar::TopBar(QWidget* parent)
     notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
     notificationBell->updatePixmap(false, palette());
 
-    settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 3);
-    settingsButton->resize(30, 30);
-    settingsButton->setClickable(true);
-    settingsButton->setScaledContents(true);
-    settingsButton->setPixmap(UIUtils::pixmapThemed("settings"));
-    connect(settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);
+    m_settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 3);
+    m_settingsButton->resize(30, 30);
+    m_settingsButton->setClickable(true);
+    m_settingsButton->setScaledContents(true);
+    m_settingsButton->setPixmap(UIUtils::pixmapThemed("settings"));
+    connect(m_settingsButton, &TubeLabel::clicked, this, &TopBar::showSettings);
 
     avatarButton->hide();
     avatarButton->move(searchBox->width() + searchBox->x() + 8, 3);
@@ -52,10 +52,10 @@ TopBar::TopBar(QWidget* parent)
     avatarButton->setClickable(true);
     avatarButton->setScaledContents(true);
 
-    signInButton->move(settingsButton->width() + settingsButton->x() + 8, 0);
-    signInButton->resize(80, 35);
-    signInButton->setText("Sign in");
-    connect(signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
+    m_signInButton->move(m_settingsButton->width() + m_settingsButton->x() + 8, 0);
+    m_signInButton->resize(80, 35);
+    m_signInButton->setText("Sign in");
+    connect(m_signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
 }
 
 void TopBar::handleMouseEvent(QMouseEvent* event)
@@ -63,29 +63,29 @@ void TopBar::handleMouseEvent(QMouseEvent* event)
     bool interferingWithTab{};
     if (QWidget* widgetAtPoint = qApp->widgetAt(QCursor::pos()))
         interferingWithTab = strncmp(widgetAtPoint->metaObject()->className(), "QTab", 4) == 0;
-    if (alwaysShow || animation->state() == QAbstractAnimation::Running || interferingWithTab)
+    if (m_alwaysShow || m_animation->state() == QAbstractAnimation::Running || interferingWithTab)
         return;
 
     if (event->pos().y() < height())
     {
         if (isHidden())
         {
-            animation->setStartValue(QRect(0, 0, width(), 0));
-            animation->setEndValue(QRect(0, 0, width(), height()));
-            disconnect(animation, &QPropertyAnimation::finished, this, nullptr);
-            animation->start();
+            m_animation->setStartValue(QRect(0, 0, width(), 0));
+            m_animation->setEndValue(QRect(0, 0, width(), height()));
+            disconnect(m_animation, &QPropertyAnimation::finished, this, nullptr);
+            m_animation->start();
             show();
         }
     }
     else if (isVisible())
     {
-        animation->setStartValue(QRect(0, 0, width(), height()));
-        animation->setEndValue(QRect(0, 0, width(), 0));
-        connect(animation, &QPropertyAnimation::finished, this, [this] {
+        m_animation->setStartValue(QRect(0, 0, width(), height()));
+        m_animation->setEndValue(QRect(0, 0, width(), 0));
+        connect(m_animation, &QPropertyAnimation::finished, this, [this] {
             hide();
-            resize(width(), animation->startValue().toRect().height());
+            resize(width(), m_animation->startValue().toRect().height());
         });
-        animation->start();
+        m_animation->start();
     }
 }
 
@@ -122,15 +122,15 @@ void TopBar::scaleAppropriately()
     {
         searchBox->resize(502 + width() - 800, 35);
         notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
-        settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 4);
-        avatarButton->move(settingsButton->width() + settingsButton->x() + 8, 3);
+        m_settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 4);
+        avatarButton->move(m_settingsButton->width() + m_settingsButton->x() + 8, 3);
     }
     else
     {
         searchBox->resize(452 + width() - 800, 35);
         notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
-        settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 4);
-        signInButton->move(settingsButton->width() + settingsButton->x() + 8, 0);
+        m_settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 4);
+        m_signInButton->move(m_settingsButton->width() + m_settingsButton->x() + 8, 0);
     }
 }
 
@@ -166,7 +166,7 @@ void TopBar::updatePalette(const QPalette& palette)
     logo->setPixmap(UIUtils::iconThemed("qttube-full", palette).pixmap(logo->size()));
     notificationBell->updatePixmap(notificationBell->count->isVisible(), palette);
     searchBox->updatePalette(palette);
-    settingsButton->setPixmap(UIUtils::pixmapThemed("settings", palette));
+    m_settingsButton->setPixmap(UIUtils::pixmapThemed("settings", palette));
 }
 
 void TopBar::updateUIForSignInState(bool signedIn)
@@ -174,12 +174,12 @@ void TopBar::updateUIForSignInState(bool signedIn)
     if (signedIn)
     {
         avatarButton->show();
-        signInButton->hide();
+        m_signInButton->hide();
     }
     else
     {
         avatarButton->hide();
-        signInButton->show();
+        m_signInButton->show();
     }
 
     scaleAppropriately();

@@ -16,7 +16,7 @@ VideoRenderer::VideoRenderer(PluginData* plugin, QWidget* parent)
       metadataLabel(new TubeLabel(this)),
       thumbnail(new VideoThumbnailWidget(this)),
       titleLabel(new TubeLabel(this)),
-      plugin(plugin)
+      m_plugin(plugin)
 {
     channelLabel->addStretch();
     channelLabel->hide();
@@ -36,18 +36,18 @@ VideoRenderer::VideoRenderer(PluginData* plugin, QWidget* parent)
 
 void VideoRenderer::copyVideoUrl()
 {
-    UIUtils::copyToClipboard("https://www.youtube.com/watch?v=" + videoId);
+    UIUtils::copyToClipboard("https://www.youtube.com/watch?v=" + m_videoId);
 }
 
 void VideoRenderer::navigate()
 {
-    ViewController::loadVideo(videoId, plugin, progress, watchPreloadData.get());
+    ViewController::loadVideo(m_videoId, m_plugin, m_progress, m_preloadData.get());
 }
 
 void VideoRenderer::setData(const QtTubePlugin::Video& video)
 {
-    progress = video.progressSecs;
-    videoId = video.videoId;
+    m_progress = video.progressSecs;
+    m_videoId = video.videoId;
 
     metadataLabel->setText(video.metadataText);
     if (!video.uploaderId.isEmpty() || !video.uploaderText.isEmpty())
@@ -57,8 +57,8 @@ void VideoRenderer::setData(const QtTubePlugin::Video& video)
     }
 
     thumbnail->setLengthText(video.lengthText);
-    thumbnail->setProgress(progress, QTime(0, 0).secsTo(video.length()));
-    thumbnail->setSourceIconUrl(plugin->metadata.image);
+    thumbnail->setProgress(m_progress, QTime(0, 0).secsTo(video.length()));
+    thumbnail->setSourceIconUrl(m_plugin->metadata.image);
 
     if (video.isVerticalVideo)
         thumbnail->setFixedSize(105, 186);
@@ -77,7 +77,7 @@ void VideoRenderer::setData(const QtTubePlugin::Video& video)
 
     badgesLayout->addStretch();
 
-    watchPreloadData.reset(new PreloadData::WatchView {
+    m_preloadData.reset(new PreloadData::WatchView {
         .channelAvatarUrl = video.uploaderAvatarUrl,
         .channelBadges = video.uploaderBadges,
         .channelId = video.uploaderId,

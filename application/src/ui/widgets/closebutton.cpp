@@ -1,9 +1,9 @@
 #include "closebutton.h"
 #include <QAction>
 
-CloseButton::CloseButton(QWidget* parent) : QToolButton(parent), action(new QAction(this))
+CloseButton::CloseButton(QWidget* parent) : QToolButton(parent), m_action(new QAction(this))
 {
-    action->setText("X");
-    setDefaultAction(action);
+    m_action->setText("X");
+    setDefaultAction(m_action);
     setToolTip(QString());
 }

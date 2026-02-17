@@ -14,14 +14,14 @@ public:
     explicit FindBar(QWidget* parent);
     void setReveal(bool reveal);
 private:
-    CloseButton* closeButton;
-    int currentIndex{};
-    QHBoxLayout* hbox;
-    QList<QPointer<QLabel>> matches;
-    QLabel* matchesLabel;
-    QPushButton* nextButton;
-    QPushButton* previousButton;
-    QLineEdit* searchBox;
+    CloseButton* m_closeButton;
+    int m_currentIndex{};
+    QHBoxLayout* m_layout;
+    QList<QPointer<QLabel>> m_matches;
+    QLabel* m_matchesLabel;
+    QPushButton* m_nextButton;
+    QPushButton* m_previousButton;
+    QLineEdit* m_searchBox;
 
     void clearMatches();
     void highlightMatch(const QPointer<QLabel>& label);

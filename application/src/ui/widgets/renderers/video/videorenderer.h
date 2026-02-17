@@ -23,10 +23,10 @@ public:
     explicit VideoRenderer(PluginData* plugin, QWidget* parent = nullptr);
     void setData(const QtTubePlugin::Video& video);
 private:
-    PluginData* plugin;
-    int progress{};
-    QString videoId;
-    std::unique_ptr<PreloadData::WatchView> watchPreloadData;
+    PluginData* m_plugin;
+    std::unique_ptr<PreloadData::WatchView> m_preloadData;
+    int m_progress{};
+    QString m_videoId;
 private slots:
     void copyVideoUrl();
     void navigate();

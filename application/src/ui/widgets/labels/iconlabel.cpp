@@ -4,18 +4,17 @@
 #include <QMouseEvent>
 
 IconLabel::IconLabel(const QString& iconId, const QMargins& contentsMargins, const QSize& size, QWidget* parent)
-    : ClickableWidget<>(parent), icon(new QLabel(this)), textLabel(new QLabel(this)), layout(new QHBoxLayout(this))
+    : ClickableWidget<>(parent), icon(new QLabel(this)), textLabel(new QLabel(this)), m_layout(new QHBoxLayout(this))
 {
     setClickable(true);
     icon->setFixedSize(size);
     icon->setPixmap(UIUtils::pixmapThemed(iconId));
     icon->setScaledContents(true);
 
-    layout->setContentsMargins(contentsMargins);
-
-    layout->addWidget(icon);
-    layout->addSpacerItem(new QSpacerItem(2, 0));
-    layout->addWidget(textLabel);
+    m_layout->setContentsMargins(contentsMargins);
+    m_layout->addWidget(icon);
+    m_layout->addSpacerItem(new QSpacerItem(2, 0));
+    m_layout->addWidget(textLabel);
 }
 
 IconLabel::IconLabel(const QString& iconId, const QString& text, const QMargins& contentsMargins,

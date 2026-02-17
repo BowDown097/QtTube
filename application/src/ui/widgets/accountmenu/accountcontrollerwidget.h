@@ -9,6 +9,7 @@ class AccountControllerWidget : public QStackedWidget
 public:
     AccountMenuWidget* accountMenu;
     AccountSwitcherWidget* accountSwitcher;
+
     explicit AccountControllerWidget(PluginData* plugin, QWidget* parent = nullptr);
 signals:
     void resized();

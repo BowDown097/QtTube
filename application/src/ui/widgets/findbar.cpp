@@ -13,59 +13,59 @@ constexpr QLatin1String SelectedStylesheet("background-color: yellow");
 
 FindBar::FindBar(QWidget* parent)
     : QWidget(parent),
-      closeButton(new CloseButton(this)),
-      hbox(new QHBoxLayout(this)),
-      matchesLabel(new QLabel(this)),
-      nextButton(new QPushButton(this)),
-      previousButton(new QPushButton(this)),
-      searchBox(new QLineEdit(this))
+      m_closeButton(new CloseButton(this)),
+      m_layout(new QHBoxLayout(this)),
+      m_matchesLabel(new QLabel(this)),
+      m_nextButton(new QPushButton(this)),
+      m_previousButton(new QPushButton(this)),
+      m_searchBox(new QLineEdit(this))
 {
-    hbox->addWidget(closeButton);
+    m_layout->addWidget(m_closeButton);
 
-    searchBox->setPlaceholderText("Find in program");
-    hbox->addWidget(searchBox);
+    m_searchBox->setPlaceholderText("Find in program");
+    m_layout->addWidget(m_searchBox);
 
-    nextButton->setEnabled(false);
-    nextButton->setText("Next");
-    hbox->addWidget(nextButton);
+    m_nextButton->setEnabled(false);
+    m_nextButton->setText("Next");
+    m_layout->addWidget(m_nextButton);
 
-    previousButton->setEnabled(false);
-    previousButton->setText("Previous");
-    hbox->addWidget(previousButton);
+    m_previousButton->setEnabled(false);
+    m_previousButton->setText("Previous");
+    m_layout->addWidget(m_previousButton);
 
-    hbox->addWidget(matchesLabel);
+    m_layout->addWidget(m_matchesLabel);
 
     hide();
     setAutoFillBackground(true);
     setPalette(qApp->palette().alternateBase().color());
 
-    connect(closeButton, &CloseButton::clicked, this, [this] { setReveal(false); });
-    connect(nextButton, &QPushButton::clicked, this, &FindBar::goToNext);
-    connect(previousButton, &QPushButton::clicked, this, &FindBar::goToPrevious);
-    connect(searchBox, &QLineEdit::returnPressed, this, &FindBar::returnPressed);
-    connect(searchBox, &QLineEdit::textChanged, this, &FindBar::initializeSearch);
+    connect(m_closeButton, &CloseButton::clicked, this, [this] { setReveal(false); });
+    connect(m_nextButton, &QPushButton::clicked, this, &FindBar::goToNext);
+    connect(m_previousButton, &QPushButton::clicked, this, &FindBar::goToPrevious);
+    connect(m_searchBox, &QLineEdit::returnPressed, this, &FindBar::returnPressed);
+    connect(m_searchBox, &QLineEdit::textChanged, this, &FindBar::initializeSearch);
 }
 
 void FindBar::clearMatches()
 {
-    for (const QPointer<QLabel>& match : std::as_const(matches))
+    for (const QPointer<QLabel>& match : std::as_const(m_matches))
         unhighlightMatch(match);
-    matches.clear();
-    matchesLabel->clear();
-    currentIndex = 0;
+    m_matches.clear();
+    m_matchesLabel->clear();
+    m_currentIndex = 0;
 }
 
 void FindBar::goToNext()
 {
-    currentIndex++;
-    unhighlightMatch(matches[currentIndex - 1]);
+    m_currentIndex++;
+    unhighlightMatch(m_matches[m_currentIndex - 1]);
     jumpToCurrentMatch();
 }
 
 void FindBar::goToPrevious()
 {
-    currentIndex--;
-    unhighlightMatch(matches[currentIndex + 1]);
+    m_currentIndex--;
+    unhighlightMatch(m_matches[m_currentIndex + 1]);
     jumpToCurrentMatch();
 }
 
@@ -84,41 +84,41 @@ void FindBar::initializeSearch(const QString& searchText)
     const QList<QLabel*> labels = parentWidget()->findChildren<QLabel*>();
     for (QLabel* label : labels)
         if (label->isVisible() && label->text().contains(searchText, Qt::CaseInsensitive))
-            matches.append(label);
+            m_matches.append(label);
 
     jumpToCurrentMatch();
 }
 
 void FindBar::jumpToCurrentMatch()
 {
-    nextButton->setEnabled(currentIndex + 1 < matches.length());
-    previousButton->setEnabled(currentIndex >= 1);
+    m_nextButton->setEnabled(m_currentIndex + 1 < m_matches.length());
+    m_previousButton->setEnabled(m_currentIndex >= 1);
 
-    if (matches.empty())
+    if (m_matches.empty())
     {
-        matchesLabel->setText("Phrase not found");
+        m_matchesLabel->setText("Phrase not found");
         return;
     }
 
-    highlightMatch(matches[currentIndex]);
-    matchesLabel->setText(matches.length() > 1
-        ? QStringLiteral("%1 of %2 matches").arg(currentIndex + 1).arg(matches.length())
-        : QStringLiteral("%1 of 1 match").arg(currentIndex + 1));
+    highlightMatch(m_matches[m_currentIndex]);
+    m_matchesLabel->setText(m_matches.length() > 1
+        ? QStringLiteral("%1 of %2 matches").arg(m_currentIndex + 1).arg(m_matches.length())
+        : QStringLiteral("%1 of 1 match").arg(m_currentIndex + 1));
 
     // if match found, but the match is deleted, try again
-    if (matches[currentIndex].isNull())
+    if (m_matches[m_currentIndex].isNull())
     {
-        initializeSearch(searchBox->text());
+        initializeSearch(m_searchBox->text());
         return;
     }
 
-    if (QListWidget* list = UIUtils::findParent<QListWidget*>(matches[currentIndex]))
+    if (QListWidget* list = UIUtils::findParent<QListWidget*>(m_matches[m_currentIndex]))
     {
         for (int i = 0; i < list->count(); i++)
         {
             if (QWidget* itemWidget = list->itemWidget(list->item(i)))
             {
-                if (itemWidget->findChildren<QLabel*>().contains(matches[currentIndex]))
+                if (itemWidget->findChildren<QLabel*>().contains(m_matches[m_currentIndex]))
                 {
                     list->scrollToItem(list->item(i));
                     break;
@@ -126,25 +126,25 @@ void FindBar::jumpToCurrentMatch()
             }
         }
     }
-    else if (QScrollArea* scrollArea = UIUtils::findParent<QScrollArea*>(matches[currentIndex]))
+    else if (QScrollArea* scrollArea = UIUtils::findParent<QScrollArea*>(m_matches[m_currentIndex]))
     {
-        scrollArea->ensureWidgetVisible(matches[currentIndex]);
+        scrollArea->ensureWidgetVisible(m_matches[m_currentIndex]);
     }
 }
 
 void FindBar::returnPressed()
 {
-    if (matches.empty())
+    if (m_matches.empty())
         return;
 
-    if (++currentIndex >= matches.length())
+    if (++m_currentIndex >= m_matches.length())
     {
-        currentIndex = 0;
-        unhighlightMatch(matches.last());
+        m_currentIndex = 0;
+        unhighlightMatch(m_matches.last());
     }
     else
     {
-        unhighlightMatch(matches[currentIndex - 1]);
+        unhighlightMatch(m_matches[m_currentIndex - 1]);
     }
 
     jumpToCurrentMatch();
@@ -157,16 +157,16 @@ void FindBar::setReveal(bool reveal)
         move(0, parentWidget()->height() - 50);
         resize(parentWidget()->width(), 50);
         show();
-        searchBox->setFocus();
+        m_searchBox->setFocus();
     }
     else
     {
         clearMatches();
         hide();
-        nextButton->setEnabled(false);
-        previousButton->setEnabled(false);
-        matchesLabel->clear();
-        searchBox->clear();
+        m_nextButton->setEnabled(false);
+        m_previousButton->setEnabled(false);
+        m_matchesLabel->clear();
+        m_searchBox->clear();
     }
 }
 

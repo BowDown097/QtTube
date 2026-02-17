@@ -11,12 +11,12 @@ class PaidMessage : public QWidget
 public:
     explicit PaidMessage(const QtTubePlugin::PaidMessage& data, QWidget* parent = nullptr);
 private:
-    TubeLabel* amountLabel;
-    TubeLabel* authorIcon;
-    TubeLabel* authorLabel;
-    QWidget* header;
-    QHBoxLayout* headerLayout;
-    QVBoxLayout* innerHeaderLayout;
-    QVBoxLayout* layout;
-    TubeLabel* messageLabel;
+    TubeLabel* m_amountLabel;
+    TubeLabel* m_authorIcon;
+    TubeLabel* m_authorLabel;
+    QWidget* m_header;
+    QHBoxLayout* m_headerLayout;
+    QVBoxLayout* m_innerHeaderLayout;
+    QVBoxLayout* m_layout;
+    TubeLabel* m_messageLabel;
 };

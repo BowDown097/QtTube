@@ -11,7 +11,7 @@ class AccountEntryWidget : public ClickableWidget<>
 public:
     explicit AccountEntryWidget(const QtTubePlugin::AuthUser& user, QWidget* parent = nullptr);
 private:
-    TubeLabel* avatarLabel;
-    QHBoxLayout* layout;
-    TubeLabel* nameLabel;
+    TubeLabel* m_avatar;
+    QHBoxLayout* m_layout;
+    TubeLabel* m_nameLabel;
 };

@@ -4,48 +4,48 @@
 
 TextMessage::TextMessage(const QtTubePlugin::TextMessage& data, QWidget* parent)
     : QWidget(parent),
-      authorIcon(new TubeLabel(this)),
-      authorLabel(new TubeLabel(data.authorName, this)),
-      contentLayout(new QVBoxLayout),
-      headerLayout(new QHBoxLayout),
-      layout(new QHBoxLayout(this)),
-      messageLabel(new TubeLabel(this)),
-      timestampLabel(new TubeLabel(this))
+      m_authorIcon(new TubeLabel(this)),
+      m_authorLabel(new TubeLabel(data.authorName, this)),
+      m_contentLayout(new QVBoxLayout),
+      m_headerLayout(new QHBoxLayout),
+      m_layout(new QHBoxLayout(this)),
+      m_messageLabel(new TubeLabel(this)),
+      m_timestampLabel(new TubeLabel(this))
 {
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
 
-    authorIcon->setFixedSize(32, 32);
-    authorIcon->setImage(data.authorAvatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
-    authorIcon->setScaledContents(true);
-    layout->addWidget(authorIcon);
-    layout->addSpacerItem(new QSpacerItem(6, 0));
+    m_authorIcon->setFixedSize(32, 32);
+    m_authorIcon->setImage(data.authorAvatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
+    m_authorIcon->setScaledContents(true);
+    m_layout->addWidget(m_authorIcon);
+    m_layout->addSpacerItem(new QSpacerItem(6, 0));
 
-    contentLayout->setContentsMargins(0, 0, 0, 0);
-    contentLayout->setSpacing(0);
-    contentLayout->addStretch();
-    layout->addLayout(contentLayout);
+    m_contentLayout->setContentsMargins(0, 0, 0, 0);
+    m_contentLayout->setSpacing(0);
+    m_contentLayout->addStretch();
+    m_layout->addLayout(m_contentLayout);
 
-    authorLabel->setMaximumWidth(parent->width() - 150);
-    authorLabel->setStyleSheet(!data.authorNameColor.isEmpty()
+    m_authorLabel->setMaximumWidth(parent->width() - 150);
+    m_authorLabel->setStyleSheet(!data.authorNameColor.isEmpty()
         ? QStringLiteral("font-weight: bold; color: %1").arg(data.authorNameColor)
         : QStringLiteral("font-weight: bold"));
-    headerLayout->addWidget(authorLabel);
+    m_headerLayout->addWidget(m_authorLabel);
 
-    timestampLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
-    timestampLabel->setText(data.timestampText);
-    headerLayout->addWidget(timestampLabel);
+    m_timestampLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
+    m_timestampLabel->setText(data.timestampText);
+    m_headerLayout->addWidget(m_timestampLabel);
 
-    headerLayout->addStretch();
-    headerLayout->setSpacing(5);
-    contentLayout->addLayout(headerLayout);
+    m_headerLayout->addStretch();
+    m_headerLayout->setSpacing(5);
+    m_contentLayout->addLayout(m_headerLayout);
 
     if (!data.content.isEmpty())
     {
-        messageLabel->setFixedWidth(parent->width() - 70);
-        messageLabel->setTextFormat(Qt::RichText);
-        messageLabel->setWordWrap(true);
-        messageLabel->setText(data.content, true, TubeLabel::Cached);
-        contentLayout->addWidget(messageLabel);
+        m_messageLabel->setFixedWidth(parent->width() - 70);
+        m_messageLabel->setTextFormat(Qt::RichText);
+        m_messageLabel->setWordWrap(true);
+        m_messageLabel->setText(data.content, true, TubeLabel::Cached);
+        m_contentLayout->addWidget(m_messageLabel);
     }
 }
