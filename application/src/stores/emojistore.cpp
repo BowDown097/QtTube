@@ -1,30 +1,27 @@
 #include "emojistore.h"
+#include "qttube-plugin/utils/httprequest.h"
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 
-constexpr QLatin1String EmojiMetadataUrl("https://cdn.jsdelivr.net/gh/googlefonts/emoji-metadata@main/emoji_15_0_ordering.json");
+const QString EmojiMetadataUrl = QStringLiteral("https://cdn.jsdelivr.net/gh/googlefonts/emoji-metadata@main/emoji_15_0_ordering.json");
 
-EmojiStore::EmojiStore(QObject* parent)
-    : QObject(parent), m_networkAccessManager(new QNetworkAccessManager(this))
+EmojiStore::EmojiStore(QObject* parent) : QObject(parent)
 {
-    m_networkAccessManager->setAutoDeleteReplies(true);
-
-    QNetworkReply* reply = m_networkAccessManager->get(QNetworkRequest(QUrl(EmojiMetadataUrl)));
-    connect(reply, &QNetworkReply::finished, this, [this, reply] {
-        const QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+    HttpReply* reply = HttpRequest().get(EmojiMetadataUrl);
+    connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
+        const QJsonDocument doc = QJsonDocument::fromJson(reply.readAll());
         if (!doc.isArray())
         {
             qCritical() << "Failed to get built-in emoji data. Built-in emojis will not work.";
             m_hasBuiltinEmojis = true;
+            emit gotBuiltinEmojis();
             return;
         }
 
         const QJsonArray data = doc.array();
         for (const QJsonValue& groupData : data)
         {
-            EmojiGroup group = { .name = groupData["group"].toString(), .builtin = true };
+            auto group = std::make_unique<EmojiGroup>(groupData["group"].toString(), true);
             const QJsonArray emojis = groupData["emoji"].toArray();
 
             for (const QJsonValue& emojiData : emojis)
@@ -33,15 +30,18 @@ EmojiStore::EmojiStore(QObject* parent)
                 if (base.isEmpty())
                     continue;
 
-                QtTubePlugin::Emoji emoji;
+                auto emoji = std::make_unique<QtTubePlugin::Emoji>();
 
                 const QJsonArray emoticons = emojiData["emoticons"].toArray();
                 for (const QJsonValue& emoticon : emoticons)
-                    emoji.emoticons.append(emoticon.toString());
+                    emoji->emoticons.append(emoticon.toString());
 
                 const QJsonArray shortcodes = emojiData["shortcodes"].toArray();
                 for (const QJsonValue& shortcode : shortcodes)
-                    emoji.shortcodes.append(shortcode.toString());
+                {
+                    QString& stored = emoji->shortcodes.emplaceBack(shortcode.toString());
+                    m_shortcodeMap.try_emplace(stored, ShortcodeMapEntry(emoji.get(), group.get()));
+                }
 
                 QList<char32_t> codepoints;
                 for (const QJsonValue& codepoint : base)
@@ -51,13 +51,13 @@ EmojiStore::EmojiStore(QObject* parent)
                 for (char32_t codepoint : std::as_const(codepoints))
                     hexCodepoints.append(QString::number(codepoint, 16).rightJustified(4, '0'));
 
-                emoji.representation = QString::fromUcs4(codepoints.data(), codepoints.size());
-                emoji.url = "https://fonts.gstatic.com/s/e/notoemoji/latest/" + hexCodepoints.join('_') + "/32.png";
+                emoji->representation = QString::fromUcs4(codepoints.data(), codepoints.size());
+                emoji->url = "https://fonts.gstatic.com/s/e/notoemoji/latest/" + hexCodepoints.join('_') + "/32.png";
 
-                group.emojis.append(emoji);
+                group->emojis.push_back(std::move(emoji));
             }
 
-            m_emojiGroups.append(group);
+            m_emojiGroups.push_back(std::move(group));
         }
 
         m_hasBuiltinEmojis = true;
@@ -65,38 +65,54 @@ EmojiStore::EmojiStore(QObject* parent)
     });
 }
 
-void EmojiStore::add(const QString& group, const QList<QtTubePlugin::Emoji>& emojis, bool mergeIntoGroup)
+void EmojiStore::add(const QString& groupName, QList<QtTubePlugin::Emoji> emojis)
 {
-    if (auto it = std::ranges::find(m_emojiGroups, group, &EmojiGroup::name); it != m_emojiGroups.end())
+    auto it = std::ranges::find(m_emojiGroups, groupName, &EmojiGroup::name);
+    if (it == m_emojiGroups.end())
     {
-        if (mergeIntoGroup)
-            it->emojis.append(emojis);
-        else
-            it->emojis = emojis;
+        it = m_emojiGroups.insert(
+            m_emojiGroups.begin(),
+            std::make_unique<EmojiGroup>(groupName));
     }
     else
     {
-        m_emojiGroups.emplaceFront(group, emojis);
+        (*it)->emojis.clear();
+        std::erase_if(m_shortcodeMap, [=](const auto& p) { return p.second.group == it->get(); });
+    }
+
+    for (QtTubePlugin::Emoji& emojiData : emojis)
+    {
+        auto emoji = std::make_unique<QtTubePlugin::Emoji>(std::move(emojiData));
+        for (const QString& shortcode : std::as_const(emoji->shortcodes))
+            m_shortcodeMap.try_emplace(shortcode, ShortcodeMapEntry(emoji.get(), it->get()));
+        (*it)->emojis.push_back(std::move(emoji));
     }
 }
 
-QString& EmojiStore::emojize(QString& text) const
+QString EmojiStore::emojize(const QString& text) const
 {
-    static const QString EmojizeFormat = QStringLiteral("{{{%1||%2||%3}}}");
+    static const QString emojizeFormat = QStringLiteral("{{{%1||%2||%3}}}");
+    static const QRegularExpression findShortcodesRegex(":([-+\\w]+):");
 
-    for (const EmojiGroup& emojiGroup : m_emojiGroups)
+    QString result(text);
+    QRegularExpressionMatchIterator it = findShortcodesRegex.globalMatch(text);
+    qsizetype offset = 0;
+
+    while (it.hasNext())
     {
-        for (const QtTubePlugin::Emoji& emoji : emojiGroup.emojis)
-        {
-            for (const QString& shortcode : emoji.shortcodes)
-            {
-                if (emojiGroup.builtin)
-                    text.replace(shortcode, emoji.representation);
-                else
-                    text.replace(shortcode, EmojizeFormat.arg(emoji.url, emoji.representation, emoji.shortcodes.front()));
-            }
-        }
+        QRegularExpressionMatch match = it.next();
+        auto emojiIt = m_shortcodeMap.find(match.captured());
+        if (emojiIt == m_shortcodeMap.end())
+            continue;
+
+        QtTubePlugin::Emoji* emoji = emojiIt->second.emoji;
+        QString value = emojiIt->second.group->builtin
+            ? emoji->representation
+            : emojizeFormat.arg(emoji->url, emoji->representation, emoji->shortcodes.front());
+
+        result.replace(offset + match.capturedStart(), match.capturedLength(), value);
+        offset += value.size() - match.capturedLength();
     }
 
-    return text;
+    return result;
 }

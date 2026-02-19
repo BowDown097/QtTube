@@ -7,8 +7,8 @@ class QNetworkAccessManager;
 struct EmojiGroup
 {
     QString name;
-    QList<QtTubePlugin::Emoji> emojis;
     bool builtin{};
+    std::vector<std::unique_ptr<QtTubePlugin::Emoji>> emojis;
 };
 
 class EmojiStore : public QObject
@@ -18,16 +18,22 @@ public:
     static EmojiStore* instance() { static EmojiStore inst; return &inst; }
     explicit EmojiStore(QObject* parent = nullptr);
 
-    void add(const QString& group, const QList<QtTubePlugin::Emoji>& emojis, bool mergeIntoGroup);
+    void add(const QString& groupName, QList<QtTubePlugin::Emoji> emojis);
 
     // replace non-builtin emoji shortcodes in text with "{{{[url]||[representation]||[primary shortcode]}}}", helpful for parsing
-    QString& emojize(QString& text) const;
+    QString emojize(const QString& text) const;
 
-    const QList<EmojiGroup>& emojiGroups() const { return m_emojiGroups; }
+    const std::vector<std::unique_ptr<EmojiGroup>>& emojiGroups() const { return m_emojiGroups; }
     bool hasBuiltinEmojis() const { return m_hasBuiltinEmojis; }
 private:
-    QList<EmojiGroup> m_emojiGroups;
-    QNetworkAccessManager* m_networkAccessManager;
+    struct ShortcodeMapEntry
+    {
+        QtTubePlugin::Emoji* emoji;
+        EmojiGroup* group;
+    };
+
+    std::vector<std::unique_ptr<EmojiGroup>> m_emojiGroups;
+    std::unordered_map<QString, ShortcodeMapEntry> m_shortcodeMap;
     bool m_hasBuiltinEmojis{};
 signals:
     void gotBuiltinEmojis();

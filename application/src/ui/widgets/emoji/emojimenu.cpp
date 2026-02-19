@@ -42,19 +42,19 @@ EmojiMenu::~EmojiMenu()
     m_netWorker->deleteLater();
 }
 
-void EmojiMenu::add(const QList<EmojiGroup>& emojiGroups)
+void EmojiMenu::add(const std::vector<std::unique_ptr<EmojiGroup>>& emojiGroups)
 {
-    for (const EmojiGroup& emojiGroup : emojiGroups)
+    for (const std::unique_ptr<EmojiGroup>& emojiGroup : emojiGroups)
     {
-        QGraphicsTextItem* groupHeader = new QGraphicsTextItem(emojiGroup.name);
+        QGraphicsTextItem* groupHeader = new QGraphicsTextItem(emojiGroup->name);
         m_scene->addItem(groupHeader);
 
         QList<EmojiGraphicsItem*> groupEmojiItems;
-        groupEmojiItems.reserve(emojiGroup.emojis.size());
+        groupEmojiItems.reserve(emojiGroup->emojis.size());
 
-        for (const QtTubePlugin::Emoji& emoji : emojiGroup.emojis)
+        for (const std::unique_ptr<QtTubePlugin::Emoji>& emoji : emojiGroup->emojis)
         {
-            EmojiGraphicsItem* emojiItem = new EmojiGraphicsItem(emoji, m_netWorker);
+            EmojiGraphicsItem* emojiItem = new EmojiGraphicsItem(*emoji, m_netWorker);
             m_scene->addItem(emojiItem);
             connect(emojiItem, &EmojiGraphicsItem::clicked, this, [this, emojiItem] { emit emojiClicked(emojiItem->data()); });
             groupEmojiItems.append(emojiItem);

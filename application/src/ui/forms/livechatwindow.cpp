@@ -161,9 +161,9 @@ void LiveChatWindow::initialize(const QtTubePlugin::InitialLiveChatData& data, W
     }
     else
     {
-        createEmojiMenuWidgets();
         if (!data.platformEmojis.isEmpty())
-            EmojiStore::instance()->add("Platform", data.platformEmojis, false);
+            EmojiStore::instance()->add("Platform", data.platformEmojis);
+        createEmojiMenuWidgets();
         m_messagesTimer->start(data.updateIntervalMs);
         connect(m_messagesTimer, &QTimer::timeout, this, &LiveChatWindow::chatTick);
     }

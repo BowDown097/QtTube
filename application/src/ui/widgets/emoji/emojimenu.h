@@ -28,7 +28,7 @@ private:
     QGraphicsScene* m_scene;
     Ui::EmojiMenu* ui;
 
-    void add(const QList<EmojiGroup>& emojiGroups);
+    void add(const std::vector<std::unique_ptr<EmojiGroup>>& emojiGroups);
 private slots:
     void beginSearch();
     void doSceneLayout();
