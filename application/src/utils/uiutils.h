@@ -27,12 +27,13 @@ namespace UIUtils
     VideoRenderer* constructVideoRenderer(QListWidget* list, PluginData* plugin);
     void copyToClipboard(const QString& text);
     MainWindow* getMainWindow(bool throwOnFail = true);
-    QIcon iconThemed(const QString& name, const QPalette& pal = {});
+    QIcon iconThemed(const QString& name);
     QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius = 9999, double yRadius = 9999);
-    QPixmap pixmapThemed(const QString& name, const QPalette& pal = {});
-    bool preferDark(const QPalette& pal = {});
+    QPixmap pixmapThemed(const QString& name);
+    bool preferDark();
     QString relativeTimeString(const QDateTime& target, const QDateTime& reference);
-    QString resolveThemedIconName(const QString& name, const QPalette& pal = {});
+    void repolish(QWidget* widget);
+    QString resolveThemedIconName(const QString& name);
     void setAppStyle(const QString& styleName, bool dark);
     void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
 

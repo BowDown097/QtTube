@@ -1,35 +1,48 @@
 #include "topbarbell.h"
 #include "utils/uiutils.h"
+#include <QLabel>
 
 TopBarBell::TopBarBell(QWidget* parent)
-    : ClickableWidget<>(parent), bell(new QLabel(this)), count(new QLabel(this))
+    : ClickableWidget<>(parent), m_bell(new QLabel(this)), m_count(new QLabel(this))
 {
     setClickable(true);
     setFixedSize(30, 30);
-    bell->setFixedSize(30, 30);
-    bell->setScaledContents(true);
+
+    m_bell->setFixedSize(30, 30);
+    m_bell->setPixmap(UIUtils::pixmapThemed("notif-bell"));
+    m_bell->setScaledContents(true);
+}
+
+QString TopBarBell::countText() const
+{
+    return m_count->text();
+}
+
+bool TopBarBell::hasNotifications() const
+{
+    return m_count->isVisible();
 }
 
 void TopBarBell::updateCount(int unseenCount)
 {
-    count->setText(QString::number(unseenCount));
-    count->setVisible(unseenCount > 0);
+    m_count->setText(QString::number(unseenCount));
+    m_count->setVisible(unseenCount > 0);
 
     if (unseenCount > 9)
     {
-        count->move(18, 0);
-        count->setFont(QFont(font().toString(), 8));
+        m_count->move(18, 0);
+        m_count->setFont(QFont(font().toString(), 8));
     }
     else
     {
-        count->move(20, 0);
-        count->setFont(QFont(font().toString(), 9));
+        m_count->move(20, 0);
+        m_count->setFont(QFont(font().toString(), 9));
     }
 
-    count->adjustSize();
+    m_count->adjustSize();
 }
 
-void TopBarBell::updatePixmap(bool hasNotif, const QPalette& pal)
+void TopBarBell::updatePixmap(bool hasNotif)
 {
-    bell->setPixmap(UIUtils::pixmapThemed(hasNotif ? "notif-bell-hasnotif" : "notif-bell", pal));
+    m_bell->setPixmap(UIUtils::pixmapThemed(hasNotif ? "notif-bell-hasnotif" : "notif-bell"));
 }

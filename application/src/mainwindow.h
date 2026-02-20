@@ -27,6 +27,7 @@ public slots:
     void toggleAccountMenu();
     void toggleNotificationMenu();
 protected:
+    void changeEvent(QEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 private slots:

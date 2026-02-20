@@ -20,8 +20,9 @@ public:
     void postSignInSetup();
     void scaleAppropriately();
     void setAlwaysShow(bool alwaysShow) { m_alwaysShow = alwaysShow; }
-    void updatePalette(const QPalette& palette);
     void updateUIForSignInState(bool signedIn);
+protected:
+    void changeEvent(QEvent* event) override;
 private:
     bool m_alwaysShow = true;
     QPropertyAnimation* m_animation;

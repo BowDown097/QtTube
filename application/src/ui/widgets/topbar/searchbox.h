@@ -11,9 +11,9 @@ class SearchBox : public QWidget
     Q_OBJECT
 public:
     enum class SearchType { ByQuery, ByLink };
-
     explicit SearchBox(QWidget* parent = nullptr);
-    void updatePalette(const QPalette& pal);
+protected:
+    void changeEvent(QEvent* event) override;
 private:
     QHBoxLayout* m_layout;
     QLineEdit* m_lineEdit;

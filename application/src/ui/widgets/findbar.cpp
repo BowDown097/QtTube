@@ -37,7 +37,6 @@ FindBar::FindBar(QWidget* parent)
 
     hide();
     setAutoFillBackground(true);
-    setPalette(qApp->palette().alternateBase().color());
 
     connect(m_closeButton, &CloseButton::clicked, this, [this] { setReveal(false); });
     connect(m_nextButton, &QPushButton::clicked, this, &FindBar::goToNext);

@@ -88,7 +88,7 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
     showMoreLabel->setAlignment(Qt::AlignCenter);
     showMoreLabel->setClickable(true);
     showMoreLabel->setFixedWidth(player->size().width());
-    showMoreLabel->setStyleSheet("border-top: 1px solid " + qApp->palette().text().color().name());
+    showMoreLabel->setStyleSheet("border-top: 1px solid palette(text)");
     showMoreLabel->setText("SHOW MORE");
     frameLayout->addWidget(showMoreLabel);
     connect(showMoreLabel, &TubeLabel::clicked, this, &WatchView_Ui::toggleShowMore);

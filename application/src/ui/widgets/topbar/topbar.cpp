@@ -11,17 +11,16 @@
 
 TopBar::TopBar(QWidget* parent)
     : QWidget(parent),
-      m_animation(new QPropertyAnimation(this, "geometry", this)),
       avatarButton(new TubeLabel(this)),
       logo(new TubeLabel(this)),
       notificationBell(new TopBarBell(this)),
       searchBox(new SearchBox(this)),
+      m_animation(new QPropertyAnimation(this, "geometry", this)),
       m_settingsButton(new TubeLabel(this)),
       m_signInButton(new QPushButton(this))
 {
     resize(parent->width(), 35);
     setAutoFillBackground(true);
-    setPalette(qApp->palette().alternateBase().color());
 
     m_animation->setDuration(250);
     m_animation->setEasingCurve(QEasingCurve::InOutQuint);
@@ -37,7 +36,6 @@ TopBar::TopBar(QWidget* parent)
     searchBox->resize(475, 35);
 
     notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
-    notificationBell->updatePixmap(false, palette());
 
     m_settingsButton->move(notificationBell->width() + notificationBell->x() + 8, 3);
     m_settingsButton->resize(30, 30);
@@ -56,6 +54,18 @@ TopBar::TopBar(QWidget* parent)
     m_signInButton->resize(80, 35);
     m_signInButton->setText("Sign in");
     connect(m_signInButton, &QPushButton::clicked, this, &TopBar::trySignIn);
+}
+
+void TopBar::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::PaletteChange)
+    {
+        logo->setPixmap(UIUtils::iconThemed("qttube-full").pixmap(logo->size()));
+        notificationBell->updatePixmap(notificationBell->hasNotifications());
+        m_settingsButton->setPixmap(UIUtils::pixmapThemed("settings"));
+    }
+
+    QWidget::changeEvent(event);
 }
 
 void TopBar::handleMouseEvent(QMouseEvent* event)
@@ -156,17 +166,8 @@ void TopBar::trySignIn()
 
 void TopBar::updateNotificationCount(int value)
 {
-    notificationBell->updatePixmap(value > 0, palette());
+    notificationBell->updatePixmap(value > 0);
     notificationBell->updateCount(value);
-}
-
-void TopBar::updatePalette(const QPalette& palette)
-{
-    setPalette(palette);
-    logo->setPixmap(UIUtils::iconThemed("qttube-full", palette).pixmap(logo->size()));
-    notificationBell->updatePixmap(notificationBell->count->isVisible(), palette);
-    searchBox->updatePalette(palette);
-    m_settingsButton->setPixmap(UIUtils::pixmapThemed("settings", palette));
 }
 
 void TopBar::updateUIForSignInState(bool signedIn)

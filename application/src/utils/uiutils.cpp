@@ -7,7 +7,6 @@
 #include "ui/widgets/renderers/browsenotificationrenderer.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/gridvideorenderer.h"
-#include "ui/widgets/topbar/topbar.h"
 #include <QClipboard>
 #include <QFile>
 #include <QLayout>
@@ -161,9 +160,9 @@ namespace UIUtils
             return nullptr;
     }
 
-    QIcon iconThemed(const QString& name, const QPalette& pal)
+    QIcon iconThemed(const QString& name)
     {
-        return QIcon(resolveThemedIconName(name, pal));
+        return QIcon(resolveThemedIconName(name));
     }
 
     QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius, double yRadius)
@@ -181,16 +180,14 @@ namespace UIUtils
         return rounded;
     }
 
-    QPixmap pixmapThemed(const QString& name, const QPalette& pal)
+    QPixmap pixmapThemed(const QString& name)
     {
-        return QPixmap(resolveThemedIconName(name, pal));
+        return QPixmap(resolveThemedIconName(name));
     }
 
-    bool preferDark(const QPalette& pal)
+    bool preferDark()
     {
-        return pal == QPalette()
-                ? qApp->palette().alternateBase().color().lightness() < 60
-                : pal.alternateBase().color().lightness() < 60;
+        return qApp->palette().color(QPalette::Window).lightness() < 110;
     }
 
     QString relativeTimeString(const QDateTime& target, const QDateTime& reference)
@@ -315,11 +312,16 @@ namespace UIUtils
         return {};
     }
 
-    QString resolveThemedIconName(const QString& name, const QPalette& pal)
+    void repolish(QWidget* widget)
+    {
+        widget->style()->polish(widget);
+    }
+
+    QString resolveThemedIconName(const QString& name)
     {
         const QString baseFile = ":/" + name + ".svg";
         const QString lightFile = ":/" + name + "-light.svg";
-        return QFile::exists(lightFile) && preferDark(pal) ? lightFile : baseFile;
+        return QFile::exists(lightFile) && preferDark() ? lightFile : baseFile;
     }
 
     void setAppStyle(const QString& styleName, bool dark)
@@ -329,7 +331,6 @@ namespace UIUtils
         else if (QStyle* style = QStyleFactory::create(styleName))
             qApp->setStyle(style);
 
-        MainWindow* mainWindow = getMainWindow(false);
         if (dark)
         {
             QPalette darkPalette;
@@ -347,19 +348,14 @@ namespace UIUtils
             darkPalette.setColor(QPalette::Highlight, QColor(145,205,92));
             darkPalette.setColor(QPalette::HighlightedText, Qt::black);
             darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
+
             qApp->setPalette(darkPalette);
             qApp->setStyleSheet(DarkStylesheet);
-
-            if (mainWindow)
-                mainWindow->topbar()->updatePalette(darkPalette);
         }
         else if (qApp->styleSheet() == DarkStylesheet)
         {
             qApp->setPalette(qApp->style()->standardPalette());
             qApp->setStyleSheet(QString());
-
-            if (mainWindow)
-                mainWindow->topbar()->updatePalette(qApp->palette());
         }
     }
 

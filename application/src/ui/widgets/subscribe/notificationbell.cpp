@@ -29,6 +29,18 @@ NotificationBell::NotificationBell(PluginData* plugin, QWidget* parent)
     setToolButtonStyle(Qt::ToolButtonIconOnly);
 }
 
+void NotificationBell::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::PaletteChange)
+    {
+        const QList<QAction*> actions = m_notificationMenu->actions();
+        for (qsizetype i = 0; i < actions.size(); ++i)
+            actions[i]->setIcon(UIUtils::iconThemed(m_icons[i]));
+    }
+
+    QWidget::changeEvent(event);
+}
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 void NotificationBell::enterEvent(QEnterEvent*)
 #else
@@ -46,6 +58,7 @@ void NotificationBell::leaveEvent(QEvent*)
 void NotificationBell::setData(const QtTubePlugin::NotificationBell& notificationBell)
 {
     m_defaultEnabledStateIndex = notificationBell.defaultEnabledStateIndex;
+    m_icons.clear();
 
     for (qsizetype i = 0; i < notificationBell.states.size(); ++i)
     {
@@ -55,18 +68,22 @@ void NotificationBell::setData(const QtTubePlugin::NotificationBell& notificatio
         m_notificationMenu->addAction(action);
         connect(action, &QAction::triggered, this, [this, state] { setState(state); });
 
+        QString iconName;
         switch (state.representation)
         {
         case QtTubePlugin::NotificationState::Representation::All:
-            action->setIcon(UIUtils::iconThemed("notif-bell-all"));
+            iconName = "notif-bell-all";
             break;
         case QtTubePlugin::NotificationState::Representation::None:
-            action->setIcon(UIUtils::iconThemed("notif-bell-none"));
+            iconName = "notif-bell-none";
             break;
         default:
-            action->setIcon(UIUtils::iconThemed("notif-bell"));
+            iconName = "notif-bell";
             break;
         }
+
+        action->setIcon(UIUtils::iconThemed(iconName));
+        m_icons.append(std::move(iconName));
     }
 
     if (notificationBell.activeStateIndex != -1)

@@ -2,6 +2,7 @@
 #include "notificationbell.h"
 #include "subscribelabel.h"
 #include "ui/widgets/labels/tubelabel.h"
+#include "utils/uiutils.h"
 #include <QBoxLayout>
 
 constexpr QLatin1String SubscribersCountStylesheet(R"(
@@ -18,7 +19,7 @@ SubscribeWidget::SubscribeWidget(PluginData* plugin, QWidget* parent)
       layout(new QHBoxLayout(this)),
       m_notificationBell(new NotificationBell(plugin, this)),
       m_subscribeLabel(new SubscribeLabel(plugin, this)),
-      subscribersCountLabel(new TubeLabel(this))
+      m_subscribersCountLabel(new TubeLabel(this))
 {
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
@@ -29,10 +30,10 @@ SubscribeWidget::SubscribeWidget(PluginData* plugin, QWidget* parent)
     m_notificationBell->hide();
     layout->addWidget(m_notificationBell);
 
-    subscribersCountLabel->hide();
-    subscribersCountLabel->setFixedHeight(24);
-    subscribersCountLabel->setStyleSheet(SubscribersCountStylesheet);
-    layout->addWidget(subscribersCountLabel);
+    m_subscribersCountLabel->hide();
+    m_subscribersCountLabel->setFixedHeight(24);
+    m_subscribersCountLabel->setStyleSheet(SubscribersCountStylesheet);
+    layout->addWidget(m_subscribersCountLabel);
 
     connect(m_subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
     {
@@ -42,6 +43,19 @@ SubscribeWidget::SubscribeWidget(PluginData* plugin, QWidget* parent)
     });
 }
 
+void SubscribeWidget::changeEvent(QEvent* event)
+{
+    // for some reason, these widgets need to be manually repolished to update properly
+    if (event->type() == QEvent::PaletteChange)
+    {
+        UIUtils::repolish(m_notificationBell);
+        UIUtils::repolish(m_subscribeLabel);
+        UIUtils::repolish(m_subscribersCountLabel);
+    }
+
+    QWidget::changeEvent(event);
+}
+
 void SubscribeWidget::setData(const QtTubePlugin::SubscribeButton& data)
 {
     m_subscribeLabel->setData(data);
@@ -49,13 +63,13 @@ void SubscribeWidget::setData(const QtTubePlugin::SubscribeButton& data)
 
     if (!data.countText.isEmpty())
     {
-        subscribersCountLabel->show();
-        subscribersCountLabel->setText(data.countText);
-        subscribersCountLabel->adjustSize();
+        m_subscribersCountLabel->show();
+        m_subscribersCountLabel->setText(data.countText);
+        m_subscribersCountLabel->adjustSize();
     }
     else
     {
-        subscribersCountLabel->hide();
+        m_subscribersCountLabel->hide();
     }
 
     if (!data.notificationBell.states.isEmpty())

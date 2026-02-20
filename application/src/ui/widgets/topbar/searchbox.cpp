@@ -3,6 +3,7 @@
 #include "exttoolbutton.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
+#include <QEvent>
 #include <QLineEdit>
 
 SearchBox::SearchBox(QWidget* parent)
@@ -46,9 +47,11 @@ SearchBox::SearchBox(QWidget* parent)
     m_layout->addWidget(m_searchButton);
 }
 
-void SearchBox::updatePalette(const QPalette& pal)
+void SearchBox::changeEvent(QEvent* event)
 {
-    setPalette(pal);
-    m_searchTypeActionLink->setIcon(UIUtils::iconThemed("link", pal));
-    m_searchTypeActionQuery->setIcon(UIUtils::iconThemed("search", pal));
+    if (event->type() == QEvent::PaletteChange)
+    {
+        m_searchTypeActionLink->setIcon(UIUtils::iconThemed("link"));
+        m_searchTypeActionQuery->setIcon(UIUtils::iconThemed("search"));
+    }
 }

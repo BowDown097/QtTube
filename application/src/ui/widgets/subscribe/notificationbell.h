@@ -17,6 +17,7 @@ public:
     void setData(const QtTubePlugin::NotificationBell& notificationBell);
     void setVisualState(qsizetype index);
 protected:
+    void changeEvent(QEvent* event) override;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent*) override;
 #else
@@ -25,6 +26,7 @@ protected:
     void leaveEvent(QEvent*) override;
 private:
     qsizetype m_defaultEnabledStateIndex = -1;
+    QList<QString> m_icons;
     QMenu* m_notificationMenu;
     PluginData* m_plugin;
 private slots:

@@ -177,6 +177,21 @@ QStackedWidget* MainWindow::centralWidget()
     return ui->centralwidget;
 }
 
+void MainWindow::changeEvent(QEvent* event)
+{
+    // for some reason, the tab widget has to be completely manually repolished to update properly
+    if (event->type() == QEvent::PaletteChange)
+    {
+        UIUtils::repolish(ui->tabWidget);
+
+        const QList<QWidget*> children = ui->tabWidget->findChildren<QWidget*>();
+        for (QWidget* widget : children)
+            UIUtils::repolish(widget);
+    }
+
+    QWidget::changeEvent(event);
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
     bool ctrlPressed = event->modifiers() & Qt::ControlModifier;
@@ -188,7 +203,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 
 void MainWindow::pluginUpdateAvailable(const QString&, const ReleaseData&)
 {
-    m_topbar->updateNotificationCount(m_topbar->notificationBell->count->text().toInt() + 1);
+    m_topbar->updateNotificationCount(m_topbar->notificationBell->countText().toInt() + 1);
     // TODO: it would be nice to have this display a system notification as well.
     // that's why some stuff is being sent through the signal. not now though.
 }
