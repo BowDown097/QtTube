@@ -1,6 +1,6 @@
 #pragma once
 #include "qttube-plugin/components/auth/authstore.h"
-#include "ui/widgets/clickablewidget.h"
+#include "ui/widgets/wrappers/clickablewidget.h"
 
 class QHBoxLayout;
 class TubeLabel;

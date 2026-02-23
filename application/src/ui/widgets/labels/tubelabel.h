@@ -1,5 +1,5 @@
 #pragma once
-#include "ui/widgets/clickablewidget.h"
+#include "ui/widgets/wrappers/clickablewidget.h"
 #include <QLabel>
 #include <QRegularExpression>
 

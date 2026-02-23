@@ -19,6 +19,7 @@ public:
     explicit EmojiMenu(QWidget* parent = nullptr, Qt::WindowFlags f = {});
     ~EmojiMenu();
 protected:
+    void hideEvent(QHideEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
     void showEvent(QShowEvent* event) override;
 private:

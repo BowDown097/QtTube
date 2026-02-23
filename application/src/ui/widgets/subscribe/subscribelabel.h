@@ -1,6 +1,6 @@
 #pragma once
 #include "qttube-plugin/objects/channel.h"
-#include "ui/widgets/clickablewidget.h"
+#include "ui/widgets/wrappers/clickablewidget.h"
 #include <QLabel>
 
 struct PluginData;

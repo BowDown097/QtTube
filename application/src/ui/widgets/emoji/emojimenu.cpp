@@ -3,6 +3,7 @@
 #include "cachednetworkworker.h"
 #include "emojigraphicsitem.h"
 #include "stores/emojistore.h"
+#include <QScrollBar>
 #include <QThread>
 #include <QTimer>
 #include <ranges>
@@ -121,6 +122,8 @@ void EmojiMenu::doSceneLayout()
 
 void EmojiMenu::filterEmojis()
 {
+    ui->graphicsView->verticalScrollBar()->setValue(0);
+
     const QString searchText = ui->emojiSearch->text();
     auto termFilter = [&searchText](const QString& term) { return term.contains(searchText, Qt::CaseInsensitive); };
 
@@ -142,6 +145,21 @@ void EmojiMenu::filterEmojis()
     }
 
     doSceneLayout();
+}
+
+void EmojiMenu::hideEvent(QHideEvent* event)
+{
+    QWidget::hideEvent(event);
+
+    ui->emojiSearch->clear();
+    ui->graphicsView->verticalScrollBar()->setValue(0);
+
+    for (const auto& [groupHeader, emojiItems] : std::as_const(m_emojiGroupItems))
+    {
+        groupHeader->setVisible(true);
+        for (EmojiGraphicsItem* emojiItem : emojiItems)
+            emojiItem->setVisible(true);
+    }
 }
 
 void EmojiMenu::resizeEvent(QResizeEvent* event)

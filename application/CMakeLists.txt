@@ -72,6 +72,7 @@ set(SOURCE_FILES
     src/ui/widgets/topbar/searchbox.cpp
     src/ui/widgets/topbar/topbar.cpp
     src/ui/widgets/topbar/topbarbell.cpp
+    src/ui/widgets/wrappers/popupwidget.cpp
     src/utils/osutils.cpp
     src/utils/uiutils.cpp
     res/resources.qrc
@@ -100,7 +101,6 @@ set(HEADERS
     src/ui/views/watchview.h
     src/ui/views/watchview_ui.h
     src/ui/views/watchviewplayer.h
-    src/ui/widgets/clickablewidget.h
     src/ui/widgets/closebutton.h
     src/ui/widgets/continuablelistwidget.h
     src/ui/widgets/dynamiclistwidgetitem.h
@@ -137,6 +137,8 @@ set(HEADERS
     src/ui/widgets/topbar/searchbox.h
     src/ui/widgets/topbar/topbar.h
     src/ui/widgets/topbar/topbarbell.h
+    src/ui/widgets/wrappers/clickablewidget.h
+    src/ui/widgets/wrappers/popupwidget.h
     src/utils/osutils.h
     src/utils/uiutils.h
 )

@@ -8,6 +8,7 @@
 #include "ui/widgets/livechat/paidmessage.h"
 #include "ui/widgets/livechat/specialmessage.h"
 #include "ui/widgets/livechat/textmessage.h"
+#include "ui/widgets/wrappers/popupwidget.h"
 #include "utils/uiutils.h"
 #include <QMessageBox>
 #include <QTimer>
@@ -136,16 +137,18 @@ void LiveChatWindow::chatTick()
 
 void LiveChatWindow::createEmojiMenuWidgets()
 {
-    EmojiMenu* emojiMenu = new EmojiMenu(this, Qt::Window);
-    connect(emojiMenu, &EmojiMenu::emojiClicked, this, &LiveChatWindow::insertEmoji);
-
     TubeLabel* emojiMenuLabel = new TubeLabel(this);
     emojiMenuLabel->setClickable(true);
     emojiMenuLabel->setFixedSize(ui->messageBox->height() - 8, ui->messageBox->height() - 8);
     emojiMenuLabel->setScaledContents(true);
     emojiMenuLabel->setPixmap(UIUtils::pixmapThemed("emoji"));
     ui->horizontalLayout->insertWidget(0, emojiMenuLabel);
-    connect(emojiMenuLabel, &TubeLabel::clicked, emojiMenu, &EmojiMenu::show);
+
+    EmojiMenu* emojiMenu = new EmojiMenu(this);
+    connect(emojiMenu, &EmojiMenu::emojiClicked, this, &LiveChatWindow::insertEmoji);
+
+    PopupWidget* emojiPopup = new PopupWidget(emojiMenu, emojiMenuLabel);
+    connect(emojiMenuLabel, &TubeLabel::clicked, emojiPopup, &PopupWidget::showPopup);
 }
 
 void LiveChatWindow::initialize(const QtTubePlugin::InitialLiveChatData& data, WatchViewPlayer* player)
