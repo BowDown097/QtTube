@@ -2,7 +2,7 @@
 #include "qttube-plugin/objects/channel.h"
 #include <QToolButton>
 
-struct PluginEntry;
+class PluginEntry;
 class QMenu;
 
 class NotificationBell : public QToolButton

@@ -13,28 +13,31 @@
 #include <QPainter>
 #include <QStyleFactory>
 
-constexpr QLatin1String DarkStylesheet(R"(
-    QLineEdit {
-        background: rgb(42,42,42);
-        border: 1px solid rgb(30,30,30);
-    }
-    QListView::item {
-        background: rgb(49,49,49);
-    }
-    QComboBox, QMessageBox, QPushButton, QScrollBar::vertical, QSpinBox, QTabBar::tab {
-        background: rgb(42,42,42);
-    }
-    QPushButton::hover, QTabBar::tab::hover, QTabBar::tab::selected {
-        background: rgb(30,30,30);
-    }
-    QTabWidget::pane {
-        border-color: rgb(30,30,30);
-    }
-    QToolButton {
-        background: transparent;
-        border: 1px solid rgb(30,30,30);
-    }
-)");
+namespace
+{
+    const QString darkStylesheet = QStringLiteral(R"(
+        QLineEdit {
+            background: rgb(42,42,42);
+            border: 1px solid rgb(30,30,30);
+        }
+        QListView::item {
+            background: rgb(49,49,49);
+        }
+        QComboBox, QMessageBox, QPushButton, QScrollBar::vertical, QSpinBox, QTabBar::tab {
+            background: rgb(42,42,42);
+        }
+        QPushButton::hover, QTabBar::tab::hover, QTabBar::tab::selected {
+            background: rgb(30,30,30);
+        }
+        QTabWidget::pane {
+            border-color: rgb(30,30,30);
+        }
+        QToolButton {
+            background: transparent;
+            border: 1px solid rgb(30,30,30);
+        }
+    )");
+}
 
 namespace UIUtils
 {
@@ -193,7 +196,7 @@ namespace UIUtils
     QString relativeTimeString(const QDateTime& target, const QDateTime& reference)
     {
         if (target == reference)
-            return QLatin1String("now");
+            return "now";
 
         enum DateTimeUnit { YEAR, MONTH, WEEK, DAY, HOUR, MINUTE, SECOND };
         struct DateTimeUnitInfo { int unitDuration; DateTimeUnit unit; int threshold = 1; };
@@ -201,11 +204,11 @@ namespace UIUtils
         struct RDTFSymbol { PluralSelector P; PluralSelector F; };
 
         static constexpr std::array dateTimeUnits = {
-            DateTimeUnitInfo { .unitDuration = int(604800), .unit = WEEK, .threshold = 2 },
-            DateTimeUnitInfo { .unitDuration = int(86400), .unit = DAY },
-            DateTimeUnitInfo { .unitDuration = int(3600), .unit = HOUR },
-            DateTimeUnitInfo { .unitDuration = int(60), .unit = MINUTE },
-            DateTimeUnitInfo { .unitDuration = int(1), .unit = SECOND }
+            DateTimeUnitInfo { .unitDuration = 604800, .unit = WEEK, .threshold = 2 },
+            DateTimeUnitInfo { .unitDuration = 86400, .unit = DAY },
+            DateTimeUnitInfo { .unitDuration = 3600, .unit = HOUR },
+            DateTimeUnitInfo { .unitDuration = 60, .unit = MINUTE },
+            DateTimeUnitInfo { .unitDuration = 1, .unit = SECOND }
         };
 
         static constexpr std::array rdtfSymbols = {
@@ -319,8 +322,8 @@ namespace UIUtils
 
     QString resolveThemedIconName(const QString& name)
     {
-        const QString baseFile = ":/" + name + ".svg";
-        const QString lightFile = ":/" + name + "-light.svg";
+        const QString baseFile = ":/" % name % ".svg";
+        const QString lightFile = ":/" % name % "-light.svg";
         return QFile::exists(lightFile) && preferDark() ? lightFile : baseFile;
     }
 
@@ -350,9 +353,9 @@ namespace UIUtils
             darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
 
             qApp->setPalette(darkPalette);
-            qApp->setStyleSheet(DarkStylesheet);
+            qApp->setStyleSheet(darkStylesheet);
         }
-        else if (qApp->styleSheet() == DarkStylesheet)
+        else if (qApp->styleSheet() == darkStylesheet)
         {
             qApp->setPalette(qApp->style()->standardPalette());
             qApp->setStyleSheet(QString());

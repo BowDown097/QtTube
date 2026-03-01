@@ -3,7 +3,10 @@
 #include <QDirIterator>
 #include <QMessageBox>
 
-constexpr QLatin1String EmplaceError("Failed to add plugin to the internal plugin list. How did this happen???");
+namespace
+{
+    const QString emplaceError = QStringLiteral("Failed to add plugin to the internal plugin list. How did this happen???");
+}
 
 PluginEntry* PluginManager::activePlugin()
 {
@@ -150,7 +153,7 @@ PluginEntry* PluginManager::registerPlugin(QFileInfo&& fileInfo)
     if (auto res = m_loadedPlugins.emplace(plugin.metadata.name, std::move(plugin)); res.second)
         return &res.first->second;
     else
-        throw PluginLoadException(EmplaceError);
+        throw PluginLoadException(emplaceError);
 }
 
 void PluginManager::reloadPlugins()

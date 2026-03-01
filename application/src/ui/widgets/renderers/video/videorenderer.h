@@ -6,7 +6,7 @@
 class ChannelLabel;
 class HttpReply;
 class QHBoxLayout;
-struct PluginEntry;
+class PluginEntry;
 class TubeLabel;
 class VideoThumbnailWidget;
 

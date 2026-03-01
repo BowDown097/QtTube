@@ -3,7 +3,7 @@
 #include <QWidget>
 
 class NotificationBell;
-struct PluginEntry;
+class PluginEntry;
 class QHBoxLayout;
 class SubscribeLabel;
 class TubeLabel;

@@ -13,14 +13,6 @@
 #include <QStandardPaths>
 #include <QStyleFactory>
 
-constexpr QLatin1String DescriptionTemplate(R"(
-%1<br>
-<a href=\"%2\">%2</a><br>
-Version: %3<br>
-Commit: %4 (%5)<br>
-Build date: %6
-)");
-
 SettingsForm::~SettingsForm() { delete ui; }
 
 SettingsForm::SettingsForm(QWidget* parent)
@@ -31,8 +23,13 @@ SettingsForm::SettingsForm(QWidget* parent)
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
 
-    ui->description->setText(DescriptionTemplate
-        .arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
+    ui->description->setText(QStringLiteral(R"(
+        %1<br>
+        <a href=\"%2\">%2</a><br>
+        Version: %3<br>
+        Commit: %4 (%5)<br>
+        Build date: %6
+    )").arg(QTTUBE_APP_DESC, QTTUBE_REPO_URL, QTTUBE_VERSION_NAME, QTTUBE_COMMIT_ID, QTTUBE_BRANCH, __DATE__));
     ui->qttubeLogo->setPixmap(UIUtils::iconThemed("qttube-full").pixmap(ui->qttubeLogo->size()));
 
 #ifndef Q_OS_LINUX

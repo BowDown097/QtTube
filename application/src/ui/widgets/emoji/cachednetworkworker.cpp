@@ -7,7 +7,7 @@ CachedNetworkWorker::CachedNetworkWorker(QObject* parent)
 {
     QNetworkDiskCache* cache = new QNetworkDiskCache(this);
     cache->setCacheDirectory(
-        QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QLatin1String("/http/"));
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/http/"));
 
     m_nam->setAutoDeleteReplies(true);
     m_nam->setCache(cache);

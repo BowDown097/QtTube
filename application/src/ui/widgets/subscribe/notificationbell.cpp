@@ -4,24 +4,22 @@
 #include <QMenu>
 #include <QMessageBox>
 
-constexpr QLatin1String Stylesheet(R"(
-    QToolButton {
-        border: 1px solid #555;
-        border-radius: 2px;
-        padding-left: 2px;
-        padding-bottom: 1px;
-    }
-
-    QToolButton::menu-indicator {
-        image: none;
-    }
-)");
-
 NotificationBell::NotificationBell(PluginEntry* plugin, QWidget* parent)
     : QToolButton(parent), m_notificationMenu(new QMenu(this)), m_plugin(plugin)
 {
     setFixedSize(24, 24);
-    setStyleSheet(Stylesheet);
+    setStyleSheet(QStringLiteral(R"(
+        QToolButton {
+            border: 1px solid #555;
+            border-radius: 2px;
+            padding-left: 2px;
+            padding-bottom: 1px;
+        }
+
+        QToolButton::menu-indicator {
+            image: none;
+        }
+    )"));
     connect(this, &QToolButton::triggered, this, &QToolButton::setDefaultAction);
 
     setMenu(m_notificationMenu);

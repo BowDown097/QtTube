@@ -13,7 +13,7 @@ QString writeFile(const QString& name, const QByteArray& data, std::optional<QFi
 {
     QFile file(name);
     if (!file.open(QFile::WriteOnly))
-        return "Could not open " + name + " for writing: " + file.errorString();
+        return "Could not open " % name % " for writing: " % file.errorString();
 
     file.write(data);
     if (pluginFile)

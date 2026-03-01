@@ -1,12 +1,6 @@
 #include "videothumbnailwidget.h"
 #include <QProgressBar>
 
-constexpr QLatin1String LengthStylesheet("background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0 1px");
-constexpr QLatin1String ProgressStylesheet(R"(
-    QProgressBar { background-color: #717171; }
-    QProgressBar::chunk { background-color: #f00; }
-)");
-
 VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
     : TubeLabel(parent),
       m_lengthLabel(new QLabel(this)),
@@ -19,11 +13,14 @@ VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
 
     m_lengthLabel->hide();
     m_lengthLabel->setFont(QFont(font().toString(), 9, QFont::Bold));
-    m_lengthLabel->setStyleSheet(LengthStylesheet);
+    m_lengthLabel->setStyleSheet(QStringLiteral("background: rgba(0, 0, 0, 0.75); color: #fff; padding: 0 1px"));
 
     m_progressBar->hide();
     m_progressBar->setFixedHeight(3);
-    m_progressBar->setStyleSheet(ProgressStylesheet);
+    m_progressBar->setStyleSheet(QStringLiteral(R"(
+        QProgressBar { background-color: #717171; }
+        QProgressBar::chunk { background-color: #f00; }
+    )"));
 
     m_sourceIconLabel->hide();
     m_sourceIconLabel->setFixedSize(fontMetrics().height(), fontMetrics().height());

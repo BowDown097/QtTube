@@ -114,7 +114,7 @@ void WatchView::processData(const QtTubePlugin::VideoData& data)
     m_videoId = data.videoId;
     m_videoUrlPrefix = data.videoUrlPrefix;
 
-    UIUtils::getMainWindow()->setWindowTitle(data.titleText + " - " + QTTUBE_APP_NAME);
+    UIUtils::getMainWindow()->setWindowTitle(data.titleText % " - " % QTTUBE_APP_NAME);
     ui->channelIcon->setImage(data.channel.channelAvatarUrl);
     ui->channelLabel->setInfo(data.channel.channelId, data.channel.channelName, data.channel.channelBadges);
     ui->date->setText(data.dateText);

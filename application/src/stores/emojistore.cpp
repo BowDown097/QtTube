@@ -3,11 +3,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 
-const QString EmojiMetadataUrl = QStringLiteral("https://cdn.jsdelivr.net/gh/googlefonts/emoji-metadata@main/emoji_15_0_ordering.json");
-
 EmojiStore::EmojiStore(QObject* parent) : QObject(parent)
 {
-    HttpReply* reply = HttpRequest().get(EmojiMetadataUrl);
+    HttpReply* reply = HttpRequest().get(QStringLiteral("https://cdn.jsdelivr.net/gh/googlefonts/emoji-metadata@main/emoji_15_0_ordering.json"));
     connect(reply, &HttpReply::finished, this, [this](const HttpReply& reply) {
         const QJsonDocument doc = QJsonDocument::fromJson(reply.readAll());
         if (!doc.isArray())
@@ -52,7 +50,7 @@ EmojiStore::EmojiStore(QObject* parent) : QObject(parent)
                     hexCodepoints.append(QString::number(codepoint, 16).rightJustified(4, '0'));
 
                 emoji->representation = QString::fromUcs4(codepoints.data(), codepoints.size());
-                emoji->url = "https://fonts.gstatic.com/s/e/notoemoji/latest/" + hexCodepoints.join('_') + "/32.png";
+                emoji->url = "https://fonts.gstatic.com/s/e/notoemoji/latest/" % hexCodepoints.join('_') % "/32.png";
 
                 group->emojis.push_back(std::move(emoji));
             }

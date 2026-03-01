@@ -3,14 +3,17 @@
 #include <QLibrary>
 #include <QMessageBox>
 
-constexpr QLatin1String LoadAbortedError("The operation was aborted.");
-constexpr QLatin1String LoadFailedError("Could not load plugin from %1: %2.");
-constexpr QLatin1String MalformedMetadataError("Metadata for plugin from %1 is malformed.");
-constexpr QLatin1String MetadataNotFoundError("Could not find metadata function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
-constexpr QLatin1String NameConflictError("The name of the plugin from %1 (%2) conflicts with that of the plugin from %3 (%4).");
-constexpr QLatin1String NewInstanceNotFoundError("Could not find initialization function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
-constexpr QLatin1String TargetVersionMismatchWarning("The target version of the plugin from %1 (%2) does not match this version of " QTTUBE_APP_NAME " (" QTTUBE_VERSION_NAME "). This plugin may not work. Load this plugin anyway?");
-constexpr QLatin1String TargetVersionNotFoundError("Could not find target version function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
+namespace
+{
+    const QString loadAbortedError = QStringLiteral("The operation was aborted.");
+    const QString loadFailedError = QStringLiteral("Could not load plugin from %1: %2.");
+    const QString malformedMetadataError = QStringLiteral("Metadata for plugin from %1 is malformed.");
+    const QString metadataNotFoundError = QStringLiteral("Could not find metadata function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
+    const QString nameConflictError = QStringLiteral("The name of the plugin from %1 (%2) conflicts with that of the plugin from %3 (%4).");
+    const QString newInstanceNotFoundError = QStringLiteral("Could not find initialization function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
+    const QString targetVersionMismatchWarning = QStringLiteral("The target version of the plugin from %1 (%2) does not match this version of " QTTUBE_APP_NAME " (" QTTUBE_VERSION_NAME "). This plugin may not work. Load this plugin anyway?");
+    const QString targetVersionNotFoundError = QStringLiteral("Could not find target version function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
+}
 
 struct QLibraryDeleter
 {
@@ -34,11 +37,11 @@ PluginEntry::PluginEntry(QFileInfo&& info)
 void PluginEntry::checkMetadata()
 {
     if (metadata.name.isEmpty() || metadata.version.isEmpty())
-        throw PluginLoadException(MalformedMetadataError.arg(fileInfo.fileName()));
+        throw PluginLoadException(malformedMetadataError.arg(fileInfo.fileName()));
 
     if (PluginEntry* entry = qtTubeApp->plugins().findPlugin(metadata.name))
     {
-        throw PluginLoadException(NameConflictError.arg(
+        throw PluginLoadException(nameConflictError.arg(
             fileInfo.fileName(), metadata.name,
             entry->fileInfo.fileName(), entry->metadata.name));
     }
@@ -50,10 +53,10 @@ void PluginEntry::checkTargetVersion(std::string_view targetVersion)
     {
         QMessageBox::StandardButton button = QMessageBox::warning(
             nullptr, "Plugin Warning",
-            TargetVersionMismatchWarning.arg(fileInfo.fileName(), targetVersion),
+            targetVersionMismatchWarning.arg(fileInfo.fileName(), targetVersion.data()),
             QMessageBox::Yes | QMessageBox::No);
         if (button != QMessageBox::Yes)
-            throw PluginLoadException(LoadAbortedError);
+            throw PluginLoadException(loadAbortedError);
     }
 }
 
@@ -86,26 +89,26 @@ void PluginEntry::loadAsNative()
     std::unique_ptr<QLibrary, QLibraryDeleter> handle(new QLibrary(fileInfo.absoluteFilePath()));
     handle->setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
     if (!handle->load())
-        throw PluginLoadException(LoadFailedError.arg(fileInfo.fileName(), handle->errorString()));
+        throw PluginLoadException(loadFailedError.arg(fileInfo.fileName(), handle->errorString()));
 
     // check target version
     if (auto targetVersionFunc = QtTubePluginTargetVersionFunc(handle->resolve("targetVersion")))
         checkTargetVersion(targetVersionFunc());
     else
-        throw PluginLoadException(TargetVersionNotFoundError.arg(fileInfo.fileName()));
+        throw PluginLoadException(targetVersionNotFoundError.arg(fileInfo.fileName()));
 
     // put in and simply validate metadata, check name for conflict with already loaded plugin
     if (auto metadataFunc = QtTubePluginMetadataFunc(handle->resolve("metadata")))
         metadata = metadataFunc();
     else
-        throw PluginLoadException(MetadataNotFoundError.arg(fileInfo.fileName()));
+        throw PluginLoadException(metadataNotFoundError.arg(fileInfo.fileName()));
     checkMetadata();
 
     // put in interface
     if (auto newInstanceFunc = QtTubePluginNewInstanceFunc(handle->resolve("newInstance")))
         interface.reset(newInstanceFunc());
     else
-        throw PluginLoadException(NewInstanceNotFoundError.arg(fileInfo.fileName()));
+        throw PluginLoadException(newInstanceNotFoundError.arg(fileInfo.fileName()));
 
     // put in optional components
     if (auto authFunc = QtTubePluginAuthFunc(handle->resolve("auth")))

@@ -3,7 +3,7 @@
 #include "ui/widgets/wrappers/clickablewidget.h"
 #include <QLabel>
 
-struct PluginEntry;
+class PluginEntry;
 
 class SubscribeLabel : public ClickableWidget<QLabel>
 {

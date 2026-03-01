@@ -12,23 +12,21 @@
 #include <QScrollArea>
 #include <QScrollBar>
 
-constexpr QLatin1String LikeBarStylesheet(R"(
-    QProgressBar {
-        border-radius: 2px;
-        background-color: #606060;
-    }
-
-    QProgressBar::chunk {
-        background-color: #1879c6;
-    }
-)");
-
 void WatchView_Ui::constructLikeBar()
 {
     likeBar = new QProgressBar;
     likeBar->setFixedSize(155, 2);
     likeBar->setMaximum(100);
-    likeBar->setStyleSheet(LikeBarStylesheet);
+    likeBar->setStyleSheet(QStringLiteral(R"(
+        QProgressBar {
+            border-radius: 2px;
+            background-color: #606060;
+        }
+
+        QProgressBar::chunk {
+            background-color: #1879c6;
+        }
+    )"));
     likeBarWrapper->addWidget(likeBar);
 }
 

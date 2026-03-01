@@ -9,7 +9,10 @@
 #include <QPushButton>
 #include <QScrollArea>
 
-constexpr QLatin1String SelectedStylesheet("background-color: yellow");
+namespace
+{
+    const QString selectedStylesheet = QStringLiteral("background-color: yellow");
+}
 
 FindBar::FindBar(QWidget* parent)
     : QWidget(parent),
@@ -70,8 +73,8 @@ void FindBar::goToPrevious()
 
 void FindBar::highlightMatch(const QPointer<QLabel>& label)
 {
-    if (!label.isNull() && !label->styleSheet().contains(SelectedStylesheet))
-        label->setStyleSheet(label->styleSheet() + SelectedStylesheet);
+    if (!label.isNull() && !label->styleSheet().contains(selectedStylesheet))
+        label->setStyleSheet(label->styleSheet() + selectedStylesheet);
 }
 
 void FindBar::initializeSearch(const QString& searchText)
@@ -171,6 +174,6 @@ void FindBar::setReveal(bool reveal)
 
 void FindBar::unhighlightMatch(const QPointer<QLabel>& label)
 {
-    if (!label.isNull() && label->styleSheet().contains(SelectedStylesheet))
-        label->setStyleSheet(label->styleSheet().remove(SelectedStylesheet));
+    if (!label.isNull() && label->styleSheet().contains(selectedStylesheet))
+        label->setStyleSheet(label->styleSheet().remove(selectedStylesheet));
 }

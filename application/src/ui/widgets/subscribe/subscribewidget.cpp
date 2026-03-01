@@ -5,15 +5,6 @@
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 
-constexpr QLatin1String SubscribersCountStylesheet(R"(
-    border: 1px solid #555;
-    font-size: 11px;
-    line-height: 24px;
-    padding: 0 6px 0 4.5px;
-    border-radius: 2px;
-    text-align: center;
-)");
-
 SubscribeWidget::SubscribeWidget(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),
       layout(new QHBoxLayout(this)),
@@ -32,7 +23,14 @@ SubscribeWidget::SubscribeWidget(PluginEntry* plugin, QWidget* parent)
 
     m_subscribersCountLabel->hide();
     m_subscribersCountLabel->setFixedHeight(24);
-    m_subscribersCountLabel->setStyleSheet(SubscribersCountStylesheet);
+    m_subscribersCountLabel->setStyleSheet(QStringLiteral(R"(
+        border: 1px solid #555;
+        font-size: 11px;
+        line-height: 24px;
+        padding: 0 6px 0 4.5px;
+        border-radius: 2px;
+        text-align: center;
+    )"));
     layout->addWidget(m_subscribersCountLabel);
 
     connect(m_subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)

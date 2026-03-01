@@ -3,7 +3,7 @@
 #include <QWidget>
 
 class ChannelLabel;
-struct PluginEntry;
+class PluginEntry;
 class QHBoxLayout;
 class QVBoxLayout;
 class SubscribeWidget;

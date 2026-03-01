@@ -69,7 +69,7 @@ void AddPluginDialog::attemptAdd()
 void AddPluginDialog::getOpenFile()
 {
     ui->lineEdit->setText(QFileDialog::getOpenFileName(
-        this, "Select a plugin file...", {}, "Plugin files (*" + libraryExtension + " *.js)"));
+        this, "Select a plugin file...", {}, "Plugin files (*" % libraryExtension % " *.js)"));
 }
 
 AddPluginDialog::PluginSource AddPluginDialog::resolvePluginSource(const QString& input)

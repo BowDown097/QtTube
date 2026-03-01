@@ -2,13 +2,6 @@
 #include "ui/widgets/labels/tubelabel.h"
 #include <QBoxLayout>
 
-constexpr QLatin1String Stylesheet(R"(
-    background: %1;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    color: white;
-)");
-
 SpecialMessage::SpecialMessage(const QtTubePlugin::SpecialMessage& data, QWidget* parent)
     : QWidget(parent),
       m_headerLabel(new TubeLabel(this)),
@@ -16,7 +9,13 @@ SpecialMessage::SpecialMessage(const QtTubePlugin::SpecialMessage& data, QWidget
       m_subtextLabel(new TubeLabel(this))
 {
     setAutoFillBackground(true);
-    setStyleSheet(Stylesheet.arg(data.backgroundColor));
+    setStyleSheet(QStringLiteral(R"(
+        background: %1;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: white;
+    )").arg(data.backgroundColor));
+
     m_layout->setContentsMargins(0, 0, 0, 0);
 
     if (!data.header.isEmpty())

@@ -2,30 +2,33 @@
 #include "plugins/pluginentry.h"
 #include <QMessageBox>
 
-constexpr QLatin1String SubscribeStylesheet(R"(
-    font-size: 12px;
-    line-height: 22px;
-    border-radius: 2px;
-    padding: 0 6px 1px 11px;
-)");
-constexpr QLatin1String SubscribeHoveredStylesheet(R"(
-    font-size: 12px;
-    line-height: 22px;
-    border-radius: 2px;
-    padding: 0 6px 1px 11px;
-)");
-constexpr QLatin1String SubscribedStylesheet(R"(
-    font-size: 12px;
-    line-height: 22px;
-    border-radius: 2px;
-    padding: 0 6px 1px 6px;
-)");
-constexpr QLatin1String UnsubscribeStylesheet(R"(
-    font-size: 12px;
-    line-height: 22px;
-    border-radius: 2px;
-    padding: 0 6px 1px 2.5px;
-)");
+namespace
+{
+    const QString subscribeStylesheet = QStringLiteral(R"(
+        font-size: 12px;
+        line-height: 22px;
+        border-radius: 2px;
+        padding: 0 6px 1px 11px;
+    )");
+    const QString subscribeHoveredStylesheet = QStringLiteral(R"(
+        font-size: 12px;
+        line-height: 22px;
+        border-radius: 2px;
+        padding: 0 6px 1px 11px;
+    )");
+    const QString subscribedStylesheet = QStringLiteral(R"(
+        font-size: 12px;
+        line-height: 22px;
+        border-radius: 2px;
+        padding: 0 6px 1px 6px;
+    )");
+    const QString unsubscribeStylesheet = QStringLiteral(R"(
+        font-size: 12px;
+        line-height: 22px;
+        border-radius: 2px;
+        padding: 0 6px 1px 2.5px;
+    )");
+}
 
 SubscribeLabel::SubscribeLabel(PluginEntry* plugin, QWidget* parent)
     : ClickableWidget<QLabel>(parent)
@@ -73,43 +76,43 @@ void SubscribeLabel::setStyle(bool hovered)
         background = &m_data.colorPalette.subscribeDisabledBackground;
         border = &m_data.colorPalette.subscribeDisabledBorder;
         foreground = &m_data.colorPalette.subscribeDisabledForeground;
-        stylesheet = SubscribeStylesheet;
+        stylesheet = subscribeStylesheet;
     }
     else if (m_data.subscribed && hovered)
     {
         background = &m_data.colorPalette.unsubscribeBackground;
         border = &m_data.colorPalette.unsubscribeBorder;
         foreground = &m_data.colorPalette.unsubscribeForeground;
-        stylesheet = UnsubscribeStylesheet;
+        stylesheet = unsubscribeStylesheet;
     }
     else if (m_data.subscribed)
     {
         background = &m_data.colorPalette.subscribedBackground;
         border = &m_data.colorPalette.subscribedBorder;
         foreground = &m_data.colorPalette.subscribedForeground;
-        stylesheet = SubscribedStylesheet;
+        stylesheet = subscribedStylesheet;
     }
     else if (hovered)
     {
         background = &m_data.colorPalette.subscribeHoveredBackground;
         border = &m_data.colorPalette.subscribeHoveredBorder;
         foreground = &m_data.colorPalette.subscribeHoveredForeground;
-        stylesheet = SubscribeHoveredStylesheet;
+        stylesheet = subscribeHoveredStylesheet;
     }
     else
     {
         background = &m_data.colorPalette.subscribeBackground;
         border = &m_data.colorPalette.subscribeBorder;
         foreground = &m_data.colorPalette.subscribeForeground;
-        stylesheet = SubscribeStylesheet;
+        stylesheet = subscribeStylesheet;
     }
 
     if (!background->isEmpty())
-        stylesheet += "\nbackground: " + *background + ';';
+        stylesheet += "\nbackground: " % *background % ';';
     if (!border->isEmpty())
-        stylesheet += "\nborder: 1px solid " + *border + ';';
+        stylesheet += "\nborder: 1px solid " % *border % ';';
     if (!foreground->isEmpty())
-        stylesheet += "\ncolor: " + *foreground + ';';
+        stylesheet += "\ncolor: " % *foreground % ';';
 
     setStyleSheet(stylesheet);
 }

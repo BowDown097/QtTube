@@ -132,7 +132,7 @@ void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
     m_subscribeWidget->setData(header.subscribeButton);
 
     MainWindow* mainWindow = UIUtils::getMainWindow();
-    mainWindow->setWindowTitle(header.channelText + " - " + QTTUBE_APP_NAME);
+    mainWindow->setWindowTitle(header.channelText % " - " % QTTUBE_APP_NAME);
 
     bool hasAvatar = !header.avatarUrl.isEmpty();
     bool hasBanner = !header.bannerUrl.isEmpty();
