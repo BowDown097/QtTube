@@ -2,7 +2,7 @@
 #include "qttube-plugin/objects/channel.h"
 #include <QToolButton>
 
-struct PluginData;
+struct PluginEntry;
 class QMenu;
 
 class NotificationBell : public QToolButton
@@ -12,7 +12,7 @@ public:
     enum class PreferenceButtonState { None = 0, All = 2, Personalized = 3 };
     enum class PreferenceListState { All, Personalized, None };
 
-    explicit NotificationBell(PluginData* plugin, QWidget* parent = nullptr);
+    explicit NotificationBell(PluginEntry* plugin, QWidget* parent = nullptr);
     qsizetype defaultEnabledStateIndex() const { return m_defaultEnabledStateIndex; }
     void setData(const QtTubePlugin::NotificationBell& notificationBell);
     void setVisualState(qsizetype index);
@@ -28,7 +28,7 @@ private:
     qsizetype m_defaultEnabledStateIndex = -1;
     QList<QString> m_icons;
     QMenu* m_notificationMenu;
-    PluginData* m_plugin;
+    PluginEntry* m_plugin;
 private slots:
     void setState(const QtTubePlugin::NotificationState& state);
 };

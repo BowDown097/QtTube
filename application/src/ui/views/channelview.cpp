@@ -17,7 +17,7 @@ ChannelView::~ChannelView()
     }
 }
 
-ChannelView::ChannelView(const QString& channelId, PluginData* plugin)
+ChannelView::ChannelView(const QString& channelId, PluginEntry* plugin)
     : m_channelBanner(new TubeLabel(this)),
       m_channelHeaderContainer(new QWidget(this)),
       m_channelHeaderLayout(new QHBoxLayout(m_channelHeaderContainer)),

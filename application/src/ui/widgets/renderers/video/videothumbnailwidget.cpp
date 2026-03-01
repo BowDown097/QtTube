@@ -59,12 +59,10 @@ void VideoThumbnailWidget::setProgress(int progress, int length)
     m_progressBar->setValue(progress);
 }
 
-void VideoThumbnailWidget::setSourceIconUrl(const char* sourceIconUrl)
+void VideoThumbnailWidget::setSourceIconUrl(const QString& sourceIconUrl)
 {
-    if (sourceIconUrl)
-    {
-        m_hasSourceIcon = true;
-        m_sourceIconLabel->setImage(QUrl(sourceIconUrl),
-            TubeLabel::Cached | TubeLabel::KeepAspectRatio | TubeLabel::LazyLoaded);
-    }
+    if (sourceIconUrl.isEmpty())
+        return;
+    m_hasSourceIcon = true;
+    m_sourceIconLabel->setImage(sourceIconUrl, TubeLabel::Cached | TubeLabel::KeepAspectRatio | TubeLabel::LazyLoaded);
 }

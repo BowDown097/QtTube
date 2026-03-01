@@ -3,7 +3,7 @@
 #include <QWidget>
 
 class ChannelLabel;
-struct PluginData;
+struct PluginEntry;
 class QHBoxLayout;
 class QVBoxLayout;
 class SubscribeWidget;
@@ -13,7 +13,7 @@ class BrowseChannelRenderer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit BrowseChannelRenderer(PluginData* plugin, QWidget* parent = nullptr);
+    explicit BrowseChannelRenderer(PluginEntry* plugin, QWidget* parent = nullptr);
     void setData(const QtTubePlugin::Channel& channel);
 private:
     QString m_channelId;

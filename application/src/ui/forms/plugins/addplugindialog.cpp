@@ -32,49 +32,44 @@ AddPluginDialog::~AddPluginDialog()
 
 void AddPluginDialog::attemptAdd()
 {
-    const QDir& pluginsDir = qtTubeApp->plugins().pluginLoadDirs().front();
-    PluginData plugin;
-    QString pluginPath;
-
     try
     {
+        const QDir& pluginsDir = qtTubeApp->plugins().pluginLoadDirs().front();
+        pluginsDir.mkpath(".");
+
         PluginSource source = resolvePluginSource(ui->lineEdit->text());
-        plugin = qtTubeApp->plugins().openPlugin(source.fileInfo);
-        pluginPath = pluginsDir.filePath(source.targetFileName);
+        QString targetPluginPath = pluginsDir.filePath(source.targetFileName);
+
+        if (!QFile::rename(source.fileInfo.filePath(), targetPluginPath))
+        {
+            QMessageBox::critical(this, QString(), "Could not relocate plugin file to plugin folder.");
+            done(QDialog::Rejected);
+            return;
+        }
+
+        source.fileInfo.setFile(targetPluginPath);
+
+        PluginEntry* plugin = qtTubeApp->plugins().registerPlugin(std::move(source.fileInfo));
+        if (!qtTubeApp->plugins().activePlugin() ||
+            QMessageBox::question(this, QString(), "Make this plugin the active plugin?") == QMessageBox::Yes)
+        {
+            plugin->active = true;
+            emit qtTubeApp->activePluginChanged(plugin);
+        }
+
+        done(QDialog::Accepted);
     }
     catch (const PluginLoadException& ex)
     {
         QMessageBox::critical(this, "Plugin Error", ex.message());
         done(QDialog::Rejected);
-        return;
     }
-
-    pluginsDir.mkpath(".");
-
-    if (!QFile::rename(plugin.fileInfo.filePath(), pluginPath))
-    {
-        QMessageBox::critical(this, QString(), "Could not relocate plugin file to plugin folder.");
-        done(QDialog::Rejected);
-        return;
-    }
-
-    plugin.fileInfo.setFile(pluginPath);
-
-    PluginData* loadedPlugin = qtTubeApp->plugins().loadAndInitPlugin(std::move(plugin));
-    if (!qtTubeApp->plugins().activePlugin() ||
-        QMessageBox::question(this, QString(), "Make this plugin the active plugin?") == QMessageBox::Yes)
-    {
-        loadedPlugin->active = true;
-        emit qtTubeApp->activePluginChanged(loadedPlugin);
-    }
-
-    done(QDialog::Accepted);
 }
 
 void AddPluginDialog::getOpenFile()
 {
     ui->lineEdit->setText(QFileDialog::getOpenFileName(
-        this, "Select a library file...", {}, "Library files (*" + libraryExtension + ')'));
+        this, "Select a plugin file...", {}, "Plugin files (*" + libraryExtension + " *.js)"));
 }
 
 AddPluginDialog::PluginSource AddPluginDialog::resolvePluginSource(const QString& input)
@@ -110,9 +105,9 @@ AddPluginDialog::PluginSource AddPluginDialog::resolvePluginSource(const QString
     if (fileName.isEmpty())
         throw PluginLoadException("The provided URL does not point to a local or remote file.");
 
-    bool fullyTemp = !QLibrary::isLibrary(fileName);
+    bool fullyTemp = !PluginEntry::isPluginFile(fileName);
     QFile tempFile(fullyTemp
-        ? QDir::temp().filePath(QUuid::createUuid().toString(QUuid::Id128) + libraryExtension)
+        ? QDir::temp().filePath(QUuid::createUuid().toString(QUuid::Id128))
         : QDir::temp().filePath(fileName));
 
     if (!tempFile.open(QFile::WriteOnly))
@@ -133,20 +128,20 @@ AddPluginDialog::PluginSource AddPluginDialog::resolvePluginSource(const QString
     };
 }
 
-AddPluginDialogEntry::AddPluginDialogEntry(PluginData* data, QWidget* parent)
+AddPluginDialogEntry::AddPluginDialogEntry(PluginEntry* plugin, QWidget* parent)
     : BasePluginEntry(parent),
       m_activeButton(new QRadioButton(this)),
-      m_data(data)
+      m_plugin(plugin)
 {
-    m_activeButton->setChecked(data->active);
+    m_activeButton->setChecked(plugin->active);
     m_topLayout->insertWidget(0, m_activeButton);
 
-    if (data->settings->window())
+    if (plugin->settings->window())
     {
         QPushButton* openSettingsButton = new QPushButton("Open Settings", this);
         m_buttonsLayout->addWidget(openSettingsButton);
-        connect(openSettingsButton, &QPushButton::clicked, this, [data] {
-            QWidget* window = data->settings->window();
+        connect(openSettingsButton, &QPushButton::clicked, this, [plugin] {
+            QWidget* window = plugin->settings->window();
             window->setAttribute(Qt::WA_DeleteOnClose);
             window->show();
         });

@@ -6,7 +6,7 @@
 #include <QDesktopServices>
 #include <QMenu>
 
-ChannelLabel::ChannelLabel(PluginData* plugin, QWidget* parent)
+ChannelLabel::ChannelLabel(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent), text(new TubeLabel(this)), m_badgeLayout(new QHBoxLayout), m_layout(new QHBoxLayout(this))
 {
     text->setClickable(true);

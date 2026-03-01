@@ -6,7 +6,7 @@
 class ChannelLabel;
 class HttpReply;
 class QHBoxLayout;
-struct PluginData;
+struct PluginEntry;
 class TubeLabel;
 class VideoThumbnailWidget;
 
@@ -20,10 +20,10 @@ public:
     VideoThumbnailWidget* thumbnail;
     TubeLabel* titleLabel;
 
-    explicit VideoRenderer(PluginData* plugin, QWidget* parent = nullptr);
+    explicit VideoRenderer(PluginEntry* plugin, QWidget* parent = nullptr);
     void setData(const QtTubePlugin::Video& video);
 private:
-    PluginData* m_plugin;
+    PluginEntry* m_plugin;
     std::unique_ptr<PreloadData::WatchView> m_preloadData;
     int m_progress{};
     QString m_videoId;

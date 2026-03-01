@@ -67,7 +67,7 @@ void PluginBuildDownloader::downloadFinished(const HttpReply& reply)
 
         for (const QZipReader::FileInfo& info : files)
         {
-            if (!info.isFile || !QLibrary::isLibrary(info.filePath))
+            if (!info.isFile || !PluginEntry::isPluginFile(info.filePath))
                 continue;
 
             if (info.filePath.startsWith("libs/"))
@@ -98,8 +98,7 @@ void PluginBuildDownloader::downloadFinished(const HttpReply& reply)
     try
     {
         createUpdateIni(pluginDir.filePath("update.ini"));
-        PluginData* plugin = qtTubeApp->plugins().loadAndInitPlugin(pluginFile.value());
-        emit finished(plugin);
+        emit finished(qtTubeApp->plugins().registerPlugin(std::move(pluginFile.value())));
     }
     catch (const PluginLoadException& ex)
     {

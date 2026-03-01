@@ -4,12 +4,12 @@
 #include <QTabWidget>
 
 class ContinuableListWidget;
-struct PluginData;
+class PluginEntry;
 
 class WatchNextFeed : public QTabWidget
 {
 public:
-    explicit WatchNextFeed(PluginData* plugin, QWidget* parent = nullptr);
+    explicit WatchNextFeed(PluginEntry* plugin, QWidget* parent = nullptr);
     ContinuableListWidget* currentList();
     void reset();
     void setData(
@@ -18,7 +18,7 @@ public:
         const QtTubePlugin::VideoData::Continuations& continuations);
 private:
     ContinuableListWidget* m_commentsList;
-    PluginData* m_plugin;
+    PluginEntry* m_plugin;
     ContinuableListWidget* m_recommendedList;
     QString m_videoId;
 

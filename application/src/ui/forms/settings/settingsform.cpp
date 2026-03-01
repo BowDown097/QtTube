@@ -121,7 +121,7 @@ void SettingsForm::currentChanged(int index)
     if (ui->tabWidget->tabText(index) != "Plugins" || !m_pluginActiveButtonGroup->buttons().isEmpty())
         return;
 
-    for (PluginData* plugin : qtTubeApp->plugins().loadedPlugins())
+    for (PluginEntry* plugin : qtTubeApp->plugins().loadedPlugins())
     {
         AddPluginDialogEntry* entry = new AddPluginDialogEntry(plugin);
         UIUtils::addWidgetToList(ui->pluginsListWidget, entry);
@@ -153,7 +153,7 @@ void SettingsForm::openAddPluginDialog()
     AddPluginDialog dialog;
     if (dialog.exec() == QDialog::Accepted)
     {
-        PluginData* plugin = qtTubeApp->plugins().activePlugin();
+        PluginEntry* plugin = qtTubeApp->plugins().activePlugin();
         AddPluginDialogEntry* entry = new AddPluginDialogEntry(plugin);
         UIUtils::addWidgetToList(ui->pluginsListWidget, entry);
         entry->setData(plugin->metadata);
@@ -177,10 +177,11 @@ void SettingsForm::pluginActiveButtonToggled(QAbstractButton* button, bool check
 {
     if (AddPluginDialogEntry* entry = qobject_cast<AddPluginDialogEntry*>(button->parent()))
     {
-        entry->data()->active = true;
-        qtTubeApp->settings().activePlugin = entry->data()->fileInfo.fileName();
+        PluginEntry* plugin = entry->plugin();
+        plugin->active = true;
+        qtTubeApp->settings().activePlugin = plugin->fileInfo.fileName();
         ui->saveButton->setEnabled(true);
-        emit qtTubeApp->activePluginChanged(entry->data());
+        emit qtTubeApp->activePluginChanged(plugin);
     }
 }
 

@@ -1,12 +1,12 @@
 #pragma once
 #include "preloaddata.h"
 
-struct PluginData;
+class PluginEntry;
 
 namespace ViewController
 {
-    void loadChannel(const QString& channelId, PluginData* plugin);
-    void loadVideo(const QString& videoId, PluginData* plugin,
+    void loadChannel(const QString& channelId, PluginEntry* plugin);
+    void loadVideo(const QString& videoId, PluginEntry* plugin,
                    int progress = 0, PreloadData::WatchView* preload = nullptr,
                    bool continuePlayback = false);
     void unloadCurrent();

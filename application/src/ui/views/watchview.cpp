@@ -18,7 +18,7 @@
 #include <QScrollBar>
 #include <QTimer>
 
-WatchView::WatchView(const QString& videoId, PluginData* plugin, int progress,
+WatchView::WatchView(const QString& videoId, PluginEntry* plugin, int progress,
                      PreloadData::WatchView* preload, QWidget* parent)
     : QWidget(parent), m_plugin(plugin), ui(new Ui::WatchView)
 {

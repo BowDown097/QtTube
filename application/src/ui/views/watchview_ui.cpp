@@ -49,7 +49,7 @@ void WatchView_Ui::moveFeed(WatchViewPlayer::ScaleMode scaleMode)
     }
 }
 
-void WatchView_Ui::setupUi(QWidget* watchView, MainWindow* mainWindow, PluginData* plugin)
+void WatchView_Ui::setupUi(QWidget* watchView, MainWindow* mainWindow, PluginEntry* plugin)
 {
     setupFrame(watchView, mainWindow);
     setupPlayer(watchView, mainWindow, plugin);
@@ -94,7 +94,7 @@ void WatchView_Ui::setupDescription(QWidget* watchView)
     connect(showMoreLabel, &TubeLabel::clicked, this, &WatchView_Ui::toggleShowMore);
 }
 
-void WatchView_Ui::setupFeed(QWidget* watchView, MainWindow* mainWindow, PluginData* plugin)
+void WatchView_Ui::setupFeed(QWidget* watchView, MainWindow* mainWindow, PluginEntry* plugin)
 {
     feed = new WatchNextFeed(plugin, watchView);
     if (player->scaleMode() == WatchViewPlayer::ScaleMode::NoScale)
@@ -164,7 +164,7 @@ void WatchView_Ui::setupMenu(QWidget* watchView)
     menuVbox->addLayout(topLevelButtons);
 }
 
-void WatchView_Ui::setupPlayer(QWidget* watchView, MainWindow* mainWindow, PluginData* plugin)
+void WatchView_Ui::setupPlayer(QWidget* watchView, MainWindow* mainWindow, PluginEntry* plugin)
 {
     player = new WatchViewPlayer(watchView, plugin, mainWindow->size());
     scrollArea->setMaximumWidth(player->size().width());
@@ -172,7 +172,7 @@ void WatchView_Ui::setupPlayer(QWidget* watchView, MainWindow* mainWindow, Plugi
     connect(player, &WatchViewPlayer::scaleModeChanged, this, &WatchView_Ui::moveFeed);
 }
 
-void WatchView_Ui::setupPrimaryInfo(QWidget* watchView, PluginData* plugin)
+void WatchView_Ui::setupPrimaryInfo(QWidget* watchView, PluginEntry* plugin)
 {
     primaryInfoWrapper = new QWidget(watchView);
     primaryInfoWrapper->setFixedWidth(player->size().width());

@@ -1,13 +1,13 @@
 #include "watchnextfeed.h"
 #include "continuablelistwidget.h"
-#include "plugins/pluginmanager.h"
+#include "plugins/pluginentry.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/videothumbnailwidget.h"
 #include "utils/uiutils.h"
 #include <QMessageBox>
 
-WatchNextFeed::WatchNextFeed(PluginData* plugin, QWidget* parent)
+WatchNextFeed::WatchNextFeed(PluginEntry* plugin, QWidget* parent)
     : QTabWidget(parent),
       m_commentsList(new ContinuableListWidget(this)),
       m_plugin(plugin),

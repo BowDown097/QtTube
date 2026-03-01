@@ -20,6 +20,7 @@ set(SOURCE_FILES
     src/qttubeapplication.cpp
     src/plugins/pluginbrowser.cpp
     src/plugins/pluginbuilddownloader.cpp
+    src/plugins/pluginentry.cpp
     src/plugins/pluginmanager.cpp
     src/stores/emojistore.cpp
     src/stores/settingsstore.cpp
@@ -84,6 +85,7 @@ set(HEADERS
     src/plugins/pluginbrowser.h
     src/plugins/pluginbrowsercache.h
     src/plugins/pluginbuilddownloader.h
+    src/plugins/pluginentry.h
     src/plugins/pluginmanager.h
     src/stores/emojistore.h
     src/stores/settingsstore.h

@@ -1,13 +1,13 @@
 #include "accountswitcherwidget.h"
 #include "accountentrywidget.h"
 #include "mainwindow.h"
-#include "plugins/pluginmanager.h"
+#include "plugins/pluginentry.h"
 #include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QPushButton>
 
-AccountSwitcherWidget::AccountSwitcherWidget(PluginData* plugin, QWidget* parent)
+AccountSwitcherWidget::AccountSwitcherWidget(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),
       m_addAccountButton(new QPushButton(this)),
       m_backButton(new QPushButton(this)),
@@ -20,14 +20,14 @@ AccountSwitcherWidget::AccountSwitcherWidget(PluginData* plugin, QWidget* parent
 
     m_layout->addWidget(m_backButton);
 
-    if (!(m_auth = plugin->auth))
+    if (!(m_auth = plugin->authStore))
         throw std::runtime_error("Account switcher somehow opened without auth support.");
 
-    QtTubePlugin::AuthUser* activeUser = plugin->auth->activeBaseLogin();
+    QtTubePlugin::AuthUser* activeUser = plugin->authStore->activeBaseLogin();
     if (!activeUser)
         throw std::runtime_error("Account switcher somehow opened without an active login.");
 
-    for (QtTubePlugin::AuthUser* user : plugin->auth->baseCredentials())
+    for (QtTubePlugin::AuthUser* user : plugin->authStore->baseCredentials())
     {
         AccountEntryWidget* accountEntry = new AccountEntryWidget(*user, this);
         accountEntry->setClickable(user->id != activeUser->id);

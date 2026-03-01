@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget* parent)
 #endif
 
     QCommandLineParser& parser = qtTubeApp->commandLineParser();
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
         // just call activePluginChanged() to do setup for whatever plugin has been loaded
         activePluginChanged(plugin);
@@ -108,9 +108,9 @@ MainWindow::MainWindow(QWidget* parent)
     }
 }
 
-void MainWindow::activePluginChanged(PluginData* activePlugin)
+void MainWindow::activePluginChanged(PluginEntry* activePlugin)
 {
-    if (QtTubePlugin::AuthStoreBase* authStore = activePlugin->auth)
+    if (QtTubePlugin::AuthStoreBase* authStore = activePlugin->authStore)
     {
         if (const QtTubePlugin::AuthUser* authUser = authStore->activeBaseLogin())
         {
@@ -327,7 +327,7 @@ void MainWindow::searchWatchHistory()
 
 void MainWindow::toggleAccountMenu()
 {
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (AccountControllerWidget* accountController = findChild<AccountControllerWidget*>())
         {

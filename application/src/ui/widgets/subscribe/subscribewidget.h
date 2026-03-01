@@ -3,7 +3,7 @@
 #include <QWidget>
 
 class NotificationBell;
-struct PluginData;
+struct PluginEntry;
 class QHBoxLayout;
 class SubscribeLabel;
 class TubeLabel;
@@ -13,7 +13,7 @@ class SubscribeWidget : public QWidget
 public:
     QHBoxLayout* layout;
 
-    explicit SubscribeWidget(PluginData* plugin, QWidget* parent = nullptr);
+    explicit SubscribeWidget(PluginEntry* plugin, QWidget* parent = nullptr);
     void setData(const QtTubePlugin::SubscribeButton& data);
 protected:
     void changeEvent(QEvent* event) override;

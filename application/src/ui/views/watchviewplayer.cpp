@@ -10,7 +10,7 @@
 #include <QProcess>
 #include <QRegularExpression>
 
-WatchViewPlayer::WatchViewPlayer(QWidget* watchView, PluginData* plugin, const QSize& maxSize)
+WatchViewPlayer::WatchViewPlayer(QWidget* watchView, PluginEntry* plugin, const QSize& maxSize)
     : QObject(watchView)
 {
     if (qtTubeApp->settings().externalPlayerPath.isEmpty())
@@ -107,7 +107,7 @@ void WatchViewPlayer::seek(int progress)
         m_player->seek(progress);
 }
 
-void WatchViewPlayer::switchVideo(PluginData* plugin, const QString& videoId)
+void WatchViewPlayer::switchVideo(PluginEntry* plugin, const QString& videoId)
 {
     ViewController::loadVideo(videoId, plugin);
 }

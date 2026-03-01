@@ -7,7 +7,7 @@ int showChat(QtTubeApplication& a, QCommandLineParser& parser)
 {
     a.doInitialSetup();
 
-    PluginData* plugin = a.plugins().activePlugin();
+    PluginEntry* plugin = a.plugins().activePlugin();
     if (!plugin)
     {
         qCritical() << "Could not open live chat: Plugin not found.";

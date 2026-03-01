@@ -43,7 +43,7 @@ void QtTubeApplication::doInitialSetup()
 
 void QtTubeApplication::handleUrlOrID(const QString& in)
 {
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::ResolveUrlReply* reply = plugin->interface->resolveUrlOrID(in))
         {

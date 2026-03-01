@@ -10,7 +10,7 @@ public:
     AccountMenuWidget* accountMenu;
     AccountSwitcherWidget* accountSwitcher;
 
-    explicit AccountControllerWidget(PluginData* plugin, QWidget* parent = nullptr);
+    explicit AccountControllerWidget(PluginEntry* plugin, QWidget* parent = nullptr);
 signals:
     void resized();
 };

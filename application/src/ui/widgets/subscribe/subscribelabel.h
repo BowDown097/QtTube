@@ -3,13 +3,13 @@
 #include "ui/widgets/wrappers/clickablewidget.h"
 #include <QLabel>
 
-struct PluginData;
+struct PluginEntry;
 
 class SubscribeLabel : public ClickableWidget<QLabel>
 {
     Q_OBJECT
 public:
-    explicit SubscribeLabel(PluginData* plugin, QWidget* parent = nullptr);
+    explicit SubscribeLabel(PluginEntry* plugin, QWidget* parent = nullptr);
     void setData(const QtTubePlugin::SubscribeButton& data);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -24,7 +24,7 @@ private:
     void setStyle(bool hovered);
     void toggleSubscriptionStatus();
 private slots:
-    void trySubscribe(PluginData* plugin);
+    void trySubscribe(PluginEntry* plugin);
 signals:
     void subscribeStatusChanged(bool subscribed);
 };

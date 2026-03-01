@@ -1,7 +1,7 @@
 #pragma once
 #include "plugins/pluginbrowser.h"
 
-struct PluginData;
+class PluginEntry;
 class QTemporaryFile;
 
 class PluginBuildDownloader : public QObject
@@ -19,6 +19,6 @@ private slots:
     void downloadFinished(const HttpReply& reply);
 signals:
     void failed(const QString& message);
-    void finished(PluginData* plugin);
+    void finished(PluginEntry* plugin);
     void progress(const QString& assetName, qint64 bytesReceived, qint64 bytesTotal);
 };

@@ -39,5 +39,5 @@ private:
     WaylandInterface m_waylandInterface;
 #endif
 signals:
-    void activePluginChanged(PluginData* active);
+    void activePluginChanged(PluginEntry* active);
 };

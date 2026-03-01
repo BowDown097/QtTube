@@ -2,7 +2,7 @@
 #include "qttube-plugin/components/auth/authstore.h"
 #include <QWidget>
 
-struct PluginData;
+class PluginEntry;
 class QPushButton;
 class QVBoxLayout;
 
@@ -10,7 +10,7 @@ class AccountSwitcherWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AccountSwitcherWidget(PluginData* plugin, QWidget* parent = nullptr);
+    explicit AccountSwitcherWidget(PluginEntry* plugin, QWidget* parent = nullptr);
 private:
     QPushButton* m_addAccountButton;
     QtTubePlugin::AuthStoreBase* m_auth;

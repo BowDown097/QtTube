@@ -1,7 +1,7 @@
 #pragma once
 #include "qttube-plugin/components/player/player.h"
 
-struct PluginData;
+class PluginEntry;
 
 class WatchViewPlayer : public QObject
 {
@@ -9,7 +9,7 @@ class WatchViewPlayer : public QObject
 public:
     enum class ScaleMode { Unset, NoScale, Scaled };
 
-    WatchViewPlayer(QWidget* watchView, PluginData* plugin, const QSize& maxSize);
+    WatchViewPlayer(QWidget* watchView, PluginEntry* plugin, const QSize& maxSize);
     void calcAndSetSize(const QSize& maxSize);
     void play(const QString& videoId, int progress = 0);
     void seek(int progress);
@@ -24,7 +24,7 @@ private:
 private slots:
     void copyToClipboard(const QString& text);
     void newState(QtTubePlugin::Player::PlayerState state);
-    void switchVideo(PluginData* plugin, const QString& videoId);
+    void switchVideo(PluginEntry* plugin, const QString& videoId);
 signals:
     void progressChanged(qint64 progress, qint64 previousProgress);
     void scaleModeChanged(WatchViewPlayer::ScaleMode scaleMode);

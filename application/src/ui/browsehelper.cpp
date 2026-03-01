@@ -10,7 +10,7 @@ void BrowseHelper::browseChannel(
     ContinuableListWidget* widget, int activeTabIndex,
     const QString& channelId, std::any requestData)
 {
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(
                 channelId, requestData, widget->continuationData))
@@ -34,9 +34,9 @@ void BrowseHelper::browseChannel(
 
 void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& query)
 {
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
-        if (!plugin->auth || plugin->auth->isEmpty())
+        if (!plugin->authStore || plugin->authStore->isEmpty())
         {
             widget->addItem("Local history is not yet available. You will need to log in.");
             return;
@@ -63,7 +63,7 @@ void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& q
 
 void BrowseHelper::browseHome(ContinuableListWidget* widget)
 {
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::BrowseReply* reply = plugin->interface->getHome(widget->continuationData))
         {
@@ -86,7 +86,7 @@ void BrowseHelper::browseHome(ContinuableListWidget* widget)
 
 void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 {
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::NotificationsReply* reply = plugin->interface->getNotifications(widget->continuationData))
         {
@@ -109,9 +109,9 @@ void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
 
 void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 {
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
-        if (!plugin->auth || plugin->auth->isEmpty())
+        if (!plugin->authStore || plugin->authStore->isEmpty())
         {
             widget->addItem("Local subscriptions are not yet available. You will need to log in.");
             return;
@@ -138,7 +138,7 @@ void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
 
 void BrowseHelper::browseTrending(ContinuableListWidget* widget)
 {
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::BrowseReply* reply = plugin->interface->getTrending(widget->continuationData))
         {
@@ -161,7 +161,7 @@ void BrowseHelper::browseTrending(ContinuableListWidget* widget)
 
 void BrowseHelper::search(ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query)
 {
-    if (PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::BrowseReply* reply = plugin->interface->getSearch(
                 query, getActiveFilters(additionalWidgets), widget->continuationData))
@@ -184,7 +184,7 @@ void BrowseHelper::search(ContinuableListWidget* widget, QHBoxLayout* additional
 }
 
 void BrowseHelper::processChannelTabItems(
-    ContinuableListWidget* widget, PluginData* plugin,
+    ContinuableListWidget* widget, PluginEntry* plugin,
     const QList<QtTubePlugin::ChannelTabDataItem>& items)
 {
     for (const QtTubePlugin::ChannelTabDataItem& item : items)
@@ -259,7 +259,7 @@ QList<std::pair<QString, int>> BrowseHelper::getActiveFilters(QHBoxLayout* addit
 }
 
 void BrowseHelper::setupBrowse(
-    ContinuableListWidget* widget, PluginData* plugin,
+    ContinuableListWidget* widget, PluginEntry* plugin,
     QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data)
 {
     for (const QtTubePlugin::BrowseDataItem& item : data)
@@ -295,7 +295,7 @@ void BrowseHelper::setupBrowse(
 }
 
 void BrowseHelper::setupChannel(
-    ContinuableListWidget* widget, int activeTabIndex, PluginData* plugin,
+    ContinuableListWidget* widget, int activeTabIndex, PluginEntry* plugin,
     QtTubePlugin::ChannelReply* reply, const QtTubePlugin::ChannelData& data)
 {
     if (activeTabIndex < data.tabs.size())
@@ -323,7 +323,7 @@ void BrowseHelper::setupNotifications(
 
 void BrowseHelper::setupSearch(
     ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query,
-    PluginData* plugin, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data)
+    PluginEntry* plugin, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data)
 {
     if (additionalWidgets && additionalWidgets->count() == 0)
     {

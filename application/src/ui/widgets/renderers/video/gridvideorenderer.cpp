@@ -3,7 +3,7 @@
 #include "videothumbnailwidget.h"
 #include <QBoxLayout>
 
-GridVideoRenderer::GridVideoRenderer(PluginData* plugin, QWidget* parent)
+GridVideoRenderer::GridVideoRenderer(PluginEntry* plugin, QWidget* parent)
     : VideoRenderer(plugin, parent), m_layout(new QVBoxLayout(this))
 {
     thumbnail->setFixedSize(205, 115);

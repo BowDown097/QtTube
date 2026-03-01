@@ -40,7 +40,7 @@ namespace UIUtils
 {
     QString g_defaultStyle;
 
-    void addChannelToList(QListWidget* list, const QtTubePlugin::Channel& channel, PluginData* plugin)
+    void addChannelToList(QListWidget* list, const QtTubePlugin::Channel& channel, PluginEntry* plugin)
     {
         BrowseChannelRenderer* renderer = new BrowseChannelRenderer(plugin);
         renderer->setData(channel);
@@ -95,7 +95,7 @@ namespace UIUtils
         list->setItemWidget(item, shelfLabel);
     }
 
-    void addVideoToList(QListWidget* list, const QtTubePlugin::Video& video, PluginData* plugin)
+    void addVideoToList(QListWidget* list, const QtTubePlugin::Video& video, PluginEntry* plugin)
     {
         if (qtTubeApp->settings().videoIsFiltered(video))
             return;
@@ -126,7 +126,7 @@ namespace UIUtils
         }
     }
 
-    VideoRenderer* constructVideoRenderer(QListWidget* list, PluginData* plugin)
+    VideoRenderer* constructVideoRenderer(QListWidget* list, PluginEntry* plugin)
     {
         VideoRenderer* renderer;
         if (list->flow() == QListWidget::LeftToRight)

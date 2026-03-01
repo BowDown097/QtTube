@@ -1,5 +1,5 @@
 #include "videorenderer.h"
-#include "plugins/pluginmanager.h"
+#include "plugins/pluginentry.h"
 #include "ui/views/preloaddata.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/badgelabel.h"
@@ -9,7 +9,7 @@
 #include <QBoxLayout>
 #include <QMenu>
 
-VideoRenderer::VideoRenderer(PluginData* plugin, QWidget* parent)
+VideoRenderer::VideoRenderer(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),
       badgesLayout(new QHBoxLayout),
       channelLabel(new ChannelLabel(plugin, this)),

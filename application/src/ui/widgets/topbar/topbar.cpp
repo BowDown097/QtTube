@@ -101,7 +101,7 @@ void TopBar::handleMouseEvent(QMouseEvent* event)
 
 void TopBar::postSignInSetup()
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
     {
         if (QtTubePlugin::AccountReply* reply = plugin->interface->getActiveAccount())
         {
@@ -111,7 +111,7 @@ void TopBar::postSignInSetup()
             connect(reply, &QtTubePlugin::AccountReply::finished, this, [this, plugin](const QtTubePlugin::InitialAccountData& data) {
                 updateNotificationCount(data.notificationCount);
                 avatarButton->setImage(data.avatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
-                plugin->auth->update(data);
+                plugin->authStore->update(data);
                 scaleAppropriately();
             });
         }
@@ -152,16 +152,16 @@ void TopBar::showSettings()
 
 void TopBar::signOut()
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->auth)
-        plugin->auth->clear();
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->authStore)
+        plugin->authStore->clear();
     updateUIForSignInState(false);
     emit signInStatusChanged();
 }
 
 void TopBar::trySignIn()
 {
-    if (const PluginData* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->auth)
-        plugin->auth->startAuthRoutine();
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->authStore)
+        plugin->authStore->startAuthRoutine();
 }
 
 void TopBar::updateNotificationCount(int value)

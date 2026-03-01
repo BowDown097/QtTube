@@ -8,6 +8,7 @@ QT_END_NAMESPACE
 
 class ContinuableListWidget;
 class FindBar;
+class PluginEntry;
 class QKeyEvent;
 class QResizeEvent;
 class QStackedWidget;
@@ -31,7 +32,7 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 private slots:
-    void activePluginChanged(struct PluginData* activePlugin);
+    void activePluginChanged(PluginEntry* activePlugin);
     void pluginUpdateAvailable(const QString& name, const ReleaseData& data);
     void reloadCurrentTab();
     void returnFromSearch();

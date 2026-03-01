@@ -63,7 +63,7 @@ void PluginDownloadDialog::downloadFailed(const QString& error)
     deleteLater();
 }
 
-void PluginDownloadDialog::downloadFinished(PluginData* plugin)
+void PluginDownloadDialog::downloadFinished(PluginEntry* plugin)
 {
     if (!qtTubeApp->plugins().activePlugin() ||
         QMessageBox::question(this, QString(), "Make this plugin the active plugin?") == QMessageBox::Yes)

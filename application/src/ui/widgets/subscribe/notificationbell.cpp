@@ -1,5 +1,5 @@
 #include "notificationbell.h"
-#include "plugins/pluginmanager.h"
+#include "plugins/pluginentry.h"
 #include "utils/uiutils.h"
 #include <QMenu>
 #include <QMessageBox>
@@ -17,7 +17,7 @@ constexpr QLatin1String Stylesheet(R"(
     }
 )");
 
-NotificationBell::NotificationBell(PluginData* plugin, QWidget* parent)
+NotificationBell::NotificationBell(PluginEntry* plugin, QWidget* parent)
     : QToolButton(parent), m_notificationMenu(new QMenu(this)), m_plugin(plugin)
 {
     setFixedSize(24, 24);

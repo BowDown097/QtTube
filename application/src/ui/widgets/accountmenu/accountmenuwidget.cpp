@@ -1,13 +1,13 @@
 #include "accountmenuwidget.h"
 #include "mainwindow.h"
-#include "plugins/pluginmanager.h"
+#include "plugins/pluginentry.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 
-AccountMenuWidget::AccountMenuWidget(PluginData* plugin, QWidget* parent)
+AccountMenuWidget::AccountMenuWidget(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),
       m_accountLayout(new QVBoxLayout),
       m_accountNameLabel(new TubeLabel(this)),
@@ -19,10 +19,10 @@ AccountMenuWidget::AccountMenuWidget(PluginData* plugin, QWidget* parent)
       m_switchAccountsLabel(new IconLabel("switch-accounts", "Switch account", QMargins(), QSize(24, 24), this)),
       m_yourChannelLabel(new IconLabel("your-channel", "Your channel", QMargins(), QSize(24, 24), this))
 {
-    if (!plugin->auth)
+    if (!plugin->authStore)
         throw std::runtime_error("Account menu somehow opened without auth support.");
 
-    const QtTubePlugin::AuthUser* user = plugin->auth->activeBaseLogin();
+    const QtTubePlugin::AuthUser* user = plugin->authStore->activeBaseLogin();
     if (!user)
         throw std::runtime_error("Account menu somehow opened without an active login.");
 
@@ -55,7 +55,7 @@ AccountMenuWidget::AccountMenuWidget(PluginData* plugin, QWidget* parent)
             std::bind(&AccountMenuWidget::gotoChannel, this, user->id, plugin));
 }
 
-void AccountMenuWidget::gotoChannel(const QString& channelId, PluginData* plugin)
+void AccountMenuWidget::gotoChannel(const QString& channelId, PluginEntry* plugin)
 {
     hide();
     ViewController::loadChannel(channelId, plugin);

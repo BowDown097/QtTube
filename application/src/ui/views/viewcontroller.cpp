@@ -9,7 +9,7 @@
 
 namespace ViewController
 {
-    void loadChannel(const QString& channelId, PluginData* plugin)
+    void loadChannel(const QString& channelId, PluginEntry* plugin)
     {
         MainWindow* mainWindow = UIUtils::getMainWindow();
         if (ChannelView* casted = qobject_cast<ChannelView*>(mainWindow->centralWidget()->currentWidget()))
@@ -38,7 +38,7 @@ namespace ViewController
         });
     }
 
-    void loadVideo(const QString& videoId, PluginData* plugin, int progress,
+    void loadVideo(const QString& videoId, PluginEntry* plugin, int progress,
                    PreloadData::WatchView* preload, bool continuePlayback)
     {
         MainWindow* mainWindow = UIUtils::getMainWindow();

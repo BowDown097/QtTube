@@ -2,7 +2,7 @@
 #include <QElapsedTimer>
 #include <QWidget>
 
-struct PluginData;
+class PluginEntry;
 class QProgressBar;
 class QVBoxLayout;
 struct ReleaseData;
@@ -18,7 +18,7 @@ private:
     QElapsedTimer m_timer;
 private slots:
     void downloadFailed(const QString& error);
-    void downloadFinished(PluginData* plugin);
+    void downloadFinished(PluginEntry* plugin);
     void downloadProgress(const QString& assetName, qint64 bytesReceived, qint64 bytesTotal);
 signals:
     void success();

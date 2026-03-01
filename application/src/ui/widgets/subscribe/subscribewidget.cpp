@@ -14,7 +14,7 @@ constexpr QLatin1String SubscribersCountStylesheet(R"(
     text-align: center;
 )");
 
-SubscribeWidget::SubscribeWidget(PluginData* plugin, QWidget* parent)
+SubscribeWidget::SubscribeWidget(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),
       layout(new QHBoxLayout(this)),
       m_notificationBell(new NotificationBell(plugin, this)),

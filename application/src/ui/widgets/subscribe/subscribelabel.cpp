@@ -1,5 +1,5 @@
 #include "subscribelabel.h"
-#include "plugins/pluginmanager.h"
+#include "plugins/pluginentry.h"
 #include <QMessageBox>
 
 constexpr QLatin1String SubscribeStylesheet(R"(
@@ -27,7 +27,7 @@ constexpr QLatin1String UnsubscribeStylesheet(R"(
     padding: 0 6px 1px 2.5px;
 )");
 
-SubscribeLabel::SubscribeLabel(PluginData* plugin, QWidget* parent)
+SubscribeLabel::SubscribeLabel(PluginEntry* plugin, QWidget* parent)
     : ClickableWidget<QLabel>(parent)
 {
     setFixedSize(80, 24);
@@ -122,9 +122,9 @@ void SubscribeLabel::toggleSubscriptionStatus()
     emit subscribeStatusChanged(m_data.subscribed);
 }
 
-void SubscribeLabel::trySubscribe(PluginData* plugin)
+void SubscribeLabel::trySubscribe(PluginEntry* plugin)
 {
-    if (!plugin->auth || plugin->auth->isEmpty())
+    if (!plugin->authStore || plugin->authStore->isEmpty())
     {
         QMessageBox::warning(nullptr, "Login Required", "Local subscriptions are not yet available. You will need to log in.");
         return;

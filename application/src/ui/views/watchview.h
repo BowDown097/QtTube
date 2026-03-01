@@ -7,14 +7,14 @@
 
 namespace Ui { class WatchView; }
 
-struct PluginData;
+class PluginEntry;
 class QTimer;
 
 class WatchView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WatchView(const QString& videoId, PluginData* plugin, int progress = 0,
+    explicit WatchView(const QString& videoId, PluginEntry* plugin, int progress = 0,
                        PreloadData::WatchView* preload = nullptr, QWidget* parent = nullptr);
     ~WatchView();
     void hotLoadVideo(
@@ -24,7 +24,7 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 private:
     QPointer<QTimer> m_metadataUpdateTimer;
-    PluginData* m_plugin;
+    PluginEntry* m_plugin;
     QString m_videoId;
     QString m_videoUrlPrefix;
     Ui::WatchView* ui;

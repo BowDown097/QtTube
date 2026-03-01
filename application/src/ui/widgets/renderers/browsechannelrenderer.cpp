@@ -6,7 +6,7 @@
 #include <QBoxLayout>
 #include <QMessageBox>
 
-BrowseChannelRenderer::BrowseChannelRenderer(PluginData* plugin, QWidget* parent)
+BrowseChannelRenderer::BrowseChannelRenderer(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),
       m_descriptionLabel(new TubeLabel(this)),
       m_layout(new QHBoxLayout(this)),

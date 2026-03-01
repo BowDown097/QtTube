@@ -1,6 +1,6 @@
 #pragma once
 #include "basepluginentry.h"
-#include "plugins/pluginmanager.h"
+#include "plugins/pluginentry.h"
 #include <QDialog>
 #include <QRadioButton>
 
@@ -36,10 +36,10 @@ class AddPluginDialogEntry : public BasePluginEntry
 {
     Q_OBJECT
 public:
-    explicit AddPluginDialogEntry(PluginData* data, QWidget* parent = nullptr);
+    explicit AddPluginDialogEntry(PluginEntry* plugin, QWidget* parent = nullptr);
     QRadioButton* activeButton() const { return m_activeButton; }
-    PluginData* data() const { return m_data; }
+    PluginEntry* plugin() const { return m_plugin; }
 private:
     QRadioButton* m_activeButton;
-    PluginData* m_data;
+    PluginEntry* m_plugin;
 };

@@ -1,11 +1,11 @@
 #include "pluginbrowser.h"
+#include "pluginentry.h"
 #include "qttube-plugin/utils/httprequest.h"
 #include <HtmlParser/Parser.hpp>
 #include <HtmlParser/Query.hpp>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QLibrary>
 
 using NodePtr = std::shared_ptr<HtmlParser::Node>;
 
@@ -51,7 +51,7 @@ namespace
 
         const QString fileName = url.fileName();
         return fileName.contains(platformName, Qt::CaseInsensitive) &&
-               (QLibrary::isLibrary(fileName) || fileName.endsWith(".zip"));
+               (PluginEntry::isPluginFile(fileName) || fileName.endsWith(".zip"));
     }
 }
 
