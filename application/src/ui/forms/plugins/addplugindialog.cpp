@@ -136,7 +136,7 @@ AddPluginDialogEntry::AddPluginDialogEntry(PluginEntry* plugin, QWidget* parent)
     m_activeButton->setChecked(plugin->active);
     m_topLayout->insertWidget(0, m_activeButton);
 
-    if (plugin->settings->window())
+    if (plugin->settings && plugin->settings->window())
     {
         QPushButton* openSettingsButton = new QPushButton("Open Settings", this);
         m_buttonsLayout->addWidget(openSettingsButton);

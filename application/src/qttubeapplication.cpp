@@ -34,8 +34,8 @@ void QtTubeApplication::doInitialSetup()
         AddDllDirectory(qUtf16Printable(QDir::toNativeSeparators(dir.path())));
 #endif
 
-    m_plugins.reloadPlugins();
     m_settings.init();
+    m_plugins.reloadPlugins();
 
     UIUtils::g_defaultStyle = style()->objectName();
     UIUtils::setAppStyle(m_settings.appStyle, m_settings.darkTheme);
