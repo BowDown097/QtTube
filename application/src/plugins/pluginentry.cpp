@@ -36,13 +36,16 @@ PluginEntry::PluginEntry(QFileInfo&& info)
 
 void PluginEntry::checkMetadata()
 {
-    if (metadata.name.isEmpty() || metadata.version.isEmpty())
+    const QString name = metadata.name;
+    const QString version = metadata.version;
+
+    if (name.isEmpty() || version.isEmpty())
         throw PluginLoadException(malformedMetadataError.arg(fileInfo.fileName()));
 
-    if (PluginEntry* entry = qtTubeApp->plugins().findPlugin(metadata.name))
+    if (PluginEntry* entry = qtTubeApp->plugins().findPlugin(name))
     {
         throw PluginLoadException(nameConflictError.arg(
-            fileInfo.fileName(), metadata.name,
+            fileInfo.fileName(), name,
             entry->fileInfo.fileName(), entry->metadata.name));
     }
 }
