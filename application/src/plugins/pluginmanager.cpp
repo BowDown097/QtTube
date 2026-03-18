@@ -120,7 +120,7 @@ const QList<QDir>& PluginManager::libraryLoadDirs()
     return libraryLoadDirs;
 }
 
-QList<PluginEntry*> PluginManager::loadedPlugins()
+const QList<PluginEntry*> PluginManager::loadedPlugins()
 {
     QList<PluginEntry*> out;
     out.reserve(m_loadedPlugins.size());

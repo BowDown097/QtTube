@@ -27,7 +27,7 @@ public:
     PluginEntry* findPlugin(const QString& name);
     bool hasAuthenticated() const;
     bool hasLoadablePlugins() const { return m_foundPluginFile; }
-    QList<PluginEntry*> loadedPlugins();
+    const QList<PluginEntry*> loadedPlugins();
     PluginEntry* registerPlugin(QFileInfo&& fileInfo);
     void reloadPlugins();
     std::unordered_map<QString, ReleaseData>& updatablePlugins() { return m_updatablePlugins; }

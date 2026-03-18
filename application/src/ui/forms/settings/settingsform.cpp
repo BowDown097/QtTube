@@ -172,14 +172,14 @@ void SettingsForm::openTermFilterTable()
 
 void SettingsForm::pluginActiveButtonToggled(QAbstractButton* button, bool checked)
 {
-    if (AddPluginDialogEntry* entry = qobject_cast<AddPluginDialogEntry*>(button->parent()))
-    {
-        PluginEntry* plugin = entry->plugin();
-        plugin->active = true;
-        qtTubeApp->settings().activePlugin = plugin->fileInfo.fileName();
-        ui->saveButton->setEnabled(true);
-        emit qtTubeApp->activePluginChanged(plugin);
-    }
+    AddPluginDialogEntry* entry = qobject_cast<AddPluginDialogEntry*>(button->parent());
+    PluginEntry* plugin = entry->plugin();
+
+    qtTubeApp->plugins().activePlugin()->active = false;
+    qtTubeApp->settings().activePlugin = plugin->fileInfo.fileName();
+    plugin->active = true;
+    ui->saveButton->setEnabled(true);
+    emit qtTubeApp->activePluginChanged(plugin);
 }
 
 bool SettingsForm::savePending() const

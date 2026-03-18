@@ -33,7 +33,6 @@ MainWindow::MainWindow(QWidget* parent)
             m_findbar->setReveal(false);
     });
 
-    connect(m_topbar, &TopBar::signInStatusChanged, this, [this] { if (ui->centralwidget->currentIndex() == 0) browse(); });
     connect(m_topbar->avatarButton, &TubeLabel::clicked, this, &MainWindow::toggleAccountMenu);
     connect(m_topbar->notificationBell, &TopBarBell::clicked, this, &MainWindow::toggleNotificationMenu);
     connect(m_topbar->searchBox, &SearchBox::searchRequested, this, &MainWindow::search);
@@ -213,7 +212,7 @@ void MainWindow::reloadCurrentTab()
     if (ui->centralwidget->currentIndex() != 0 || !ui->tabWidget->isTabEnabled(ui->tabWidget->currentIndex()))
         return;
 
-    if (QWidget* widget = ui->tabWidget->widget(ui->tabWidget->currentIndex()))
+    if (QWidget* widget = ui->tabWidget->currentWidget())
         if (ContinuableListWidget* list = widget->findChild<ContinuableListWidget*>(); list->isPopulating())
             return;
 
