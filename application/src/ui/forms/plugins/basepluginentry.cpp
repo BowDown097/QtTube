@@ -10,12 +10,14 @@ BasePluginEntry::BasePluginEntry(QWidget* parent)
       m_descriptionLabel(new TubeLabel(this)),
       m_image(new TubeLabel(this)),
       m_layout(new QVBoxLayout(this)),
-      m_nameAndAuthorLayout(new QVBoxLayout),
+      m_nameAndVersionLayout(new QHBoxLayout),
       m_nameLabel(new TubeLabel(this)),
-      m_topLayout(new QHBoxLayout)
+      m_topLayout(new QHBoxLayout),
+      m_topTextLayout(new QVBoxLayout),
+      m_versionLabel(new TubeLabel(this))
 {
     m_authorLabel->setElideMode(Qt::ElideRight);
-    m_authorLabel->setFont(QFont(m_authorLabel->font().toString(), m_authorLabel->font().pointSize() - 1));
+    m_authorLabel->setFont(QFont(font().toString(), font().pointSize() - 1));
 
     m_descriptionLabel->setElideMode(Qt::ElideRight);
     m_descriptionLabel->setMaximumLines(2);
@@ -24,16 +26,20 @@ BasePluginEntry::BasePluginEntry(QWidget* parent)
     m_image->setFixedSize(48, 48);
     m_image->setScaledContents(true);
 
-    m_nameLabel->setElideMode(Qt::ElideRight);
-    m_nameLabel->setFont(QFont(m_nameLabel->font().toString(), m_nameLabel->font().pointSize(), QFont::Bold));
+    m_nameLabel->setFont(QFont(font().toString(), font().pointSize(), QFont::Bold));
+    m_versionLabel->setFont(QFont(font().toString(), font().pointSize() - 2));
 
-    m_nameAndAuthorLayout->addStretch();
-    m_nameAndAuthorLayout->addWidget(m_nameLabel);
-    m_nameAndAuthorLayout->addWidget(m_authorLabel);
-    m_nameAndAuthorLayout->addStretch();
+    m_nameAndVersionLayout->addWidget(m_nameLabel);
+    m_nameAndVersionLayout->addWidget(m_versionLabel);
+    m_nameAndVersionLayout->addStretch();
+
+    m_topTextLayout->addStretch();
+    m_topTextLayout->addLayout(m_nameAndVersionLayout);
+    m_topTextLayout->addWidget(m_authorLabel);
+    m_topTextLayout->addStretch();
 
     m_topLayout->addWidget(m_image);
-    m_topLayout->addLayout(m_nameAndAuthorLayout, 1);
+    m_topLayout->addLayout(m_topTextLayout, 1);
 
     m_layout->addLayout(m_topLayout);
     m_layout->addWidget(m_descriptionLabel);
@@ -46,6 +52,7 @@ void BasePluginEntry::setData(const PluginEntryMetadata& metadata)
     m_authorLabel->setText(metadata.author);
     m_descriptionLabel->setText(metadata.description);
     m_nameLabel->setText(metadata.name);
+    m_versionLabel->setText(metadata.version);
 
     if (!metadata.image.isEmpty())
         m_image->setImage(metadata.image, TubeLabel::Cached | TubeLabel::KeepAspectRatio);

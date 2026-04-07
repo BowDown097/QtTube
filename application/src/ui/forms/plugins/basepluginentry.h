@@ -30,7 +30,9 @@ protected:
     TubeLabel* m_descriptionLabel;
     TubeLabel* m_image;
     QVBoxLayout* m_layout;
-    QVBoxLayout* m_nameAndAuthorLayout;
+    QHBoxLayout* m_nameAndVersionLayout;
     TubeLabel* m_nameLabel;
     QHBoxLayout* m_topLayout;
+    QVBoxLayout* m_topTextLayout;
+    TubeLabel* m_versionLabel;
 };
