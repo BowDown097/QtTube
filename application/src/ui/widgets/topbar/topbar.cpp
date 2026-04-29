@@ -105,8 +105,9 @@ void TopBar::postSignInSetup()
     {
         if (QtTubePlugin::AccountReply* reply = plugin->interface->getActiveAccount())
         {
-            connect(reply, &QtTubePlugin::AccountReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
-                QMessageBox::warning(nullptr, "Failed to Load Account Data", ex.message());
+            connect(reply, &QtTubePlugin::AccountReply::exception, this, [this, plugin](const QtTubePlugin::Exception& ex) {
+                QMessageBox::critical(nullptr, "Failed to Load Account Data", ex.message());
+                emit plugin->authStore->updateFail();
             });
             connect(reply, &QtTubePlugin::AccountReply::finished, this, [this, plugin](const QtTubePlugin::InitialAccountData& data) {
                 updateNotificationCount(data.notificationCount);
@@ -153,9 +154,29 @@ void TopBar::showSettings()
 void TopBar::signOut()
 {
     if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->authStore)
-        plugin->authStore->clear();
-    updateUIForSignInState(false);
-    emit signInStatusChanged();
+    {
+        const std::vector<std::unique_ptr<QtTubePlugin::AuthUser>>& creds = plugin->authStore->baseCredentials();
+        auto activeLogin = std::ranges::find_if(creds, &QtTubePlugin::AuthUser::active);
+
+        // there should always be an active one anyway, but just in case...
+        if (activeLogin == creds.end())
+            return;
+
+        auto inactiveLogin = std::ranges::find_if_not(creds, &QtTubePlugin::AuthUser::active);
+        if (inactiveLogin != creds.end())
+        {
+            (*inactiveLogin)->active = true;
+            plugin->authStore->drop(*activeLogin);
+            plugin->authStore->restoreFromActive();
+            postSignInSetup();
+        }
+        else
+        {
+            plugin->authStore->clear();
+            updateUIForSignInState(false);
+            emit signInStatusChanged();
+        }
+    }
 }
 
 void TopBar::trySignIn()

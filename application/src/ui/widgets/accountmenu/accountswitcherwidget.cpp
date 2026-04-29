@@ -27,11 +27,12 @@ AccountSwitcherWidget::AccountSwitcherWidget(PluginEntry* plugin, QWidget* paren
     if (!activeUser)
         throw std::runtime_error("Account switcher somehow opened without an active login.");
 
-    for (QtTubePlugin::AuthUser* user : plugin->authStore->baseCredentials())
+    for (const std::unique_ptr<QtTubePlugin::AuthUser>& user : plugin->authStore->baseCredentials())
     {
         AccountEntryWidget* accountEntry = new AccountEntryWidget(*user, this);
         accountEntry->setClickable(user->id != activeUser->id);
-        connect(accountEntry, &AccountEntryWidget::clicked, this, [this, activeUser, user] { switchAccount(activeUser, user); });
+        connect(accountEntry, &AccountEntryWidget::clicked, this,
+            std::bind(&AccountSwitcherWidget::switchAccount, this, activeUser, user.get()));
         m_layout->addWidget(accountEntry);
     }
 
