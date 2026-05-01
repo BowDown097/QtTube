@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 project(QtTube
-    VERSION 1.2
+    VERSION 1.2.1
     DESCRIPTION "A minimalist, cross-platform desktop app for streaming media."
     HOMEPAGE_URL "https://github.com/BowDown097/QtTube"
     LANGUAGES CXX C)
