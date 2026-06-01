@@ -222,7 +222,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Include directories, libraries
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::GuiPrivate QtTube::PluginInterface)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE quickjs++ Qt::GuiPrivate QtTube::PluginInterface)
 
 ## Platform-specific
 if(UNIX AND NOT APPLE)
@@ -240,18 +240,6 @@ if(UNIX AND NOT APPLE)
         message(STATUS "XScreenSaver not found. Idle sleeping will not be functional.")
     endif()
 endif()
-
-## quickjs++
-include(FetchContent)
-FetchContent_Declare(
-    quickjs++
-    GIT_REPOSITORY https://github.com/BowDown097/quickjspp.git
-    GIT_TAG master)
-
-option(QJS_BUILD_LIBC "" ON)
-FetchContent_MakeAvailable(quickjs++)
-
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE quickjs++)
 
 ## ICU
 find_package(ICU REQUIRED COMPONENTS uc i18n)

@@ -67,6 +67,9 @@ endif()
 
 # Components
 option(ENABLE_WEB_COMPONENTS "" ON)
+option(QJS_BUILD_LIBC "" ON)
+
+add_subdirectory(external/plugin_interface)
+add_subdirectory(external/quickjs++)
 add_subdirectory(program_info)
-add_subdirectory(plugin_interface)
 add_subdirectory(application)

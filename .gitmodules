@@ -1,3 +1,6 @@
 [submodule "plugin_interface"]
-	path = plugin_interface
+	path = external/plugin_interface
 	url = https://github.com/BowDown097/qttube-plugin-interface
+[submodule "quickjs++"]
+	path = external/quickjs++
+	url = https://github.com/BowDown097/quickjspp
