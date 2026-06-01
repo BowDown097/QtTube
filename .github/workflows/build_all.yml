@@ -2,7 +2,6 @@ name: "Build All"
 
 on:
   push:
-    branches: [ "master" ]
     paths-ignore:
       - '**.md'
       - '**/LICENSE'
