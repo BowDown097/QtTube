@@ -3,6 +3,7 @@
 #include "utils/quickjs/qt_js_traits.h"
 #include <quickjs++/context.h>
 #include <unicode/reldatefmt.h>
+#include <unordered_set>
 
 #define INVALID_VALUE(name) "invalid value \"%s\" for option " #name
 

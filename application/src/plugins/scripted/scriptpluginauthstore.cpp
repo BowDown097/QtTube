@@ -3,6 +3,7 @@
 #include "utils/quickjs/qt_js_traits.h"
 #include "utils/uiutils.h"
 #include <quickjs++/value.h>
+#include <unordered_set>
 
 static const std::unordered_set<QByteArrayView> builtinKeys = {
     "active",
