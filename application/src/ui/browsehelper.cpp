@@ -1,5 +1,6 @@
 #include "browsehelper.h"
 #include "mainwindow.h"
+#include "qttube-plugin/plugininterface.h"
 #include "qttubeapplication.h"
 #include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"

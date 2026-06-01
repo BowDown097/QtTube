@@ -11,7 +11,7 @@
 #include <QRegularExpression>
 
 WatchViewPlayer::WatchViewPlayer(QWidget* watchView, PluginEntry* plugin, const QSize& maxSize)
-    : QObject(watchView)
+    : QObject(watchView), m_plugin(plugin)
 {
     if (qtTubeApp->settings().externalPlayerPath.isEmpty())
     {
@@ -90,7 +90,7 @@ void WatchViewPlayer::play(const QString& videoId, int progress)
         // using splitCommand + start instead of startCommand for Qt 5.15 support
         QProcess* process = new QProcess(this);
         QStringList args = process->splitCommand(playerPath
-            .replace("%U", "https://www.youtube.com/watch?v=" + videoId)
+            .replace("%U", m_plugin->metadata.videoUrlTemplate.arg(videoId))
             .replace("%P", QString::number(progress)));
         const QString program = args.takeFirst();
         process->start(program, args);

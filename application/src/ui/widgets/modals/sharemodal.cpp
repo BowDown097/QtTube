@@ -6,7 +6,7 @@
 #include <QBoxLayout>
 #include <QLineEdit>
 
-ShareModal::ShareModal(const QString& videoUrlPrefix, const QString& videoId, QWidget* parent)
+ShareModal::ShareModal(const QString& videoUrlTemplate, const QString& videoId, QWidget* parent)
     : FocusedModal(parent),
       m_copyButton(new QToolButton),
       m_copyButtonAction(new QAction),
@@ -14,7 +14,7 @@ ShareModal::ShareModal(const QString& videoUrlPrefix, const QString& videoId, QW
       m_headerLabel(new TubeLabel("Share")),
       m_headerLayout(new QHBoxLayout),
       m_layout(new QVBoxLayout(this)),
-      m_lineEdit(new QLineEdit(videoUrlPrefix + videoId)),
+      m_lineEdit(new QLineEdit(videoUrlTemplate.arg(videoId))),
       m_urlLayout(new QHBoxLayout)
 {
     setFixedSize(400, 100);

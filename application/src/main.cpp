@@ -1,3 +1,4 @@
+#include "qttube-plugin/plugininterface.h"
 #include "qttubeapplication.h"
 #include "mainwindow.h"
 #include "ui/forms/livechatwindow.h"

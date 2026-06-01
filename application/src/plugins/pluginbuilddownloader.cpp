@@ -9,16 +9,20 @@
 #include <QtGui/private/qzipreader_p.h>
 #endif
 
-QString writeFile(const QString& name, const QByteArray& data, std::optional<QFileInfo>* pluginFile = nullptr)
+void writeFile(
+    const QString& name, const QByteArray& data,
+    QString& fileError, std::optional<QFileInfo>* pluginFile = nullptr)
 {
-    QFile file(name);
-    if (!file.open(QFile::WriteOnly))
-        return "Could not open " % name % " for writing: " % file.errorString();
-
-    file.write(data);
-    if (pluginFile)
-        pluginFile->emplace(file);
-    return QString();
+    if (QFile file(name); file.open(QFile::WriteOnly))
+    {
+        file.write(data);
+        if (pluginFile)
+            pluginFile->emplace(file);
+    }
+    else
+    {
+        fileError = "Could not open " % name % " for writing: " % file.errorString();
+    }
 }
 
 PluginBuildDownloader::PluginBuildDownloader(QString pluginName, ReleaseData data, QObject* parent)
@@ -71,14 +75,14 @@ void PluginBuildDownloader::downloadFinished(const HttpReply& reply)
                 continue;
 
             if (info.filePath.startsWith("libs/"))
-                fileError = writeFile(libsDir.filePath(info.filePath.section('/', -1)), zipReader.fileData(info.filePath));
+                writeFile(libsDir.filePath(info.filePath.section('/', -1)), zipReader.fileData(info.filePath), fileError);
             else if (!pluginFile && !info.filePath.contains('/'))
-                fileError = writeFile(pluginDir.filePath(info.filePath), zipReader.fileData(info.filePath), &pluginFile);
+                writeFile(pluginDir.filePath(info.filePath), zipReader.fileData(info.filePath), fileError, &pluginFile);
         }
     }
     else
     {
-        fileError = writeFile(pluginDir.filePath(m_data.asset->name), m_tempFile->readAll(), &pluginFile);
+        writeFile(pluginDir.filePath(m_data.asset->name), m_tempFile->readAll(), fileError, &pluginFile);
     }
 
     if (!fileError.isEmpty())

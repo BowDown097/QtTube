@@ -1,6 +1,6 @@
 #include "livechatwindow.h"
 #include "ui_livechatwindow.h"
-#include "plugins/pluginentry.h"
+#include "qttube-plugin/plugininterface.h"
 #include "stores/emojistore.h"
 #include "ui/widgets/emoji/emojimenu.h"
 #include "ui/widgets/labels/tubelabel.h"

@@ -1,8 +1,8 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include "qttube-plugin/objects/channel.h"
 #include <QToolButton>
 
-class PluginEntry;
 class QMenu;
 
 class NotificationBell : public QToolButton

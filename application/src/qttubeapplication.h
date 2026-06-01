@@ -3,6 +3,7 @@
 #include "stores/settingsstore.h"
 #include <QApplication>
 #include <QCommandLineParser>
+#include <quickjs++/runtime.h>
 
 #ifdef QTTUBE_HAS_WAYLAND
 #include "wayland/waylandinterface.h"
@@ -15,15 +16,17 @@ class QtTubeApplication final : public QApplication
     Q_OBJECT
 public:
     QtTubeApplication(int& argc, char** argv);
-    bool notify(QObject* receiver, QEvent* event) override;
+    ~QtTubeApplication();
 
     static bool isPortableBuild();
     static bool isSelfContainedBuild();
 
     void doInitialSetup();
     void handleUrlOrID(const QString& in);
+    bool notify(QObject* receiver, QEvent* event) override;
 
     QCommandLineParser& commandLineParser() { return m_commandLineParser; }
+    qjs::runtime& jsRuntime() { return m_jsRuntime; }
     PluginManager& plugins() { return m_plugins; }
     SettingsStore& settings() { return m_settings; }
 
@@ -32,6 +35,7 @@ public:
 #endif
 private:
     QCommandLineParser m_commandLineParser;
+    qjs::runtime m_jsRuntime;
     PluginManager m_plugins;
     SettingsStore m_settings;
 

@@ -231,6 +231,24 @@ void MainWindow::reloadCurrentTab()
     }
 }
 
+void MainWindow::reportJsException(const QString& str)
+{
+    if (ui->centralwidget->currentIndex() == 0)
+    {
+        if (QWidget* current = ui->tabWidget->currentWidget())
+        {
+            if (ContinuableListWidget* list = current->findChild<ContinuableListWidget*>())
+            {
+                list->clear();
+                list->addItem(str);
+                return;
+            }
+        }
+    }
+
+    QMessageBox::critical(this, "JS Error", str, QMessageBox::Ok);
+}
+
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
     m_notificationMenu->setFixedSize(width() >= 800 ? 600 : 600 - (800 - width()), height() / 2);

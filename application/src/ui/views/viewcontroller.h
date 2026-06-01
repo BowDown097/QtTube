@@ -1,7 +1,6 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include "preloaddata.h"
-
-class PluginEntry;
 
 namespace ViewController
 {

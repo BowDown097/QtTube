@@ -1,9 +1,9 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include "qttube-plugin/objects/channel.h"
 #include <QWidget>
 
 class NotificationBell;
-class PluginEntry;
 class QHBoxLayout;
 class SubscribeLabel;
 class TubeLabel;

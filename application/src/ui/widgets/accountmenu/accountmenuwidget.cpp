@@ -1,6 +1,6 @@
 #include "accountmenuwidget.h"
 #include "mainwindow.h"
-#include "plugins/pluginentry.h"
+#include "qttube-plugin/components/auth/authstore.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/topbar/topbar.h"

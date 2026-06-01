@@ -1,6 +1,5 @@
 #include "browsenotificationrenderer.h"
 #include "mainwindow.h"
-#include "plugins/pluginbrowser.h"
 #include "qttube-plugin/objects/notification.h"
 #include "qttubeapplication.h"
 #include "ui/forms/plugins/plugindownloaddialog.h"
@@ -62,7 +61,8 @@ void BrowseNotificationRenderer::setData(const QString& pluginName, const Releas
     m_bodyLabel->setTextFormat(Qt::MarkdownText);
     m_bodyLabel->setText(updateBodyTemplate.arg(pluginName));
     m_channelIconLabel->setPixmap(QPixmap(":/qttube.svg"), TubeLabel::KeepAspectRatio);
-    m_sentTimeLabel->setText(UIUtils::relativeTimeString(QDateTime::currentDateTimeUtc(), data.asset->updatedAt));
+    m_sentTimeLabel->setText(UIUtils::relativeTimeString(
+        QDateTime::currentDateTimeUtc().msecsTo(data.asset->updatedAt)));
 
     QPushButton* installButton = new QPushButton("Install");
     m_buttonsLayout->addWidget(installButton);

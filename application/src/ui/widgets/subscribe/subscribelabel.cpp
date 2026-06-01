@@ -1,5 +1,5 @@
 #include "subscribelabel.h"
-#include "plugins/pluginentry.h"
+#include "qttube-plugin/plugininterface.h"
 #include <QMessageBox>
 
 namespace

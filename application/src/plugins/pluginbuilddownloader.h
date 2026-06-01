@@ -1,7 +1,7 @@
 #pragma once
 #include "plugins/pluginbrowser.h"
+#include "plugins/pluginentry.h"
 
-class PluginEntry;
 class QTemporaryFile;
 
 class PluginBuildDownloader : public QObject

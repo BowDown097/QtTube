@@ -1,7 +1,6 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include "qttube-plugin/components/player/player.h"
-
-class PluginEntry;
 
 class WatchViewPlayer : public QObject
 {
@@ -19,6 +18,7 @@ public:
     ScaleMode scaleMode() const { return m_scaleMode; }
 private:
     QtTubePlugin::Player* m_player{};
+    PluginEntry* m_plugin;
     ScaleMode m_scaleMode;
     QSize m_size;
 private slots:

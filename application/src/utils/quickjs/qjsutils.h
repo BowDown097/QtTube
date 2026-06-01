@@ -1,0 +1,40 @@
+#pragma once
+#include "qt_js_traits.h"
+#include <quickjs++/value.h>
+
+namespace QJSUtils
+{
+    inline QString generateErrorString(const qjs::value& error)
+    {
+        if (!JS_IsError(error.v))
+            return error.as<QString>();
+
+        return QStringLiteral("%1: %2\n%3").arg(
+            error["name"].as<QString>(),
+            error["message"].as<QString>(),
+            error["stack"].as<QString>());
+    }
+
+    template<typename T, bool ReturnDefault = false>
+    T getStringStrict(const qjs::value& val, const char* error = "Expected string for value")
+    {
+        if (JS_IsString(val.v))
+            return val.as<T>();
+        else if constexpr (ReturnDefault)
+            return T{};
+        else
+            throw qjs::exception(val.ctx, JS_TYPE_ERROR, error);
+    }
+
+    template<typename T>
+    T unwrapObjectProperty(JSContext* ctx, JSValueConst this_obj, const char* prop)
+    {
+        JSValue val = JS_GetPropertyStr(ctx, this_obj, prop);
+        if constexpr (std::is_same_v<T, std::any>)
+            return val;
+        else if (!JS_IsUndefined(val))
+            return qjs::detail::unwrap_free<T>(ctx, val);
+        else
+            return T{};
+    }
+}

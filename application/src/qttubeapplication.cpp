@@ -1,11 +1,15 @@
 #include "qttubeapplication.h"
 #include "mainwindow.h"
+#include "qttube-plugin/plugininterface.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/topbar/topbar.h"
+#include "utils/quickjs/qjsutils.h"
 #include "utils/uiutils.h"
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QStyle>
+#include <QTimer>
+#include <quickjs-libc.h>
 
 #ifdef Q_OS_WIN
 #define WIN32_LEAN_AND_MEAN
@@ -23,6 +27,29 @@ QtTubeApplication::QtTubeApplication(int& argc, char** argv)
     m_commandLineParser.addOption(QCommandLineOption("version", "Displays version information."));
     m_commandLineParser.addOption(QCommandLineOption({"v", "video"}, "Play a video.", "video ID"));
     m_commandLineParser.parse(arguments());
+
+    js_std_init_handlers(m_jsRuntime.rt);
+
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [this] {
+        while (m_jsRuntime.is_job_pending())
+        {
+            try
+            {
+                m_jsRuntime.execute_pending_job();
+            }
+            catch (const qjs::exception& ex)
+            {
+                UIUtils::getMainWindow()->reportJsException(QJSUtils::generateErrorString(ex.get_value()));
+            }
+        }
+    });
+    timer->start(100);
+}
+
+QtTubeApplication::~QtTubeApplication()
+{
+    js_std_free_handlers(m_jsRuntime.rt);
 }
 
 void QtTubeApplication::doInitialSetup()

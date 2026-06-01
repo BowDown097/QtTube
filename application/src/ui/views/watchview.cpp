@@ -1,4 +1,5 @@
 #include "watchview.h"
+#include "qttube-plugin/plugininterface.h"
 #include "watchview_ui.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
@@ -11,6 +12,7 @@
 #include "ui/widgets/watchnextfeed.h"
 #include "utils/osutils.h"
 #include "utils/uiutils.h"
+#include "viewcontroller.h"
 #include <QBoxLayout>
 #include <QMessageBox>
 #include <QProgressBar>
@@ -111,16 +113,20 @@ void WatchView::openLiveChat(const QtTubePlugin::InitialLiveChatData& data)
 
 void WatchView::processData(const QtTubePlugin::VideoData& data)
 {
+    m_channelId = data.channel.channelId;
     m_videoId = data.videoId;
-    m_videoUrlPrefix = data.videoUrlPrefix;
 
     UIUtils::getMainWindow()->setWindowTitle(data.titleText % " - " % QTTUBE_APP_NAME);
-    ui->channelIcon->setImage(data.channel.channelAvatarUrl);
-    ui->channelLabel->setInfo(data.channel.channelId, data.channel.channelName, data.channel.channelBadges);
+    ui->channelLabel->setInfo(m_channelId, data.channel.channelName, data.channel.channelBadges);
     ui->date->setText(data.dateText);
     ui->subscribeWidget->setData(data.channel.subscribeButton);
     ui->titleLabel->setText(data.titleText);
     ui->viewCount->setText(data.viewCountText);
+
+    ui->channelIcon->setImage(data.channel.channelAvatarUrl);
+    connect(ui->channelIcon, &TubeLabel::clicked, this, [this] {
+        ViewController::loadChannel(m_channelId, m_plugin);
+    });
 
     ui->description->setText(data.descriptionText);
     ui->description->setVisible(!data.descriptionText.isEmpty());
@@ -245,7 +251,7 @@ void WatchView::resizeEvent(QResizeEvent* event)
 
 void WatchView::showShareModal()
 {
-    new ShareModal(m_videoUrlPrefix, m_videoId, UIUtils::getMainWindow());
+    new ShareModal(m_plugin->metadata.videoUrlTemplate, m_videoId, UIUtils::getMainWindow());
 }
 
 void WatchView::updateMetadata(const QString& videoId)

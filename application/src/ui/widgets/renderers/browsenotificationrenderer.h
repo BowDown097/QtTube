@@ -1,11 +1,11 @@
 #pragma once
+#include "plugins/releasedata.h"
 #include <QWidget>
 
 namespace QtTubePlugin { struct Notification; }
 
 class QHBoxLayout;
 class QVBoxLayout;
-struct ReleaseData;
 class TubeLabel;
 
 class BrowseNotificationRenderer : public QWidget

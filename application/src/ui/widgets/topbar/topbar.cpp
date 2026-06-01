@@ -1,4 +1,5 @@
 #include "topbar.h"
+#include "qttube-plugin/plugininterface.h"
 #include "qttubeapplication.h"
 #include "ui/forms/settings/settingsform.h"
 #include "utils/uiutils.h"

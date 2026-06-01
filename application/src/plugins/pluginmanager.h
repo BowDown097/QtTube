@@ -1,22 +1,7 @@
 #pragma once
-#include "pluginbrowser.h"
 #include "pluginentry.h"
-
-struct CaseInsensitiveEqual
-{
-    bool operator()(const QString& lhs, const QString& rhs) const
-    {
-        return lhs.compare(rhs, Qt::CaseInsensitive) == 0;
-    }
-};
-
-struct CaseInsensitiveHash
-{
-    [[nodiscard]] std::size_t operator()(const QString& str) const
-    {
-        return std::hash<QString>()(str.toCaseFolded());
-    }
-};
+#include "releasedata.h"
+#include "utils/hashfunctions.h"
 
 class PluginManager : public QObject
 {
@@ -36,7 +21,9 @@ public:
     static const QList<QDir>& pluginLoadDirs();
 private:
     bool m_foundPluginFile{};
-    std::unordered_map<QString, PluginEntry, CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
+    std::unordered_map<
+        QString, std::unique_ptr<PluginEntry>,
+        CaseInsensitiveHash, CaseInsensitiveEqual> m_loadedPlugins;
     std::unordered_map<QString, ReleaseData> m_updatablePlugins;
 
     void checkUpdate(const QString& pluginName, const QFileInfo& updateFile);

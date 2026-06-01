@@ -1,4 +1,6 @@
+#include "pluginbrowser.h"
 #include "pluginmanager.h"
+#include "qttube-plugin/components/auth/authstore.h"
 #include "qttubeapplication.h"
 #include <QDirIterator>
 #include <QMessageBox>
@@ -6,6 +8,7 @@
 namespace
 {
     const QString emplaceError = QStringLiteral("Failed to add plugin to the internal plugin list. How did this happen???");
+    const QString invalidFileError = QStringLiteral("Given file is not a valid plugin file.");
 }
 
 PluginEntry* PluginManager::activePlugin()
@@ -13,9 +16,9 @@ PluginEntry* PluginManager::activePlugin()
     if (QCommandLineParser& parser = qtTubeApp->commandLineParser(); parser.isSet("use-plugin"))
         return findPlugin(parser.value("use-plugin"));
 
-    auto it = std::ranges::find_if(m_loadedPlugins, [](const auto& p) { return p.second.active; });
+    auto it = std::ranges::find_if(m_loadedPlugins, [](const auto& p) { return p.second->active; });
     if (it != m_loadedPlugins.end())
-        return &it->second;
+        return it->second.get();
     else
         return nullptr;
 }
@@ -25,7 +28,7 @@ void PluginManager::checkUpdate(const QString& name, const QFileInfo& updateFile
     if (m_updatablePlugins.contains(name))
         return;
 
-    std::shared_ptr<PluginBrowser> browser(new PluginBrowser, [](PluginBrowser* p) { p->deleteLater(); });
+    std::shared_ptr<PluginBrowser> browser = std::make_shared<PluginBrowser>();
     QSettings settings(updateFile.filePath(), QSettings::IniFormat);
 
     QString defaultBranch = settings.value("defaultBranch").toString();
@@ -56,7 +59,7 @@ bool PluginManager::containsPlugin(const QString& name)
 PluginEntry* PluginManager::findPlugin(const QString& name)
 {
     if (auto it = m_loadedPlugins.find(name); it != m_loadedPlugins.end())
-        return &it->second;
+        return it->second.get();
     else
         return nullptr;
 }
@@ -76,7 +79,7 @@ QList<QFileInfo> PluginManager::getPluginsToLoad(QString& activePluginName)
         {
             checkUpdate(root, info);
         }
-        else if (PluginEntry::isPluginFile(info))
+        else if (PluginEntry::isPluginFile(info.fileName()))
         {
             QFileInfo& stored = pluginsToLoad.emplaceBack(std::move(info));
             if (activePluginName.isEmpty())
@@ -125,7 +128,7 @@ const QList<PluginEntry*> PluginManager::loadedPlugins()
     QList<PluginEntry*> out;
     out.reserve(m_loadedPlugins.size());
     for (auto& [_, lp] : m_loadedPlugins)
-        out.append(&lp);
+        out.append(lp.get());
     return out;
 }
 
@@ -149,9 +152,14 @@ const QList<QDir>& PluginManager::pluginLoadDirs()
 
 PluginEntry* PluginManager::registerPlugin(QFileInfo&& fileInfo)
 {
-    PluginEntry plugin(std::move(fileInfo));
-    if (auto res = m_loadedPlugins.emplace(plugin.metadata.name, std::move(plugin)); res.second)
-        return &res.first->second;
+    std::unique_ptr<PluginEntry> plugin = PluginEntry::create(std::move(fileInfo));
+    if (plugin)
+        plugin->initialize();
+    else
+        throw PluginLoadException(invalidFileError);
+
+    if (auto res = m_loadedPlugins.emplace(plugin->metadata.name, std::move(plugin)); res.second)
+        return res.first->second.get();
     else
         throw PluginLoadException(emplaceError);
 }

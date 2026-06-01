@@ -1,8 +1,8 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include <QWidget>
 
 class IconLabel;
-class PluginEntry;
 class QHBoxLayout;
 class QVBoxLayout;
 class TubeLabel;

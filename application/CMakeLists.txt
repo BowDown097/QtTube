@@ -22,6 +22,9 @@ set(SOURCE_FILES
     src/plugins/pluginbuilddownloader.cpp
     src/plugins/pluginentry.cpp
     src/plugins/pluginmanager.cpp
+    src/plugins/scripted/scriptpluginauthstore.cpp
+    src/plugins/scripted/scriptpluginentry.cpp
+    src/plugins/scripted/scriptplugininterface.cpp
     src/stores/emojistore.cpp
     src/stores/settingsstore.cpp
     src/ui/browsehelper.cpp
@@ -76,6 +79,11 @@ set(SOURCE_FILES
     src/ui/widgets/wrappers/popupwidget.cpp
     src/utils/osutils.cpp
     src/utils/uiutils.cpp
+    src/utils/quickjs/plugin_js_traits.cpp
+    src/utils/quickjs/qt_js_traits.cpp
+    src/utils/quickjs/polyfills/fetch.cpp
+    src/utils/quickjs/polyfills/intl.cpp
+    src/utils/quickjs/polyfills/navigator.cpp
     res/resources.qrc
 )
 
@@ -87,6 +95,10 @@ set(HEADERS
     src/plugins/pluginbuilddownloader.h
     src/plugins/pluginentry.h
     src/plugins/pluginmanager.h
+    src/plugins/releasedata.h
+    src/plugins/scripted/scriptpluginauthstore.h
+    src/plugins/scripted/scriptpluginentry.h
+    src/plugins/scripted/scriptplugininterface.h
     src/stores/emojistore.h
     src/stores/settingsstore.h
     src/ui/browsehelper.h
@@ -141,8 +153,15 @@ set(HEADERS
     src/ui/widgets/topbar/topbarbell.h
     src/ui/widgets/wrappers/clickablewidget.h
     src/ui/widgets/wrappers/popupwidget.h
+    src/utils/hashfunctions.h
     src/utils/osutils.h
     src/utils/uiutils.h
+    src/utils/quickjs/plugin_js_traits.h
+    src/utils/quickjs/qjsutils.h
+    src/utils/quickjs/qt_js_traits.h
+    src/utils/quickjs/polyfills/fetch.h
+    src/utils/quickjs/polyfills/intl.h
+    src/utils/quickjs/polyfills/navigator.h
 )
 
 set(FORMS
@@ -221,6 +240,22 @@ if(UNIX AND NOT APPLE)
         message(STATUS "XScreenSaver not found. Idle sleeping will not be functional.")
     endif()
 endif()
+
+## quickjs++
+include(FetchContent)
+FetchContent_Declare(
+    quickjs++
+    GIT_REPOSITORY https://github.com/BowDown097/quickjspp.git
+    GIT_TAG master)
+
+option(QJS_BUILD_LIBC "" ON)
+FetchContent_MakeAvailable(quickjs++)
+
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE quickjs++)
+
+## ICU
+find_package(ICU REQUIRED COMPONENTS uc i18n)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ICU::uc ICU::i18n)
 
 # Installation
 include(GNUInstallDirs)

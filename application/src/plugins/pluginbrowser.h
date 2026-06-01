@@ -1,23 +1,8 @@
 #pragma once
 #include "pluginbrowsercache.h"
-#include <QDateTime>
+#include "releasedata.h"
 
 class HttpReply;
-
-struct ReleaseData
-{
-    struct Asset
-    {
-        QString downloadUrl;
-        QString name;
-        QDateTime updatedAt;
-    };
-
-    std::optional<Asset> asset;
-    QString defaultBranch;
-    QString fullName;
-    bool isNightly{};
-};
 
 class PluginBrowser : public QObject
 {

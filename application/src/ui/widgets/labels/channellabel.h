@@ -1,9 +1,8 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include "qttube-plugin/objects/badge.h"
 #include "tubelabel.h"
-#include <QJsonValue>
 
-class PluginEntry;
 class QHBoxLayout;
 
 class ChannelLabel : public QWidget
@@ -20,6 +19,7 @@ private:
     QHBoxLayout* m_badgeLayout;
     QString m_channelId;
     QHBoxLayout* m_layout;
+    PluginEntry* m_plugin;
 
     void reset();
 private slots:

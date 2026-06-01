@@ -12,6 +12,7 @@
 #include <QLayout>
 #include <QPainter>
 #include <QStyleFactory>
+#include <unicode/reldatefmt.h>
 
 namespace
 {
@@ -193,126 +194,47 @@ namespace UIUtils
         return qApp->palette().color(QPalette::Window).lightness() < 110;
     }
 
-    QString relativeTimeString(const QDateTime& target, const QDateTime& reference)
+    QString relativeTimeString(qint64 msecs)
     {
-        if (target == reference)
-            return "now";
-
-        enum DateTimeUnit { YEAR, MONTH, WEEK, DAY, HOUR, MINUTE, SECOND };
-        struct DateTimeUnitInfo { int unitDuration; DateTimeUnit unit; int threshold = 1; };
-        struct PluralSelector { QLatin1String one; QLatin1String other; };
-        struct RDTFSymbol { PluralSelector P; PluralSelector F; };
-
-        static constexpr std::array dateTimeUnits = {
-            DateTimeUnitInfo { .unitDuration = 604800, .unit = WEEK, .threshold = 2 },
-            DateTimeUnitInfo { .unitDuration = 86400, .unit = DAY },
-            DateTimeUnitInfo { .unitDuration = 3600, .unit = HOUR },
-            DateTimeUnitInfo { .unitDuration = 60, .unit = MINUTE },
-            DateTimeUnitInfo { .unitDuration = 1, .unit = SECOND }
+        constexpr qint64 cutoffs[] = {
+            60,
+            3600,
+            86400,
+            86400 * 7,
+            86400 * 30,
+            86400 * 365,
+            std::numeric_limits<qint64>::max()
+        };
+        constexpr URelativeDateTimeUnit units[] = {
+            UDAT_REL_UNIT_SECOND,
+            UDAT_REL_UNIT_MINUTE,
+            UDAT_REL_UNIT_HOUR,
+            UDAT_REL_UNIT_DAY,
+            UDAT_REL_UNIT_WEEK,
+            UDAT_REL_UNIT_MONTH,
+            UDAT_REL_UNIT_YEAR
         };
 
-        static constexpr std::array rdtfSymbols = {
-            RDTFSymbol { // year
-                .P = {
-                    .one = QLatin1String("%1 year ago"),
-                    .other = QLatin1String("%1 years ago")
-                },
-                .F = {
-                    .one = QLatin1String("in %1 year"),
-                    .other = QLatin1String("in %1 years")
-                }
-            },
-            RDTFSymbol { // month
-                .P = {
-                    .one = QLatin1String("%1 month ago"),
-                    .other = QLatin1String("%1 months ago")
-                },
-                .F = {
-                    .one = QLatin1String("in %1 month"),
-                    .other = QLatin1String("in %1 months")
-                }
-            },
-            RDTFSymbol { // week
-                .P = {
-                    .one = QLatin1String("%1 week ago"),
-                    .other = QLatin1String("%1 weeks ago")
-                },
-                .F = {
-                    .one = QLatin1String("in %1 week"),
-                    .other = QLatin1String("in %1 weeks")
-                }
-            },
-            RDTFSymbol { // day
-                .P = {
-                    .one = QLatin1String("%1 day ago"),
-                    .other = QLatin1String("%1 days ago")
-                },
-                .F = {
-                    .one = QLatin1String("in %1 day"),
-                    .other = QLatin1String("in %1 days")
-                }
-            },
-            RDTFSymbol { // hour
-                .P = {
-                    .one = QLatin1String("%1 hour ago"),
-                    .other = QLatin1String("%1 hours ago")
-                },
-                .F = {
-                    .one = QLatin1String("in %1 hour"),
-                    .other = QLatin1String("in %1 hours")
-                }
-            },
-            RDTFSymbol { // minute
-                .P = {
-                    .one = QLatin1String("%1 minute ago"),
-                    .other = QLatin1String("%1 minutes ago")
-                },
-                .F = {
-                    .one = QLatin1String("in %1 minute"),
-                    .other = QLatin1String("in %1 minutes")
-                }
-            },
-            RDTFSymbol { // second
-                .P = {
-                    .one = QLatin1String("%1 second ago"),
-                    .other = QLatin1String("%1 seconds ago")
-                },
-                .F = {
-                    .one = QLatin1String("in %1 second"),
-                    .other = QLatin1String("in %1 seconds")
-                }
-            },
-        };
+        qint64 deltaSecs = std::llround((msecs - QDateTime::currentMSecsSinceEpoch()) / 1000.0);
+        auto unitIt = std::ranges::find_if(cutoffs, [=](qint64 c) { return c > std::abs(deltaSecs); });
+        size_t unitIndex = std::distance(std::begin(cutoffs), unitIt);
+        qint64 divisor = unitIndex ? cutoffs[unitIndex - 1] : 1;
 
-        auto format = [](qint64 num, DateTimeUnit unit) -> QString {
-            bool future = num > 0;
-            const PluralSelector& sel = future ? rdtfSymbols[unit].F : rdtfSymbols[unit].P;
+        UErrorCode status = U_ZERO_ERROR;
+        static icu::RelativeDateTimeFormatter rtf(icu::Locale::getDefault(), status);
+        if (U_FAILURE(status))
+            throw std::runtime_error("Failed to make RelativeDateTimeFormatter");
 
-            num = std::abs(num);
-            QLatin1String pattern = num == 1 ? sel.one : sel.other;
-            return pattern.arg(QString::number(num));
-        };
+        icu::FormattedRelativeDateTime formatted = rtf.formatNumericToValue(
+            deltaSecs / divisor, units[unitIndex], status);
+        if (U_FAILURE(status))
+            throw std::runtime_error("formatNumericToValue failed");
 
-        bool future = reference > target;
-        const QDateTime& start = future ? target : reference;
-        const QDateTime& end = future ? reference : target;
+        icu::UnicodeString str = formatted.toTempString(status);
+        if (U_FAILURE(status))
+            throw std::runtime_error("toTempString failed");
 
-        int v = 0;
-        while (start.addMonths(12 * (v + 1)) < end) ++v;
-        if (v > 0)
-            return format(future ? v : -v, YEAR);
-
-        v = 0;
-        while (start.addMonths(v + 1) < end) ++v;
-        if (v > 0)
-            return format(future ? v : -v, MONTH);
-
-        qint64 secs = start.secsTo(end);
-        for (const DateTimeUnitInfo& u : dateTimeUnits)
-            if (qint64 n = secs / u.unitDuration; n >= u.threshold)
-                return format(future ? n : -n, u.unit);
-
-        return {};
+        return QString(reinterpret_cast<const QChar*>(str.getBuffer()), str.length());
     }
 
     void repolish(QWidget* widget)

@@ -1,11 +1,11 @@
 #pragma once
+#include "plugins/pluginentry.h"
+#include "plugins/releasedata.h"
 #include <QElapsedTimer>
 #include <QWidget>
 
-class PluginEntry;
 class QProgressBar;
 class QVBoxLayout;
-struct ReleaseData;
 
 class PluginDownloadDialog : public QWidget
 {

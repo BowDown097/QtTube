@@ -1,10 +1,10 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include "qttube-plugin/components/replytypes/recommendedcontinuationdata.h"
 #include "qttube-plugin/components/replytypes/videodata.h"
 #include <QTabWidget>
 
 class ContinuableListWidget;
-class PluginEntry;
 
 class WatchNextFeed : public QTabWidget
 {

@@ -1,4 +1,5 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include <initializer_list>
 #include <QWidget>
 
@@ -9,7 +10,6 @@ class QLayout;
 class QListWidget;
 class QListWidgetItem;
 class QTabWidget;
-class PluginEntry;
 class VideoRenderer;
 
 namespace UIUtils
@@ -31,7 +31,7 @@ namespace UIUtils
     QPixmap pixmapRounded(const QPixmap& pixmap, double xRadius = 9999, double yRadius = 9999);
     QPixmap pixmapThemed(const QString& name);
     bool preferDark();
-    QString relativeTimeString(const QDateTime& target, const QDateTime& reference);
+    QString relativeTimeString(qint64 msecs);
     void repolish(QWidget* widget);
     QString resolveThemedIconName(const QString& name);
     void setAppStyle(const QString& styleName, bool dark);

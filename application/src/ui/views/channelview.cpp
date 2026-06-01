@@ -1,5 +1,6 @@
 #include "channelview.h"
 #include "mainwindow.h"
+#include "qttube-plugin/plugininterface.h"
 #include "qttubeapplication.h"
 #include "ui/browsehelper.h"
 #include "ui/widgets/subscribe/subscribewidget.h"

@@ -1,8 +1,8 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include "qttube-plugin/components/replytypes/replytypes.h"
 #include "ui/widgets/continuablelistwidget.h"
 
-class PluginEntry;
 class QHBoxLayout;
 
 class BrowseHelper : public QObject

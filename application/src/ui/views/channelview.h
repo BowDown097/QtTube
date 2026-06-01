@@ -1,9 +1,9 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include "qttube-plugin/components/reply.h"
 #include "qttube-plugin/components/replytypes/channeldata.h"
 #include <QWidget>
 
-class PluginEntry;
 class QHBoxLayout;
 class QTabWidget;
 class QVBoxLayout;

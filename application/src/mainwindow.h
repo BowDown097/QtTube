@@ -1,4 +1,6 @@
 #pragma once
+#include "plugins/pluginentry.h"
+#include "plugins/releasedata.h"
 #include "ui/widgets/topbar/searchbox.h"
 #include <QMainWindow>
 
@@ -8,11 +10,9 @@ QT_END_NAMESPACE
 
 class ContinuableListWidget;
 class FindBar;
-class PluginEntry;
 class QKeyEvent;
 class QResizeEvent;
 class QStackedWidget;
-struct ReleaseData;
 class TopBar;
 
 class MainWindow : public QMainWindow
@@ -24,6 +24,8 @@ public:
 
     QStackedWidget* centralWidget();
     TopBar* topbar();
+
+    void reportJsException(const QString& str);
 public slots:
     void toggleAccountMenu();
     void toggleNotificationMenu();

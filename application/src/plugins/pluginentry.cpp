@@ -1,6 +1,7 @@
 #include "pluginentry.h"
 #include "qttubeapplication.h"
-#include <QLibrary>
+#include "qttube-plugin/plugininterface.h"
+#include "scripted/scriptpluginentry.h"
 #include <QMessageBox>
 
 namespace
@@ -15,23 +16,18 @@ namespace
     const QString targetVersionNotFoundError = QStringLiteral("Could not find target version function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
 }
 
-struct QLibraryDeleter
-{
-    void operator()(QLibrary* p) const
-    {
-        p->unload();
-        p->deleteLater();
-    }
-};
+PluginEntry::PluginEntry(QFileInfo&& fileInfo_) : fileInfo(std::move(fileInfo_)) {}
+PluginEntry::~PluginEntry() = default;
+PluginEntry::PluginEntry(PluginEntry&&) = default;
+PluginEntry& PluginEntry::operator=(PluginEntry&&) = default;
 
-PluginEntry::PluginEntry(QFileInfo&& info)
-    : fileInfo(std::move(info))
+std::unique_ptr<PluginEntry> PluginEntry::create(QFileInfo&& fileInfo)
 {
     if (QLibrary::isLibrary(fileInfo.filePath()))
-        loadAsNative();
+        return std::make_unique<NativePluginEntry>(std::move(fileInfo));
     else if (fileInfo.suffix() == "js")
-        loadAsScript();
-    initialize();
+        return std::make_unique<ScriptPluginEntry>(std::move(fileInfo));
+    return nullptr;
 }
 
 void PluginEntry::checkMetadata()
@@ -77,51 +73,52 @@ void PluginEntry::initialize()
     }
 }
 
-bool PluginEntry::isPluginFile(const QFileInfo& info)
-{
-    return QLibrary::isLibrary(info.fileName()) || info.suffix() == "js";
-}
-
 bool PluginEntry::isPluginFile(const QString& fileName)
 {
     return QLibrary::isLibrary(fileName) || fileName.endsWith(".js");
 }
 
-void PluginEntry::loadAsNative()
+NativePluginEntry::NativePluginEntry(QFileInfo&& fileInfo_)
+    : PluginEntry(std::move(fileInfo_)), m_handle(fileInfo.absoluteFilePath())
 {
-    std::unique_ptr<QLibrary, QLibraryDeleter> handle(new QLibrary(fileInfo.absoluteFilePath()));
-    handle->setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
-    if (!handle->load())
-        throw PluginLoadException(loadFailedError.arg(fileInfo.fileName(), handle->errorString()));
+    m_handle.setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
+}
+
+void NativePluginEntry::initialize()
+{
+    if (!m_handle.load())
+        throw PluginLoadException(loadFailedError.arg(fileInfo.fileName(), m_handle.errorString()));
 
     // check target version
-    if (auto targetVersionFunc = QtTubePluginTargetVersionFunc(handle->resolve("targetVersion")))
+    if (auto targetVersionFunc = QtTubePluginTargetVersionFunc(m_handle.resolve("targetVersion")))
         checkTargetVersion(targetVersionFunc());
     else
         throw PluginLoadException(targetVersionNotFoundError.arg(fileInfo.fileName()));
 
     // put in and simply validate metadata, check name for conflict with already loaded plugin
-    if (auto metadataFunc = QtTubePluginMetadataFunc(handle->resolve("metadata")))
+    if (auto metadataFunc = QtTubePluginMetadataFunc(m_handle.resolve("metadata")))
         metadata = metadataFunc();
     else
         throw PluginLoadException(metadataNotFoundError.arg(fileInfo.fileName()));
     checkMetadata();
 
     // put in interface
-    if (auto newInstanceFunc = QtTubePluginNewInstanceFunc(handle->resolve("newInstance")))
+    if (auto newInstanceFunc = QtTubePluginNewInstanceFunc(m_handle.resolve("newInstance")))
         interface.reset(newInstanceFunc());
     else
         throw PluginLoadException(newInstanceNotFoundError.arg(fileInfo.fileName()));
 
     // put in optional components
-    if (auto authFunc = QtTubePluginAuthFunc(handle->resolve("auth")))
+    if (auto authFunc = QtTubePluginAuthFunc(m_handle.resolve("auth")))
         authStore = authFunc();
-    playerFunc = QtTubePluginPlayerFunc(handle->resolve("player"));
-    if (auto settingsFunc = QtTubePluginSettingsFunc(handle->resolve("settings")))
+    playerFunc = QtTubePluginPlayerFunc(m_handle.resolve("player"));
+    if (auto settingsFunc = QtTubePluginSettingsFunc(m_handle.resolve("settings")))
         settings = settingsFunc();
+
+    PluginEntry::initialize();
 }
 
-void PluginEntry::loadAsScript()
+void NativePluginEntry::unload()
 {
-
+    m_handle.unload();
 }

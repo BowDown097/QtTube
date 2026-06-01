@@ -1,7 +1,6 @@
 #include "accountswitcherwidget.h"
 #include "accountentrywidget.h"
 #include "mainwindow.h"
-#include "plugins/pluginentry.h"
 #include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>

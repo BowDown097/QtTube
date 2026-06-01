@@ -1,4 +1,5 @@
 #include "addplugindialog.h"
+#include "qttube-plugin/components/settings/settingsstore.h"
 #include "ui_addplugindialog.h"
 #include "qttube-plugin/utils/httprequest.h"
 #include "qttubeapplication.h"

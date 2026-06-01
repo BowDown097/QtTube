@@ -1,4 +1,5 @@
 #pragma once
+#include "plugins/pluginentry.h"
 #include "preloaddata.h"
 #include "qttube-plugin/components/reply.h"
 #include "qttube-plugin/components/replytypes/videodata.h"
@@ -7,7 +8,6 @@
 
 namespace Ui { class WatchView; }
 
-class PluginEntry;
 class QTimer;
 
 class WatchView : public QWidget
@@ -23,10 +23,10 @@ public:
 protected:
     void resizeEvent(QResizeEvent* event) override;
 private:
+    QString m_channelId;
     QPointer<QTimer> m_metadataUpdateTimer;
     PluginEntry* m_plugin;
     QString m_videoId;
-    QString m_videoUrlPrefix;
     Ui::WatchView* ui;
 
     void openLiveChat(const QtTubePlugin::InitialLiveChatData& data);

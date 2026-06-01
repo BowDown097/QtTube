@@ -7,7 +7,11 @@
 #include <QMenu>
 
 ChannelLabel::ChannelLabel(PluginEntry* plugin, QWidget* parent)
-    : QWidget(parent), text(new TubeLabel(this)), m_badgeLayout(new QHBoxLayout), m_layout(new QHBoxLayout(this))
+    : QWidget(parent),
+      text(new TubeLabel(this)),
+      m_badgeLayout(new QHBoxLayout),
+      m_layout(new QHBoxLayout(this)),
+      m_plugin(plugin)
 {
     text->setClickable(true);
     text->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -19,7 +23,7 @@ ChannelLabel::ChannelLabel(PluginEntry* plugin, QWidget* parent)
     m_badgeLayout->setSpacing(2);
     m_layout->addLayout(m_badgeLayout);
 
-    connect(text, &TubeLabel::clicked, this, [this, plugin] { ViewController::loadChannel(m_channelId, plugin); });
+    connect(text, &TubeLabel::clicked, this, [this] { ViewController::loadChannel(m_channelId, m_plugin); });
     connect(text, &TubeLabel::customContextMenuRequested, this, &ChannelLabel::showContextMenu);
 }
 
@@ -30,7 +34,7 @@ void ChannelLabel::addStretch()
 
 void ChannelLabel::copyChannelUrl()
 {
-    UIUtils::copyToClipboard("https://www.youtube.com/channel/" + m_channelId);
+    UIUtils::copyToClipboard(m_plugin->metadata.channelUrlTemplate.arg(m_channelId));
 }
 
 void ChannelLabel::reset()

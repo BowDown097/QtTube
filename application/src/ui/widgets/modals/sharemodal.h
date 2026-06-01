@@ -12,7 +12,7 @@ class ShareModal : public FocusedModal
 {
     Q_OBJECT
 public:
-    ShareModal(const QString& videoUrlPrefix, const QString& videoId, QWidget* parent);
+    ShareModal(const QString& videoUrlTemplate, const QString& videoId, QWidget* parent);
 private:
     QToolButton* m_copyButton;
     QAction* m_copyButtonAction;

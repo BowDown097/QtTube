@@ -1,5 +1,4 @@
 #include "videorenderer.h"
-#include "plugins/pluginentry.h"
 #include "ui/views/preloaddata.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/badgelabel.h"
