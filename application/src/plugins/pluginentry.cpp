@@ -1,8 +1,8 @@
 #include "pluginentry.h"
 #include "qttubeapplication.h"
-#include "qttube-plugin/plugininterface.h"
 #include "scripted/scriptpluginentry.h"
 #include <QMessageBox>
+#include <qttube-plugin/plugininterface.h>
 
 namespace
 {

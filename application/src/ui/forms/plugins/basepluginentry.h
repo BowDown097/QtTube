@@ -1,6 +1,6 @@
 #pragma once
-#include "qttube-plugin/pluginmetadata.h"
 #include "ui/widgets/labels/tubelabel.h"
+#include <qttube-plugin/pluginmetadata.h>
 
 class QHBoxLayout;
 class QVBoxLayout;

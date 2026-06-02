@@ -1,6 +1,6 @@
 #pragma once
 #include "plugins/pluginentry.h"
-#include "qttube-plugin/components/auth/authstore.h"
+#include <qttube-plugin/components/auth/authstore.h>
 #include <QWidget>
 
 class QPushButton;

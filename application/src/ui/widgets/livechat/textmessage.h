@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/objects/livechat/items/textmessage.h"
+#include <qttube-plugin/objects/livechat/items/textmessage.h>
 #include <QWidget>
 
 class QHBoxLayout;

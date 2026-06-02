@@ -1,6 +1,6 @@
 #pragma once
 #include "plugins/pluginentry.h"
-#include "qttube-plugin/components/player/player.h"
+#include <qttube-plugin/components/player/player.h>
 
 class WatchViewPlayer : public QObject
 {

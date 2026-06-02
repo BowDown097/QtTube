@@ -1,7 +1,7 @@
 #include "pluginbuilddownloader.h"
 #include "qttubeapplication.h"
-#include "qttube-plugin/utils/httprequest.h"
 #include <QTemporaryFile>
+#include <qttube-plugin/utils/httprequest.h>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
 #include <QtCore/private/qzipreader_p.h>

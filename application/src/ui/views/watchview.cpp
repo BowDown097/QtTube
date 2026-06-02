@@ -1,5 +1,4 @@
 #include "watchview.h"
-#include "qttube-plugin/plugininterface.h"
 #include "watchview_ui.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
@@ -19,6 +18,7 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTimer>
+#include <qttube-plugin/plugininterface.h>
 
 WatchView::WatchView(const QString& videoId, PluginEntry* plugin, int progress,
                      PreloadData::WatchView* preload, QWidget* parent)

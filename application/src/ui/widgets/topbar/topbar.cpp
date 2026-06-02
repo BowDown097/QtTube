@@ -1,5 +1,4 @@
 #include "topbar.h"
-#include "qttube-plugin/plugininterface.h"
 #include "qttubeapplication.h"
 #include "ui/forms/settings/settingsform.h"
 #include "utils/uiutils.h"
@@ -9,6 +8,7 @@
 #include <QPropertyAnimation>
 #include <QPushButton>
 #include <QTabBar>
+#include <qttube-plugin/plugininterface.h>
 
 TopBar::TopBar(QWidget* parent)
     : QWidget(parent),

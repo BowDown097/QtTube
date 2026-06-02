@@ -1,5 +1,4 @@
 #include "tubelabel.h"
-#include "qttube-plugin/utils/httprequest.h"
 #include "qttubeapplication.h"
 #include "utils/uiutils.h"
 #include <QStyle>
@@ -7,6 +6,7 @@
 #include <QTextBlock>
 #include <QTextDocument>
 #include <QTextLayout>
+#include <qttube-plugin/utils/httprequest.h>
 
 TubeLabel::TubeLabel(QWidget* parent) : ClickableWidget<QLabel>(parent)
 {

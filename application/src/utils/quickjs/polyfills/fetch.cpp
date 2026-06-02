@@ -1,6 +1,6 @@
 #include "fetch.h"
-#include "qttube-plugin/utils/httprequest.h"
 #include "utils/quickjs/qt_js_traits.h"
+#include <qttube-plugin/utils/httprequest.h>
 #include <quickjs++/context.h>
 
 namespace jsfetch

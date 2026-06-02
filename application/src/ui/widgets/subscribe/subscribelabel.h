@@ -1,8 +1,8 @@
 #pragma once
 #include "plugins/pluginentry.h"
-#include "qttube-plugin/objects/channel.h"
 #include "ui/widgets/wrappers/clickablewidget.h"
 #include <QLabel>
+#include <qttube-plugin/objects/channel.h>
 
 class SubscribeLabel : public ClickableWidget<QLabel>
 {

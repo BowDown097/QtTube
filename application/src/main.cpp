@@ -1,8 +1,8 @@
-#include "qttube-plugin/plugininterface.h"
-#include "qttubeapplication.h"
 #include "mainwindow.h"
+#include "qttubeapplication.h"
 #include "ui/forms/livechatwindow.h"
 #include <QCommandLineParser>
+#include <qttube-plugin/plugininterface.h>
 
 int showChat(QtTubeApplication& a, QCommandLineParser& parser)
 {

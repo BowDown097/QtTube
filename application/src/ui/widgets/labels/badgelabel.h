@@ -1,6 +1,6 @@
 #pragma once
-#include "qttube-plugin/objects/badge.h"
 #include <QLabel>
+#include <qttube-plugin/objects/badge.h>
 
 class BadgeLabel : public QLabel
 {

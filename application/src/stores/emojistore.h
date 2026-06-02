@@ -1,6 +1,6 @@
 #pragma once
-#include "qttube-plugin/objects/emoji.h"
 #include <QObject>
+#include <qttube-plugin/objects/emoji.h>
 
 class QNetworkAccessManager;
 

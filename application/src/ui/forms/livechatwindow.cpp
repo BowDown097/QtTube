@@ -1,6 +1,5 @@
 #include "livechatwindow.h"
 #include "ui_livechatwindow.h"
-#include "qttube-plugin/plugininterface.h"
 #include "stores/emojistore.h"
 #include "ui/widgets/emoji/emojimenu.h"
 #include "ui/widgets/labels/tubelabel.h"
@@ -12,6 +11,7 @@
 #include "utils/uiutils.h"
 #include <QMessageBox>
 #include <QTimer>
+#include <qttube-plugin/plugininterface.h>
 
 LiveChatWindow::LiveChatWindow(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent), m_messagesTimer(new QTimer(this)), m_plugin(plugin), ui(new Ui::LiveChatWindow)

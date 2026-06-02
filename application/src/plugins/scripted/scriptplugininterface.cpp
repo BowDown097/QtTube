@@ -1,7 +1,7 @@
 #include "scriptplugininterface.h"
-#include "qttube-plugin/utils/replyutils.h"
 #include "utils/quickjs/plugin_js_traits.h"
 #include "utils/quickjs/qjsutils.h"
+#include <qttube-plugin/utils/replyutils.h>
 
 using namespace Qt::StringLiterals;
 

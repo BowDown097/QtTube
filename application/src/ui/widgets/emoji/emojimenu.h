@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/objects/emoji.h"
+#include <qttube-plugin/objects/emoji.h>
 #include <QWidget>
 
 namespace Ui {

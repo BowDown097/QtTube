@@ -1,6 +1,6 @@
 #pragma once
 #include "plugins/pluginentry.h"
-#include "qttube-plugin/objects/channel.h"
+#include <qttube-plugin/objects/channel.h>
 #include <QWidget>
 
 class ChannelLabel;

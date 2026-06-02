@@ -1,7 +1,7 @@
 #include "emojistore.h"
-#include "qttube-plugin/utils/httprequest.h"
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <qttube-plugin/utils/httprequest.h>
 
 EmojiStore::EmojiStore(QObject* parent) : QObject(parent)
 {

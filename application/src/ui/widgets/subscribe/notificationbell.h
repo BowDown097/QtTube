@@ -1,7 +1,7 @@
 #pragma once
 #include "plugins/pluginentry.h"
-#include "qttube-plugin/objects/channel.h"
 #include <QToolButton>
+#include <qttube-plugin/objects/channel.h>
 
 class QMenu;
 

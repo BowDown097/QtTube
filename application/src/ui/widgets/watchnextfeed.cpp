@@ -1,11 +1,11 @@
 #include "watchnextfeed.h"
 #include "continuablelistwidget.h"
-#include "qttube-plugin/plugininterface.h"
 #include "ui/widgets/labels/tubelabel.h"
 #include "ui/widgets/renderers/video/browsevideorenderer.h"
 #include "ui/widgets/renderers/video/videothumbnailwidget.h"
 #include "utils/uiutils.h"
 #include <QMessageBox>
+#include <qttube-plugin/plugininterface.h>
 
 WatchNextFeed::WatchNextFeed(PluginEntry* plugin, QWidget* parent)
     : QTabWidget(parent),

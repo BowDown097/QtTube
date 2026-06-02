@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/objects/livechat/items/specialmessage.h"
+#include <qttube-plugin/objects/livechat/items/specialmessage.h>
 #include <QWidget>
 
 class QVBoxLayout;

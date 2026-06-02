@@ -1,6 +1,5 @@
 #include "browsenotificationrenderer.h"
 #include "mainwindow.h"
-#include "qttube-plugin/objects/notification.h"
 #include "qttubeapplication.h"
 #include "ui/forms/plugins/plugindownloaddialog.h"
 #include "ui/widgets/labels/tubelabel.h"
@@ -8,6 +7,7 @@
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QPushButton>
+#include <qttube-plugin/objects/notification.h>
 
 namespace
 {

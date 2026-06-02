@@ -1,13 +1,13 @@
 #pragma once
 #include "qjsutils.h"
-#include "qttube-plugin/components/replytypes/channeldata.h"
-#include "qttube-plugin/components/replytypes/initialaccountdata.h"
-#include "qttube-plugin/components/replytypes/recommendedcontinuationdata.h"
-#include "qttube-plugin/components/replytypes/resolveurldata.h"
-#include "qttube-plugin/components/replytypes/videodata.h"
-#include "qttube-plugin/objects/livechat/livechat.h"
-#include "qttube-plugin/objects/livechat/livechatreplay.h"
-#include "qttube-plugin/objects/notification.h"
+#include <qttube-plugin/components/replytypes/channeldata.h>
+#include <qttube-plugin/components/replytypes/initialaccountdata.h>
+#include <qttube-plugin/components/replytypes/recommendedcontinuationdata.h>
+#include <qttube-plugin/components/replytypes/resolveurldata.h>
+#include <qttube-plugin/components/replytypes/videodata.h>
+#include <qttube-plugin/objects/livechat/livechat.h>
+#include <qttube-plugin/objects/livechat/livechatreplay.h>
+#include <qttube-plugin/objects/notification.h>
 
 #define UNWRAP_FIELD_PART(name) \
     QJSUtils::unwrapObjectProperty<decltype(T::name)>(ctx, val, #name)

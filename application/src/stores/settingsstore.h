@@ -1,7 +1,7 @@
 #pragma once
-#include "qttube-plugin/components/configstore.h"
-#include "qttube-plugin/components/settings/playersettings.h"
-#include "qttube-plugin/objects/video.h"
+#include <qttube-plugin/components/configstore.h>
+#include <qttube-plugin/components/settings/playersettings.h>
+#include <qttube-plugin/objects/video.h>
 
 class QSettings;
 class QTimer;

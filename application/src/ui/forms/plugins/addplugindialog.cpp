@@ -1,10 +1,10 @@
 #include "addplugindialog.h"
-#include "qttube-plugin/components/settings/settingsstore.h"
 #include "ui_addplugindialog.h"
-#include "qttube-plugin/utils/httprequest.h"
 #include "qttubeapplication.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <qttube-plugin/components/settings/settingsstore.h>
+#include <qttube-plugin/utils/httprequest.h>
 #include <QUuid>
 
 namespace

@@ -1,5 +1,5 @@
 #pragma once
-#include "qttube-plugin/objects/livechat/items/paidmessage.h"
+#include <qttube-plugin/objects/livechat/items/paidmessage.h>
 #include <QWidget>
 
 class QHBoxLayout;

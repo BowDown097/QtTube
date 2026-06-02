@@ -1,7 +1,7 @@
 #pragma once
 #include "plugins/pluginentry.h"
-#include "qttube-plugin/components/replytypes/replytypes.h"
 #include "ui/widgets/continuablelistwidget.h"
+#include <qttube-plugin/components/replytypes/replytypes.h>
 
 class QHBoxLayout;
 

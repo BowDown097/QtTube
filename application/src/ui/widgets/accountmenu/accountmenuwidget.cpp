@@ -1,11 +1,11 @@
 #include "accountmenuwidget.h"
 #include "mainwindow.h"
-#include "qttube-plugin/components/auth/authstore.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/labels/iconlabel.h"
 #include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
+#include <qttube-plugin/components/auth/authstore.h>
 
 AccountMenuWidget::AccountMenuWidget(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),

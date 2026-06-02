@@ -1,7 +1,7 @@
 #pragma once
 #include "plugins/pluginentry.h"
-#include "qttube-plugin/objects/video.h"
 #include "ui/views/preloaddata.h"
+#include <qttube-plugin/objects/video.h>
 #include <QWidget>
 
 class ChannelLabel;

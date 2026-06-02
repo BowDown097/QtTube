@@ -1,7 +1,7 @@
 #pragma once
 #include "plugins/pluginentry.h"
-#include "qttube-plugin/objects/badge.h"
 #include "tubelabel.h"
+#include <qttube-plugin/objects/badge.h>
 
 class QHBoxLayout;
 

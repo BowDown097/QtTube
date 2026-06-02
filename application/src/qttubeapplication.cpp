@@ -1,6 +1,5 @@
 #include "qttubeapplication.h"
 #include "mainwindow.h"
-#include "qttube-plugin/plugininterface.h"
 #include "ui/views/viewcontroller.h"
 #include "ui/widgets/topbar/topbar.h"
 #include "utils/quickjs/qjsutils.h"
@@ -9,6 +8,7 @@
 #include <QMessageBox>
 #include <QStyle>
 #include <QTimer>
+#include <qttube-plugin/plugininterface.h>
 #include <quickjs-libc.h>
 
 #ifdef Q_OS_WIN

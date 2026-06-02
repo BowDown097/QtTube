@@ -1,11 +1,11 @@
 #include "pluginbrowser.h"
 #include "pluginentry.h"
-#include "qttube-plugin/utils/httprequest.h"
 #include <HtmlParser/Parser.hpp>
 #include <HtmlParser/Query.hpp>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <qttube-plugin/utils/httprequest.h>
 
 using NodePtr = std::shared_ptr<HtmlParser::Node>;
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "qttube-plugin/components/auth/authstore.h"
-#include "qttube-plugin/components/auth/webauthroutine.h"
+#include <qttube-plugin/components/auth/authstore.h>
+#include <qttube-plugin/components/auth/webauthroutine.h>
 #include <quickjs++/value.h>
 
 struct ScriptPluginAuthUser : QtTubePlugin::AuthUser, std::vector<std::pair<QByteArray, QVariant>>

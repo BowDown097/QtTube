@@ -1,9 +1,9 @@
 #pragma once
 #include "plugins/pluginentry.h"
 #include "preloaddata.h"
-#include "qttube-plugin/components/reply.h"
-#include "qttube-plugin/components/replytypes/videodata.h"
 #include <QPointer>
+#include <qttube-plugin/components/reply.h>
+#include <qttube-plugin/components/replytypes/videodata.h>
 #include <QWidget>
 
 namespace Ui { class WatchView; }

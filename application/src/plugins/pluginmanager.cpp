@@ -1,9 +1,9 @@
 #include "pluginbrowser.h"
 #include "pluginmanager.h"
-#include "qttube-plugin/components/auth/authstore.h"
 #include "qttubeapplication.h"
 #include <QDirIterator>
 #include <QMessageBox>
+#include <qttube-plugin/components/auth/authstore.h>
 
 namespace
 {

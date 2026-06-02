@@ -1,8 +1,8 @@
 #pragma once
 #include "plugins/pluginentry.h"
-#include "qttube-plugin/components/replytypes/recommendedcontinuationdata.h"
-#include "qttube-plugin/components/replytypes/videodata.h"
 #include <QTabWidget>
+#include <qttube-plugin/components/replytypes/recommendedcontinuationdata.h>
+#include <qttube-plugin/components/replytypes/videodata.h>
 
 class ContinuableListWidget;
 

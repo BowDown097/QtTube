@@ -1,9 +1,9 @@
 #pragma once
-#include "qttube-plugin/pluginfwd.h"
-#include "qttube-plugin/pluginmetadata.h"
 #include <QException>
 #include <QFileInfo>
 #include <QLibrary>
+#include <qttube-plugin/pluginfwd.h>
+#include <qttube-plugin/pluginmetadata.h>
 
 class PluginLoadException : public QException
 {

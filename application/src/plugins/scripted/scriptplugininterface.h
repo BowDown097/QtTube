@@ -1,6 +1,6 @@
 #pragma once
-#include "qttube-plugin/plugininterface.h"
 #include "scriptpluginauthstore.h"
+#include <qttube-plugin/plugininterface.h>
 #include <quickjs++/context.h>
 
 class ScriptPluginInterface : public QtTubePlugin::PluginInterface

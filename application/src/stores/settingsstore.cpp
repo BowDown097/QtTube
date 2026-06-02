@@ -1,9 +1,9 @@
 #include "settingsstore.h"
-#include "qttube-plugin/plugininterface.h"
 #include <QDir>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTimer>
+#include <qttube-plugin/plugininterface.h>
 
 SettingsStore::SettingsStore(QObject* parent)
     : QObject(parent),

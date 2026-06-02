@@ -1,8 +1,8 @@
 #include "notificationbell.h"
-#include "qttube-plugin/plugininterface.h"
 #include "utils/uiutils.h"
 #include <QMenu>
 #include <QMessageBox>
+#include <qttube-plugin/plugininterface.h>
 
 NotificationBell::NotificationBell(PluginEntry* plugin, QWidget* parent)
     : QToolButton(parent), m_notificationMenu(new QMenu(this)), m_plugin(plugin)

@@ -1,11 +1,11 @@
 #include "browsehelper.h"
 #include "mainwindow.h"
-#include "qttube-plugin/plugininterface.h"
 #include "qttubeapplication.h"
 #include "ui/widgets/topbar/topbar.h"
 #include "utils/uiutils.h"
 #include <QBoxLayout>
 #include <QComboBox>
+#include <qttube-plugin/plugininterface.h>
 
 void BrowseHelper::browseChannel(
     ContinuableListWidget* widget, int activeTabIndex,

@@ -1,6 +1,6 @@
 #pragma once
-#include "qttube-plugin/objects/emoji.h"
 #include <QGraphicsItem>
+#include <qttube-plugin/objects/emoji.h>
 
 class CachedNetworkWorker;
 class QNetworkReply;

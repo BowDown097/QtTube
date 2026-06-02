@@ -1,6 +1,6 @@
 #pragma once
-#include "qttube-plugin/objects/badge.h"
 #include <QList>
+#include <qttube-plugin/objects/badge.h>
 
 namespace PreloadData
 {
