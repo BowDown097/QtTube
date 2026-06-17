@@ -1,59 +1,23 @@
 #include "scriptpluginauthstore.h"
 #include "mainwindow.h"
+#include "qttubeapplication.h"
 #include "utils/quickjs/qt_js_traits.h"
 #include "utils/uiutils.h"
-#include <quickjs++/value.h>
-#include <unordered_set>
 
-static const std::unordered_set<QByteArrayView> builtinKeys = {
-    "active",
-    "avatar",
-    "handle",
-    "id",
-    "username"
-};
-
-ScriptPluginAuthUser::ScriptPluginAuthUser(const qjs::value& val)
-{
-    active   = val["active"].as<bool>();
-    avatar   = val["avatar"].as<QString>();
-    handle   = val["handle"].as<QString>();
-    id       = val["id"].as<QString>();
-    username = val["username"].as<QString>();
-
-    for (const auto& [key, value] : val.properties<QByteArray, QVariant>())
-        if (!builtinKeys.contains(key))
-            emplace_back(key, value);
-}
-
-qjs::value ScriptPluginAuthUser::toValue(JSContext* ctx) const
-{
-    qjs::value obj(ctx, JS_NewObject(ctx));
-
-    obj["active"]   = active;
-    obj["avatar"]   = avatar;
-    obj["handle"]   = handle;
-    obj["id"]       = id;
-    obj["username"] = username;
-
-    for (const auto& [key, value] : (*this))
-        obj[key] = value;
-
-    return obj;
-}
-
-void ScriptPluginAuthRoutine::onNewCookie(const QByteArray& name, const QByteArray& value)
+bool ScriptPluginAuthRoutine::onNewCookie(const QByteArray& name, const QByteArray& value)
 {
     const qjs::value& authObject = static_cast<ScriptPluginAuthStore*>(m_authStore)->authObject;
     if (qjs::value fn = authObject["onNewCookie"]; JS_IsFunction(fn.ctx, fn.v))
-        fn.invoke_then([] {}, name, value);
+        return fn.as<std::function<bool(QByteArray, QByteArray)>>()(name, value);
+    return true;
 }
 
-void ScriptPluginAuthRoutine::onNewHeader(const QByteArray& name, const QByteArray& value)
+bool ScriptPluginAuthRoutine::onNewHeader(const QByteArray& name, const QByteArray& value)
 {
     const qjs::value& authObject = static_cast<ScriptPluginAuthStore*>(m_authStore)->authObject;
     if (qjs::value fn = authObject["onNewHeader"]; JS_IsFunction(fn.ctx, fn.v))
-        fn.invoke_then([] {}, name, value);
+        return fn.as<std::function<bool(QByteArray, QByteArray)>>()(name, value);
+    return true;
 }
 
 void ScriptPluginAuthRoutine::start()
@@ -128,24 +92,26 @@ void ScriptPluginAuthRoutine::start()
     QtTubePlugin::WebAuthRoutine::start();
 }
 
-ScriptPluginAuthStore::ScriptPluginAuthStore(qjs::value authObject_)
+ScriptPluginAuthStore::ScriptPluginAuthStore(const QString& pluginName, qjs::value authObject_)
     : authObject(std::move(authObject_))
 {
+    setConfigPath(resolveConfigPath(pluginName, "auth", qtTubeApp->isPortableBuild()));
+
     authObject["activeLogin"] = [this] {
         if (const ScriptPluginAuthUser* active = activeLogin())
-            return active->toValue(authObject.ctx);
+            return qjs::value(authObject.ctx, *active);
         return qjs::value(JS_NULL);
     };
 
     authObject["append"] = [this](const qjs::value& value) {
-        return this->append(ScriptPluginAuthUser(value));
+        return this->append(value.as<ScriptPluginAuthUser>());
     };
 
     authObject["credentials"] = [this]() {
         const QList<ScriptPluginAuthUser*> creds = credentials();
         QList<qjs::value> out;
         for (const ScriptPluginAuthUser* user : creds)
-            out.append(user->toValue(authObject.ctx));
+            out.emplaceBack(authObject.ctx, *user);
         return out;
     };
 }
@@ -153,9 +119,6 @@ ScriptPluginAuthStore::ScriptPluginAuthStore(qjs::value authObject_)
 ScriptPluginAuthUser ScriptPluginAuthStore::createUser(
     const QtTubePlugin::InitialAccountData& data, const ScriptPluginAuthRoutine* routine)
 {
-    QHash<QByteArray, QByteArray> cookies = routine->searchCookies();
-    QHash<QByteArray, QByteArray> headers = routine->searchHeaders();
-
     ScriptPluginAuthUser out(
         true,
         data.avatarUrl,
@@ -164,10 +127,8 @@ ScriptPluginAuthUser ScriptPluginAuthStore::createUser(
         data.handle
     );
 
-    for (auto it = cookies.begin(); it != cookies.end(); ++it)
-        out.emplace_back(it.key(), it.value());
-    for (auto it = headers.begin(); it != headers.end(); ++it)
-        out.emplace_back(it.key(), it.value());
+    out.cookies = routine->searchCookies();
+    out.headers = routine->searchHeaders();
 
     return out;
 }
@@ -189,13 +150,19 @@ void ScriptPluginAuthStore::init()
             settings.value("handle").toString()
         );
 
-        const QStringList keys = settings.childKeys();
-        for (const QString& key : keys)
-        {
-            const QByteArray utf8Key = key.toUtf8();
-            if (!builtinKeys.contains(utf8Key))
-                user.emplace_back(utf8Key, settings.value(key));
-        }
+        auto makeCredGroup = [&](const QString& prefix, std::unordered_map<QByteArray, QByteArray>& container) {
+            settings.beginGroup(prefix);
+
+            const QStringList keys = settings.childKeys();
+            container.reserve(keys.size());
+            for (const QString& key : keys)
+                container.emplace(key.toUtf8(), settings.value(key).toByteArray());
+
+            settings.endGroup();
+        };
+
+        makeCredGroup("cookies", user.cookies);
+        makeCredGroup("headers", user.headers);
 
         settings.endGroup();
         append(std::move(user));
@@ -206,7 +173,7 @@ void ScriptPluginAuthStore::restoreFromActive()
 {
     if (qjs::value fn = authObject["restore"]; JS_IsFunction(fn.ctx, fn.v))
         if (const ScriptPluginAuthUser* active = activeLogin())
-            fn.invoke_then([] {}, active->toValue(fn.ctx));
+            fn.invoke_then([] {}, *active);
 }
 
 void ScriptPluginAuthStore::save()
@@ -222,8 +189,16 @@ void ScriptPluginAuthStore::save()
         settings.setValue("avatar", user->avatar);
         settings.setValue("handle", user->handle);
         settings.setValue("username", user->username);
-        for (const auto& [key, value] : (*user))
-            settings.setValue(QString::fromUtf8(key), value);
+
+        auto saveCredGroup = [&](const QString& prefix, const std::unordered_map<QByteArray, QByteArray>& container) {
+            settings.beginGroup(prefix);
+            for (const auto& [key, value] : container)
+                settings.setValue(QString::fromUtf8(key), value);
+            settings.endGroup();
+        };
+
+        saveCredGroup("cookies", user->cookies);
+        saveCredGroup("headers", user->headers);
 
         settings.endGroup();
     }
@@ -233,4 +208,50 @@ void ScriptPluginAuthStore::unauthenticate()
 {
     if (qjs::value fn = authObject["unauthenticate"]; JS_IsFunction(fn.ctx, fn.v))
         fn.invoke_then([] {});
+}
+
+namespace qjs
+{
+    ScriptPluginAuthUser js_traits<ScriptPluginAuthUser>::unwrap(JSContext* ctx, JSValueConst val)
+    {
+        ScriptPluginAuthUser result(
+            qjs::js_traits<bool>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "active")),
+            qjs::js_traits<QString>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "avatar")),
+            qjs::js_traits<QString>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "id")),
+            qjs::js_traits<QString>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "username")),
+            qjs::js_traits<QString>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "handle"))
+        );
+
+        result.cookies = qjs::js_traits<std::unordered_map<QByteArray, QByteArray>>::unwrap(
+            ctx, JS_GetPropertyStr(ctx, val, "cookies"));
+        result.headers = qjs::js_traits<std::unordered_map<QByteArray, QByteArray>>::unwrap(
+            ctx, JS_GetPropertyStr(ctx, val, "headers"));
+
+        return result;
+    }
+
+    JSValue js_traits<ScriptPluginAuthUser>::wrap(JSContext* ctx, const ScriptPluginAuthUser& val)
+    {
+        qjs::value obj(ctx, JS_NewObject(ctx));
+        obj["active"] = val.active;
+        obj["avatar"] = val.avatar;
+        obj["cookies"] = val.cookies;
+        obj["headers"] = val.headers;
+        obj["handle"] = val.handle;
+        obj["id"] = val.id;
+        obj["username"] = val.username;
+        return obj;
+    }
+
+    JSValue property_traits<QtTubePlugin::SearchCookie>::get(
+        JSContext* ctx, JSValue this_obj, const QtTubePlugin::SearchCookie& key)
+    {
+        return property_traits<QByteArray>::get(ctx, this_obj, key.name);
+    }
+
+    void property_traits<QtTubePlugin::SearchCookie>::set(
+        JSContext* ctx, JSValue this_obj, const QtTubePlugin::SearchCookie& key, JSValue val)
+    {
+        return property_traits<QByteArray>::set(ctx, this_obj, key.name, val);
+    }
 }

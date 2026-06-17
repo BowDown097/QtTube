@@ -161,18 +161,18 @@ namespace jsfetch
 
     void registerFor(qjs::context& ctx, qjs::module* mod)
     {
-        qjs::class_registrar<Response>("Response", ctx, mod)
+        qjs::class_registrar<Response>(ctx, mod)
             .mark<&Response::headers>()
-            .member<&Response::bodyUsed>("bodyUsed")
-            .member<&Response::headers>("headers")
-            .member<&Response::ok>("ok")
-            .member<&Response::redirected>("redirected")
-            .member<&Response::status>("status")
-            .member<&Response::statusText>("statusText")
-            .member<&Response::url>("url")
-            .member<&Response::arrayBuffer>("arrayBuffer")
-            .member<&Response::json>("json")
-            .member<&Response::text>("text");
+            .member<&Response::bodyUsed>()
+            .member<&Response::headers>()
+            .member<&Response::ok>()
+            .member<&Response::redirected>()
+            .member<&Response::status>()
+            .member<&Response::statusText>()
+            .member<&Response::url>()
+            .member<&Response::arrayBuffer>()
+            .member<&Response::json>()
+            .member<&Response::text>();
 
         if (mod)
             mod->add("fetch", [&](const qjs::rest<qjs::value>& args) { return fetch(ctx, args); });

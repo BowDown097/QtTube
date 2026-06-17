@@ -68,18 +68,18 @@ QtTubePlugin::PluginMetadata createMetadata(const qjs::value& metadata)
 void ScriptPluginEntry::initialize()
 {
     std::unique_ptr<qjs::context> context = createContext();
-    qjs::value funcVal = context->eval_file(
-        fileInfo.filePath().toUtf8(),
-        JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_STRICT | JS_EVAL_FLAG_COMPILE_ONLY);
-    if (JS_VALUE_GET_TAG(funcVal.v) != JS_TAG_MODULE)
-        throw PluginLoadException("Code compiled to non-module object.");
-
-    JSModuleDef* module = static_cast<JSModuleDef*>(JS_VALUE_GET_PTR(funcVal.v));
-    if (!module)
-        throw PluginLoadException("Code somehow compiled to an unresolvable module.");
-
     try
     {
+        qjs::value funcVal = context->eval_file(
+            fileInfo.filePath().toUtf8(),
+            JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_STRICT | JS_EVAL_FLAG_COMPILE_ONLY);
+        if (JS_VALUE_GET_TAG(funcVal.v) != JS_TAG_MODULE)
+            throw PluginLoadException("Code compiled to non-module object.");
+
+        JSModuleDef* module = static_cast<JSModuleDef*>(JS_VALUE_GET_PTR(funcVal.v));
+        if (!module)
+            throw PluginLoadException("Code somehow compiled to an unresolvable module.");
+
         qjs::value evalResult = context->new_value(JS_EvalFunction(context->ctx, funcVal.release()));
         JSPromiseStateEnum state = JS_PromiseState(evalResult.ctx, evalResult.v);
         if (state == JS_PROMISE_FULFILLED)
@@ -91,13 +91,18 @@ void ScriptPluginEntry::initialize()
             metadata = createMetadata(metadataProperty);
             PluginEntry::checkMetadata();
 
-            interface = std::make_unique<ScriptPluginInterface>(
-                std::move(moduleNamespace), std::move(context));
+            auto _interface = std::make_unique<ScriptPluginInterface>(
+                metadata.name, std::move(moduleNamespace), std::move(context));
+            authStore = _interface->authStore();
+            playerFunc = _interface->playerFunc();
+            settings = _interface->settings();
+
+            interface = std::move(_interface);
         }
         else if (state == JS_PROMISE_REJECTED)
         {
-            qjs::value error = context->new_value(JS_PromiseResult(evalResult.ctx, evalResult.v));
-            throw PluginLoadException(QJSUtils::generateErrorString(error));
+            throw PluginLoadException(QJSUtils::generateErrorString(
+                context->new_value(JS_PromiseResult(evalResult.ctx, evalResult.v))));
         }
         else
         {

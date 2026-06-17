@@ -103,11 +103,11 @@ int Navigator::getTotalRamGb()
 
 void Navigator::registerFor(qjs::context& ctx)
 {
-    qjs::class_registrar<Navigator>("Navigator", ctx)
-        .member<&Navigator::deviceMemory>("deviceMemory")
-        .member<&Navigator::hardwareConcurrency>("hardwareConcurrency")
-        .member<&Navigator::language>("language")
-        .member<&Navigator::languages>("languages");
+    qjs::class_registrar<Navigator>(ctx)
+        .member<&Navigator::deviceMemory>()
+        .member<&Navigator::hardwareConcurrency>()
+        .member<&Navigator::language>()
+        .member<&Navigator::languages>();
 
     ctx.global()["navigator"] = std::make_shared<Navigator>();
 }

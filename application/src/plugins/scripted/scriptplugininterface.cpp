@@ -51,16 +51,13 @@ inline QtTubePlugin::Reply<T>* makeReply(qjs::value& moduleNamespace, QLatin1Str
 }
 
 ScriptPluginInterface::ScriptPluginInterface(
-    qjs::value&& moduleNamespace, std::unique_ptr<qjs::context>&& context)
+    const QString& pluginName,
+    qjs::value&& moduleNamespace,
+    std::unique_ptr<qjs::context>&& context)
     : m_context(std::move(context)), m_moduleNamespace(std::move(moduleNamespace))
 {
     if (qjs::value auth = m_moduleNamespace["auth"]; JS_IsObject(auth.v))
-        m_authStore = std::make_unique<ScriptPluginAuthStore>(std::move(auth));
-}
-
-ScriptPluginInterface::~ScriptPluginInterface()
-{
-    m_moduleNamespace.release();
+        m_authStore = std::make_unique<ScriptPluginAuthStore>(pluginName, std::move(auth));
 }
 
 QtTubePlugin::RecommendedContinuationReply* ScriptPluginInterface::continueRecommended(
@@ -72,7 +69,22 @@ QtTubePlugin::RecommendedContinuationReply* ScriptPluginInterface::continueRecom
 
 QtTubePlugin::AccountReply* ScriptPluginInterface::getActiveAccount()
 {
-    return makeReply<QtTubePlugin::InitialAccountData>(m_moduleNamespace, "getActiveAccount"_L1);
+    if (const QPointer<ScriptPluginAuthRoutine> authRoutine = m_authStore->activeRoutine())
+    {
+        return makeReply<QtTubePlugin::InitialAccountData>(
+            m_moduleNamespace, "getActiveAccount"_L1,
+            authRoutine->searchCookies(), authRoutine->searchHeaders());
+    }
+    else if (const ScriptPluginAuthUser* login = m_authStore->activeLogin())
+    {
+        return makeReply<QtTubePlugin::InitialAccountData>(
+            m_moduleNamespace, "getActiveAccount"_L1,
+            login->cookies, login->headers);
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 QtTubePlugin::ChannelReply* ScriptPluginInterface::getChannel(

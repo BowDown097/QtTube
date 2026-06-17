@@ -190,12 +190,12 @@ namespace Intl
     void registerFor(qjs::context& ctx)
     {
         qjs::module& mod = ctx.add_module("Intl");
-        mod.register_class<Intl::NumberFormat>("NumberFormat")
+        mod.register_class<Intl::NumberFormat>()
             .constructor<JSContext*, const qjs::rest<qjs::value>&>()
-            .member<&Intl::NumberFormat::format>("format");
-        mod.register_class<Intl::RelativeTimeFormat>("RelativeTimeFormat")
+            .member<&Intl::NumberFormat::format>();
+        mod.register_class<Intl::RelativeTimeFormat>()
             .constructor<JSContext*, const qjs::rest<qjs::value>&>()
-            .member<&Intl::RelativeTimeFormat::format>("format");
+            .member<&Intl::RelativeTimeFormat::format>();
 
         auto call_nf = [](double number, JSContext* ctx, const qjs::rest<qjs::value>& input) {
             return NumberFormat(ctx, input).format(number);

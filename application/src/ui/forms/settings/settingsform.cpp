@@ -172,6 +172,9 @@ void SettingsForm::openTermFilterTable()
 
 void SettingsForm::pluginActiveButtonToggled(QAbstractButton* button, bool checked)
 {
+    if (!checked)
+        return;
+
     AddPluginDialogEntry* entry = qobject_cast<AddPluginDialogEntry*>(button->parent());
     PluginEntry* plugin = entry->plugin();
 

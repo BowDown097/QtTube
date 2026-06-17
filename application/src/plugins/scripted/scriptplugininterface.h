@@ -7,8 +7,10 @@ class ScriptPluginInterface : public QtTubePlugin::PluginInterface
 {
 public:
     // custom methods
-    explicit ScriptPluginInterface(qjs::value&& moduleNamespace, std::unique_ptr<qjs::context>&& context);
-    ~ScriptPluginInterface();
+    explicit ScriptPluginInterface(
+        const QString& pluginName,
+        qjs::value&& moduleNamespace,
+        std::unique_ptr<qjs::context>&& context);
 
     QtTubePlugin::AuthStoreBase* authStore() { return m_authStore.get(); }
     qjs::context* context() { return m_context.get(); }

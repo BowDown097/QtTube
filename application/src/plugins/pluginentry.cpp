@@ -61,7 +61,8 @@ void PluginEntry::checkTargetVersion(std::string_view targetVersion)
 
 void PluginEntry::initialize()
 {
-    interface->init();
+    if (interface)
+        interface->init();
 
     if (settings)
         settings->init();

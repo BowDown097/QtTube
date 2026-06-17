@@ -187,7 +187,7 @@ void PluginManager::reloadPlugins()
         }
         catch (const PluginLoadException& ex)
         {
-            QMessageBox::critical(nullptr, "Plugin Error", ex.message());
+            QMessageBox::critical(nullptr, "Plugin Error (" + fileInfo.fileName() + ')', ex.message());
         }
     }
 }

@@ -431,23 +431,23 @@ void registerEnumsFor(qjs::context& ctx)
     using TargetType = QtTubePlugin::Notification::TargetType;
 
     qjs::enum_registrar<Representation>("NotificationStateRepresentation", ctx)
-        .value<Representation::All>("All")
-        .value<Representation::None>("None")
-        .value<Representation::Neutral>("Neutral");
+        .value<Representation::All>()
+        .value<Representation::None>()
+        .value<Representation::Neutral>();
 
     qjs::enum_registrar<TargetType>("NotificationTargetType", ctx)
-        .value<TargetType::Channel>("Channel")
-        .value<TargetType::Video>("Video");
+        .value<TargetType::Channel>()
+        .value<TargetType::Video>();
 
     qjs::enum_registrar<ResolveUrlTarget>("ResolveUrlTarget", ctx)
-        .value<ResolveUrlTarget::NotResolved>("NotResolved")
-        .value<ResolveUrlTarget::PlainUrl>("PlainUrl")
-        .value<ResolveUrlTarget::Video>("Video")
-        .value<ResolveUrlTarget::Channel>("Channel")
-        .value<ResolveUrlTarget::Search>("Search");
+        .value<ResolveUrlTarget::NotResolved>()
+        .value<ResolveUrlTarget::PlainUrl>()
+        .value<ResolveUrlTarget::Video>()
+        .value<ResolveUrlTarget::Channel>()
+        .value<ResolveUrlTarget::Search>();
 
     qjs::enum_registrar<LikeStatus>("VideoLikeStatus", ctx)
-        .value<LikeStatus::Liked>("Liked")
-        .value<LikeStatus::Disliked>("Disliked")
-        .value<LikeStatus::Neutral>("Neutral");
+        .value<LikeStatus::Liked>()
+        .value<LikeStatus::Disliked>()
+        .value<LikeStatus::Neutral>();
 }
