@@ -1,7 +1,7 @@
 #include "scriptpluginauthstore.h"
 #include "mainwindow.h"
 #include "qttubeapplication.h"
-#include "utils/quickjs/qt_js_traits.h"
+#include "utils/quickjs/qjsutils.h"
 #include "utils/uiutils.h"
 
 bool ScriptPluginAuthRoutine::onNewCookie(const QByteArray& name, const QByteArray& value)
@@ -215,17 +215,15 @@ namespace qjs
     ScriptPluginAuthUser js_traits<ScriptPluginAuthUser>::unwrap(JSContext* ctx, JSValueConst val)
     {
         ScriptPluginAuthUser result(
-            qjs::js_traits<bool>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "active")),
-            qjs::js_traits<QString>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "avatar")),
-            qjs::js_traits<QString>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "id")),
-            qjs::js_traits<QString>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "username")),
-            qjs::js_traits<QString>::unwrap(ctx, JS_GetPropertyStr(ctx, val, "handle"))
+            QJSUtils::unwrapObjectProperty<bool>(ctx, val, "active"),
+            QJSUtils::unwrapObjectProperty<QString>(ctx, val, "avatar"),
+            QJSUtils::unwrapObjectProperty<QString>(ctx, val, "id"),
+            QJSUtils::unwrapObjectProperty<QString>(ctx, val, "username"),
+            QJSUtils::unwrapObjectProperty<QString>(ctx, val, "handle")
         );
 
-        result.cookies = qjs::js_traits<std::unordered_map<QByteArray, QByteArray>>::unwrap(
-            ctx, JS_GetPropertyStr(ctx, val, "cookies"));
-        result.headers = qjs::js_traits<std::unordered_map<QByteArray, QByteArray>>::unwrap(
-            ctx, JS_GetPropertyStr(ctx, val, "headers"));
+        result.cookies = QJSUtils::unwrapObjectProperty<std::unordered_map<QByteArray, QByteArray>>(ctx, val, "cookies");
+        result.headers = QJSUtils::unwrapObjectProperty<std::unordered_map<QByteArray, QByteArray>>(ctx, val, "headers");
 
         return result;
     }
@@ -240,7 +238,7 @@ namespace qjs
         obj["handle"] = val.handle;
         obj["id"] = val.id;
         obj["username"] = val.username;
-        return obj;
+        return obj.release();
     }
 
     JSValue property_traits<QtTubePlugin::SearchCookie>::get(
