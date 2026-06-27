@@ -10,39 +10,6 @@
 #include "utils/uiutils.h"
 #include <quickjs-libc.h>
 
-std::unique_ptr<qjs::context> createContext()
-{
-    std::unique_ptr<qjs::context> context = std::make_unique<qjs::context>(qtTubeApp->jsRuntime());
-
-    js_std_add_helpers(context->ctx, 0, nullptr);
-    js_init_module_std(context->ctx, "std");
-    js_init_module_os(context->ctx, "os");
-
-    context->module_loader = [context = context.get()](std::string_view filename) {
-        std::filesystem::path path(filename);
-        if (!std::filesystem::exists(path))
-        {
-            UIUtils::getMainWindow()->reportJsException(
-                QStringLiteral("ReferenceError: Module file not found: %1").arg(
-                    QString::fromUtf8(filename.data(), filename.size())));
-        }
-
-        return qjs::context::module_data(qjs::detail::to_uri(filename), qjs::detail::read_file(path));
-    };
-
-    context->on_unhandled_promise_rejection = [](qjs::value val) {
-        if (JS_IsError(val.v))
-            UIUtils::getMainWindow()->reportJsException(QJSUtils::generateErrorString(val));
-    };
-
-    Intl::registerFor(*context);
-    jsfetch::registerFor(*context);
-    Navigator::registerFor(*context);
-    registerEnumsFor(*context);
-
-    return context;
-}
-
 QtTubePlugin::PluginMetadata createMetadata(const qjs::value& metadata)
 {
     return {
@@ -65,11 +32,46 @@ QtTubePlugin::PluginMetadata createMetadata(const qjs::value& metadata)
     };
 }
 
+void setupContext(qjs::context& context)
+{
+    js_std_add_helpers(context.ctx, 0, nullptr);
+    js_init_module_std(context.ctx, "std");
+    js_init_module_os(context.ctx, "os");
+
+    context.module_loader = [&](std::string_view filename) {
+        std::filesystem::path path(filename);
+        if (!std::filesystem::exists(path))
+        {
+            UIUtils::getMainWindow()->reportJsException(
+                QStringLiteral("ReferenceError: Module file not found: %1").arg(
+                    QString::fromUtf8(filename.data(), filename.size())));
+        }
+
+        return qjs::context::module_data(qjs::detail::to_uri(filename), qjs::detail::read_file(path));
+    };
+
+    context.on_unhandled_promise_rejection = [](qjs::value val) {
+        if (JS_IsError(val.v))
+            UIUtils::getMainWindow()->reportJsException(QJSUtils::generateErrorString(val));
+    };
+
+    qjs::module& mod = context.add_module("QtTube");
+    mod.add("relativeTimeString", &UIUtils::relativeTimeString);
+
+    Intl::registerFor(context);
+    jsfetch::registerFor(context);
+    Navigator::registerFor(context);
+    registerEnumsFor(context);
+}
+
 void ScriptPluginEntry::initialize()
 {
-    std::unique_ptr<qjs::context> context = createContext();
+    std::unique_ptr<qjs::context> context = std::make_unique<qjs::context>(qtTubeApp->jsRuntime());
+
     try
     {
+        setupContext(*context);
+
         qjs::value funcVal = context->eval_file(
             fileInfo.filePath().toUtf8(),
             JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_STRICT | JS_EVAL_FLAG_COMPILE_ONLY);
@@ -113,7 +115,7 @@ void ScriptPluginEntry::initialize()
     }
     catch (const qjs::exception& ex)
     {
-        throw PluginLoadException(QJSUtils::generateErrorString(ex.get_value()));
+        throw PluginLoadException(QJSUtils::generateErrorString(ex));
     }
 
     PluginEntry::initialize();

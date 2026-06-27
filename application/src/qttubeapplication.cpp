@@ -40,7 +40,7 @@ QtTubeApplication::QtTubeApplication(int& argc, char** argv)
             }
             catch (const qjs::exception& ex)
             {
-                UIUtils::getMainWindow()->reportJsException(QJSUtils::generateErrorString(ex.get_value()));
+                UIUtils::getMainWindow()->reportJsException(QJSUtils::generateErrorString(ex));
             }
         }
     });
