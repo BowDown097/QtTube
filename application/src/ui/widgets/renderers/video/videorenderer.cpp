@@ -7,6 +7,7 @@
 #include "videothumbnailwidget.h"
 #include <QBoxLayout>
 #include <QMenu>
+#include <ranges>
 
 VideoRenderer::VideoRenderer(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),
@@ -67,7 +68,7 @@ void VideoRenderer::setData(const QtTubePlugin::Video& video)
     titleLabel->setText(video.title);
     titleLabel->setToolTip(video.title);
 
-    for (const QtTubePlugin::Badge& badge : video.badges)
+    for (const QtTubePlugin::Badge& badge : video.badges | std::views::take(3))
     {
         BadgeLabel* badgeLabel = new BadgeLabel(this);
         badgeLabel->setData(badge);

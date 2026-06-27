@@ -375,7 +375,7 @@ void TubeLabel::setText(const QString& text, bool processRemoteImages, ImageFlag
         return;
     }
 
-    QFontMetrics fm(font());
+    QFontMetricsF fm(font());
     QString outText;
 
     if (wordWrap())
@@ -395,7 +395,10 @@ void TubeLabel::setText(const QString& text, bool processRemoteImages, ImageFlag
             }
             else
             {
-                outText += fm.elidedText(text.mid(line.textStart()), m_elideMode, line.width());
+                outText += fm.elidedText(
+                    text.mid(line.textStart()),
+                    m_elideMode,
+                    line.width() - fm.horizontalAdvance(u'x'));
                 break;
             }
         }
