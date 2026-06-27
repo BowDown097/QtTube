@@ -1,11 +1,32 @@
 #pragma once
 #include <QByteArray>
+#include <QNetworkReply>
+#include <QPointer>
 #include <quickjs++/value.h>
-
-class QNetworkReply;
 
 namespace jsfetch
 {
+    struct ResponseBody
+    {
+        virtual QByteArray readAll() = 0;
+        virtual ~ResponseBody() = default;
+    };
+
+    struct MemoryBody : ResponseBody
+    {
+        QByteArray data;
+        explicit MemoryBody(const QByteArray& data) : data(data) {}
+        QByteArray readAll() override { return std::move(data); }
+    };
+
+    struct ReplyBody : ResponseBody
+    {
+        QPointer<QNetworkReply> reply;
+        explicit ReplyBody(QNetworkReply* reply) : reply(reply) {}
+        QByteArray readAll() override { return reply->readAll(); }
+        ~ReplyBody() override { reply->deleteLater(); }
+    };
+
     class Response
     {
     public:
@@ -17,17 +38,17 @@ namespace jsfetch
         QByteArray statusText;
         QByteArray url;
 
-        Response(qjs::context& ctx, QNetworkReply* reply, int status);
-        ~Response();
+        Response(JSContext* ctx, const qjs::rest<qjs::value>& args);
+        Response(JSContext* ctx, QNetworkReply* reply, int status);
 
         JSValue arrayBuffer();
         JSValue json();
         JSValue text();
     private:
-        qjs::context& m_ctx;
-        QNetworkReply* m_reply;
+        std::unique_ptr<ResponseBody> m_body;
+        JSContext* m_ctx;
     };
 
-    JSValue fetch(qjs::context& ctx, const qjs::rest<qjs::value>& args);
+    JSValue fetch(JSContext* ctx, const qjs::rest<qjs::value>& args);
     void registerFor(qjs::context& ctx, qjs::module* mod = nullptr);
 }

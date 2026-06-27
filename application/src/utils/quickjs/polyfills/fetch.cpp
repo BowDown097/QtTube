@@ -1,4 +1,5 @@
 #include "fetch.h"
+#include "utils/quickjs/qjsutils.h"
 #include "utils/quickjs/qt_js_traits.h"
 #include <qttube-plugin/utils/httprequest.h>
 #include <quickjs++/context.h>
@@ -11,69 +12,70 @@ namespace jsfetch
         QList<std::pair<QByteArray, QByteArray>> headers;
         QByteArray body;
 
-        static QByteArray getBody(const qjs::value& val)
-        {
-            return val["body"].as<QByteArray>();
-        }
-
-        static QList<std::pair<QByteArray, QByteArray>> getHeaders(const qjs::value& val)
-        {
-            return val["headers"].as<QList<std::pair<QByteArray, QByteArray>>>();
-        }
-
-        static QByteArray getMethod(const qjs::value& val)
-        {
-            qjs::value methodVal = val["method"];
-            return JS_IsString(methodVal.v) ? methodVal.as<QByteArray>() : QByteArray("GET");
-        }
+        RequestInit() = default;
+        explicit RequestInit(const qjs::value& options)
+            : method(QJSUtils::getStringStrict<QByteArray, true>(options["method"], "", "GET")),
+              headers(QJSUtils::unwrapObjectProperty<QList<std::pair<QByteArray, QByteArray>>>(options.ctx, options.v, "headers")),
+              body(QJSUtils::unwrapObjectProperty<QByteArray>(options.ctx, options.v, "body")) {}
     };
 
-    Response::Response(qjs::context& ctx, QNetworkReply* reply, int status)
-        : headers(ctx.new_object()),
+    Response::Response(JSContext* ctx, const qjs::rest<qjs::value>& args)
+        : headers(ctx, JS_NewObject(ctx)),
+          m_body(std::make_unique<MemoryBody>(!args.empty() ? args[0].as<QByteArray>() : QByteArray())),
+          m_ctx(ctx)
+    {
+        if (args.size() < 2 || !JS_IsObject(args[1].v))
+            return;
+
+        if (qjs::value statusVal = args[1]["status"]; JS_IsNumber(statusVal.v))
+            status = statusVal.as<int>();
+        if (qjs::value statusTextVal = args[1]["statusText"]; JS_IsString(statusTextVal.v))
+            statusText = statusTextVal.as<QByteArray>();
+        if (qjs::value headersVal = args[1]["headers"]; JS_IsObject(headersVal.v))
+            headers = headersVal;
+    }
+
+    Response::Response(JSContext* ctx, QNetworkReply* reply, int status)
+        : headers(ctx, JS_NewObject(ctx)),
           ok(status >= 200 && status < 300),
           redirected(reply->attribute(QNetworkRequest::RedirectionTargetAttribute).isValid()),
           status(status),
           statusText(reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).value<QByteArray>()),
           url(reply->url().toString(QUrl::PrettyDecoded | QUrl::RemoveFragment).toUtf8()),
-          m_ctx(ctx),
-          m_reply(reply) {}
-
-    Response::~Response()
-    {
-        m_reply->deleteLater();
-    }
+          m_body(std::make_unique<ReplyBody>(reply)),
+          m_ctx(ctx) {}
 
     JSValue Response::arrayBuffer()
     {
         if (bodyUsed)
-            return JS_ThrowTypeError(m_ctx.ctx, "Body has already been consumed.");
+            return JS_ThrowTypeError(m_ctx, "Body has already been consumed.");
         bodyUsed = true;
 
-        const QByteArray data = m_reply->readAll();
-        return JS_NewArrayBufferCopy(m_ctx.ctx, reinterpret_cast<const uint8_t*>(data.data()), data.size());
+        const QByteArray data = m_body->readAll();
+        return JS_NewArrayBufferCopy(m_ctx, reinterpret_cast<const uint8_t*>(data.data()), data.size());
     }
 
     JSValue Response::json()
     {
         if (bodyUsed)
-            return JS_ThrowTypeError(m_ctx.ctx, "Body has already been consumed.");
+            return JS_ThrowTypeError(m_ctx, "Body has already been consumed.");
         bodyUsed = true;
 
-        const QByteArray data = m_reply->readAll();
-        return JS_ParseJSON(m_ctx.ctx, data.data(), data.size(), "<dump>");
+        const QByteArray data = m_body->readAll();
+        return JS_ParseJSON(m_ctx, data.data(), data.size(), "<dump>");
     }
 
     JSValue Response::text()
     {
         if (bodyUsed)
-            return JS_ThrowTypeError(m_ctx.ctx, "Body has already been consumed.");
+            return JS_ThrowTypeError(m_ctx, "Body has already been consumed.");
         bodyUsed = true;
-        return qjs::js_traits<QByteArray>::wrap(m_ctx.ctx, m_reply->readAll());
+        return qjs::js_traits<QByteArray>::wrap(m_ctx, m_body->readAll());
     }
 
     void fetchRequest(
         const QUrl& url, const RequestInit& options,
-        qjs::context& ctx, JSValue resolve, JSValue reject)
+        JSContext* ctx, JSValue resolve, JSValue reject)
     {
         QNetworkRequest req(url);
         req.setAttribute(QNetworkRequest::AutoDeleteReplyOnFinishAttribute, false);
@@ -94,18 +96,18 @@ namespace jsfetch
         else
             reply = HttpReply::networkAccessManager()->sendCustomRequest(req, options.method, options.body);
 
-        auto throwError = [=, &ctx](auto f, const char* fmt, auto&&... args) {
-            JSValue err = f(ctx.ctx, fmt, std::forward<decltype(args)>(args)...);
-            JS_Call(ctx.ctx, reject, JS_UNDEFINED, 1, &err);
+        auto throwError = [=](auto f, const char* fmt, auto&&... args) {
+            JSValue err = f(ctx, fmt, std::forward<decltype(args)>(args)...);
+            JS_Call(ctx, reject, JS_UNDEFINED, 1, &err);
 
-            JS_FreeValue(ctx.ctx, err);
-            JS_FreeValue(ctx.ctx, resolve);
-            JS_FreeValue(ctx.ctx, reject);
+            JS_FreeValue(ctx, err);
+            JS_FreeValue(ctx, resolve);
+            JS_FreeValue(ctx, reject);
 
             reply->deleteLater();
         };
 
-        QObject::connect(reply, &QNetworkReply::finished, [=, &ctx] {
+        QObject::connect(reply, &QNetworkReply::finished, [=] {
             if (reply->error() != QNetworkReply::NoError)
             {
                 throwError(
@@ -126,35 +128,26 @@ namespace jsfetch
             for (const auto& [key, value] : reply->rawHeaderPairs())
                 response->headers[key.constData()] = value;
 
-            qjs::value responseValue = ctx.new_value(std::move(response));
-            JS_Call(ctx.ctx, resolve, JS_UNDEFINED, 1, &responseValue.v);
+            qjs::value responseValue(ctx, std::move(response));
+            JS_Call(ctx, resolve, JS_UNDEFINED, 1, &responseValue.v);
 
-            JS_FreeValue(ctx.ctx, resolve);
-            JS_FreeValue(ctx.ctx, reject);
+            JS_FreeValue(ctx, resolve);
+            JS_FreeValue(ctx, reject);
         });
     }
 
-    JSValue fetch(qjs::context& ctx, const qjs::rest<qjs::value>& args)
+    JSValue fetch(JSContext* ctx, const qjs::rest<qjs::value>& args)
     {
         if (args.empty())
-            return JS_ThrowTypeError(ctx.ctx, "fetch: At least 1 argument required, but only 0 passed");
+            return JS_ThrowTypeError(ctx, "fetch: At least 1 argument required, but only 0 passed");
 
         QUrl url(args[0].as<QByteArray>());
         if (url.scheme() != "http" && url.scheme() != "https")
-            return JS_ThrowTypeError(ctx.ctx, "fetch: Scheme must be HTTP(S)");
+            return JS_ThrowTypeError(ctx, "fetch: Scheme must be HTTP(S)");
 
-        RequestInit options;
-        if (args.size() > 1)
-        {
-            if (!JS_IsObject(args[1].v))
-                return JS_ThrowTypeError(ctx.ctx, "fetch: Argument 2 can't be converted to a dictionary.");
-            options.body = RequestInit::getBody(args[1]);
-            options.headers = RequestInit::getHeaders(args[1]);
-            options.method = RequestInit::getMethod(args[1]);
-        }
-
+        RequestInit options = args.size() > 1 ? RequestInit(args[1]) : RequestInit();
         JSValue resolving_funcs[2];
-        JSValue promise = JS_NewPromiseCapability(ctx.ctx, resolving_funcs);
+        JSValue promise = JS_NewPromiseCapability(ctx, resolving_funcs);
         fetchRequest(url, options, ctx, resolving_funcs[0], resolving_funcs[1]);
         return promise;
     }
@@ -162,6 +155,7 @@ namespace jsfetch
     void registerFor(qjs::context& ctx, qjs::module* mod)
     {
         qjs::class_registrar<Response>(ctx, mod)
+            .constructor<JSContext*, const qjs::rest<qjs::value>&>()
             .mark<&Response::headers>()
             .member<&Response::bodyUsed>()
             .member<&Response::headers>()
@@ -175,8 +169,8 @@ namespace jsfetch
             .member<&Response::text>();
 
         if (mod)
-            mod->add("fetch", [&](const qjs::rest<qjs::value>& args) { return fetch(ctx, args); });
+            mod->add("fetch", &fetch);
         else
-            ctx.global()["fetch"] = [&](const qjs::rest<qjs::value>& args) { return fetch(ctx, args); };
+            ctx.global()["fetch"] = fetch;
     }
 }

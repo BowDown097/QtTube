@@ -38,12 +38,12 @@ namespace QJSUtils
     }
 
     template<typename T, bool ReturnDefault = false>
-    T getStringStrict(const qjs::value& val, const char* error = "Expected string for value")
+    T getStringStrict(const qjs::value& val, const char* error = "Expected string for value", const char* defaultValue = "")
     {
         if (JS_IsString(val.v))
             return val.as<T>();
         else if constexpr (ReturnDefault)
-            return T{};
+            return T(defaultValue);
         else
             throw qjs::exception(val.ctx, JS_TYPE_ERROR, error);
     }
