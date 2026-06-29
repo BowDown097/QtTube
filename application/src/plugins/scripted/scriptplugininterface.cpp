@@ -1,6 +1,5 @@
 #include "scriptplugininterface.h"
 #include "utils/quickjs/plugin_js_traits.h"
-#include "utils/quickjs/qjsutils.h"
 #include <qttube-plugin/utils/replyutils.h>
 
 using namespace Qt::StringLiterals;
@@ -35,8 +34,17 @@ inline QtTubePlugin::Reply<T>* makeReply(qjs::value& moduleNamespace, QLatin1Str
         }
         else
         {
-            funcValue.invoke_then([=](const T& data) {
-                QtTubePlugin::invokeQueued(reply, &ReplyType::finished, data);
+            funcValue.invoke_then([=](const qjs::value& data) {
+                if (qjs::value contData = data["continuationData"];
+                    !JS_IsNull(contData.v) && !JS_IsUndefined(contData.v))
+                {
+                    reply->continuationData = contData;
+                    QtTubePlugin::invokeQueued(reply, &ReplyType::finished, data["data"].as<T>());
+                }
+                else
+                {
+                    QtTubePlugin::invokeQueued(reply, &ReplyType::finished, data.as<T>());
+                }
             }, std::forward<decltype(args)>(args)...);
         }
     }

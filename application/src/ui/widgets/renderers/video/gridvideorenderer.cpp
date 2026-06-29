@@ -18,7 +18,6 @@ GridVideoRenderer::GridVideoRenderer(PluginEntry* plugin, QWidget* parent)
 
     channelLabel->text->setElideMode(Qt::ElideRight);
     channelLabel->text->setFont(QFont(font().toString(), font().pointSize() - 1));
-    channelLabel->text->setMaximumLines(2);
     channelLabel->text->setMaximumWidth(EntryWidth);
     channelLabel->text->setWordWrap(true);
 
