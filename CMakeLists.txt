@@ -3,15 +3,12 @@ project(QtTube
     VERSION 1.3
     DESCRIPTION "A minimalist, cross-platform desktop app for streaming media."
     HOMEPAGE_URL "https://github.com/BowDown097/QtTube"
-    LANGUAGES CXX C)
+    LANGUAGES C CXX
+)
 
 # CMake options
 ## Needed for includes in ui files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-## MOC, RCC, and UIC
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
 ## Standard version
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,19 +20,19 @@ endif()
 
 # Names
 ## App
-set(QTTUBE_APP_DESC "${CMAKE_PROJECT_DESCRIPTION}")
-set(QTTUBE_APP_NAME "${CMAKE_PROJECT_NAME}")
+set(QTTUBE_APP_NAME "${PROJECT_NAME}")
+set(QTTUBE_APP_DESC "${PROJECT_DESCRIPTION}")
 string(TOLOWER "${QTTUBE_APP_NAME}" QTTUBE_BINARY_NAME)
 ## Version name
-set(QTTUBE_VERSION_MAJOR "${CMAKE_PROJECT_VERSION_MAJOR}")
-set(QTTUBE_VERSION_MINOR "${CMAKE_PROJECT_VERSION_MINOR}")
-set(QTTUBE_VERSION_NAME "${CMAKE_PROJECT_VERSION}")
-if(CMAKE_PROJECT_VERSION_TWEAK)
-    set(QTTUBE_VERSION_NAME4 "${QTTUBE_VERSION_MAJOR}.${QTTUBE_VERSION_MINOR}.\
-                              ${CMAKE_PROJECT_VERSION_PATCH}.${CMAKE_PROJECT_VERSION_TWEAK}")
-elseif(CMAKE_PROJECT_VERSION_PATCH)
-    set(QTTUBE_VERSION_NAME4 "${QTTUBE_VERSION_MAJOR}.${QTTUBE_VERSION_MINOR}.\
-                              ${CMAKE_PROJECT_VERSION_PATCH}.0")
+set(QTTUBE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+set(QTTUBE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+set(QTTUBE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+set(QTTUBE_VERSION_TWEAK "${PROJECT_VERSION_TWEAK}")
+set(QTTUBE_VERSION_NAME "${PROJECT_VERSION}")
+if(QTTUBE_VERSION_TWEAK)
+    set(QTTUBE_VERSION_NAME4 "${QTTUBE_VERSION_MAJOR}.${QTTUBE_VERSION_MINOR}.${QTTUBE_VERSION_PATCH}.${QTTUBE_VERSION_TWEAK}")
+elseif(QTTUBE_VERSION_PATCH)
+    set(QTTUBE_VERSION_NAME4 "${QTTUBE_VERSION_MAJOR}.${QTTUBE_VERSION_MINOR}.${QTTUBE_VERSION_PATCH}.0")
 else()
     set(QTTUBE_VERSION_NAME4 "${QTTUBE_VERSION_MAJOR}.${QTTUBE_VERSION_MINOR}.0.0")
 endif()
@@ -50,25 +47,28 @@ if(APPLE)
 endif()
 
 # LTO
-option(ENABLE_LTO "Enable Link Time Optimization" OFF)
-if(ENABLE_LTO)
+option(QTTUBE_ENABLE_LTO "Use Link Time Optimization (release builds only)" OFF)
+if(QTTUBE_ENABLE_LTO)
     include(CheckIPOSupported)
-    check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
-
-    if(ipo_supported AND (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"))
-        message(STATUS "IPO / LTO enabled")
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-    elseif(ipo_supported)
-        message(STATUS "Not enabling IPO / LTO on debug builds")
+    check_ipo_supported(RESULT lto_supported OUTPUT lto_output)
+    if(lto_supported)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+        message(STATUS "LTO/IPO is enabled for release builds")
     else()
-        message(STATUS "IPO / LTO not supported: <${ipo_error}>")
+        message(STATUS "LTO/IPO requested but it is not supported by the compiler: ${lto_output}")
     endif()
 endif()
 
-# Components
-option(ENABLE_WEB_COMPONENTS "" ON)
-option(QJS_BUILD_LIBC "" ON)
+# Options
+option(QJS_BUILD_LIBC "Build standard library modules as part of the library" ON)
+option(QTTUBE_ENABLE_WEB_COMPONENTS "Enable usage of WebEngine-based components" ON)
 
+# Qt project setup
+set(CMAKE_AUTORCC ON)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+qt_standard_project_setup()
+
+# Subprojects
 add_subdirectory(external/plugin_interface)
 add_subdirectory(external/quickjs++)
 add_subdirectory(program_info)

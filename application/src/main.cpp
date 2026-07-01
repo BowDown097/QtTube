@@ -39,7 +39,7 @@ int showChat(QtTubeApplication& a, QCommandLineParser& parser)
     return a.exec();
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     QApplication::setApplicationName(QTTUBE_APP_NAME);
     QApplication::setApplicationVersion(QTTUBE_VERSION_NAME);
