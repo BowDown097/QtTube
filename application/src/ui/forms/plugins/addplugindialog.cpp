@@ -1,6 +1,6 @@
-#include "addplugindialog.h"
+#include "addplugindialog.hpp"
 #include "ui_addplugindialog.h"
-#include "qttubeapplication.h"
+#include "qttubeapplication.hpp"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <qttube-plugin/components/settings/settingsstore.h>

@@ -1,5 +1,5 @@
-#include "iconlabel.h"
-#include "utils/uiutils.h"
+#include "iconlabel.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QLabel>
 

@@ -1,9 +1,9 @@
-#include "watchviewplayer.h"
-#include "mainwindow.h"
-#include "qttubeapplication.h"
-#include "ui/views/viewcontroller.h"
-#include "utils/osutils.h"
-#include "utils/uiutils.h"
+#include "watchviewplayer.hpp"
+#include "mainwindow.hpp"
+#include "qttubeapplication.hpp"
+#include "ui/views/viewcontroller.hpp"
+#include "utils/osutils.hpp"
+#include "utils/uiutils.hpp"
 #include <QLabel>
 #include <QMainWindow>
 #include <QMessageBox>

@@ -1,4 +1,4 @@
-#include "subscribelabel.h"
+#include "subscribelabel.hpp"
 #include <QMessageBox>
 #include <qttube-plugin/plugininterface.h>
 

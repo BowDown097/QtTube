@@ -1,4 +1,4 @@
-#include "focusedmodal.h"
+#include "focusedmodal.hpp"
 #include <QGraphicsOpacityEffect>
 #include <QKeyEvent>
 #include <QParallelAnimationGroup>

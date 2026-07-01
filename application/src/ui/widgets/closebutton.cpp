@@ -1,4 +1,4 @@
-#include "closebutton.h"
+#include "closebutton.hpp"
 #include <QAction>
 
 CloseButton::CloseButton(QWidget* parent) : QToolButton(parent), m_action(new QAction(this))

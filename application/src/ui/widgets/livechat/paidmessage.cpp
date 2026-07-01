@@ -1,5 +1,5 @@
-#include "paidmessage.h"
-#include "ui/widgets/labels/tubelabel.h"
+#include "paidmessage.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
 #include <QBoxLayout>
 
 PaidMessage::PaidMessage(const QtTubePlugin::PaidMessage& data, QWidget* parent)

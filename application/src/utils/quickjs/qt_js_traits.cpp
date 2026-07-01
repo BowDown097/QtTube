@@ -1,4 +1,4 @@
-#include "qt_js_traits.h"
+#include "qt_js_traits.hpp"
 
 namespace qjs
 {

@@ -1,8 +1,8 @@
-#include "browsechannelrenderer.h"
-#include "ui/views/viewcontroller.h"
-#include "ui/widgets/labels/channellabel.h"
-#include "ui/widgets/labels/tubelabel.h"
-#include "ui/widgets/subscribe/subscribewidget.h"
+#include "browsechannelrenderer.hpp"
+#include "ui/views/viewcontroller.hpp"
+#include "ui/widgets/labels/channellabel.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
+#include "ui/widgets/subscribe/subscribewidget.hpp"
 #include <QBoxLayout>
 #include <QMessageBox>
 

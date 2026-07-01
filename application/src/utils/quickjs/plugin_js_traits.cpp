@@ -1,4 +1,4 @@
-#include "plugin_js_traits.h"
+#include "plugin_js_traits.hpp"
 #include <quickjs++/context.h>
 
 #define WRAP_FOR(Type, WRAP_BODY) \

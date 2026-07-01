@@ -1,8 +1,8 @@
-#include "sharemodal.h"
-#include "ui/widgets/closebutton.h"
-#include "ui/widgets/labels/iconlabel.h"
-#include "ui/widgets/labels/tubelabel.h"
-#include "utils/uiutils.h"
+#include "sharemodal.hpp"
+#include "ui/widgets/closebutton.hpp"
+#include "ui/widgets/labels/iconlabel.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QLineEdit>
 

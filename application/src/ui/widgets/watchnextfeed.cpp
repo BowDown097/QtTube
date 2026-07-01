@@ -1,9 +1,9 @@
-#include "watchnextfeed.h"
-#include "continuablelistwidget.h"
-#include "ui/widgets/labels/tubelabel.h"
-#include "ui/widgets/renderers/video/browsevideorenderer.h"
-#include "ui/widgets/renderers/video/videothumbnailwidget.h"
-#include "utils/uiutils.h"
+#include "watchnextfeed.hpp"
+#include "continuablelistwidget.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
+#include "ui/widgets/renderers/video/browsevideorenderer.hpp"
+#include "ui/widgets/renderers/video/videothumbnailwidget.hpp"
+#include "utils/uiutils.hpp"
 #include <QMessageBox>
 #include <qttube-plugin/plugininterface.h>
 

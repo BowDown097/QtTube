@@ -1,4 +1,4 @@
-#include "accountcontrollerwidget.h"
+#include "accountcontrollerwidget.hpp"
 
 AccountControllerWidget::AccountControllerWidget(PluginEntry* plugin, QWidget* parent)
     : QStackedWidget(parent),

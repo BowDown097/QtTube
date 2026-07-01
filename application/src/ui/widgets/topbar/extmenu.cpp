@@ -1,4 +1,4 @@
-#include "extmenu.h"
+#include "extmenu.hpp"
 
 void ExtMenu::mouseReleaseEvent(QMouseEvent* event)
 {

@@ -1,5 +1,5 @@
-#include "specialmessage.h"
-#include "ui/widgets/labels/tubelabel.h"
+#include "specialmessage.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
 #include <QBoxLayout>
 
 SpecialMessage::SpecialMessage(const QtTubePlugin::SpecialMessage& data, QWidget* parent)

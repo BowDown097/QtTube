@@ -1,6 +1,6 @@
-#include "plugindownloaddialog.h"
-#include "plugins/pluginbuilddownloader.h"
-#include "qttubeapplication.h"
+#include "plugindownloaddialog.hpp"
+#include "plugins/pluginbuilddownloader.hpp"
+#include "qttubeapplication.hpp"
 #include <QBoxLayout>
 #include <QMessageBox>
 #include <QProgressBar>

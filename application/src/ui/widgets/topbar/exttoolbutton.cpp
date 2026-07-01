@@ -1,4 +1,4 @@
-#include "exttoolbutton.h"
+#include "exttoolbutton.hpp"
 #include <QMenu>
 #include <QMouseEvent>
 

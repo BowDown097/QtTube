@@ -1,8 +1,8 @@
-#include "browsehelper.h"
-#include "mainwindow.h"
-#include "qttubeapplication.h"
-#include "ui/widgets/topbar/topbar.h"
-#include "utils/uiutils.h"
+#include "browsehelper.hpp"
+#include "mainwindow.hpp"
+#include "qttubeapplication.hpp"
+#include "ui/widgets/topbar/topbar.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QComboBox>
 #include <qttube-plugin/plugininterface.h>

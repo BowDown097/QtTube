@@ -1,4 +1,4 @@
-#include "popupwidget.h"
+#include "popupwidget.hpp"
 #include <QLayout>
 
 PopupWidget::PopupWidget(QWidget* base, QWidget* anchor)

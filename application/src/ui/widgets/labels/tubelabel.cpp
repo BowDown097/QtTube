@@ -1,6 +1,6 @@
-#include "tubelabel.h"
-#include "qttubeapplication.h"
-#include "utils/uiutils.h"
+#include "tubelabel.hpp"
+#include "qttubeapplication.hpp"
+#include "utils/uiutils.hpp"
 #include <QStyle>
 #include <QStyleOption>
 #include <QTextBlock>

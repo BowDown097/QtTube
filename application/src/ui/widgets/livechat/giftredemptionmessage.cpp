@@ -1,5 +1,5 @@
-#include "giftredemptionmessage.h"
-#include "ui/widgets/labels/tubelabel.h"
+#include "giftredemptionmessage.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
 #include <QBoxLayout>
 
 GiftRedemptionMessage::GiftRedemptionMessage(const QtTubePlugin::GiftRedemptionMessage& data, QWidget* parent)

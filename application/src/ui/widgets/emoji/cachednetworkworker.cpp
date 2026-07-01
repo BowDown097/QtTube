@@ -1,4 +1,4 @@
-#include "cachednetworkworker.h"
+#include "cachednetworkworker.hpp"
 #include <QNetworkDiskCache>
 #include <QStandardPaths>
 

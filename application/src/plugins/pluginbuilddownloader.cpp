@@ -1,5 +1,5 @@
-#include "pluginbuilddownloader.h"
-#include "qttubeapplication.h"
+#include "pluginbuilddownloader.hpp"
+#include "qttubeapplication.hpp"
 #include <QTemporaryFile>
 #include <qttube-plugin/utils/httprequest.h>
 

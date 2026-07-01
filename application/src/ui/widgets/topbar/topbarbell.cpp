@@ -1,5 +1,5 @@
-#include "topbarbell.h"
-#include "utils/uiutils.h"
+#include "topbarbell.hpp"
+#include "utils/uiutils.hpp"
 #include <QLabel>
 
 TopBarBell::TopBarBell(QWidget* parent)

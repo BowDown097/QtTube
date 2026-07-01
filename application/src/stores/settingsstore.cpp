@@ -1,4 +1,4 @@
-#include "settingsstore.h"
+#include "settingsstore.hpp"
 #include <QDir>
 #include <QSettings>
 #include <QStandardPaths>

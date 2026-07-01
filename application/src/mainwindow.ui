@@ -192,7 +192,7 @@
   <customwidget>
    <class>ContinuableListWidget</class>
    <extends>QListWidget</extends>
-   <header>src/ui/widgets/continuablelistwidget.h</header>
+   <header>src/ui/widgets/continuablelistwidget.hpp</header>
   </customwidget>
  </customwidgets>
  <resources>

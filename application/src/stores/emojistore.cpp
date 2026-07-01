@@ -1,4 +1,4 @@
-#include "emojistore.h"
+#include "emojistore.hpp"
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <qttube-plugin/utils/httprequest.h>

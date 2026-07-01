@@ -1,8 +1,8 @@
-#include "accountswitcherwidget.h"
-#include "accountentrywidget.h"
-#include "mainwindow.h"
-#include "ui/widgets/topbar/topbar.h"
-#include "utils/uiutils.h"
+#include "accountswitcherwidget.hpp"
+#include "accountentrywidget.hpp"
+#include "mainwindow.hpp"
+#include "ui/widgets/topbar/topbar.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QPushButton>
 

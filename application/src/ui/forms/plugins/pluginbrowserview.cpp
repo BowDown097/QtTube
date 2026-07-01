@@ -1,8 +1,8 @@
-#include "pluginbrowserview.h"
+#include "pluginbrowserview.hpp"
 #include "ui_pluginbrowserview.h"
-#include "plugindownloaddialog.h"
-#include "qttubeapplication.h"
-#include "utils/uiutils.h"
+#include "plugindownloaddialog.hpp"
+#include "qttubeapplication.hpp"
+#include "utils/uiutils.hpp"
 #include <QMessageBox>
 #include <QPushButton>
 

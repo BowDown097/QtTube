@@ -1,8 +1,8 @@
-#include "emojimenu.h"
+#include "emojimenu.hpp"
 #include "ui_emojimenu.h"
-#include "cachednetworkworker.h"
-#include "emojigraphicsitem.h"
-#include "stores/emojistore.h"
+#include "cachednetworkworker.hpp"
+#include "emojigraphicsitem.hpp"
+#include "stores/emojistore.hpp"
 #include <QScrollBar>
 #include <QThread>
 #include <QTimer>

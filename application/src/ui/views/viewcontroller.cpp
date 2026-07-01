@@ -1,9 +1,9 @@
-#include "viewcontroller.h"
-#include "channelview.h"
-#include "mainwindow.h"
-#include "ui/widgets/topbar/topbar.h"
-#include "utils/uiutils.h"
-#include "watchview.h"
+#include "viewcontroller.hpp"
+#include "channelview.hpp"
+#include "mainwindow.hpp"
+#include "ui/widgets/topbar/topbar.hpp"
+#include "utils/uiutils.hpp"
+#include "watchview.hpp"
 #include <QMessageBox>
 #include <QStackedWidget>
 

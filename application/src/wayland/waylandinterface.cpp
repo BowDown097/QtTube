@@ -1,4 +1,4 @@
-#include "waylandinterface.h"
+#include "waylandinterface.hpp"
 #include "wayland/ext-idle-inhibit-unstable-v1.h"
 #include <QGuiApplication>
 

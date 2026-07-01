@@ -1,4 +1,4 @@
-#include "badgelabel.h"
+#include "badgelabel.hpp"
 
 namespace
 {

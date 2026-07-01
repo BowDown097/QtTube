@@ -1,6 +1,6 @@
-#include "pluginbrowser.h"
-#include "pluginmanager.h"
-#include "qttubeapplication.h"
+#include "pluginbrowser.hpp"
+#include "pluginmanager.hpp"
+#include "qttubeapplication.hpp"
 #include <QDirIterator>
 #include <QMessageBox>
 #include <qttube-plugin/components/auth/authstore.h>

@@ -1,5 +1,5 @@
-#include "emojigraphicsitem.h"
-#include "cachednetworkworker.h"
+#include "emojigraphicsitem.hpp"
+#include "cachednetworkworker.hpp"
 #include <QBuffer>
 #include <QGraphicsSceneMouseEvent>
 #include <QImageReader>

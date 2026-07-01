@@ -1,8 +1,8 @@
-#include "subscribewidget.h"
-#include "notificationbell.h"
-#include "subscribelabel.h"
-#include "ui/widgets/labels/tubelabel.h"
-#include "utils/uiutils.h"
+#include "subscribewidget.hpp"
+#include "notificationbell.hpp"
+#include "subscribelabel.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 
 SubscribeWidget::SubscribeWidget(PluginEntry* plugin, QWidget* parent)

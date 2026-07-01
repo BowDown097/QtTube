@@ -1,5 +1,5 @@
-#include "textmessage.h"
-#include "ui/widgets/labels/tubelabel.h"
+#include "textmessage.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
 #include <QBoxLayout>
 
 TextMessage::TextMessage(const QtTubePlugin::TextMessage& data, QWidget* parent)

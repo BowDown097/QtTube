@@ -1,9 +1,9 @@
-#include "accountmenuwidget.h"
-#include "mainwindow.h"
-#include "ui/views/viewcontroller.h"
-#include "ui/widgets/labels/iconlabel.h"
-#include "ui/widgets/topbar/topbar.h"
-#include "utils/uiutils.h"
+#include "accountmenuwidget.hpp"
+#include "mainwindow.hpp"
+#include "ui/views/viewcontroller.hpp"
+#include "ui/widgets/labels/iconlabel.hpp"
+#include "ui/widgets/topbar/topbar.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <qttube-plugin/components/auth/authstore.h>
 

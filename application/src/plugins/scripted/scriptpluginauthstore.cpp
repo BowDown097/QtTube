@@ -1,8 +1,8 @@
-#include "scriptpluginauthstore.h"
-#include "mainwindow.h"
-#include "qttubeapplication.h"
-#include "utils/quickjs/qjsutils.h"
-#include "utils/uiutils.h"
+#include "scriptpluginauthstore.hpp"
+#include "mainwindow.hpp"
+#include "qttubeapplication.hpp"
+#include "utils/quickjs/qjsutils.hpp"
+#include "utils/uiutils.hpp"
 
 bool ScriptPluginAuthRoutine::onNewCookie(const QByteArray& name, const QByteArray& value)
 {

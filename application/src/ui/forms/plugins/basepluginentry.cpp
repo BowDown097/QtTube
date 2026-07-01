@@ -1,5 +1,5 @@
-#include "basepluginentry.h"
-#include "ui/widgets/labels/tubelabel.h"
+#include "basepluginentry.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
 #include <QBoxLayout>
 #include <QDesktopServices>
 

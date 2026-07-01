@@ -1,6 +1,6 @@
-#include "findbar.h"
-#include "closebutton.h"
-#include "utils/uiutils.h"
+#include "findbar.hpp"
+#include "closebutton.hpp"
+#include "utils/uiutils.hpp"
 #include <QApplication>
 #include <QBoxLayout>
 #include <QLabel>

@@ -1,6 +1,6 @@
-#include "gridvideorenderer.h"
-#include "ui/widgets/labels/channellabel.h"
-#include "videothumbnailwidget.h"
+#include "gridvideorenderer.hpp"
+#include "ui/widgets/labels/channellabel.hpp"
+#include "videothumbnailwidget.hpp"
 #include <QBoxLayout>
 
 constexpr int EntryWidth = 205;

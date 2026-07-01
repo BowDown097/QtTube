@@ -1,6 +1,6 @@
-#include "browsevideorenderer.h"
-#include "ui/widgets/labels/channellabel.h"
-#include "videothumbnailwidget.h"
+#include "browsevideorenderer.hpp"
+#include "ui/widgets/labels/channellabel.hpp"
+#include "videothumbnailwidget.hpp"
 #include <QBoxLayout>
 
 BrowseVideoRenderer::BrowseVideoRenderer(PluginEntry* plugin, QWidget* parent)

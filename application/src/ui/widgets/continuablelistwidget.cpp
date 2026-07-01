@@ -1,5 +1,5 @@
-#include "continuablelistwidget.h"
-#include "qttubeapplication.h"
+#include "continuablelistwidget.hpp"
+#include "qttubeapplication.hpp"
 #include <QScrollBar>
 #include <QWheelEvent>
 

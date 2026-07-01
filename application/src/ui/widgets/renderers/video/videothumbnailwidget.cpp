@@ -1,4 +1,4 @@
-#include "videothumbnailwidget.h"
+#include "videothumbnailwidget.hpp"
 #include <QProgressBar>
 
 VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)

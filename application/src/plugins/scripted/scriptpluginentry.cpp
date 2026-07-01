@@ -1,13 +1,13 @@
-#include "scriptpluginentry.h"
-#include "mainwindow.h"
-#include "qttubeapplication.h"
-#include "scriptplugininterface.h"
-#include "utils/quickjs/plugin_js_traits.h"
-#include "utils/quickjs/polyfills/fetch.h"
-#include "utils/quickjs/polyfills/intl.h"
-#include "utils/quickjs/polyfills/navigator.h"
-#include "utils/quickjs/qjsutils.h"
-#include "utils/uiutils.h"
+#include "scriptpluginentry.hpp"
+#include "mainwindow.hpp"
+#include "qttubeapplication.hpp"
+#include "scriptplugininterface.hpp"
+#include "utils/quickjs/plugin_js_traits.hpp"
+#include "utils/quickjs/polyfills/fetch.hpp"
+#include "utils/quickjs/polyfills/intl.hpp"
+#include "utils/quickjs/polyfills/navigator.hpp"
+#include "utils/quickjs/qjsutils.hpp"
+#include "utils/uiutils.hpp"
 #include <quickjs-libc.h>
 
 QtTubePlugin::PluginMetadata createMetadata(const qjs::value& metadata)

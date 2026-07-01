@@ -1,7 +1,7 @@
-#include "channellabel.h"
-#include "badgelabel.h"
-#include "ui/views/viewcontroller.h"
-#include "utils/uiutils.h"
+#include "channellabel.hpp"
+#include "badgelabel.hpp"
+#include "ui/views/viewcontroller.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QDesktopServices>
 #include <QMenu>

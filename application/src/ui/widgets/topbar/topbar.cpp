@@ -1,7 +1,7 @@
-#include "topbar.h"
-#include "qttubeapplication.h"
-#include "ui/forms/settings/settingsform.h"
-#include "utils/uiutils.h"
+#include "topbar.hpp"
+#include "qttubeapplication.hpp"
+#include "ui/forms/settings/settingsform.hpp"
+#include "utils/uiutils.hpp"
 #include <QApplication>
 #include <QMessageBox>
 #include <QMouseEvent>

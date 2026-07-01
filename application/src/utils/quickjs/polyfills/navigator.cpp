@@ -1,5 +1,5 @@
-#include "navigator.h"
-#include "utils/quickjs/qt_js_traits.h"
+#include "navigator.hpp"
+#include "utils/quickjs/qt_js_traits.hpp"
 #include <QLocale>
 #include <QThread>
 #include <quickjs++/context.h>

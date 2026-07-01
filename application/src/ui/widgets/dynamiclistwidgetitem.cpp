@@ -1,4 +1,4 @@
-#include "dynamiclistwidgetitem.h"
+#include "dynamiclistwidgetitem.hpp"
 #include <QResizeEvent>
 
 bool ResizeEventFilter::eventFilter(QObject* obj, QEvent* event)

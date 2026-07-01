@@ -1,6 +1,6 @@
-#include "mainwindow.h"
-#include "qttubeapplication.h"
-#include "ui/forms/livechatwindow.h"
+#include "mainwindow.hpp"
+#include "qttubeapplication.hpp"
+#include "ui/forms/livechatwindow.hpp"
 #include <QCommandLineParser>
 #include <qttube-plugin/plugininterface.h>
 

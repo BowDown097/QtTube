@@ -1,10 +1,10 @@
-#include "videorenderer.h"
-#include "ui/views/preloaddata.h"
-#include "ui/views/viewcontroller.h"
-#include "ui/widgets/labels/badgelabel.h"
-#include "ui/widgets/labels/channellabel.h"
-#include "utils/uiutils.h"
-#include "videothumbnailwidget.h"
+#include "videorenderer.hpp"
+#include "ui/views/preloaddata.hpp"
+#include "ui/views/viewcontroller.hpp"
+#include "ui/widgets/labels/badgelabel.hpp"
+#include "ui/widgets/labels/channellabel.hpp"
+#include "utils/uiutils.hpp"
+#include "videothumbnailwidget.hpp"
 #include <QBoxLayout>
 #include <QMenu>
 #include <ranges>

@@ -1,5 +1,5 @@
-#include "pluginbrowser.h"
-#include "pluginentry.h"
+#include "pluginbrowser.hpp"
+#include "pluginentry.hpp"
 #include <HtmlParser/Parser.hpp>
 #include <HtmlParser/Query.hpp>
 #include <QJsonArray>

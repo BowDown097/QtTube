@@ -1,6 +1,6 @@
-#include "pluginentry.h"
-#include "qttubeapplication.h"
-#include "scripted/scriptpluginentry.h"
+#include "pluginentry.hpp"
+#include "qttubeapplication.hpp"
+#include "scripted/scriptpluginentry.hpp"
 #include <QMessageBox>
 #include <qttube-plugin/plugininterface.h>
 

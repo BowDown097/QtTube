@@ -1,10 +1,10 @@
-#include "browsenotificationrenderer.h"
-#include "mainwindow.h"
-#include "qttubeapplication.h"
-#include "ui/forms/plugins/plugindownloaddialog.h"
-#include "ui/widgets/labels/tubelabel.h"
-#include "ui/widgets/topbar/topbar.h"
-#include "utils/uiutils.h"
+#include "browsenotificationrenderer.hpp"
+#include "mainwindow.hpp"
+#include "qttubeapplication.hpp"
+#include "ui/forms/plugins/plugindownloaddialog.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
+#include "ui/widgets/topbar/topbar.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QPushButton>
 #include <qttube-plugin/objects/notification.h>

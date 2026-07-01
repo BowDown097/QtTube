@@ -1,10 +1,10 @@
-#include "channelview.h"
-#include "mainwindow.h"
-#include "qttubeapplication.h"
-#include "ui/browsehelper.h"
-#include "ui/widgets/subscribe/subscribewidget.h"
-#include "ui/widgets/topbar/topbar.h"
-#include "utils/uiutils.h"
+#include "channelview.hpp"
+#include "mainwindow.hpp"
+#include "qttubeapplication.hpp"
+#include "ui/browsehelper.hpp"
+#include "ui/widgets/subscribe/subscribewidget.hpp"
+#include "ui/widgets/topbar/topbar.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QScrollBar>
 #include <qttube-plugin/plugininterface.h>

@@ -1,9 +1,9 @@
-#include "qttubeapplication.h"
-#include "mainwindow.h"
-#include "ui/views/viewcontroller.h"
-#include "ui/widgets/topbar/topbar.h"
-#include "utils/quickjs/qjsutils.h"
-#include "utils/uiutils.h"
+#include "qttubeapplication.hpp"
+#include "mainwindow.hpp"
+#include "ui/views/viewcontroller.hpp"
+#include "ui/widgets/topbar/topbar.hpp"
+#include "utils/quickjs/qjsutils.hpp"
+#include "utils/uiutils.hpp"
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QStyle>

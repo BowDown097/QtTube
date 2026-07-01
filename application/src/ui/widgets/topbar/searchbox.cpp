@@ -1,7 +1,7 @@
-#include "searchbox.h"
-#include "extmenu.h"
-#include "exttoolbutton.h"
-#include "utils/uiutils.h"
+#include "searchbox.hpp"
+#include "extmenu.hpp"
+#include "exttoolbutton.hpp"
+#include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QEvent>
 #include <QLineEdit>

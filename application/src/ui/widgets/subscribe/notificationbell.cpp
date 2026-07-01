@@ -1,5 +1,5 @@
-#include "notificationbell.h"
-#include "utils/uiutils.h"
+#include "notificationbell.hpp"
+#include "utils/uiutils.hpp"
 #include <QMenu>
 #include <QMessageBox>
 #include <qttube-plugin/plugininterface.h>

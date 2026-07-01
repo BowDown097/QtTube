@@ -1,9 +1,9 @@
-#include "osutils.h"
+#include "osutils.hpp"
 #include <QDir>
 #include <QFileInfo>
 
 #ifdef QTTUBE_HAS_WAYLAND
-#include "qttubeapplication.h"
+#include "qttubeapplication.hpp"
 #endif
 
 #if defined(Q_OS_UNIX) && !defined(__APPLE__) && !defined(__MACH__)

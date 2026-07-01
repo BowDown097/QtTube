@@ -1,5 +1,5 @@
-#include "accountentrywidget.h"
-#include "ui/widgets/labels/tubelabel.h"
+#include "accountentrywidget.hpp"
+#include "ui/widgets/labels/tubelabel.hpp"
 #include <QBoxLayout>
 
 AccountEntryWidget::AccountEntryWidget(const QtTubePlugin::AuthUser& user, QWidget* parent)

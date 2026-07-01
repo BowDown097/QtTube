@@ -1,5 +1,5 @@
-#include "fetch.h"
-#include "utils/quickjs/qjsutils.h"
+#include "fetch.hpp"
+#include "utils/quickjs/qjsutils.hpp"
 #include <quickjs++/context.h>
 
 namespace jsfetch

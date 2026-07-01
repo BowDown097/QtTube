@@ -1,6 +1,6 @@
-#include "termfilterview.h"
+#include "termfilterview.hpp"
 #include "ui_termfilterview.h"
-#include "qttubeapplication.h"
+#include "qttubeapplication.hpp"
 #include <QMessageBox>
 
 TermFilterView::~TermFilterView() { delete ui; }

@@ -1,6 +1,6 @@
-#include "intl.h"
-#include "utils/hashfunctions.h"
-#include "utils/quickjs/qt_js_traits.h"
+#include "intl.hpp"
+#include "utils/hashfunctions.hpp"
+#include "utils/quickjs/qt_js_traits.hpp"
 #include <quickjs++/context.h>
 #include <unicode/reldatefmt.h>
 #include <unordered_set>
