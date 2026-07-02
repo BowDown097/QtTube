@@ -1,18 +1,20 @@
 #pragma once
 #include "plugins/pluginbrowser.hpp"
 #include "plugins/pluginentry.hpp"
-
-class QTemporaryFile;
+#include <QDir>
+#include <QTemporaryFile>
 
 class PluginBuildDownloader : public QObject
 {
     Q_OBJECT
 public:
-    explicit PluginBuildDownloader(QString pluginName, ReleaseData data, QObject* parent = nullptr);
+    explicit PluginBuildDownloader(QDir pluginDir, ReleaseData data, QObject* parent = nullptr)
+        : QObject(parent), m_data(std::move(data)), m_pluginDir(std::move(pluginDir)) {}
+    void start();
 private:
     ReleaseData m_data;
-    QString m_pluginName;
-    QTemporaryFile* m_tempFile;
+    QDir m_pluginDir;
+    QTemporaryFile m_tempFile;
 
     void createUpdateIni(const QString& path);
 private slots:

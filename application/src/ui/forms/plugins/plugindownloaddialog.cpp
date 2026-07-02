@@ -5,12 +5,6 @@
 #include <QMessageBox>
 #include <QProgressBar>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
-#include <QtCore/private/qzipreader_p.h>
-#else
-#include <QtGui/private/qzipreader_p.h>
-#endif
-
 QString bytesString(const QString& format, double bytes)
 {
     QString out;
@@ -51,10 +45,15 @@ PluginDownloadDialog::PluginDownloadDialog(QString pluginName, ReleaseData data,
     m_layout->setContentsMargins(0, 0, 0, 0);
     m_layout->addWidget(m_progressBar);
 
-    PluginBuildDownloader* downloader = new PluginBuildDownloader(std::move(pluginName), std::move(data), this);
+    QDir pluginDir(qtTubeApp->plugins().pluginLoadDirs().front().filePath(pluginName));
+    PluginBuildDownloader* downloader = new PluginBuildDownloader(
+        std::move(pluginDir), std::move(data), this);
+
     connect(downloader, &PluginBuildDownloader::failed, this, &PluginDownloadDialog::downloadFailed);
     connect(downloader, &PluginBuildDownloader::finished, this, &PluginDownloadDialog::downloadFinished);
     connect(downloader, &PluginBuildDownloader::progress, this, &PluginDownloadDialog::downloadProgress);
+
+    downloader->start();
 }
 
 void PluginDownloadDialog::downloadFailed(const QString& error)

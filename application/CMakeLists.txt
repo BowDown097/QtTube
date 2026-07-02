@@ -187,17 +187,13 @@ target_compile_definitions(QtTube PRIVATE
 # Include directories, libraries
 ## Qt
 find_package(Qt6 REQUIRED COMPONENTS Network WebEngineWidgets Widgets)
-if(Qt6Core_VERSION VERSION_GREATER_EQUAL 6.10.0)
-    set(QT_NO_PRIVATE_MODULE_WARNING ON)
-    find_package(Qt6 REQUIRED COMPONENTS GuiPrivate)
-endif()
-target_link_libraries(QtTube PRIVATE Qt::GuiPrivate Qt::Network Qt::WebEngineWidgets Qt::Widgets)
+target_link_libraries(QtTube PRIVATE Qt::Network Qt::WebEngineWidgets Qt::Widgets)
 ## Built-in
 target_include_directories(QtTube PRIVATE src)
-target_link_libraries(QtTube PRIVATE quickjs++ QtTube::PluginInterface)
+target_link_libraries(QtTube PRIVATE QuaZip quickjs++ QtTube::PluginInterface)
 ## Platform-specific (Unix)
 if(UNIX AND NOT APPLE)
-    ### Xscreensaver
+    # Xscreensaver
     find_package(X11 QUIET)
     if(X11_FOUND AND X11_Xscreensaver_LIB)
         target_include_directories(QtTube PRIVATE ${X11_INCLUDE_DIR})
@@ -210,7 +206,7 @@ if(UNIX AND NOT APPLE)
     else()
         message(STATUS "XScreenSaver not found. Idle sleep will not be inhibited on X11 in this build.")
     endif()
-    ### Wayland
+    # Wayland
     find_package(Wayland QUIET)
     if(Wayland_FOUND)
         target_sources(QtTube
@@ -224,6 +220,10 @@ if(UNIX AND NOT APPLE)
         target_compile_definitions(QtTube PRIVATE QTTUBE_HAS_WAYLAND)
         target_include_directories(QtTube PRIVATE ${Wayland_INCLUDE_DIRS})
         target_link_libraries(QtTube PRIVATE ${Wayland_LIBRARIES})
+        # needed for QPlatformNativeInterface on Qt < 6.5
+        if(Qt6Core_VERSION VERSION_LESS 6.5.0)
+            target_link_libraries(QtTube PRIVATE Qt::GuiPrivate)
+        endif()
     endif()
 endif()
 ## ICU

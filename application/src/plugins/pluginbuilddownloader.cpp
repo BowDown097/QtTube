@@ -1,45 +1,28 @@
 #include "pluginbuilddownloader.hpp"
 #include "qttubeapplication.hpp"
-#include <QTemporaryFile>
 #include <qttube-plugin/utils/httprequest.h>
+#include <quazip.h>
+#include <quazipfile.h>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
-#include <QtCore/private/qzipreader_p.h>
-#else
-#include <QtGui/private/qzipreader_p.h>
-#endif
-
-void writeFile(
-    const QString& name, const QByteArray& data,
-    QString& fileError, std::optional<QFileInfo>* pluginFile = nullptr)
+void writeFile(QIODevice& device, const QString& outName, std::optional<QFileInfo>* pluginFile)
 {
-    if (QFile file(name); file.open(QFile::WriteOnly))
-    {
-        file.write(data);
-        if (pluginFile)
-            pluginFile->emplace(file);
-    }
-    else
-    {
-        fileError = "Could not open " % name % " for writing: " % file.errorString();
-    }
+    QFile file(outName);
+    if (!file.open(QIODevice::WriteOnly))
+        throw PluginLoadException("Could not open " % outName % " for writing: " % file.errorString());
+
+    file.write(device.readAll());
+    if (pluginFile)
+        pluginFile->emplace(file);
 }
 
-PluginBuildDownloader::PluginBuildDownloader(QString pluginName, ReleaseData data, QObject* parent)
-    : m_data(std::move(data)),
-      m_pluginName(std::move(pluginName)),
-      m_tempFile(new QTemporaryFile(this))
+void extractZipEntry(
+    const QuaZipFileInfo64& info, QuaZip& zip,
+    const QString& outName, std::optional<QFileInfo>* pluginFile = {})
 {
-    if (!m_tempFile->open())
-    {
-        emit failed("Could not open plugin file for writing.");
-        return;
-    }
-
-    HttpReply* reply = HttpRequest().writingToIODevice(m_tempFile).get(m_data.asset->downloadUrl);
-    connect(reply, &HttpReply::downloadProgress, this,
-        std::bind_front(&PluginBuildDownloader::progress, this, m_data.asset->name));
-    connect(reply, &HttpReply::finished, this, &PluginBuildDownloader::downloadFinished);
+    QuaZipFile file(&zip);
+    if (!file.open(QIODevice::ReadOnly))
+        throw PluginLoadException("Could not open " % info.name % " for reading: " % file.errorString());
+    writeFile(file, outName, pluginFile);
 }
 
 void PluginBuildDownloader::createUpdateIni(const QString& path)
@@ -53,60 +36,67 @@ void PluginBuildDownloader::createUpdateIni(const QString& path)
 
 void PluginBuildDownloader::downloadFinished(const HttpReply& reply)
 {
-    m_tempFile->seek(0);
-
-    const QDir& libsDir = qtTubeApp->plugins().libraryLoadDirs().front();
-    libsDir.mkpath(".");
-
-    QDir pluginDir(qtTubeApp->plugins().pluginLoadDirs().front().filePath(m_pluginName));
-    pluginDir.mkpath(".");
-
-    QString fileError;
-    std::optional<QFileInfo> pluginFile;
-
-    if (m_data.asset->name.endsWith(".zip"))
+    if (!reply.isSuccessful())
     {
-        QZipReader zipReader(m_tempFile);
-        const QList<QZipReader::FileInfo> files = zipReader.fileInfoList();
-
-        for (const QZipReader::FileInfo& info : files)
-        {
-            if (!info.isFile || !PluginEntry::isPluginFile(info.filePath))
-                continue;
-
-            if (info.filePath.startsWith("libs/"))
-                writeFile(libsDir.filePath(info.filePath.section('/', -1)), zipReader.fileData(info.filePath), fileError);
-            else if (!pluginFile && !info.filePath.contains('/'))
-                writeFile(pluginDir.filePath(info.filePath), zipReader.fileData(info.filePath), fileError, &pluginFile);
-        }
-    }
-    else
-    {
-        writeFile(pluginDir.filePath(m_data.asset->name), m_tempFile->readAll(), fileError, &pluginFile);
-    }
-
-    if (!fileError.isEmpty())
-    {
-        pluginDir.removeRecursively();
-        emit failed(fileError);
-        return;
-    }
-
-    if (!pluginFile)
-    {
-        pluginDir.removeRecursively();
-        emit failed("No plugin file found.");
+        emit failed(reply.errorString());
         return;
     }
 
     try
     {
-        createUpdateIni(pluginDir.filePath("update.ini"));
+        m_tempFile.seek(0);
+
+        const QDir& libsDir = qtTubeApp->plugins().libraryLoadDirs().front();
+        libsDir.mkpath(".");
+        m_pluginDir.mkpath(".");
+
+        std::optional<QFileInfo> pluginFile;
+        if (m_data.asset->name.endsWith(".zip"))
+        {
+            QuaZip zip(&m_tempFile);
+            if (!zip.open(QuaZip::mdUnzip))
+                throw PluginLoadException("Failed to unzip " + m_data.asset->name);
+
+            QuaZipFileInfo64 info;
+            for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile())
+            {
+                if (zip.getCurrentFileInfo(&info) && PluginEntry::isPluginFile(info.name))
+                {
+                    if (info.name.startsWith("libs/"))
+                        extractZipEntry(info, zip, libsDir.filePath(info.name.section('/', -1)));
+                    else if (!pluginFile && !info.name.contains('/'))
+                        extractZipEntry(info, zip, m_pluginDir.filePath(info.name), &pluginFile);
+                }
+            }
+        }
+        else
+        {
+            writeFile(m_tempFile, m_pluginDir.filePath(m_data.asset->name), &pluginFile);
+        }
+
+        if (!pluginFile.has_value())
+            throw PluginLoadException("No plugin file found.");
+
+        createUpdateIni(m_pluginDir.filePath("update.ini"));
         emit finished(qtTubeApp->plugins().registerPlugin(std::move(pluginFile.value())));
     }
     catch (const PluginLoadException& ex)
     {
-        pluginDir.removeRecursively();
+        m_pluginDir.removeRecursively();
         emit failed(ex.message());
     }
+}
+
+void PluginBuildDownloader::start()
+{
+    if (!m_tempFile.open())
+    {
+        emit failed("Could not open plugin file for writing.");
+        return;
+    }
+
+    HttpReply* reply = HttpRequest().writingToIODevice(&m_tempFile).get(m_data.asset->downloadUrl);
+    connect(reply, &HttpReply::downloadProgress, this,
+        std::bind_front(&PluginBuildDownloader::progress, this, m_data.asset->name));
+    connect(reply, &HttpReply::finished, this, &PluginBuildDownloader::downloadFinished);
 }

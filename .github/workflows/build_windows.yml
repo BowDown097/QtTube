@@ -47,7 +47,7 @@ jobs:
         uses: johnwason/vcpkg-action@v8
         id: vcpkg
         with:
-          pkgs: icu
+          pkgs: icu zlib
           triplet: x64-windows-release
           token: ${{ github.token }}
 

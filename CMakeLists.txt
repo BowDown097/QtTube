@@ -60,8 +60,11 @@ if(QTTUBE_ENABLE_LTO)
 endif()
 
 # Options
+option(BUILD_SHARED_LIBS "Build a shared library" OFF)
 option(QJS_BUILD_LIBC "Build standard library modules as part of the library" ON)
 option(QTTUBE_ENABLE_WEB_COMPONENTS "Enable usage of WebEngine-based components" ON)
+option(QUAZIP_ENABLE_QTEXTCODEC "Enable use of QTextCodec (requires Qt5 or Qt6 Core5Compat)" OFF)
+option(QUAZIP_INSTALL "Enable installation" OFF)
 
 # Qt project setup
 set(CMAKE_AUTORCC ON)
@@ -70,6 +73,7 @@ qt_standard_project_setup()
 
 # Subprojects
 add_subdirectory(external/plugin_interface)
+add_subdirectory(external/quazip)
 add_subdirectory(external/quickjs++)
 add_subdirectory(program_info)
 add_subdirectory(application)

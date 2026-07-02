@@ -4,3 +4,6 @@
 [submodule "quickjs++"]
 	path = external/quickjs++
 	url = https://github.com/BowDown097/quickjspp
+[submodule "quazip"]
+	path = external/quazip
+	url = https://github.com/stachenov/quazip
