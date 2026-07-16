@@ -1,7 +1,6 @@
 #pragma once
 #include <QException>
 #include <QFileInfo>
-#include <QLibrary>
 #include <qttube-plugin/pluginfwd.h>
 #include <qttube-plugin/pluginmetadata.h>
 
@@ -42,14 +41,4 @@ protected:
     explicit PluginEntry(QFileInfo&& fileInfo_);
     void checkMetadata();
     void checkTargetVersion(std::string_view targetVersion);
-};
-
-class NativePluginEntry : public PluginEntry
-{
-public:
-    explicit NativePluginEntry(QFileInfo&& fileInfo_);
-    void initialize() override;
-    void unload() override;
-private:
-    QLibrary m_handle;
 };

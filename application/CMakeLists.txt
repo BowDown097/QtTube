@@ -15,6 +15,7 @@ target_sources(QtTube
         src/main.cpp
         src/mainwindow.cpp
         src/qttubeapplication.cpp
+        src/plugins/nativepluginentry.cpp
         src/plugins/pluginbrowser.cpp
         src/plugins/pluginbuilddownloader.cpp
         src/plugins/pluginentry.cpp
@@ -93,6 +94,7 @@ target_sources(QtTube
     PRIVATE FILE_SET HEADERS FILES
         src/mainwindow.hpp
         src/qttubeapplication.hpp
+        src/plugins/nativepluginentry.hpp
         src/plugins/pluginbrowser.hpp
         src/plugins/pluginbrowsercache.hpp
         src/plugins/pluginbuilddownloader.hpp
@@ -184,7 +186,7 @@ target_compile_definitions(QtTube PRIVATE
     QTTUBE_REPO_URL="${CMAKE_PROJECT_HOMEPAGE_URL}"
 )
 
-# Include directories, libraries
+# Libraries and include directories
 ## Qt
 find_package(Qt6 REQUIRED COMPONENTS Network WebEngineWidgets Widgets)
 target_link_libraries(QtTube PRIVATE Qt::Network Qt::WebEngineWidgets Qt::Widgets)
