@@ -104,6 +104,7 @@ target_sources(QtTube
         src/plugins/scripted/scriptpluginauthstore.hpp
         src/plugins/scripted/scriptpluginentry.hpp
         src/plugins/scripted/scriptplugininterface.hpp
+        src/plugins/scripted/scriptpluginproviders.hpp
         src/stores/emojistore.hpp
         src/stores/settingsstore.hpp
         src/ui/browsehelper.hpp

@@ -7,7 +7,7 @@
 #include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QScrollBar>
-#include <qttube-plugin/plugininterface.h>
+#include <qttube-plugin/providers/providertypes.h>
 
 ChannelView::~ChannelView()
 {
@@ -87,34 +87,30 @@ void ChannelView::hotLoadChannel(const QString& channelId)
 
 void ChannelView::loadChannel(const QString& channelId)
 {
+    assert(m_plugin->providers.channel != nullptr);
     m_channelId = channelId;
-    if (QtTubePlugin::ChannelReply* reply = m_plugin->interface->getChannel(channelId, {}, {}))
-    {
-        QEventLoop loop;
-        connect(reply, &QtTubePlugin::ChannelReply::exception, this, [this, &loop](const QtTubePlugin::Exception& ex) {
-            loop.quit();
-            emit loadFailed(ex);
-        });
-        connect(reply, &QtTubePlugin::ChannelReply::finished, this, [this, &loop](const QtTubePlugin::ChannelData& data) {
-            loop.quit();
-            processData(data);
-        });
-        loop.exec();
-    }
-    else
-    {
-        emit loadFailed(QtTubePlugin::Exception("No method has been provided."));
-    }
+
+    QtTubePlugin::ChannelReply* reply = m_plugin->providers.channel->getChannel(channelId, {}, {});
+    QEventLoop loop;
+    connect(reply, &QtTubePlugin::ChannelReply::exception, this, [this, &loop](const QtTubePlugin::Exception& ex) {
+        loop.quit();
+        emit loadFailed(ex);
+    });
+    connect(reply, &QtTubePlugin::ChannelReply::finished, this, [this, &loop](const QtTubePlugin::ChannelData& data) {
+        loop.quit();
+        processData(data);
+    });
+    loop.exec();
 }
 
-void ChannelView::loadTab(std::any requestData, int index)
+void ChannelView::loadTab(const std::any& requestData, int index)
 {
     const QList<ContinuableListWidget*> tabWidgets = m_channelTabs->findChildren<ContinuableListWidget*>();
     for (ContinuableListWidget* list : tabWidgets)
         list->clear();
 
     ContinuableListWidget* list = m_channelTabs->widget(index)->findChild<ContinuableListWidget*>();
-    BrowseHelper::instance()->browseChannel(list, index, m_channelId, requestData);
+    BrowseHelper::instance()->browseChannel(m_plugin, list, index, m_channelId, requestData);
 }
 
 void ChannelView::processData(const QtTubePlugin::ChannelData& data)
@@ -130,7 +126,7 @@ void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
 {
     m_channelNameLabel->setText(header.channelText);
     m_subtextLabel->setText(header.channelSubtext);
-    m_subscribeWidget->setData(header.subscribeButton);
+    m_subscribeWidget->setData(m_channelId, header.subscribeButton);
 
     MainWindow* mainWindow = UIUtils::getMainWindow();
     mainWindow->setWindowTitle(header.channelText % " - " % QTTUBE_APP_NAME);
@@ -185,7 +181,7 @@ void ChannelView::processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs)
 
         connect(list, &ContinuableListWidget::continuationReady, this, [this, data = tabs[i].requestData, i, list] {
             if (list->continuationData.has_value())
-                BrowseHelper::instance()->browseChannel(list, i, m_channelId, data);
+                BrowseHelper::instance()->browseChannel(m_plugin, list, i, m_channelId, data);
         });
 
         m_channelTabs->addTab(tabWidget, tabs[i].title);

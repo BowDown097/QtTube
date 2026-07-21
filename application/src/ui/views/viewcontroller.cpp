@@ -11,6 +11,12 @@ namespace ViewController
 {
     void loadChannel(const QString& channelId, PluginEntry* plugin)
     {
+        if (!plugin->providers.channel)
+        {
+            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+            return;
+        }
+
         MainWindow* mainWindow = UIUtils::getMainWindow();
         if (ChannelView* casted = qobject_cast<ChannelView*>(mainWindow->centralWidget()->currentWidget()))
         {
@@ -41,6 +47,12 @@ namespace ViewController
     void loadVideo(const QString& videoId, PluginEntry* plugin, int progress,
                    PreloadData::WatchView* preload, bool continuePlayback)
     {
+        if (!plugin->providers.watch)
+        {
+            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+            return;
+        }
+
         MainWindow* mainWindow = UIUtils::getMainWindow();
         if (WatchView* casted = qobject_cast<WatchView*>(mainWindow->centralWidget()->currentWidget()))
         {

@@ -32,6 +32,7 @@ private:
     void addChatItemToList(const QtTubePlugin::LiveChatItem& item);
     void addNewChatReplayItems(qint64 progress, qint64 previousProgress, bool seeked);
     void createEmojiMenuWidgets();
+    void getReplay(const std::any& data, qint64 progress, qint64 previousProgress, bool seeked);
     void processingEnd();
     void updateChatReplay(qint64 progress, qint64 previousProgress);
     void waitForPopulation();

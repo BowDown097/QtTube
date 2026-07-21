@@ -232,7 +232,7 @@ namespace qjs
         WRAP_FIELD(headerTextColor)
         WRAP_FIELD(paidAmountText)
     )
-    TRAIT_FOR(QtTubePlugin::RecommendedContinuationData,
+    TRAIT_FOR(QtTubePlugin::RecommendedData,
         UNWRAP_FIELD(nextContinuation)
         UNWRAP_FIELD(videos),
 

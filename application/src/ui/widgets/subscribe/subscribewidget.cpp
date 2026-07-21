@@ -54,9 +54,9 @@ void SubscribeWidget::changeEvent(QEvent* event)
     QWidget::changeEvent(event);
 }
 
-void SubscribeWidget::setData(const QtTubePlugin::SubscribeButton& data)
+void SubscribeWidget::setData(const QString& channelId, const QtTubePlugin::SubscribeButton& data)
 {
-    m_subscribeLabel->setData(data);
+    m_subscribeLabel->setData(channelId, data);
     m_subscribeLabel->show();
 
     if (!data.countText.isEmpty())
@@ -72,7 +72,7 @@ void SubscribeWidget::setData(const QtTubePlugin::SubscribeButton& data)
 
     if (!data.notificationBell.states.isEmpty())
     {
-        m_notificationBell->setData(data.notificationBell);
+        m_notificationBell->setData(channelId, data.notificationBell);
         m_notificationBell->setVisible(data.subscribed);
     }
     else

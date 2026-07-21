@@ -28,7 +28,7 @@ void NativePluginEntry::initialize()
 
     // put in and simply validate metadata, check name for conflict with already loaded plugin
     if (auto metadataFunc = QtTubePluginMetadataFunc(m_handle.resolve("metadata")))
-        metadata = metadataFunc();
+        metadata = *(metadataFunc());
     else
         throw PluginLoadException(metadataNotFoundError.arg(fileInfo.fileName()));
     checkMetadata();
@@ -38,13 +38,6 @@ void NativePluginEntry::initialize()
         interface.reset(newInstanceFunc());
     else
         throw PluginLoadException(newInstanceNotFoundError.arg(fileInfo.fileName()));
-
-    // put in optional components
-    if (auto authFunc = QtTubePluginAuthFunc(m_handle.resolve("auth")))
-        authStore = authFunc();
-    playerFunc = QtTubePluginPlayerFunc(m_handle.resolve("player"));
-    if (auto settingsFunc = QtTubePluginSettingsFunc(m_handle.resolve("settings")))
-        settings = settingsFunc();
 
     PluginEntry::initialize();
 }

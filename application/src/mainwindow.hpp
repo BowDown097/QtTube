@@ -35,6 +35,8 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 private slots:
     void activePluginChanged(PluginEntry* activePlugin);
+    void authFailed();
+    void authSucceeded();
     void pluginUpdateAvailable(const QString& name, const ReleaseData& data);
     void reloadCurrentTab();
     void returnFromSearch();
@@ -44,9 +46,11 @@ private slots:
 private:
     void browse();
     void searchByQuery(const QString& query);
+    void toggleTabsForActivePlugin();
 
-    bool m_doNotBrowse = false;
+    PluginEntry* m_activePlugin{};
     FindBar* m_findbar;
+    int m_lastBrowseTab{};
     QString m_lastSearchQuery;
     ContinuableListWidget* m_notificationMenu;
     TopBar* m_topbar;

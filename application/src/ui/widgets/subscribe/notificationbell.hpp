@@ -14,7 +14,7 @@ public:
 
     explicit NotificationBell(PluginEntry* plugin, QWidget* parent = nullptr);
     qsizetype defaultEnabledStateIndex() const { return m_defaultEnabledStateIndex; }
-    void setData(const QtTubePlugin::NotificationBell& notificationBell);
+    void setData(const QString& channelId, const QtTubePlugin::NotificationBell& notificationBell);
     void setVisualState(qsizetype index);
 protected:
     void changeEvent(QEvent* event) override;
@@ -25,6 +25,7 @@ protected:
 #endif
     void leaveEvent(QEvent*) override;
 private:
+    QString m_channelId;
     qsizetype m_defaultEnabledStateIndex = -1;
     QList<QString> m_icons;
     QMenu* m_notificationMenu;

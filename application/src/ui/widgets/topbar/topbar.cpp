@@ -8,7 +8,7 @@
 #include <QPropertyAnimation>
 #include <QPushButton>
 #include <QTabBar>
-#include <qttube-plugin/plugininterface.h>
+#include <qttube-plugin/providers/providertypes.h>
 
 TopBar::TopBar(QWidget* parent)
     : QWidget(parent),
@@ -100,29 +100,19 @@ void TopBar::handleMouseEvent(QMouseEvent* event)
     }
 }
 
-void TopBar::postSignInSetup()
+void TopBar::postSignInSetup(PluginEntry* plugin)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
-    {
-        if (QtTubePlugin::AccountReply* reply = plugin->interface->getActiveAccount())
-        {
-            connect(reply, &QtTubePlugin::AccountReply::exception, this, [this, plugin](const QtTubePlugin::Exception& ex) {
-                QMessageBox::critical(nullptr, "Failed to Load Account Data", ex.message());
-                emit plugin->authStore->updateFail();
-            });
-            connect(reply, &QtTubePlugin::AccountReply::finished, this, [this, plugin](const QtTubePlugin::InitialAccountData& data) {
-                updateNotificationCount(data.notificationCount);
-                avatarButton->setImage(data.avatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
-                plugin->authStore->update(data);
-                scaleAppropriately();
-            });
-        }
-        else
-        {
-            QMessageBox::critical(nullptr, "Failed to Load Account Data", "The active plugin has implemented authentication incompletely. The operation cannot continue.");
-            return;
-        }
-    }
+    QtTubePlugin::AccountReply* reply = plugin->providers.auth->getActiveAccount();
+    connect(reply, &QtTubePlugin::AccountReply::exception, this, [=, this](const QtTubePlugin::Exception& ex) {
+        QMessageBox::critical(nullptr, "Failed to Load Account Data", ex.message());
+        emit plugin->authStore->updateFail();
+    });
+    connect(reply, &QtTubePlugin::AccountReply::finished, this, [=, this](const QtTubePlugin::InitialAccountData& data) {
+        updateNotificationCount(data.notificationCount);
+        avatarButton->setImage(data.avatarUrl, TubeLabel::Cached | TubeLabel::Rounded);
+        plugin->authStore->update(data);
+        scaleAppropriately();
+    });
 
     updateUIForSignInState(true);
     emit signInStatusChanged();
@@ -130,7 +120,7 @@ void TopBar::postSignInSetup()
 
 void TopBar::scaleAppropriately()
 {
-    if (qtTubeApp->plugins().hasAuthenticated())
+    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->authenticated())
     {
         searchBox->resize(502 + width() - 800, 35);
         notificationBell->move(searchBox->width() + searchBox->x() + 8, 2);
@@ -152,31 +142,31 @@ void TopBar::showSettings()
     settings->show();
 }
 
-void TopBar::signOut()
+void TopBar::signOut(PluginEntry* plugin)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin(); plugin && plugin->authStore)
+    if (!plugin->authStore)
+        return;
+
+    const std::vector<std::unique_ptr<QtTubePlugin::AuthUser>>& creds = plugin->authStore->baseCredentials();
+    auto activeLogin = std::ranges::find_if(creds, &QtTubePlugin::AuthUser::active);
+
+    // there should always be an active one anyway, but just in case...
+    if (activeLogin == creds.end())
+        return;
+
+    auto inactiveLogin = std::ranges::find_if_not(creds, &QtTubePlugin::AuthUser::active);
+    if (inactiveLogin != creds.end())
     {
-        const std::vector<std::unique_ptr<QtTubePlugin::AuthUser>>& creds = plugin->authStore->baseCredentials();
-        auto activeLogin = std::ranges::find_if(creds, &QtTubePlugin::AuthUser::active);
-
-        // there should always be an active one anyway, but just in case...
-        if (activeLogin == creds.end())
-            return;
-
-        auto inactiveLogin = std::ranges::find_if_not(creds, &QtTubePlugin::AuthUser::active);
-        if (inactiveLogin != creds.end())
-        {
-            (*inactiveLogin)->active = true;
-            plugin->authStore->drop(*activeLogin);
-            plugin->authStore->restoreFromActive();
-            postSignInSetup();
-        }
-        else
-        {
-            plugin->authStore->clear();
-            updateUIForSignInState(false);
-            emit signInStatusChanged();
-        }
+        (*inactiveLogin)->active = true;
+        plugin->authStore->drop(*activeLogin);
+        plugin->authStore->restoreFromActive();
+        postSignInSetup(plugin);
+    }
+    else
+    {
+        plugin->authStore->clear();
+        updateUIForSignInState(false);
+        emit signInStatusChanged();
     }
 }
 

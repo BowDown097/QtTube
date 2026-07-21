@@ -2,7 +2,7 @@
 #include "qttubeapplication.hpp"
 #include "ui/forms/livechatwindow.hpp"
 #include <QCommandLineParser>
-#include <qttube-plugin/plugininterface.h>
+#include <qttube-plugin/providers/providertypes.h>
 
 int showChat(QtTubeApplication& a, QCommandLineParser& parser)
 {
@@ -14,19 +14,17 @@ int showChat(QtTubeApplication& a, QCommandLineParser& parser)
         qCritical() << "Could not open live chat: Plugin not found.";
         return EXIT_FAILURE;
     }
-
-    QtTubePlugin::VideoReply* videoReply = plugin->interface->getVideo(parser.value("chat"));
-    if (!videoReply)
+    if (!plugin->providers.liveChat || !plugin->providers.watch)
     {
-        qCritical() << "Could not open live chat: No method has been provided.";
+        qCritical() << "Could not open live chat: No live chat/watch provider available.";
         return EXIT_FAILURE;
     }
 
+    QtTubePlugin::VideoReply* videoReply = plugin->providers.watch->getVideo(parser.value("chat"));
     QObject::connect(videoReply, &QtTubePlugin::VideoReply::exception, [&a](const QtTubePlugin::Exception& ex) {
         qCritical() << "Could not open live chat:" << ex.message();
         a.exit(EXIT_FAILURE);
     });
-
     QObject::connect(videoReply, &QtTubePlugin::VideoReply::finished, [plugin](const QtTubePlugin::VideoData& data) {
         if (data.initialLiveChatData.has_value())
         {

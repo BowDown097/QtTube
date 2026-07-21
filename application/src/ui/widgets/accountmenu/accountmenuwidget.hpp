@@ -19,11 +19,12 @@ private:
     TubeLabel* m_handleLabel;
     QHBoxLayout* m_headerLayout;
     QVBoxLayout* m_layout;
+    PluginEntry* m_plugin;
     IconLabel* m_signOutLabel;
     IconLabel* m_switchAccountsLabel;
     IconLabel* m_yourChannelLabel;
 private slots:
-    void gotoChannel(const QString& channelId, PluginEntry* plugin);
+    void gotoChannel(const QString& channelId);
     void triggerSignOut();
 signals:
     void accountSwitcherRequested();

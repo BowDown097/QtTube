@@ -284,9 +284,9 @@ namespace UIUtils
         }
     }
 
-    void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes)
+    void setTabsVisible(QTabWidget* widget, bool visible, std::initializer_list<int> indexes)
     {
         for (int i : indexes)
-            widget->setTabEnabled(i, enabled);
+            widget->setTabVisible(i, visible);
     }
 }

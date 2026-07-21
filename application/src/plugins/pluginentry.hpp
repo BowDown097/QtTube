@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <qttube-plugin/pluginfwd.h>
 #include <qttube-plugin/pluginmetadata.h>
+#include <qttube-plugin/providers/providerregistry.h>
 
 class PluginLoadException : public QException
 {
@@ -18,19 +19,37 @@ private:
 class PluginEntry
 {
 public:
+    struct Providers
+    {
+        QtTubePlugin::AuthenticationProvider* auth{};
+        QtTubePlugin::ChannelProvider* channel{};
+        QtTubePlugin::ChannelSubscriptionProvider* channelSub{};
+        QtTubePlugin::HistoryProvider* history{};
+        QtTubePlugin::HomeProvider* home{};
+        QtTubePlugin::LiveChatProvider* liveChat{};
+        QtTubePlugin::NotificationsProvider* notifs{};
+        QtTubePlugin::SearchProvider* search{};
+        QtTubePlugin::SettingsProvider* settings{};
+        QtTubePlugin::SubFeedProvider* subFeed{};
+        QtTubePlugin::TrendingProvider* trending{};
+        QtTubePlugin::WatchProvider* watch{};
+    };
+
     bool active{};
     QtTubePlugin::AuthStoreBase* authStore{};
     QFileInfo fileInfo;
     std::unique_ptr<QtTubePlugin::PluginInterface> interface;
     QtTubePlugin::PluginMetadata metadata;
-    QtTubePluginPlayerFunc playerFunc{};
-    QtTubePlugin::SettingsStore* settings{};
+    Providers providers;
+    QtTubePlugin::SettingsStore* settingsStore{};
 
     virtual ~PluginEntry();
     PluginEntry(PluginEntry&&);
     PluginEntry(const PluginEntry&) = delete;
     PluginEntry& operator=(PluginEntry&&);
     PluginEntry& operator=(const PluginEntry&) = delete;
+
+    bool authenticated() const;
 
     virtual void initialize();
     virtual void unload() {}
@@ -41,4 +60,6 @@ protected:
     explicit PluginEntry(QFileInfo&& fileInfo_);
     void checkMetadata();
     void checkTargetVersion(std::string_view targetVersion);
+private:
+    QtTubePlugin::ProviderRegistry m_providerRegistry;
 };

@@ -93,13 +93,8 @@ void ScriptPluginEntry::initialize()
             metadata = createMetadata(metadataProperty);
             PluginEntry::checkMetadata();
 
-            auto _interface = std::make_unique<ScriptPluginInterface>(
+            interface = std::make_unique<ScriptPluginInterface>(
                 metadata.name, std::move(moduleNamespace), std::move(context));
-            authStore = _interface->authStore();
-            playerFunc = _interface->playerFunc();
-            settings = _interface->settings();
-
-            interface = std::move(_interface);
         }
         else if (state == JS_PROMISE_REJECTED)
         {

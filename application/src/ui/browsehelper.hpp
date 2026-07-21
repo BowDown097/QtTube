@@ -13,14 +13,16 @@ public:
     explicit BrowseHelper(QObject* parent = nullptr) : QObject(parent) {}
 
     void browseChannel(
-        ContinuableListWidget* widget, int activeTabIndex,
-        const QString& channelId, std::any requestData);
-    void browseHistory(ContinuableListWidget* widget, const QString& query = "");
-    void browseHome(ContinuableListWidget* widget);
-    void browseNotificationMenu(ContinuableListWidget* widget);
-    void browseSubscriptions(ContinuableListWidget* widget);
-    void browseTrending(ContinuableListWidget* widget);
-    void search(ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query);
+        PluginEntry* plugin, ContinuableListWidget* widget, int activeTabIndex,
+        const QString& channelId, const std::any& requestData);
+    void browseHistory(PluginEntry* plugin, ContinuableListWidget* widget, const QString& query = "");
+    void browseHome(PluginEntry* plugin, ContinuableListWidget* widget);
+    void browseNotificationMenu(PluginEntry* plugin, ContinuableListWidget* widget);
+    void browseSubscriptions(PluginEntry* plugin, ContinuableListWidget* widget);
+    void browseTrending(PluginEntry* plugin, ContinuableListWidget* widget);
+    void search(
+        PluginEntry* plugin, ContinuableListWidget* widget,
+        QHBoxLayout* additionalWidgets, const QString& query);
 
     void processChannelTabItems(
         ContinuableListWidget* widget, PluginEntry* plugin,
@@ -28,7 +30,7 @@ public:
 private slots:
     void browseFailed(const QString& title, ContinuableListWidget* widget, const QtTubePlugin::Exception& ex);
 private:
-    QList<std::pair<QString, int>> getActiveFilters(QHBoxLayout* additionalWidgets);
+    std::unordered_map<QString, int> getActiveFilters(QHBoxLayout* additionalWidgets);
     void setupBrowse(
         ContinuableListWidget* widget, PluginEntry* plugin,
         QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data);

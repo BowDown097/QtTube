@@ -1,7 +1,4 @@
 #include "settingsstore.hpp"
-#include <QDir>
-#include <QSettings>
-#include <QStandardPaths>
 #include <QTimer>
 #include <qttube-plugin/plugininterface.h>
 

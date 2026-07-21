@@ -2,7 +2,7 @@
 #include "utils/uiutils.hpp"
 #include <QMenu>
 #include <QMessageBox>
-#include <qttube-plugin/plugininterface.h>
+#include <qttube-plugin/providers/providertypes.h>
 
 NotificationBell::NotificationBell(PluginEntry* plugin, QWidget* parent)
     : QToolButton(parent), m_notificationMenu(new QMenu(this)), m_plugin(plugin)
@@ -53,8 +53,10 @@ void NotificationBell::leaveEvent(QEvent*)
     setCursor(QCursor());
 }
 
-void NotificationBell::setData(const QtTubePlugin::NotificationBell& notificationBell)
+void NotificationBell::setData(
+    const QString& channelId, const QtTubePlugin::NotificationBell& notificationBell)
 {
+    m_channelId = channelId;
     m_defaultEnabledStateIndex = notificationBell.defaultEnabledStateIndex;
     m_icons.clear();
 
@@ -95,6 +97,6 @@ void NotificationBell::setVisualState(qsizetype index)
 
 void NotificationBell::setState(const QtTubePlugin::NotificationState& state)
 {
-    if (!m_plugin->interface->setNotificationPreference(state.data))
+    if (!m_plugin->providers.channelSub->setNotificationPreference(m_channelId, state.data))
         QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
 }

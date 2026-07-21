@@ -1,7 +1,7 @@
 #pragma once
 #include "plugins/pluginentry.hpp"
 #include <QTabWidget>
-#include <qttube-plugin/components/replytypes/recommendedcontinuationdata.h>
+#include <qttube-plugin/components/replytypes/recommendeddata.h>
 #include <qttube-plugin/components/replytypes/videodata.h>
 
 class ContinuableListWidget;
@@ -26,5 +26,5 @@ private:
 private slots:
     void continueComments();
     void continueRecommended();
-    void continueRecommendedFinished(const QtTubePlugin::RecommendedContinuationData& data);
+    void continueRecommendedFinished(const QtTubePlugin::RecommendedData& data);
 };

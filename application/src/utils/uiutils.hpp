@@ -35,7 +35,7 @@ namespace UIUtils
     void repolish(QWidget* widget);
     QString resolveThemedIconName(const QString& name);
     void setAppStyle(const QString& styleName, bool dark);
-    void setTabsEnabled(QTabWidget* widget, bool enabled, std::initializer_list<int> indexes);
+    void setTabsVisible(QTabWidget* widget, bool visible, std::initializer_list<int> indexes);
 
     template<typename T>
     T findParent(QWidget* widget)

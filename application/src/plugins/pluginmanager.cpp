@@ -3,7 +3,7 @@
 #include "qttubeapplication.hpp"
 #include <QDirIterator>
 #include <QMessageBox>
-#include <qttube-plugin/components/auth/authstore.h>
+#include <qttube-plugin/providers/providertypes.h>
 
 namespace
 {
@@ -11,7 +11,7 @@ namespace
     const QString invalidFileError = QStringLiteral("Given file is not a valid plugin file.");
 }
 
-PluginEntry* PluginManager::activePlugin()
+PluginEntry* PluginManager::activePlugin() const
 {
     if (QCommandLineParser& parser = qtTubeApp->commandLineParser(); parser.isSet("use-plugin"))
         return findPlugin(parser.value("use-plugin"));
@@ -51,12 +51,12 @@ void PluginManager::checkUpdate(const QString& name, const QFileInfo& updateFile
     });
 }
 
-bool PluginManager::containsPlugin(const QString& name)
+bool PluginManager::containsPlugin(const QString& name) const
 {
     return m_loadedPlugins.contains(name);
 }
 
-PluginEntry* PluginManager::findPlugin(const QString& name)
+PluginEntry* PluginManager::findPlugin(const QString& name) const
 {
     if (auto it = m_loadedPlugins.find(name); it != m_loadedPlugins.end())
         return it->second.get();
@@ -99,12 +99,6 @@ QList<QFileInfo> PluginManager::getPluginsToLoad(QString& activePluginName)
     return pluginsToLoad;
 }
 
-bool PluginManager::hasAuthenticated() const
-{
-    PluginEntry* plugin = qtTubeApp->plugins().activePlugin();
-    return plugin && plugin->authStore && !plugin->authStore->isEmpty();
-}
-
 const QList<QDir>& PluginManager::libraryLoadDirs()
 {
     static const QList<QDir> libraryLoadDirs = []() -> QList<QDir> {
@@ -123,7 +117,7 @@ const QList<QDir>& PluginManager::libraryLoadDirs()
     return libraryLoadDirs;
 }
 
-const QList<PluginEntry*> PluginManager::loadedPlugins()
+const QList<PluginEntry*> PluginManager::loadedPlugins() const
 {
     QList<PluginEntry*> out;
     out.reserve(m_loadedPlugins.size());

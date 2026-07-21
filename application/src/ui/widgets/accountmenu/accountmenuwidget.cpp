@@ -15,16 +15,15 @@ AccountMenuWidget::AccountMenuWidget(PluginEntry* plugin, QWidget* parent)
       m_handleLabel(new TubeLabel(this)),
       m_headerLayout(new QHBoxLayout),
       m_layout(new QVBoxLayout(this)),
+      m_plugin(plugin),
       m_signOutLabel(new IconLabel("sign-out", "Sign out", QMargins(), QSize(24, 24), this)),
       m_switchAccountsLabel(new IconLabel("switch-accounts", "Switch account", QMargins(), QSize(24, 24), this)),
       m_yourChannelLabel(new IconLabel("your-channel", "Your channel", QMargins(), QSize(24, 24), this))
 {
-    if (!plugin->authStore)
-        throw std::runtime_error("Account menu somehow opened without auth support.");
+    assert(plugin->authStore != nullptr);
 
     const QtTubePlugin::AuthUser* user = plugin->authStore->activeBaseLogin();
-    if (!user)
-        throw std::runtime_error("Account menu somehow opened without an active login.");
+    assert(user != nullptr);
 
     setAutoFillBackground(true);
 
@@ -52,19 +51,19 @@ AccountMenuWidget::AccountMenuWidget(PluginEntry* plugin, QWidget* parent)
     connect(m_switchAccountsLabel, &IconLabel::clicked, this, &AccountMenuWidget::accountSwitcherRequested);
     connect(m_signOutLabel, &IconLabel::clicked, this, &AccountMenuWidget::triggerSignOut);
     connect(m_yourChannelLabel, &IconLabel::clicked, this,
-            std::bind(&AccountMenuWidget::gotoChannel, this, user->id, plugin));
+        std::bind(&AccountMenuWidget::gotoChannel, this, user->id));
 }
 
-void AccountMenuWidget::gotoChannel(const QString& channelId, PluginEntry* plugin)
+void AccountMenuWidget::gotoChannel(const QString& channelId)
 {
     hide();
-    ViewController::loadChannel(channelId, plugin);
+    ViewController::loadChannel(channelId, m_plugin);
     emit closeRequested();
 }
 
 void AccountMenuWidget::triggerSignOut()
 {
     hide();
-    UIUtils::getMainWindow()->topbar()->signOut();
+    UIUtils::getMainWindow()->topbar()->signOut(m_plugin);
     emit closeRequested();
 }

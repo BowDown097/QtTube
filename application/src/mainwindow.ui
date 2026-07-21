@@ -23,16 +23,16 @@
      <item row="2" column="0">
       <widget class="QTabWidget" name="tabWidget">
        <property name="styleSheet">
-        <string notr="true">QTabBar::tab::disabled {
-	width: 0; 
-	height: 0; 
-	margin: 0; 
-	padding: 0; 
+        <string notr="true">QTabBar::tab:last {
+	width: 0;
+	height: 0;
+	margin: 0;
+	padding: 0;
 	border: none;
 }</string>
        </property>
        <property name="currentIndex">
-        <number>5</number>
+        <number>6</number>
        </property>
        <widget class="QWidget" name="homeTab">
         <attribute name="title">
@@ -162,6 +162,11 @@
           </widget>
          </item>
         </layout>
+       </widget>
+       <widget class="QWidget" name="emptyTab">
+        <attribute name="title">
+         <string>EMPTY</string>
+        </attribute>
        </widget>
       </widget>
      </item>

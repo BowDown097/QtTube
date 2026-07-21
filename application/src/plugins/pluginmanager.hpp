@@ -7,12 +7,11 @@ class PluginManager : public QObject
 {
     Q_OBJECT
 public:
-    PluginEntry* activePlugin();
-    bool containsPlugin(const QString& name);
-    PluginEntry* findPlugin(const QString& name);
-    bool hasAuthenticated() const;
+    PluginEntry* activePlugin() const;
+    bool containsPlugin(const QString& name) const;
+    PluginEntry* findPlugin(const QString& name) const;
     bool hasLoadablePlugins() const { return m_foundPluginFile; }
-    const QList<PluginEntry*> loadedPlugins();
+    const QList<PluginEntry*> loadedPlugins() const;
     PluginEntry* registerPlugin(QFileInfo&& fileInfo);
     void reloadPlugins();
     std::unordered_map<QString, ReleaseData>& updatablePlugins() { return m_updatablePlugins; }

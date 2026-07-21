@@ -5,7 +5,7 @@
 #include "ui/widgets/renderers/video/videothumbnailwidget.hpp"
 #include "utils/uiutils.hpp"
 #include <QMessageBox>
-#include <qttube-plugin/plugininterface.h>
+#include <qttube-plugin/providers/providertypes.h>
 
 WatchNextFeed::WatchNextFeed(PluginEntry* plugin, QWidget* parent)
     : QTabWidget(parent),
@@ -24,20 +24,19 @@ void WatchNextFeed::continueComments()
 
 void WatchNextFeed::continueRecommended()
 {
-    if (QtTubePlugin::RecommendedContinuationReply* reply = m_plugin->interface->continueRecommended(
+    if (QtTubePlugin::RecommendedReply* reply = m_plugin->providers.watch->continueRecommended(
             m_videoId, m_recommendedList->continuationData))
     {
         m_recommendedList->setPopulatingFlag(true);
-        connect(reply, &QtTubePlugin::RecommendedContinuationReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
+        connect(reply, &QtTubePlugin::RecommendedReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
             m_recommendedList->setPopulatingFlag(false);
             QMessageBox::critical(nullptr, "Failed to Load Recommended Content", ex.message());
         });
-        connect(reply, &QtTubePlugin::RecommendedContinuationReply::finished,
-                this, &WatchNextFeed::continueRecommendedFinished);
+        connect(reply, &QtTubePlugin::RecommendedReply::finished, this, &WatchNextFeed::continueRecommendedFinished);
     }
 }
 
-void WatchNextFeed::continueRecommendedFinished(const QtTubePlugin::RecommendedContinuationData& data)
+void WatchNextFeed::continueRecommendedFinished(const QtTubePlugin::RecommendedData& data)
 {
     m_recommendedList->continuationData = data.nextContinuation;
     populateRecommended(data.videos);

@@ -9,6 +9,7 @@
 #include <QStyle>
 #include <QTimer>
 #include <qttube-plugin/plugininterface.h>
+#include <qttube-plugin/providers/providertypes.h>
 #include <quickjs-libc.h>
 
 #ifdef Q_OS_WIN
@@ -70,39 +71,42 @@ void QtTubeApplication::doInitialSetup()
 
 void QtTubeApplication::handleUrlOrID(const QString& in)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
+    PluginEntry* plugin = qtTubeApp->plugins().activePlugin();
+    if (!plugin)
     {
-        if (QtTubePlugin::ResolveUrlReply* reply = plugin->interface->resolveUrlOrID(in))
-        {
-            connect(reply, &QtTubePlugin::ResolveUrlReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
-                QMessageBox::critical(nullptr, "Error Resolving Input", ex.message());
-            });
-            connect(reply, &QtTubePlugin::ResolveUrlReply::finished, this, [this, plugin](const QtTubePlugin::ResolveUrlData& data) {
-                switch (data.target)
-                {
-                case QtTubePlugin::ResolveUrlTarget::Channel:
-                    ViewController::loadChannel(data.data, plugin);
-                    break;
-                case QtTubePlugin::ResolveUrlTarget::Search:
-                    emit UIUtils::getMainWindow()->topbar()->searchBox->searchRequested(data.data, SearchBox::SearchType::ByQuery);
-                    break;
-                case QtTubePlugin::ResolveUrlTarget::Video:
-                    ViewController::loadVideo(data.data, plugin, data.videoProgress, nullptr, data.continuePlayback);
-                    break;
-                case QtTubePlugin::ResolveUrlTarget::PlainUrl:
-                    QDesktopServices::openUrl(data.data);
-                    break;
-                case QtTubePlugin::ResolveUrlTarget::NotResolved:
-                    QMessageBox::warning(nullptr, "No Results Found", "Nothing could be found based on your input.");
-                    break;
-                }
-            });
-        }
-        else
-        {
-            QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
-        }
+        QMessageBox::warning(nullptr, QString(), "No plugin available.");
+        return;
     }
+    if (!plugin->providers.search)
+    {
+        QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+        return;
+    }
+
+    QtTubePlugin::ResolveUrlReply* reply = plugin->providers.search->resolveUrlOrID(in);
+    connect(reply, &QtTubePlugin::ResolveUrlReply::exception, this, [this](const QtTubePlugin::Exception& ex) {
+        QMessageBox::critical(nullptr, "Error Resolving Input", ex.message());
+    });
+    connect(reply, &QtTubePlugin::ResolveUrlReply::finished, this, [this, plugin](const QtTubePlugin::ResolveUrlData& data) {
+        switch (data.target)
+        {
+        case QtTubePlugin::ResolveUrlTarget::Channel:
+            ViewController::loadChannel(data.data, plugin);
+            break;
+        case QtTubePlugin::ResolveUrlTarget::Search:
+            emit UIUtils::getMainWindow()->topbar()->searchBox->searchRequested(data.data, SearchBox::SearchType::ByQuery);
+            break;
+        case QtTubePlugin::ResolveUrlTarget::Video:
+            ViewController::loadVideo(data.data, plugin, data.videoProgress, nullptr, data.continuePlayback);
+            break;
+        case QtTubePlugin::ResolveUrlTarget::PlainUrl:
+            QDesktopServices::openUrl(data.data);
+            break;
+        case QtTubePlugin::ResolveUrlTarget::NotResolved:
+            QMessageBox::warning(nullptr, "No Results Found", "Nothing could be found based on your input.");
+            break;
+        }
+    });
 }
 
 bool QtTubeApplication::isPortableBuild()

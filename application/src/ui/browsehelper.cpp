@@ -5,183 +5,117 @@
 #include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QComboBox>
-#include <qttube-plugin/plugininterface.h>
+#include <qttube-plugin/providers/providertypes.h>
 
 void BrowseHelper::browseChannel(
-    ContinuableListWidget* widget, int activeTabIndex,
-    const QString& channelId, std::any requestData)
+    PluginEntry* plugin, ContinuableListWidget* widget, int activeTabIndex,
+    const QString& channelId, const std::any& requestData)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
-    {
-        if (QtTubePlugin::ChannelReply* reply = plugin->interface->getChannel(
-                channelId, requestData, widget->continuationData))
-        {
-            widget->setPopulatingFlag(true);
-            connect(reply, &QtTubePlugin::ChannelReply::exception, this,
-                    std::bind_front(&BrowseHelper::browseFailed, this, "Channel Tab", widget));
-            connect(reply, &QtTubePlugin::ChannelReply::finished, this,
-                    std::bind_front(&BrowseHelper::setupChannel, this, widget, activeTabIndex, plugin, reply));
-        }
-        else
-        {
-            widget->addItem("This feature is not supported by the active plugin.");
-        }
-    }
-    else
-    {
-        widget->addItem("No plugin available.");
-    }
+    assert(plugin != nullptr);
+    assert(plugin->providers.channel != nullptr);
+
+    widget->setPopulatingFlag(true);
+    QtTubePlugin::ChannelReply* reply = plugin->providers.channel->getChannel(
+        channelId, requestData, widget->continuationData);
+    connect(reply, &QtTubePlugin::ChannelReply::exception, this,
+        std::bind_front(&BrowseHelper::browseFailed, this, "Channel Tab", widget));
+    connect(reply, &QtTubePlugin::ChannelReply::finished, this,
+        std::bind_front(&BrowseHelper::setupChannel, this, widget, activeTabIndex, plugin, reply));
 }
 
-void BrowseHelper::browseHistory(ContinuableListWidget* widget, const QString& query)
+void BrowseHelper::browseHistory(PluginEntry* plugin, ContinuableListWidget* widget, const QString& query)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
-    {
-        if (!plugin->authStore || plugin->authStore->isEmpty())
-        {
-            widget->addItem("Local history is not yet available. You will need to log in.");
-            return;
-        }
+    assert(plugin != nullptr);
+    assert(plugin->providers.history != nullptr);
 
-        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getHistory(query, widget->continuationData))
-        {
-            widget->setPopulatingFlag(true);
-            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-                std::bind_front(&BrowseHelper::browseFailed, this, "History", widget));
-            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-                std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
-        }
-        else
-        {
-            widget->addItem("This feature is not supported by the active plugin.");
-        }
-    }
-    else
+    if (!plugin->authenticated())
     {
-        widget->addItem("No plugin available.");
+        widget->addItem("Local history is not yet available. You will need to log in.");
+        return;
     }
+
+    widget->setPopulatingFlag(true);
+    QtTubePlugin::BrowseReply* reply = plugin->providers.history->getHistory(
+        query, widget->continuationData);
+    connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+        std::bind_front(&BrowseHelper::browseFailed, this, "History", widget));
+    connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+        std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
 }
 
-void BrowseHelper::browseHome(ContinuableListWidget* widget)
+void BrowseHelper::browseHome(PluginEntry* plugin, ContinuableListWidget* widget)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
-    {
-        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getHome(widget->continuationData))
-        {
-            widget->setPopulatingFlag(true);
-            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-                std::bind_front(&BrowseHelper::browseFailed, this, "Home Feed", widget));
-            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-                std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
-        }
-        else
-        {
-            widget->addItem("This feature is not supported by the active plugin.");
-        }
-    }
-    else
-    {
-        widget->addItem("No plugin available.");
-    }
+    assert(plugin != nullptr);
+    assert(plugin->providers.home != nullptr);
+
+    widget->setPopulatingFlag(true);
+    QtTubePlugin::BrowseReply* reply = plugin->providers.home->getHome(widget->continuationData);
+    connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+        std::bind_front(&BrowseHelper::browseFailed, this, "Home Feed", widget));
+    connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+        std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
 }
 
-void BrowseHelper::browseNotificationMenu(ContinuableListWidget* widget)
+void BrowseHelper::browseNotificationMenu(PluginEntry* plugin, ContinuableListWidget* widget)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
-    {
-        if (QtTubePlugin::NotificationsReply* reply = plugin->interface->getNotifications(widget->continuationData))
-        {
-            widget->setPopulatingFlag(true);
-            connect(reply, &QtTubePlugin::NotificationsReply::exception, this,
-                std::bind_front(&BrowseHelper::browseFailed, this, "Notifications", widget));
-            connect(reply, &QtTubePlugin::NotificationsReply::finished, this,
-                std::bind_front(&BrowseHelper::setupNotifications, this, widget, reply));
-        }
-        else
-        {
-            widget->addItem("This feature is not supported by the active plugin.");
-        }
-    }
-    else
-    {
-        widget->addItem("No plugin available.");
-    }
+    assert(plugin != nullptr);
+    assert(plugin->providers.notifs != nullptr);
+
+    widget->setPopulatingFlag(true);
+    QtTubePlugin::NotificationsReply* reply = plugin->providers.notifs->getNotifications(
+        widget->continuationData);
+    connect(reply, &QtTubePlugin::NotificationsReply::exception, this,
+        std::bind_front(&BrowseHelper::browseFailed, this, "Notifications", widget));
+    connect(reply, &QtTubePlugin::NotificationsReply::finished, this,
+        std::bind_front(&BrowseHelper::setupNotifications, this, widget, reply));
 }
 
-void BrowseHelper::browseSubscriptions(ContinuableListWidget* widget)
+void BrowseHelper::browseSubscriptions(PluginEntry* plugin, ContinuableListWidget* widget)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
-    {
-        if (!plugin->authStore || plugin->authStore->isEmpty())
-        {
-            widget->addItem("Local subscriptions are not yet available. You will need to log in.");
-            return;
-        }
+    assert(plugin != nullptr);
+    assert(plugin->providers.subFeed);
 
-        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getSubFeed(widget->continuationData))
-        {
-            widget->setPopulatingFlag(true);
-            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-                std::bind_front(&BrowseHelper::browseFailed, this, "Subscription Feed", widget));
-            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-                std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
-        }
-        else
-        {
-            widget->addItem("This feature is not supported by the active plugin.");
-        }
-    }
-    else
+    if (!plugin->authenticated())
     {
-        widget->addItem("No plugin available.");
+        widget->addItem("Local subscriptions are not yet available. You will need to log in.");
+        return;
     }
+
+    widget->setPopulatingFlag(true);
+    QtTubePlugin::BrowseReply* reply = plugin->providers.subFeed->getSubFeed(widget->continuationData);
+    connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+        std::bind_front(&BrowseHelper::browseFailed, this, "Subscription Feed", widget));
+    connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+        std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
 }
 
-void BrowseHelper::browseTrending(ContinuableListWidget* widget)
+void BrowseHelper::browseTrending(PluginEntry* plugin, ContinuableListWidget* widget)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
-    {
-        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getTrending(widget->continuationData))
-        {
-            widget->setPopulatingFlag(true);
-            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-                std::bind_front(&BrowseHelper::browseFailed, this, "Trending Feed", widget));
-            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-                std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
-        }
-        else
-        {
-            widget->addItem("This feature is not supported by the active plugin.");
-        }
-    }
-    else
-    {
-        widget->addItem("No plugin available.");
-    }
+    assert(plugin != nullptr);
+    assert(plugin->providers.trending != nullptr);
+
+    widget->setPopulatingFlag(true);
+    QtTubePlugin::BrowseReply* reply = plugin->providers.trending->getTrending(widget->continuationData);
+    connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+        std::bind_front(&BrowseHelper::browseFailed, this, "Trending Feed", widget));
+    connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+        std::bind_front(&BrowseHelper::setupBrowse, this, widget, plugin, reply));
 }
 
-void BrowseHelper::search(ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query)
+void BrowseHelper::search(
+    PluginEntry* plugin, ContinuableListWidget* widget,
+    QHBoxLayout* additionalWidgets, const QString& query)
 {
-    if (PluginEntry* plugin = qtTubeApp->plugins().activePlugin())
-    {
-        if (QtTubePlugin::BrowseReply* reply = plugin->interface->getSearch(
-                query, getActiveFilters(additionalWidgets), widget->continuationData))
-        {
-            widget->setPopulatingFlag(true);
-            connect(reply, &QtTubePlugin::BrowseReply::exception, this,
-                std::bind_front(&BrowseHelper::browseFailed, this, "Search Results", widget));
-            connect(reply, &QtTubePlugin::BrowseReply::finished, this,
-                std::bind_front(&BrowseHelper::setupSearch, this, widget, additionalWidgets, query, plugin, reply));
-        }
-        else
-        {
-            widget->addItem("This feature is not supported by the active plugin.");
-        }
-    }
-    else
-    {
-        widget->addItem("No plugin available.");
-    }
+    assert(plugin != nullptr);
+    assert(plugin->providers.search != nullptr);
+
+    widget->setPopulatingFlag(true);
+    QtTubePlugin::BrowseReply* reply = plugin->providers.search->getSearch(
+        query, getActiveFilters(additionalWidgets), widget->continuationData);
+    connect(reply, &QtTubePlugin::BrowseReply::exception, this,
+        std::bind_front(&BrowseHelper::browseFailed, this, "Search Results", widget));
+    connect(reply, &QtTubePlugin::BrowseReply::finished, this,
+        std::bind_front(&BrowseHelper::setupSearch, this, widget, additionalWidgets, query, plugin, reply));
 }
 
 void BrowseHelper::processChannelTabItems(
@@ -241,7 +175,7 @@ void BrowseHelper::browseFailed(const QString& title, ContinuableListWidget* wid
         qWarning() << "Failed to Load" << title << ':' << ex.message();
 }
 
-QList<std::pair<QString, int>> BrowseHelper::getActiveFilters(QHBoxLayout* additionalWidgets)
+std::unordered_map<QString, int> BrowseHelper::getActiveFilters(QHBoxLayout* additionalWidgets)
 {
     if (!additionalWidgets || additionalWidgets->count() == 0)
         return {};
@@ -251,10 +185,10 @@ QList<std::pair<QString, int>> BrowseHelper::getActiveFilters(QHBoxLayout* addit
         if (QComboBox* combo = qobject_cast<QComboBox*>(additionalWidgets->itemAt(i)->widget()))
             combos.append(combo);
 
-    QList<std::pair<QString, int>> activeFilters;
+    std::unordered_map<QString, int> activeFilters;
     for (QComboBox* combo : std::as_const(combos))
         if (int index = combo->currentIndex(); index != -1)
-            activeFilters.append(std::make_pair(combo->placeholderText(), index));
+            activeFilters.emplace(combo->placeholderText(), index);
 
     return activeFilters;
 }
@@ -328,13 +262,13 @@ void BrowseHelper::setupSearch(
 {
     if (additionalWidgets && additionalWidgets->count() == 0)
     {
-        const QList<std::pair<QString, QStringList>> searchFilters = plugin->interface->searchFilters();
-        if (!searchFilters.empty())
+        std::vector<std::pair<QString, QStringList>> filters = plugin->providers.search->searchFilters();
+        if (!filters.empty())
         {
             TubeLabel* filtersLabel = new TubeLabel("Filters:");
             additionalWidgets->addWidget(filtersLabel);
 
-            for (const auto& [category, filters] : searchFilters)
+            for (const auto& [category, filters] : filters)
             {
                 QComboBox* filterCombo = new QComboBox;
                 filterCombo->setPlaceholderText(category);
@@ -343,7 +277,7 @@ void BrowseHelper::setupSearch(
 
                 connect(filterCombo, qOverload<int>(&QComboBox::currentIndexChanged), this, [=, this] {
                     widget->clear();
-                    search(widget, additionalWidgets, query);
+                    search(plugin, widget, additionalWidgets, query);
                 });
             }
         }

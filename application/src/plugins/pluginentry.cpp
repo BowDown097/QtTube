@@ -4,6 +4,7 @@
 #include "scripted/scriptpluginentry.hpp"
 #include <QMessageBox>
 #include <qttube-plugin/plugininterface.h>
+#include <qttube-plugin/providers/providertypes.h>
 
 namespace
 {
@@ -17,6 +18,11 @@ PluginEntry::PluginEntry(QFileInfo&& fileInfo_) : fileInfo(std::move(fileInfo_))
 PluginEntry::~PluginEntry() = default;
 PluginEntry::PluginEntry(PluginEntry&&) = default;
 PluginEntry& PluginEntry::operator=(PluginEntry&&) = default;
+
+bool PluginEntry::authenticated() const
+{
+    return authStore && !authStore->isEmpty();
+}
 
 std::unique_ptr<PluginEntry> PluginEntry::create(QFileInfo&& fileInfo)
 {
@@ -59,13 +65,33 @@ void PluginEntry::checkTargetVersion(std::string_view targetVersion)
 void PluginEntry::initialize()
 {
     if (interface)
+    {
+        interface->registerProviders(m_providerRegistry);
         interface->init();
 
-    if (settings)
-        settings->init();
+        providers.auth = m_providerRegistry.get<QtTubePlugin::AuthenticationProvider>();
+        providers.channel = m_providerRegistry.get<QtTubePlugin::ChannelProvider>();
+        providers.channelSub = m_providerRegistry.get<QtTubePlugin::ChannelSubscriptionProvider>();
+        providers.history = m_providerRegistry.get<QtTubePlugin::HistoryProvider>();
+        providers.home = m_providerRegistry.get<QtTubePlugin::HomeProvider>();
+        providers.liveChat = m_providerRegistry.get<QtTubePlugin::LiveChatProvider>();
+        providers.notifs = m_providerRegistry.get<QtTubePlugin::NotificationsProvider>();
+        providers.search = m_providerRegistry.get<QtTubePlugin::SearchProvider>();
+        providers.settings = m_providerRegistry.get<QtTubePlugin::SettingsProvider>();
+        providers.subFeed = m_providerRegistry.get<QtTubePlugin::SubFeedProvider>();
+        providers.trending = m_providerRegistry.get<QtTubePlugin::TrendingProvider>();
+        providers.watch = m_providerRegistry.get<QtTubePlugin::WatchProvider>();
+    }
 
-    if (authStore)
+    if (providers.settings)
     {
+        settingsStore = providers.settings->getSettingsStore();
+        settingsStore->init();
+    }
+
+    if (providers.auth)
+    {
+        authStore = providers.auth->getAuthStore();
         authStore->init();
         authStore->restoreFromActive();
     }

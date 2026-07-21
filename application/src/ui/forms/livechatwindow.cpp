@@ -11,7 +11,7 @@
 #include "utils/uiutils.hpp"
 #include <QMessageBox>
 #include <QTimer>
-#include <qttube-plugin/plugininterface.h>
+#include <qttube-plugin/providers/providertypes.h>
 
 LiveChatWindow::LiveChatWindow(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent), m_messagesTimer(new QTimer(this)), m_plugin(plugin), ui(new Ui::LiveChatWindow)
@@ -81,58 +81,33 @@ void LiveChatWindow::chatModeChanged(const QString& name)
 
 void LiveChatWindow::chatReplayTick(qint64 progress, qint64 previousProgress)
 {
-    if (!m_populating)
+    if (m_populating)
+        return;
+
+    m_populating = true;
+    if (previousProgress > 0 && std::abs(progress - previousProgress) > 5)
     {
-        m_populating = true;
-        if (previousProgress > 0 && std::abs(progress - previousProgress) > 5)
-        {
-            ui->listWidget->clear();
-            if (QtTubePlugin::LiveChatReplayReply* reply = m_plugin->interface->getLiveChatReplay(m_seekData, progress * 1000))
-            {
-                connect(reply, &QtTubePlugin::LiveChatReplayReply::finished, this,
-                    std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, true));
-            }
-            else
-            {
-                QMessageBox::critical(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
-                deleteLater();
-            }
-        }
-        else if (progress < m_firstChatItemOffset || progress > m_lastChatItemOffset)
-        {
-            if (QtTubePlugin::LiveChatReplayReply* reply = m_plugin->interface->getLiveChatReplay(m_nextData, progress * 1000))
-            {
-                connect(reply, &QtTubePlugin::LiveChatReplayReply::finished, this,
-                    std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, false));
-            }
-            else
-            {
-                QMessageBox::critical(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
-                deleteLater();
-            }
-        }
-        else
-        {
-            updateChatReplay(progress, previousProgress);
-        }
+        ui->listWidget->clear();
+        getReplay(m_seekData, progress, previousProgress, true);
+    }
+    else if (progress < m_firstChatItemOffset || progress > m_lastChatItemOffset)
+    {
+        getReplay(m_nextData, progress, previousProgress, false);
+    }
+    else
+    {
+        updateChatReplay(progress, previousProgress);
     }
 }
 
 void LiveChatWindow::chatTick()
 {
-    if (!m_populating)
-    {
-        m_populating = true;
-        if (QtTubePlugin::LiveChatReply* reply = m_plugin->interface->getLiveChat(m_nextData))
-        {
-            connect(reply, &QtTubePlugin::LiveChatReply::finished, this, &LiveChatWindow::processChatData);
-        }
-        else
-        {
-            QMessageBox::critical(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
-            deleteLater();
-        }
-    }
+    if (m_populating)
+        return;
+
+    m_populating = true;
+    QtTubePlugin::LiveChatReply* reply = m_plugin->providers.liveChat->getChat(m_nextData);
+    connect(reply, &QtTubePlugin::LiveChatReply::finished, this, &LiveChatWindow::processChatData);
 }
 
 void LiveChatWindow::createEmojiMenuWidgets()
@@ -149,6 +124,20 @@ void LiveChatWindow::createEmojiMenuWidgets()
 
     PopupWidget* emojiPopup = new PopupWidget(emojiMenu, emojiMenuLabel);
     connect(emojiMenuLabel, &TubeLabel::clicked, emojiPopup, &PopupWidget::showPopup);
+}
+
+void LiveChatWindow::getReplay(const std::any& data, qint64 progress, qint64 previousProgress, bool seeked)
+{
+    if (QtTubePlugin::LiveChatReplayReply* reply = m_plugin->providers.liveChat->getChatReplay(data, progress * 1000))
+    {
+        connect(reply, &QtTubePlugin::LiveChatReplayReply::finished, this,
+            std::bind_front(&LiveChatWindow::processChatReplayData, this, progress, previousProgress, seeked));
+    }
+    else
+    {
+        QMessageBox::critical(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");
+        deleteLater();
+    }
 }
 
 void LiveChatWindow::initialize(const QtTubePlugin::InitialLiveChatData& data, WatchViewPlayer* player)
@@ -253,7 +242,7 @@ void LiveChatWindow::sendMessage()
 {
     if (QString trimmedText = ui->messageBox->text().trimmed(); !trimmedText.isEmpty())
     {
-        if (m_plugin->interface->sendLiveChatMessage(EmojiStore::instance()->emojize(trimmedText)))
+        if (m_plugin->providers.liveChat->sendMessage(EmojiStore::instance()->emojize(trimmedText)))
             ui->messageBox->clear();
         else
             QMessageBox::warning(nullptr, "Feature Not Available", "This feature is not supported by the active plugin.");

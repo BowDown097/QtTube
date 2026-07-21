@@ -14,7 +14,7 @@ public:
     QHBoxLayout* layout;
 
     explicit SubscribeWidget(PluginEntry* plugin, QWidget* parent = nullptr);
-    void setData(const QtTubePlugin::SubscribeButton& data);
+    void setData(const QString& channelId, const QtTubePlugin::SubscribeButton& data);
 protected:
     void changeEvent(QEvent* event) override;
 private:

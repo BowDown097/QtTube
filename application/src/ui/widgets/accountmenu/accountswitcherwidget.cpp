@@ -5,22 +5,22 @@
 #include "utils/uiutils.hpp"
 #include <QBoxLayout>
 #include <QPushButton>
+#include <qttube-plugin/providers/providertypes.h>
 
 AccountSwitcherWidget::AccountSwitcherWidget(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),
       m_addAccountButton(new QPushButton(this)),
       m_backButton(new QPushButton(this)),
-      m_layout(new QVBoxLayout(this))
+      m_layout(new QVBoxLayout(this)),
+      m_plugin(plugin)
 {
-    m_addAccountButton->setText("Add account");
-    m_backButton->setText("Back");
+    assert(plugin->authStore != nullptr);
+
     m_layout->setSizeConstraint(QLayout::SetFixedSize);
     setAutoFillBackground(true);
 
+    m_backButton->setText("Back");
     m_layout->addWidget(m_backButton);
-
-    if (!(m_auth = plugin->authStore))
-        throw std::runtime_error("Account switcher somehow opened without auth support.");
 
     QtTubePlugin::AuthUser* activeUser = plugin->authStore->activeBaseLogin();
     if (!activeUser)
@@ -35,6 +35,7 @@ AccountSwitcherWidget::AccountSwitcherWidget(PluginEntry* plugin, QWidget* paren
         m_layout->addWidget(accountEntry);
     }
 
+    m_addAccountButton->setText("Add account");
     m_layout->addWidget(m_addAccountButton);
 
     connect(m_addAccountButton, &QPushButton::clicked, this, &AccountSwitcherWidget::addAccount);
@@ -44,8 +45,8 @@ AccountSwitcherWidget::AccountSwitcherWidget(PluginEntry* plugin, QWidget* paren
 void AccountSwitcherWidget::addAccount()
 {
     hide();
-    m_auth->unauthenticate();
-    m_auth->startAuthRoutine();
+    m_plugin->authStore->unauthenticate();
+    m_plugin->authStore->startAuthRoutine();
     emit closeRequested();
 }
 
@@ -55,7 +56,7 @@ void AccountSwitcherWidget::switchAccount(QtTubePlugin::AuthUser* oldUser, QtTub
     newUser->active = true;
 
     hide();
-    m_auth->restoreFromActive();
-    UIUtils::getMainWindow()->topbar()->postSignInSetup();
+    m_plugin->authStore->restoreFromActive();
+    UIUtils::getMainWindow()->topbar()->postSignInSetup(m_plugin);
     emit closeRequested();
 }

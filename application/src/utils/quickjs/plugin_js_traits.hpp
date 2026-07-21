@@ -2,7 +2,7 @@
 #include "qjsutils.hpp"
 #include <qttube-plugin/components/replytypes/channeldata.h>
 #include <qttube-plugin/components/replytypes/initialaccountdata.h>
-#include <qttube-plugin/components/replytypes/recommendedcontinuationdata.h>
+#include <qttube-plugin/components/replytypes/recommendeddata.h>
 #include <qttube-plugin/components/replytypes/resolveurldata.h>
 #include <qttube-plugin/components/replytypes/videodata.h>
 #include <qttube-plugin/objects/livechat/livechat.h>
@@ -44,7 +44,7 @@ namespace qjs
     DEF_FOR(QtTubePlugin::NotificationBell)
     DEF_FOR(QtTubePlugin::NotificationState)
     DEF_FOR(QtTubePlugin::PaidMessage)
-    DEF_FOR(QtTubePlugin::RecommendedContinuationData)
+    DEF_FOR(QtTubePlugin::RecommendedData)
     DEF_FOR(QtTubePlugin::ResolveUrlData)
     DEF_FOR(QtTubePlugin::SpecialMessage)
     DEF_FOR(QtTubePlugin::SubscribeButton)

@@ -9,7 +9,7 @@ class SubscribeLabel : public ClickableWidget<QLabel>
     Q_OBJECT
 public:
     explicit SubscribeLabel(PluginEntry* plugin, QWidget* parent = nullptr);
-    void setData(const QtTubePlugin::SubscribeButton& data);
+    void setData(const QString& channelId, const QtTubePlugin::SubscribeButton& data);
 protected:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEnterEvent* event) override;
@@ -18,12 +18,14 @@ protected:
 #endif
     void leaveEvent(QEvent* event) override;
 private:
+    QString m_channelId;
     QtTubePlugin::SubscribeButton m_data;
+    PluginEntry* m_plugin;
 
     void setStyle(bool hovered);
     void toggleSubscriptionStatus();
 private slots:
-    void trySubscribe(PluginEntry* plugin);
+    void trySubscribe();
 signals:
     void subscribeStatusChanged(bool subscribed);
 };

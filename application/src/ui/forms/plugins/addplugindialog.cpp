@@ -7,16 +7,13 @@
 #include <qttube-plugin/utils/httprequest.h>
 #include <QUuid>
 
-namespace
-{
 #if defined(Q_OS_WIN)
-const QString libraryExtension = QStringLiteral(".dll");
+constexpr QLatin1String libraryExtension(".dll");
 #elif defined(Q_OS_MACOS)
-const QString libraryExtension = QStringLiteral(".dylib");
+constexpr QLatin1String libraryExtension(".dylib");
 #else
-const QString libraryExtension = QStringLiteral(".so");
+constexpr QLatin1String libraryExtension(".so");
 #endif
-}
 
 AddPluginDialog::AddPluginDialog(QWidget* parent)
     : QDialog(parent), ui(new Ui::AddPluginDialog)
@@ -137,12 +134,12 @@ AddPluginDialogEntry::AddPluginDialogEntry(PluginEntry* plugin, QWidget* parent)
     m_activeButton->setChecked(plugin->active);
     m_topLayout->insertWidget(0, m_activeButton);
 
-    if (plugin->settings && plugin->settings->window())
+    if (plugin->settingsStore)
     {
         QPushButton* openSettingsButton = new QPushButton("Open Settings", this);
         m_buttonsLayout->addWidget(openSettingsButton);
-        connect(openSettingsButton, &QPushButton::clicked, this, [plugin] {
-            QWidget* window = plugin->settings->window();
+        connect(openSettingsButton, &QPushButton::clicked, this, [=] {
+            QWidget* window = plugin->settingsStore->window();
             window->setAttribute(Qt::WA_DeleteOnClose);
             window->show();
         });

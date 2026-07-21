@@ -9,13 +9,14 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QRegularExpression>
+#include <qttube-plugin/providers/providertypes.h>
 
 WatchViewPlayer::WatchViewPlayer(QWidget* watchView, PluginEntry* plugin, const QSize& maxSize)
     : QObject(watchView), m_plugin(plugin)
 {
     if (qtTubeApp->settings().externalPlayerPath.isEmpty())
     {
-        m_player = plugin->playerFunc(&qtTubeApp->settings().playerSettings, watchView);
+        m_player = plugin->providers.watch->createPlayer(&qtTubeApp->settings().playerSettings, watchView);
         connect(m_player, &QtTubePlugin::Player::copyToClipboardRequested, this, &WatchViewPlayer::copyToClipboard);
         connect(m_player, &QtTubePlugin::Player::newState, this, &WatchViewPlayer::newState);
         connect(m_player, &QtTubePlugin::Player::progressChanged, this, &WatchViewPlayer::progressChanged);

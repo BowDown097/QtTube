@@ -1,4 +1,5 @@
 #pragma once
+#include "plugins/pluginentry.hpp"
 #include "searchbox.hpp"
 #include "topbarbell.hpp"
 #include "ui/widgets/labels/tubelabel.hpp"
@@ -17,7 +18,7 @@ public:
 
     explicit TopBar(QWidget* parent);
     void handleMouseEvent(QMouseEvent* event);
-    void postSignInSetup();
+    void postSignInSetup(PluginEntry* plugin);
     void scaleAppropriately();
     void setAlwaysShow(bool alwaysShow) { m_alwaysShow = alwaysShow; }
     void updateUIForSignInState(bool signedIn);
@@ -29,7 +30,7 @@ private:
     TubeLabel* m_settingsButton;
     QPushButton* m_signInButton;
 public slots:
-    void signOut();
+    void signOut(PluginEntry* plugin);
     void updateNotificationCount(int value);
 private slots:
     void showSettings();
