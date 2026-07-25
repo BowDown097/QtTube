@@ -15,15 +15,6 @@ namespace
     const QString targetVersionNotFoundError = QStringLiteral("Could not find target version function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
 }
 
-struct QLibraryDeleter
-{
-    void operator()(QLibrary* p) const
-    {
-        p->unload();
-        p->deleteLater();
-    }
-};
-
 PluginEntry::PluginEntry(QFileInfo&& info)
     : fileInfo(std::move(info))
 {
@@ -89,7 +80,7 @@ bool PluginEntry::isPluginFile(const QString& fileName)
 
 void PluginEntry::loadAsNative()
 {
-    std::unique_ptr<QLibrary, QLibraryDeleter> handle(new QLibrary(fileInfo.absoluteFilePath()));
+    handle = std::unique_ptr<QLibrary, QLibraryDeleter>(new QLibrary(fileInfo.absoluteFilePath()));
     handle->setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
     if (!handle->load())
         throw PluginLoadException(loadFailedError.arg(fileInfo.fileName(), handle->errorString()));
