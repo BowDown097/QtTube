@@ -1,5 +1,16 @@
 #pragma once
 #include "qttube-plugin/plugininterface.h"
+#include <memory>
+#include <QLibrary>
+
+struct QLibraryDeleter
+{
+	void operator()(QLibrary* p) const
+	{
+    	p->unload();
+    	p->deleteLater();
+	}
+};
 
 class PluginLoadException : public QException
 {
@@ -18,6 +29,7 @@ class PluginEntry
     friend class PluginManager;
 public:
     bool active{};
+    std::unique_ptr<QLibrary, QLibraryDeleter> handle; 
     QtTubePlugin::AuthStoreBase* authStore{};
     QFileInfo fileInfo;
     std::unique_ptr<QtTubePlugin::PluginInterface> interface;
