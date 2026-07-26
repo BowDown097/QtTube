@@ -3,7 +3,6 @@
 #include "qttubeapplication.hpp"
 #include "scripted/scriptpluginentry.hpp"
 #include <QMessageBox>
-#include <qttube-plugin/plugininterface.h>
 #include <qttube-plugin/providers/providertypes.h>
 
 namespace
@@ -13,11 +12,6 @@ namespace
     const QString nameConflictError = QStringLiteral("The name of the plugin from %1 (%2) conflicts with that of the plugin from %3 (%4).");
     const QString targetVersionMismatchWarning = QStringLiteral("The target version of the plugin from %1 (%2) does not match this version of " QTTUBE_APP_NAME " (" QTTUBE_VERSION_NAME "). This plugin may not work. Load this plugin anyway?");
 }
-
-PluginEntry::PluginEntry(QFileInfo&& fileInfo_) : fileInfo(std::move(fileInfo_)) {}
-PluginEntry::~PluginEntry() = default;
-PluginEntry::PluginEntry(PluginEntry&&) = default;
-PluginEntry& PluginEntry::operator=(PluginEntry&&) = default;
 
 bool PluginEntry::authenticated() const
 {

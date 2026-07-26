@@ -41,8 +41,3 @@ void NativePluginEntry::initialize()
 
     PluginEntry::initialize();
 }
-
-void NativePluginEntry::unload()
-{
-    m_handle.unload();
-}

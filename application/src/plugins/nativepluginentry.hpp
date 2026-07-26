@@ -6,8 +6,8 @@ class NativePluginEntry : public PluginEntry
 {
 public:
     explicit NativePluginEntry(QFileInfo&& fileInfo_);
+    ~NativePluginEntry() override { m_handle.unload(); }
     void initialize() override;
-    void unload() override;
 private:
     QLibrary m_handle;
 };

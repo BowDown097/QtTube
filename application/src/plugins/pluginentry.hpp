@@ -2,8 +2,7 @@
 #include <QException>
 #include <QFileInfo>
 #include <qttube-plugin/pluginfwd.h>
-#include <qttube-plugin/pluginmetadata.h>
-#include <qttube-plugin/providers/providerregistry.h>
+#include <qttube-plugin/plugininterface.h>
 
 class PluginLoadException : public QException
 {
@@ -43,21 +42,17 @@ public:
     Providers providers;
     QtTubePlugin::SettingsStore* settingsStore{};
 
-    virtual ~PluginEntry();
-    PluginEntry(PluginEntry&&);
+    virtual ~PluginEntry() = default;
     PluginEntry(const PluginEntry&) = delete;
-    PluginEntry& operator=(PluginEntry&&);
     PluginEntry& operator=(const PluginEntry&) = delete;
 
     bool authenticated() const;
-
     virtual void initialize();
-    virtual void unload() {}
 
     static std::unique_ptr<PluginEntry> create(QFileInfo&& fileInfo);
     static bool isPluginFile(const QString& fileName);
 protected:
-    explicit PluginEntry(QFileInfo&& fileInfo_);
+    explicit PluginEntry(QFileInfo&& fileInfo_) : fileInfo(std::move(fileInfo_)) {}
     void checkMetadata();
     void checkTargetVersion(std::string_view targetVersion);
 private:
