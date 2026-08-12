@@ -1,0 +1,20 @@
+name: "Setup Build Environment"
+
+inputs:
+  arch:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set environment variables
+      shell: bash
+      run: |
+        git config --global --add safe.directory "$PWD"
+        _ver="$(git rev-parse --short HEAD)"
+
+        echo "ARCH=${{ inputs.arch }}" >> $GITHUB_ENV
+        echo "BUILD_ID=${{ runner.os }}-${{ inputs.arch }}-${_ver}" >> $GITHUB_ENV
+        echo "BUILD_TYPE=Release" >> $GITHUB_ENV
+        echo "TARGET_PLATFORM=$(echo '${{ runner.os }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        echo "VERSION=${_ver}" >> $GITHUB_ENV

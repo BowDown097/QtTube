@@ -1,0 +1,17 @@
+name: Build
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+
+jobs:
+  linux:
+    uses: ./.github/workflows/linux.yml
+  windows:
+    uses: ./.github/workflows/windows.yml

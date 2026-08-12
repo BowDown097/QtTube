@@ -1,0 +1,69 @@
+name: Windows
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os.runs-on }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - runs-on: windows-2022
+            arch: amd64
+            vcpkg-arch: x64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: "recursive"
+
+      - name: Initial setup
+        uses: ./.github/workflows/setup
+        with:
+          arch: ${{ matrix.os.arch }}
+
+      - name: Setup Scoop
+        uses: MinoruSekine/setup-scoop@v5
+        with:
+          buckets: extras
+          apps: 7zip nsis
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Setup vcpkg
+        uses: johnwason/vcpkg-action@v8
+        id: vcpkg
+        with:
+          pkgs: icu zlib
+          triplet: ${{ matrix.os.vcpkg-arch }}-windows-release
+          token: ${{ github.token }}
+
+      - name: Prepare vcpkg CMake config
+        shell: bash
+        run: |
+          VCPKG_CMAKE_CONFIG="${{ steps.vcpkg.outputs.vcpkg-cmake-config }}"
+          VCPKG_CMAKE_CONFIG="${VCPKG_CMAKE_CONFIG//\\//}"
+          echo "VCPKG_CMAKE_CONFIG=$VCPKG_CMAKE_CONFIG" >> $GITHUB_ENV
+
+      - name: Cache Qt
+        id: qt-cache
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.workspace }}/Qt
+          key: qt-6.7.2-${{ matrix.os.arch }}
+
+      - name: Install Qt
+        env:
+          QT_CACHE_HIT: ${{ steps.qt-cache.outputs.cache-hit }}
+        shell: bash
+        run: ./.github/workflows/scripts/windows/deps.sh
+
+      - name: Build
+        uses: ./.github/workflows/build
+        with:
+          extra_cmake_config: ${{ env.VCPKG_CMAKE_CONFIG }}

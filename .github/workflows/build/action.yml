@@ -1,0 +1,27 @@
+name: "Build and Package"
+
+inputs:
+  extra_cmake_config:
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure CMake
+      shell: bash
+      run: ./.github/workflows/scripts/configure.sh ${{ inputs.extra_cmake_config }}
+
+    - name: Build
+      shell: bash
+      run: cmake --build build --config ${{ env.BUILD_TYPE }}
+
+    - name: Package
+      shell: bash
+      run: ./.github/workflows/scripts/${{ env.TARGET_PLATFORM }}/package.sh
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v7
+      with:
+        name: QtTube-${{ env.BUILD_ID }}
+        path: artifacts/*
+        if-no-files-found: error
