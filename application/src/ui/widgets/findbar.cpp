@@ -96,7 +96,7 @@ void FindBar::jumpToCurrentMatch()
     m_nextButton->setEnabled(m_currentIndex + 1 < m_matches.length());
     m_previousButton->setEnabled(m_currentIndex >= 1);
 
-    if (m_matches.empty())
+    if (m_matches.isEmpty())
     {
         m_matchesLabel->setText("Phrase not found");
         return;
@@ -136,7 +136,7 @@ void FindBar::jumpToCurrentMatch()
 
 void FindBar::returnPressed()
 {
-    if (m_matches.empty())
+    if (m_matches.isEmpty())
         return;
 
     if (++m_currentIndex >= m_matches.length())

@@ -18,12 +18,12 @@ bool PluginEntry::authenticated() const
     return authStore && !authStore->isEmpty();
 }
 
-std::unique_ptr<PluginEntry> PluginEntry::create(QFileInfo&& fileInfo)
+std::unique_ptr<PluginEntry> PluginEntry::create(const QFileInfo& fileInfo)
 {
     if (QLibrary::isLibrary(fileInfo.filePath()))
-        return std::make_unique<NativePluginEntry>(std::move(fileInfo));
+        return std::make_unique<NativePluginEntry>(fileInfo);
     else if (fileInfo.suffix() == "js")
-        return std::make_unique<ScriptPluginEntry>(std::move(fileInfo));
+        return std::make_unique<ScriptPluginEntry>(fileInfo);
     return nullptr;
 }
 

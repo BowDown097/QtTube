@@ -66,33 +66,34 @@ PluginEntry* PluginManager::findPlugin(const QString& name) const
 
 QList<QFileInfo> PluginManager::getPluginsToLoad(QString& activePluginName)
 {
-    static constexpr QDir::Filters filters = QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot;
     QList<QFileInfo> pluginsToLoad;
 
-    auto handleInfo = [&](auto& self, const QString& root, QFileInfo&& info) -> void {
-        if (info.isDir())
-        {
-            for (QDirIterator it(info.filePath(), filters); it.hasNext();)
-                self(self, root, QFileInfo(it.next()));
-        }
-        else if (info.fileName() == "update.ini")
-        {
-            checkUpdate(root, info);
-        }
-        else if (PluginEntry::isPluginFile(info.fileName()))
-        {
-            QFileInfo& stored = pluginsToLoad.emplaceBack(std::move(info));
-            if (activePluginName.isEmpty())
-                activePluginName = stored.fileName();
-        }
+    auto addPlugin = [&](const QFileInfo& info) {
+        pluginsToLoad.append(info);
+        if (activePluginName.isEmpty())
+            activePluginName = info.fileName();
     };
 
-    for (const QDir& dir : pluginLoadDirs())
+    for (const QDir& loadDir : pluginLoadDirs())
     {
-        for (QDirIterator it(dir.path(), filters); it.hasNext();)
+        for (QDirIterator it(loadDir.path(), QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot); it.hasNext();)
         {
-            QFileInfo info(it.next());
-            handleInfo(handleInfo, info.fileName(), std::move(info));
+            QFileInfo info = it.nextFileInfo();
+            if (info.isFile())
+            {
+                if (PluginEntry::isPluginFile(info.fileName()))
+                    addPlugin(info);
+                continue;
+            }
+
+            for (QDirIterator it2(info.filePath(), QDir::Files); it2.hasNext();)
+            {
+                QFileInfo info2 = it2.nextFileInfo();
+                if (info2.fileName() == "update.ini")
+                    checkUpdate(info.fileName(), info2);
+                else if (PluginEntry::isPluginFile(info2.fileName()))
+                    addPlugin(info2);
+            }
         }
     }
 
@@ -144,9 +145,9 @@ const QList<QDir>& PluginManager::pluginLoadDirs()
     return pluginLoadDirs;
 }
 
-PluginEntry* PluginManager::registerPlugin(QFileInfo&& fileInfo)
+PluginEntry* PluginManager::registerPlugin(const QFileInfo& fileInfo)
 {
-    std::unique_ptr<PluginEntry> plugin = PluginEntry::create(std::move(fileInfo));
+    std::unique_ptr<PluginEntry> plugin = PluginEntry::create(fileInfo);
     if (plugin)
         plugin->initialize();
     else
@@ -171,11 +172,11 @@ void PluginManager::reloadPlugins()
     QList<QFileInfo> pluginsToLoad = getPluginsToLoad(activePluginName);
     m_foundPluginFile = !pluginsToLoad.isEmpty();
 
-    for (QFileInfo& fileInfo : pluginsToLoad)
+    for (const QFileInfo& fileInfo : pluginsToLoad)
     {
         try
         {
-            PluginEntry* plugin = registerPlugin(std::move(fileInfo));
+            PluginEntry* plugin = registerPlugin(fileInfo);
             if (plugin->fileInfo.fileName() == activePluginName)
                 plugin->active = true;
         }

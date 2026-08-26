@@ -4,6 +4,6 @@
 
 struct ScriptPluginEntry : PluginEntry
 {
-    explicit ScriptPluginEntry(QFileInfo&& fileInfo_) : PluginEntry(std::move(fileInfo_)) {}
+    explicit ScriptPluginEntry(const QFileInfo& fileInfo) : PluginEntry(fileInfo) {}
     void initialize() override;
 };

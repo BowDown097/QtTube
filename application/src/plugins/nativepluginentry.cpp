@@ -9,8 +9,8 @@ namespace
     const QString targetVersionNotFoundError = QStringLiteral("Could not find target version function in plugin from %1. Was the plugin set up with DECLARE_QTTUBE_PLUGIN?");
 }
 
-NativePluginEntry::NativePluginEntry(QFileInfo&& fileInfo_)
-    : PluginEntry(std::move(fileInfo_)), m_handle(fileInfo.absoluteFilePath())
+NativePluginEntry::NativePluginEntry(const QFileInfo& fileInfo)
+    : PluginEntry(fileInfo), m_handle(fileInfo.absoluteFilePath())
 {
     m_handle.setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
 }

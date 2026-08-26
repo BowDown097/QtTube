@@ -49,10 +49,10 @@ public:
     bool authenticated() const;
     virtual void initialize();
 
-    static std::unique_ptr<PluginEntry> create(QFileInfo&& fileInfo);
+    static std::unique_ptr<PluginEntry> create(const QFileInfo& fileInfo);
     static bool isPluginFile(const QString& fileName);
 protected:
-    explicit PluginEntry(QFileInfo&& fileInfo_) : fileInfo(std::move(fileInfo_)) {}
+    explicit PluginEntry(const QFileInfo& fileInfo) : fileInfo(fileInfo) {}
     void checkMetadata();
     void checkTargetVersion(std::string_view targetVersion);
 private:

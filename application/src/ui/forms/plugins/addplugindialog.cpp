@@ -47,7 +47,7 @@ void AddPluginDialog::attemptAdd()
 
         source.fileInfo.setFile(targetPluginPath);
 
-        PluginEntry* plugin = qtTubeApp->plugins().registerPlugin(std::move(source.fileInfo));
+        PluginEntry* plugin = qtTubeApp->plugins().registerPlugin(source.fileInfo);
         if (!qtTubeApp->plugins().activePlugin() ||
             QMessageBox::question(this, QString(), "Make this plugin the active plugin?") == QMessageBox::Yes)
         {

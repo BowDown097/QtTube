@@ -12,7 +12,7 @@ public:
     PluginEntry* findPlugin(const QString& name) const;
     bool hasLoadablePlugins() const { return m_foundPluginFile; }
     const QList<PluginEntry*> loadedPlugins() const;
-    PluginEntry* registerPlugin(QFileInfo&& fileInfo);
+    PluginEntry* registerPlugin(const QFileInfo& fileInfo);
     void reloadPlugins();
     std::unordered_map<QString, ReleaseData>& updatablePlugins() { return m_updatablePlugins; }
 

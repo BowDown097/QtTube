@@ -5,7 +5,7 @@
 class NativePluginEntry : public PluginEntry
 {
 public:
-    explicit NativePluginEntry(QFileInfo&& fileInfo_);
+    explicit NativePluginEntry(const QFileInfo& fileInfo);
     ~NativePluginEntry() override { m_handle.unload(); }
     void initialize() override;
 private:

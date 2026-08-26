@@ -78,7 +78,7 @@ void PluginBuildDownloader::downloadFinished(const HttpReply& reply)
             throw PluginLoadException("No plugin file found.");
 
         createUpdateIni(m_pluginDir.filePath("update.ini"));
-        emit finished(qtTubeApp->plugins().registerPlugin(std::move(pluginFile.value())));
+        emit finished(qtTubeApp->plugins().registerPlugin(pluginFile.value()));
     }
     catch (const PluginLoadException& ex)
     {
