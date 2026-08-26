@@ -32,7 +32,7 @@ QtTubePlugin::PluginMetadata createMetadata(const qjs::value& metadata)
     };
 }
 
-void setupContext(qjs::context& context)
+void setupContext(qjs::context& context, const QDir& dir)
 {
     js_std_add_helpers(context.ctx, 0, nullptr);
     js_init_module_std(context.ctx, "std");
@@ -51,7 +51,7 @@ void setupContext(qjs::context& context)
     };
 
     context.on_unhandled_promise_rejection = [](qjs::value val) {
-        if (JS_IsError(val.v))
+        if (val.is_error())
             UIUtils::getMainWindow()->reportJsException(QJSUtils::generateErrorString(val));
     };
 
@@ -62,6 +62,8 @@ void setupContext(qjs::context& context)
     jsfetch::registerFor(context);
     Navigator::registerFor(context);
     registerEnumsFor(context);
+
+    context.global()["__scriptDir"] = dir.absolutePath();
 }
 
 void ScriptPluginEntry::initialize()
@@ -70,7 +72,7 @@ void ScriptPluginEntry::initialize()
 
     try
     {
-        setupContext(*context);
+        setupContext(*context, fileInfo.dir());
 
         qjs::value funcVal = context->eval_file(
             fileInfo.filePath().toUtf8(),

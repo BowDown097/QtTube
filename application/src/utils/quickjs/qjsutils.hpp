@@ -6,7 +6,7 @@ namespace QJSUtils
 {
     inline QString generateErrorString(const qjs::value& error)
     {
-        if (!JS_IsError(error.v))
+        if (!error.is_error())
             return error.as<QString>();
 
         return QStringLiteral("%1: %2\n%3").arg(
@@ -18,7 +18,7 @@ namespace QJSUtils
     inline QString generateErrorString(const qjs::exception& ex)
     {
         qjs::value error = ex.get_value();
-        if (!JS_IsError(error.v))
+        if (!error.is_error())
             return error.as<QString>();
 
         QString stack = error["stack"].as<QString>();
@@ -40,7 +40,7 @@ namespace QJSUtils
     template<typename T, bool ReturnDefault = false>
     T getStringStrict(const qjs::value& val, const char* error = "Expected string for value", const char* defaultValue = "")
     {
-        if (JS_IsString(val.v))
+        if (val.is_string())
             return val.as<T>();
         else if constexpr (ReturnDefault)
             return T(defaultValue);

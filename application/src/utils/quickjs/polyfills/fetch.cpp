@@ -23,14 +23,14 @@ namespace jsfetch
         : m_body(!args.empty() ? args[0].as<QByteArray>() : QByteArray()),
           m_ctx(ctx)
     {
-        if (args.size() < 2 || !JS_IsObject(args[1].v))
+        if (args.size() < 2 || !args[1].is_object())
             return;
 
-        if (qjs::value statusVal = args[1]["status"]; JS_IsNumber(statusVal.v))
+        if (qjs::value statusVal = args[1]["status"]; statusVal.is_number())
             status = statusVal.as<int>();
-        if (qjs::value statusTextVal = args[1]["statusText"]; JS_IsString(statusTextVal.v))
+        if (qjs::value statusTextVal = args[1]["statusText"]; statusTextVal.is_string())
             statusText = statusTextVal.as<QByteArray>();
-        if (qjs::value headersVal = args[1]["headers"]; JS_IsObject(headersVal.v))
+        if (qjs::value headersVal = args[1]["headers"]; headersVal.is_object())
             headers = headersVal.as<HttpReply::HeaderList>();
     }
 

@@ -15,13 +15,13 @@ void registerProvider(
     std::same_as<MethodInput> auto... methodNames)
 {
     qjs::value provider = moduleNamespace[providerName];
-    if (!JS_IsObject(provider.v))
+    if (!provider.is_object())
         return;
 
     auto methods = std::make_tuple(BoundMethod { provider[methodNames.name], methodNames.required }...);
 
     bool ok = std::apply([](auto&... m) {
-        return (... && (!m.required || JS_IsFunction(m.v.ctx, m.v.v)));
+        return (... && (!m.required || m.v.is_function()));
     }, methods);
     if (!ok)
         return;
@@ -31,18 +31,17 @@ void registerProvider(
 
 void ScriptPluginInterface::init()
 {
-    if (qjs::value init_v = moduleNamespace["init"]; JS_IsFunction(init_v.ctx, init_v.v))
+    if (qjs::value init_v = moduleNamespace["init"]; init_v.is_function())
         init_v.invoke_then([] {});
 }
 
 void ScriptPluginInterface::registerProviders(QtTubePlugin::ProviderRegistry& reg)
 {
-    qjs::value authp = moduleNamespace["authenticationProvider"];
-    if (JS_IsObject(authp.v))
+    if (qjs::value authp = moduleNamespace["authenticationProvider"]; authp.is_object())
     {
         qjs::value autho = moduleNamespace["auth"];
         qjs::value getActiveAccount = authp["getActiveAccount"];
-        if (JS_IsObject(autho.v) && JS_IsFunction(getActiveAccount.ctx, getActiveAccount.v))
+        if (autho.is_object() && getActiveAccount.is_function())
         {
             reg.emplace<ScriptAuthenticationProvider>(
                 std::make_unique<ScriptPluginAuthStore>(pluginName, std::move(autho)),

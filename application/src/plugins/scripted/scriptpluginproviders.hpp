@@ -28,7 +28,7 @@ QtTubePlugin::Reply<T>* makeReply(const qjs::value& func, auto&&... args)
         {
             func.invoke_then([=](const qjs::value& data) {
                 if (qjs::value contData = data["continuationData"];
-                    !JS_IsNull(contData.v) && !JS_IsUndefined(contData.v))
+                    !contData.is_null() && !contData.is_undefined())
                 {
                     reply->continuationData = contData;
                     QtTubePlugin::invokeQueued(reply, &ReplyType::finished, data["data"].as<T>());
@@ -99,7 +99,7 @@ struct ScriptChannelSubscriptionProvider : QtTubePlugin::ChannelSubscriptionProv
 
     QtTubePlugin::Reply<void>* setNotificationPreference(const QString& channelId, const std::any& data) override
     {
-        if (JS_IsFunction(setNotificationPreference_v.ctx, setNotificationPreference_v.v))
+        if (setNotificationPreference_v.is_function())
             return makeReply<void>(setNotificationPreference_v, channelId, anyValue(data));
         else
             return nullptr;
@@ -154,7 +154,7 @@ struct ScriptLiveChatProvider : QtTubePlugin::LiveChatProvider
 
     QtTubePlugin::LiveChatReplayReply* getChatReplay(const std::any& data, qint64 videoOffsetMs) override
     {
-        if (JS_IsFunction(getReplay_v.ctx, getReplay_v.v))
+        if (getReplay_v.is_function())
             return makeReply<QtTubePlugin::LiveChatReplay>(getReplay_v, anyValue(data), videoOffsetMs);
         else
             return nullptr;
@@ -162,7 +162,7 @@ struct ScriptLiveChatProvider : QtTubePlugin::LiveChatProvider
 
     QtTubePlugin::Reply<void>* sendMessage(const QString& text) override
     {
-        if (JS_IsFunction(sendMessage_v.ctx, sendMessage_v.v))
+        if (sendMessage_v.is_function())
             return makeReply<void>(sendMessage_v, text);
         else
             return nullptr;
@@ -204,7 +204,7 @@ struct ScriptSearchProvider : QtTubePlugin::SearchProvider
 
     std::vector<std::pair<QString, QStringList>> searchFilters() override
     {
-        if (JS_IsObject(searchFilters_v.v))
+        if (searchFilters_v.is_object())
             return searchFilters_v.as<std::vector<std::pair<QString, QStringList>>>();
         else
             return {};
@@ -254,7 +254,7 @@ struct ScriptWatchProvider : QtTubePlugin::WatchProvider
 
     QtTubePlugin::RecommendedReply* continueRecommended(const QString& videoId, const std::any& continuationData) override
     {
-        if (JS_IsFunction(continueRecommended_v.ctx, continueRecommended_v.v))
+        if (continueRecommended_v.is_function())
             return makeReply<QtTubePlugin::RecommendedData>(continueRecommended_v, videoId, anyValue(continuationData));
         else
             return nullptr;
@@ -272,7 +272,7 @@ struct ScriptWatchProvider : QtTubePlugin::WatchProvider
 
     QtTubePlugin::Reply<void>* rate(const QString& videoId, bool like, bool removing, const std::any& data) override
     {
-        if (JS_IsFunction(rate_v.ctx, rate_v.v))
+        if (rate_v.is_function())
             return makeReply<void>(rate_v, videoId, like, removing, anyValue(data));
         else
             return nullptr;

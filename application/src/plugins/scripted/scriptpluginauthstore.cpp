@@ -7,7 +7,7 @@
 bool ScriptPluginAuthRoutine::onNewCookie(const QByteArray& name, const QByteArray& value)
 {
     const qjs::value& authObject = static_cast<ScriptPluginAuthStore*>(m_authStore)->authObject;
-    if (qjs::value fn = authObject["onNewCookie"]; JS_IsFunction(fn.ctx, fn.v))
+    if (qjs::value fn = authObject["onNewCookie"]; fn.is_function())
         return fn.as<std::function<bool(QByteArray, QByteArray)>>()(name, value);
     return true;
 }
@@ -15,7 +15,7 @@ bool ScriptPluginAuthRoutine::onNewCookie(const QByteArray& name, const QByteArr
 bool ScriptPluginAuthRoutine::onNewHeader(const QByteArray& name, const QByteArray& value)
 {
     const qjs::value& authObject = static_cast<ScriptPluginAuthStore*>(m_authStore)->authObject;
-    if (qjs::value fn = authObject["onNewHeader"]; JS_IsFunction(fn.ctx, fn.v))
+    if (qjs::value fn = authObject["onNewHeader"]; fn.is_function())
         return fn.as<std::function<bool(QByteArray, QByteArray)>>()(name, value);
     return true;
 }
@@ -24,7 +24,7 @@ void ScriptPluginAuthRoutine::start()
 {
     const qjs::value& authObject = static_cast<ScriptPluginAuthStore*>(m_authStore)->authObject;
 
-    if (qjs::value urlVal = authObject["url"]; JS_IsString(urlVal.v))
+    if (qjs::value urlVal = authObject["url"]; urlVal.is_string())
     {
         setUrl(urlVal.as<QString>());
     }
@@ -34,25 +34,25 @@ void ScriptPluginAuthRoutine::start()
         return;
     }
 
-    if (qjs::value loginBtnVal = authObject["loginButton"]; JS_IsString(loginBtnVal.v))
+    if (qjs::value loginBtnVal = authObject["loginButton"]; loginBtnVal.is_string())
         setLoginButton(loginBtnVal.as<QString>());
 
     QList<QtTubePlugin::SearchCookie> searchCookies;
     QList<QByteArray> searchHeaders;
 
-    if (qjs::value searchCookiesVal = authObject["searchCookies"]; JS_IsArray(searchCookiesVal.v))
+    if (qjs::value searchCookiesVal = authObject["searchCookies"]; searchCookiesVal.is_array())
     {
         for (const qjs::value& cookieVal : searchCookiesVal.as<std::vector<qjs::value>>())
         {
             QtTubePlugin::SearchCookie cookie;
 
-            if (JS_IsString(cookieVal.v))
+            if (cookieVal.is_string())
             {
                 cookie.name = cookieVal.as<QByteArray>();
             }
-            else if (JS_IsObject(cookieVal.v))
+            else if (cookieVal.is_object())
             {
-                if (qjs::value name = cookieVal["name"]; JS_IsString(name.v))
+                if (qjs::value name = cookieVal["name"]; name.is_string())
                 {
                     cookie.name = name.as<QByteArray>();
                 }
@@ -62,10 +62,10 @@ void ScriptPluginAuthRoutine::start()
                     return;
                 }
 
-                if (qjs::value domain = cookieVal["domain"]; JS_IsString(domain.v))
+                if (qjs::value domain = cookieVal["domain"]; domain.is_string())
                     cookie.domain = domain.as<QByteArray>();
 
-                if (qjs::value path = cookieVal["path"]; JS_IsString(path.v))
+                if (qjs::value path = cookieVal["path"]; path.is_string())
                     cookie.path = path.as<QByteArray>();
             }
             else
@@ -78,7 +78,7 @@ void ScriptPluginAuthRoutine::start()
         }
     }
 
-    if (qjs::value searchHeadersVal = authObject["searchHeaders"]; JS_IsArray(searchHeadersVal.v))
+    if (qjs::value searchHeadersVal = authObject["searchHeaders"]; searchHeadersVal.is_array())
         searchHeaders = searchHeadersVal.as<QList<QByteArray>>();
 
     if (searchCookies.isEmpty() && searchHeaders.isEmpty())
@@ -171,7 +171,7 @@ void ScriptPluginAuthStore::init()
 
 void ScriptPluginAuthStore::restoreFromActive()
 {
-    if (qjs::value fn = authObject["restore"]; JS_IsFunction(fn.ctx, fn.v))
+    if (qjs::value fn = authObject["restore"]; fn.is_function())
         if (const ScriptPluginAuthUser* active = activeLogin())
             fn.invoke_then([] {}, *active);
 }
@@ -206,7 +206,7 @@ void ScriptPluginAuthStore::save()
 
 void ScriptPluginAuthStore::unauthenticate()
 {
-    if (qjs::value fn = authObject["unauthenticate"]; JS_IsFunction(fn.ctx, fn.v))
+    if (qjs::value fn = authObject["unauthenticate"]; fn.is_function())
         fn.invoke_then([] {});
 }
 

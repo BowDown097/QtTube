@@ -10,7 +10,7 @@
 template<typename T>
 T getValue(const qjs::value& options, const char* key)
 {
-    if (!JS_IsUndefined(options.v))
+    if (!options.is_undefined())
         return options[key].as<T>();
     else if constexpr (std::same_as<T, qjs::value>)
         return qjs::value(JS_UNDEFINED);
@@ -22,9 +22,9 @@ namespace Intl
 {
     QStringList IntlBase::getLocaleList(const qjs::value& locales)
     {
-        if (JS_IsString(locales.v))
+        if (locales.is_string())
             return QStringList { locales.as<QString>() };
-        if (JS_IsArray(locales.v))
+        if (locales.is_array())
             return locales.as<QStringList>();
         return {};
     }
@@ -79,11 +79,11 @@ namespace Intl
         {
             QString symbol;
 
-            if (auto currencyVal = getValue<qjs::value>(m_options, "currency"); JS_IsString(currencyVal.v))
+            if (auto currencyVal = getValue<qjs::value>(m_options, "currency"); currencyVal.is_string())
             {
                 symbol = currencyVal.as<QString>();
             }
-            else if (auto displayVal = getValue<qjs::value>(m_options, "currencyDisplay"); JS_IsString(displayVal.v))
+            else if (auto displayVal = getValue<qjs::value>(m_options, "currencyDisplay"); displayVal.is_string())
             {
                 std::string_view display = displayVal.as<std::string_view>();
                 if (display == "code")
@@ -110,7 +110,7 @@ namespace Intl
         : IntlBase(ctx, input)
     {
         UDateRelativeDateTimeFormatterStyle style = UDAT_STYLE_LONG;
-        if (auto styleValue = getValue<qjs::value>(m_options, "style"); !JS_IsUndefined(styleValue.v))
+        if (auto styleValue = getValue<qjs::value>(m_options, "style"); !styleValue.is_undefined())
         {
             std::string_view styleName = styleValue.as<std::string_view>();
             if (styleName == "short")
@@ -121,7 +121,7 @@ namespace Intl
                 throw qjs::exception(ctx, JS_RANGE_ERROR, INVALID_VALUE("style"), styleName.data());
         }
 
-        if (auto numericValue = getValue<qjs::value>(m_options, "numeric"); !JS_IsUndefined(numericValue.v))
+        if (auto numericValue = getValue<qjs::value>(m_options, "numeric"); !numericValue.is_undefined())
         {
             std::string_view numericName = numericValue.as<std::string_view>();
             if (numericName == "auto")
@@ -133,7 +133,7 @@ namespace Intl
         icu::Locale locale = icu::Locale::getDefault();
         UErrorCode status = U_ZERO_ERROR;
 
-        if (auto systemValue = getValue<qjs::value>(m_options, "numberingSystem"); !JS_IsUndefined(systemValue.v))
+        if (auto systemValue = getValue<qjs::value>(m_options, "numberingSystem"); !systemValue.is_undefined())
         {
             std::string_view systemName = systemValue.as<std::string_view>();
             locale.setKeywordValue("numbers", systemName.data(), status);
