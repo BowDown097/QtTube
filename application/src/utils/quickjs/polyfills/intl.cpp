@@ -2,20 +2,46 @@
 #include "utils/hashfunctions.hpp"
 #include "utils/quickjs/qt_js_traits.hpp"
 #include <quickjs++/context.h>
-#include <unicode/reldatefmt.h>
+#include <unicode/dtptngen.h>
 #include <unordered_set>
 
 #define INVALID_VALUE(name) "invalid value \"%s\" for option " #name
 
-template<typename T>
-T getValue(const qjs::value& options, const char* key)
+template<> struct qjs::js_traits<icu::UnicodeString>
 {
-    if (!options.is_undefined())
-        return options[key].as<T>();
-    else if constexpr (std::same_as<T, qjs::value>)
-        return qjs::value(JS_UNDEFINED);
-    else
-        return {};
+    static icu::UnicodeString unwrap(JSContext* ctx, JSValueConst v)
+    {
+        auto sv = qjs::js_traits<std::u16string_view>::unwrap(ctx, v);
+        return icu::UnicodeString(sv.data(), sv.size());
+    }
+
+    static JSValue wrap(JSContext* ctx, const icu::UnicodeString& v)
+    {
+        return JS_NewStringUTF16(ctx, reinterpret_cast<const uint16_t*>(v.getBuffer()), v.length());
+    }
+};
+
+namespace
+{
+    template<typename T>
+    T getValue(const qjs::value& options, const char* key)
+    {
+        if (!options.is_undefined())
+            return options[key].as<T>();
+        else if constexpr (std::same_as<T, qjs::value>)
+            return qjs::value(JS_UNDEFINED);
+        else
+            return {};
+    }
+
+    icu::Locale makeIcuLocale(const QLocale& locale)
+    {
+        UErrorCode status = U_ZERO_ERROR;
+        const QByteArray ba = locale.bcp47Name().toUtf8();
+        icu::Locale result = icu::Locale::forLanguageTag(
+            icu::StringPiece(ba.data(), ba.size()), status);
+        return U_SUCCESS(status) && !result.isBogus() ? result : icu::Locale::getDefault();
+    }
 }
 
 namespace Intl
@@ -69,9 +95,94 @@ namespace Intl
     IntlBase::IntlBase(JSContext* ctx, const qjs::rest<qjs::value>& input)
         : m_ctx(ctx),
           m_locale(resolveLocale(input)),
-          m_options(input.size() > 1 ? input[1] : qjs::value(JS_UNDEFINED)) {}
+          m_options(input.size() > 1 ? input[1] : qjs::value(ctx, JS_UNDEFINED)) {}
 
-    QString NumberFormat::format(double number)
+    DateTimeFormat::DateTimeFormat(JSContext* ctx, const qjs::rest<qjs::value>& input)
+        : IntlBase(ctx, input)
+    {
+        icu::DateFormat::EStyle dateStyle = parseFormatStyle("dateStyle");
+        icu::DateFormat::EStyle timeStyle = parseFormatStyle("timeStyle");
+
+        if (auto timeZoneVal = getValue<qjs::value>(m_options, "timeZone"); timeZoneVal.is_string())
+            m_timeZone.reset(icu::TimeZone::createTimeZone(timeZoneVal.as<icu::UnicodeString>()));
+        else
+            m_timeZone.reset(icu::TimeZone::createDefault());
+
+        icu::Locale locale = makeIcuLocale(m_locale);
+        UErrorCode status = U_ZERO_ERROR;
+
+        if (dateStyle != icu::DateFormat::kNone || timeStyle != icu::DateFormat::kNone)
+        {
+            m_formatter.reset(icu::DateFormat::createDateTimeInstance(dateStyle, timeStyle, locale));
+            m_formatter->setTimeZone(*m_timeZone);
+        }
+        else
+        {
+            m_formatter.reset(icu::DateFormat::createDateInstance(icu::DateFormat::kDefault, locale));
+        }
+    }
+
+    icu::UnicodeString DateTimeFormat::format(double offset) const
+    {
+        UErrorCode status = U_ZERO_ERROR;
+        icu::UnicodeString result;
+
+        m_formatter->format(static_cast<UDate>(offset), result, nullptr, status);
+        if (U_FAILURE(status))
+            throw qjs::exception(m_ctx, JS_INTERNAL_ERROR, "Unexpected formatting error: %s", u_errorName(status));
+
+        return result;
+    }
+
+    icu::DateFormat::EStyle DateTimeFormat::parseFormatStyle(const char* key) const
+    {
+        qjs::value value = getValue<qjs::value>(m_options, key);
+        if (value.is_undefined())
+            return icu::DateFormat::kNone;
+
+        std::string_view name = value.as<std::string_view>();
+        if (name == "full")
+            return icu::DateFormat::kFull;
+        if (name == "long")
+            return icu::DateFormat::kLong;
+        if (name == "medium")
+            return icu::DateFormat::kMedium;
+        if (name == "short")
+            return icu::DateFormat::kShort;
+
+        throw qjs::exception(m_ctx, JS_RANGE_ERROR, INVALID_VALUE("dateStyle"), name.data());
+    }
+
+    qjs::value DateTimeFormat::resolvedOptions() const
+    {
+        UErrorCode status = U_ZERO_ERROR;
+        icu::UnicodeString timeZoneId, timeZoneIanaId;
+
+        m_timeZone->getID(timeZoneId);
+        icu::TimeZone::getIanaID(timeZoneId, timeZoneIanaId, status);
+
+        if (U_FAILURE(status))
+        {
+            std::string timeZoneIdUTF8;
+            timeZoneId.toUTF8String(timeZoneIdUTF8);
+            throw qjs::exception(
+                m_ctx, JS_RANGE_ERROR,
+                "invalid time zone: %s", timeZoneIdUTF8.c_str());
+        }
+
+        qjs::value result(m_ctx, JS_NewObject(m_ctx));
+        result["locale"] = m_locale.bcp47Name();
+        result["timeZone"] = timeZoneIanaId;
+
+        if (auto dateStyle = getValue<qjs::value>(m_options, "dateStyle"); dateStyle.is_string())
+            result["dateStyle"] = dateStyle.as<std::string>();
+        if (auto timeStyle = getValue<qjs::value>(m_options, "timeStyle"); timeStyle.is_string())
+            result["timeStyle"] = timeStyle.as<std::string>();
+
+        return result;
+    }
+
+    QString NumberFormat::format(double number) const
     {
         auto style = getValue<std::string_view>(m_options, "style");
 
@@ -104,8 +215,6 @@ namespace Intl
         return result;
     }
 
-    RelativeTimeFormat::~RelativeTimeFormat() = default;
-
     RelativeTimeFormat::RelativeTimeFormat(JSContext* ctx, const qjs::rest<qjs::value>& input)
         : IntlBase(ctx, input)
     {
@@ -130,7 +239,7 @@ namespace Intl
                 throw qjs::exception(ctx, JS_RANGE_ERROR, INVALID_VALUE("numeric"), numericName.data());
         }
 
-        icu::Locale locale = icu::Locale::getDefault();
+        icu::Locale locale = makeIcuLocale(m_locale);
         UErrorCode status = U_ZERO_ERROR;
 
         if (auto systemValue = getValue<qjs::value>(m_options, "numberingSystem"); !systemValue.is_undefined())
@@ -151,7 +260,7 @@ namespace Intl
             throw qjs::exception(ctx, JS_RANGE_ERROR, "invalid language tag: \"%s\"", locale.getName());
     }
 
-    QString RelativeTimeFormat::format(double value, const std::string& unit)
+    icu::UnicodeString RelativeTimeFormat::format(double offset, const std::string& unit) const
     {
         URelativeDateTimeUnit unitValue;
         if (unit == "year" || unit == "years")
@@ -175,27 +284,34 @@ namespace Intl
 
         UErrorCode status = U_ZERO_ERROR;
         icu::FormattedRelativeDateTime formatted = m_alwaysNumeric
-            ? m_formatter->formatNumericToValue(value, unitValue, status)
-            : m_formatter->formatToValue(value, unitValue, status);
+            ? m_formatter->formatNumericToValue(offset, unitValue, status)
+            : m_formatter->formatToValue(offset, unitValue, status);
         if (U_FAILURE(status))
             throw qjs::exception(m_ctx, JS_INTERNAL_ERROR, "Unexpected formatting error: %s", u_errorName(status));
 
-        icu::UnicodeString str = formatted.toTempString(status);
+        icu::UnicodeString result = formatted.toTempString(status);
         if (U_FAILURE(status))
             throw qjs::exception(m_ctx, JS_INTERNAL_ERROR, "Unexpected formatting error: %s", u_errorName(status));
 
-        return QString(reinterpret_cast<const QChar*>(str.getBuffer()), str.length());
+        return result;
     }
 
     void registerFor(qjs::context& ctx)
     {
-        qjs::module& mod = ctx.add_module("Intl");
-        mod.register_class<Intl::NumberFormat>()
+        qjs::value intl = ctx.new_object();
+
+        qjs::class_registrar<Intl::DateTimeFormat>(ctx, intl)
+            .constructor<JSContext*, const qjs::rest<qjs::value>&>()
+            .member<&Intl::DateTimeFormat::format>()
+            .member<&Intl::DateTimeFormat::resolvedOptions>();
+        qjs::class_registrar<Intl::NumberFormat>(ctx, intl)
             .constructor<JSContext*, const qjs::rest<qjs::value>&>()
             .member<&Intl::NumberFormat::format>();
-        mod.register_class<Intl::RelativeTimeFormat>()
+        qjs::class_registrar<Intl::RelativeTimeFormat>(ctx, intl)
             .constructor<JSContext*, const qjs::rest<qjs::value>&>()
             .member<&Intl::RelativeTimeFormat::format>();
+
+        ctx.global()["Intl"] = std::move(intl);
 
         auto call_nf = [](double number, JSContext* ctx, const qjs::rest<qjs::value>& input) {
             return NumberFormat(ctx, input).format(number);

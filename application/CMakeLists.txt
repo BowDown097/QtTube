@@ -82,6 +82,7 @@ target_sources(QtTube
         src/utils/quickjs/polyfills/fetch.cpp
         src/utils/quickjs/polyfills/intl.cpp
         src/utils/quickjs/polyfills/navigator.cpp
+        src/utils/quickjs/polyfills/textencoder.cpp
         # forms, etc.
         res/resources.qrc
         src/mainwindow.ui
@@ -168,6 +169,7 @@ target_sources(QtTube
         src/utils/quickjs/polyfills/fetch.hpp
         src/utils/quickjs/polyfills/intl.hpp
         src/utils/quickjs/polyfills/navigator.hpp
+        src/utils/quickjs/polyfills/textencoder.hpp
 )
 
 # Application icon

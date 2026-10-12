@@ -1,11 +1,10 @@
 #pragma once
 #include <QLocale>
 #include <quickjs++/value.h>
+#include <unicode/datefmt.h>
+#include <unicode/reldatefmt.h>
+#include <unicode/timezone.h>
 #include <unicode/uversion.h>
-
-U_NAMESPACE_BEGIN
-class RelativeDateTimeFormatter;
-U_NAMESPACE_END
 
 namespace Intl
 {
@@ -23,18 +22,30 @@ namespace Intl
         static QString resolveLocale(const qjs::rest<qjs::value>& input);
     };
 
+    class DateTimeFormat : public IntlBase
+    {
+    public:
+        DateTimeFormat(JSContext* ctx, const qjs::rest<qjs::value>& input);
+        icu::UnicodeString format(double offset) const;
+        qjs::value resolvedOptions() const;
+    private:
+        std::unique_ptr<icu::DateFormat> m_formatter;
+        std::unique_ptr<icu::TimeZone> m_timeZone;
+
+        icu::DateFormat::EStyle parseFormatStyle(const char* key) const;
+    };
+
     struct NumberFormat : IntlBase
     {
         NumberFormat(JSContext* ctx, const qjs::rest<qjs::value>& input) : IntlBase(ctx, input) {}
-        QString format(double number);
+        QString format(double number) const;
     };
 
     class RelativeTimeFormat : public IntlBase
     {
     public:
         RelativeTimeFormat(JSContext* ctx, const qjs::rest<qjs::value>& input);
-        ~RelativeTimeFormat();
-        QString format(double value, const std::string& unit);
+        icu::UnicodeString format(double offset, const std::string& unit) const;
     private:
         bool m_alwaysNumeric = true;
         std::unique_ptr<icu::RelativeDateTimeFormatter> m_formatter;

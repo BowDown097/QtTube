@@ -6,8 +6,10 @@
 #include "utils/quickjs/polyfills/fetch.hpp"
 #include "utils/quickjs/polyfills/intl.hpp"
 #include "utils/quickjs/polyfills/navigator.hpp"
+#include "utils/quickjs/polyfills/textencoder.hpp"
 #include "utils/quickjs/qjsutils.hpp"
 #include "utils/uiutils.hpp"
+#include <qttube-plugin/utils/localcache.h>
 #include <quickjs-libc.h>
 
 QtTubePlugin::PluginMetadata createMetadata(const qjs::value& metadata)
@@ -30,6 +32,21 @@ QtTubePlugin::PluginMetadata createMetadata(const qjs::value& metadata)
         .videoUrlTemplate = QJSUtils::getStringStrict<QString>(
             metadata["videoUrlTemplate"], "Video URL template is not a string")
     };
+}
+
+void registerLocalCache(qjs::module& mod)
+{
+    mod.register_class<LocalCache>()
+        .constructor<const QByteArray&>()
+        .static_member<&LocalCache::instance>()
+        .static_member<&LocalCache::hash>()
+        .member<&LocalCache::getName>()
+        .member<&LocalCache::setMaxSeconds>()
+        .member<&LocalCache::setMaxSize>()
+        .member<&LocalCache::clear>()
+        .member<&LocalCache::insert>()
+        .member<&LocalCache::possiblyStaleValue>()
+        .member<&LocalCache::value>();
 }
 
 void setupContext(qjs::context& context, const QDir& dir)
@@ -57,10 +74,12 @@ void setupContext(qjs::context& context, const QDir& dir)
 
     qjs::module& mod = context.add_module("QtTube");
     mod.add("relativeTimeString", &UIUtils::relativeTimeString);
+    registerLocalCache(mod);
 
     Intl::registerFor(context);
     jsfetch::registerFor(context);
     Navigator::registerFor(context);
+    TextEncoder::registerFor(context);
     registerEnumsFor(context);
 
     context.global()["__scriptDir"] = dir.absolutePath();

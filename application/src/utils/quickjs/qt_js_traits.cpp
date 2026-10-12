@@ -15,14 +15,13 @@ namespace qjs
 
     QString qjs::js_traits<QString>::unwrap(JSContext* ctx, JSValueConst v)
     {
-        auto sv = qjs::js_traits<std::string_view>::unwrap(ctx, v);
-        return QString::fromUtf8(sv.data(), sv.size());
+        auto sv = qjs::js_traits<std::u16string_view>::unwrap(ctx, v);
+        return QString(reinterpret_cast<const QChar*>(sv.data()), sv.size());
     }
 
     JSValue qjs::js_traits<QString>::wrap(JSContext* ctx, const QString& v)
     {
-        const QByteArray ba = v.toUtf8();
-        return JS_NewStringLen(ctx, ba.data(), ba.size());
+        return JS_NewStringUTF16(ctx, reinterpret_cast<const uint16_t*>(v.data()), v.size());
     }
 
     QLatin1String qjs::js_traits<QLatin1String>::unwrap(JSContext* ctx, JSValueConst v)
