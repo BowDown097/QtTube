@@ -80,13 +80,13 @@ namespace OSUtils
 #ifdef QTTUBE_HAS_WAYLAND
     void suspendIdleSleepWayland(bool suspend, const char* status)
     {
-        WaylandInterface::InhibitIdleResult res = qtTubeApp->waylandInterface().inhibitIdle(suspend);
-        if (res == WaylandInterface::INHIBIT_MANAGER_NOT_FOUND)
-            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Compositor doesn't support zwp_idle_inhibit_manager_v1 protocol.";
-        else if (res == WaylandInterface::INHIBIT_SURFACE_NOT_FOUND)
-            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Could not get window surface.";
-        else if (res == WaylandInterface::INHIBIT_FAILURE)
+        WaylandInterface::IdleInhibitResult res = qtTubeApp->waylandInterface().inhibitIdle(suspend);
+        if (res == WaylandInterface::IdleInhibitResult::Failure)
             qDebug().noquote() << "Failed to" << status << "idle sleep timer: Unknown failure.";
+        else if (res == WaylandInterface::IdleInhibitResult::SurfaceNotFound)
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: Could not get window surface.";
+        else if (res == WaylandInterface::IdleInhibitResult::ManagerNotFound)
+            qDebug().noquote() << "Failed to" << status << "idle sleep timer: The compositor does not support the protocol.";
     }
 #endif
 

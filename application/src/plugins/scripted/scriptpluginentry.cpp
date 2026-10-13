@@ -82,7 +82,9 @@ void setupContext(qjs::context& context, const QDir& dir)
     TextEncoder::registerFor(context);
     registerEnumsFor(context);
 
-    context.global()["__scriptDir"] = dir.absolutePath();
+    qjs::value globalThis = context.global();
+    globalThis["devicePixelRatio"] = qApp->devicePixelRatio();
+    globalThis["__scriptDir"] = dir.absolutePath();
 }
 
 void ScriptPluginEntry::initialize()

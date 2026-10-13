@@ -6,13 +6,14 @@
 #include <QtGui/qpa/qplatformnativeinterface.h>
 #endif
 
-static void wl_global(void* data, wl_registry* registry, std::uint32_t name, const char* interface, std::uint32_t version)
+void wl_global(
+    void* data, wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
 {
-    WaylandInterface* wi = static_cast<WaylandInterface*>(data);
+    auto* wi = static_cast<WaylandInterface*>(data);
     if (strcmp(interface, zwp_idle_inhibit_manager_v1_interface.name) == 0)
     {
-        wi->setInhibitManager(static_cast<zwp_idle_inhibit_manager_v1*>(
-            wl_registry_bind(registry, name, &zwp_idle_inhibit_manager_v1_interface, 1)));
+        wi->m_inhibitManager = static_cast<zwp_idle_inhibit_manager_v1*>(
+            wl_registry_bind(registry, name, &zwp_idle_inhibit_manager_v1_interface, 1));
     }
 }
 
@@ -28,17 +29,17 @@ WaylandInterface::~WaylandInterface()
         wl_surface_destroy(m_surface);
 }
 
-WaylandInterface::InhibitIdleResult WaylandInterface::inhibitIdle(bool inhibit)
+WaylandInterface::IdleInhibitResult WaylandInterface::inhibitIdle(bool inhibit)
 {
     if (!m_surface)
-        return INHIBIT_SURFACE_NOT_FOUND;
+        return IdleInhibitResult::SurfaceNotFound;
     if (!m_inhibitManager)
-        return INHIBIT_MANAGER_NOT_FOUND;
+        return IdleInhibitResult::ManagerNotFound;
 
     if (inhibit)
     {
         m_inhibitor = zwp_idle_inhibit_manager_v1_create_inhibitor(m_inhibitManager, m_surface);
-        return m_inhibitor ? INHIBIT_SUCCESS : INHIBIT_FAILURE;
+        return m_inhibitor ? IdleInhibitResult::Success : IdleInhibitResult::Failure;
     }
     else if (m_inhibitor)
     {
@@ -46,13 +47,13 @@ WaylandInterface::InhibitIdleResult WaylandInterface::inhibitIdle(bool inhibit)
         m_inhibitor = nullptr;
     }
 
-    return INHIBIT_SUCCESS;
+    return IdleInhibitResult::Success;
 }
 
 void WaylandInterface::initialize()
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    QNativeInterface::QWaylandApplication* waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
+    auto* waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
     if (!waylandApp)
         return;
 
@@ -63,8 +64,8 @@ void WaylandInterface::initialize()
     if (!nativeInterface)
         return;
 
-    wl_compositor* compositor = static_cast<wl_compositor*>(nativeInterface->nativeResourceForIntegration("compositor"));
-    wl_display* display = static_cast<wl_display*>(nativeInterface->nativeResourceForIntegration("display"));
+    auto* compositor = static_cast<wl_compositor*>(nativeInterface->nativeResourceForIntegration("compositor"));
+    auto* display = static_cast<wl_display*>(nativeInterface->nativeResourceForIntegration("display"));
 #endif
 
     if (!compositor || !display || !(m_surface = wl_compositor_create_surface(compositor)))
@@ -74,5 +75,6 @@ void WaylandInterface::initialize()
     {
         wl_registry_add_listener(registry, &wl_registry_listener, this);
         wl_display_roundtrip(display);
+        wl_registry_destroy(registry);
     }
 }
