@@ -52,9 +52,7 @@ namespace QJSUtils
     auto unwrapObjectProperty(JSContext* ctx, JSValueConst this_obj, const char* prop)
     {
         JSValue val = JS_GetPropertyStr(ctx, this_obj, prop);
-        if constexpr (std::is_same_v<T, std::any>)
-            return qjs::value(ctx, std::move(val));
-        else if (!JS_IsUndefined(val))
+        if (!JS_IsUndefined(val))
             return qjs::detail::unwrap_free<T>(ctx, val);
         else
             return T{};

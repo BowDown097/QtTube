@@ -46,6 +46,14 @@ if(APPLE)
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${QTTUBE_VERSION_NAME}")
 endif()
 
+# Address sanitizer
+option(QTTUBE_ENABLE_ASAN "Enable AddressSanitizer to detect memory errors in debug builds" OFF)
+if(CMAKE_BUILD_TYPE MATCHES "Debug" AND QTTUBE_ENABLE_ASAN)
+    message(STATUS "Enabling ASAN")
+    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=address,undefined)
+endif()
+
 # LTO
 option(QTTUBE_ENABLE_LTO "Use Link Time Optimization (release builds only)" OFF)
 if(QTTUBE_ENABLE_LTO)

@@ -1,13 +1,5 @@
 qt_add_executable(QtTube WIN32 MACOSX_BUNDLE)
 
-# Address sanitizer
-option(QTTUBE_ENABLE_ASAN "Enable AddressSanitizer to detect memory errors in debug builds" OFF)
-if(CMAKE_BUILD_TYPE MATCHES "Debug" AND QTTUBE_ENABLE_ASAN)
-    message(STATUS "Enabling ASAN")
-    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
-    add_link_options(-fsanitize=address,undefined)
-endif()
-
 # Sources
 target_sources(QtTube
     PRIVATE

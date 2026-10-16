@@ -1,4 +1,5 @@
 #include "qt_js_traits.hpp"
+#include <quickjs++/value.h>
 
 namespace qjs
 {
@@ -103,12 +104,16 @@ namespace qjs
 
     std::any qjs::js_traits<std::any>::unwrap(JSContext* ctx, JSValueConst v) noexcept
     {
-        return v;
+        return qjs::value(ctx, JS_DupValue(ctx, v));
     }
 
     JSValue qjs::js_traits<std::any>::wrap(JSContext* ctx, const std::any& v)
     {
-        return std::any_cast<JSValue>(v);
+        if (!v.has_value())
+            return JS_UNDEFINED;
+        if (const auto* value = std::any_cast<qjs::value>(&v))
+            return JS_DupValue(ctx, value->v);
+        throw qjs::exception(ctx, JS_TYPE_ERROR, "Unexpected std::any value (holding %s)", v.type().name());
     }
 
     std::monostate qjs::js_traits<std::monostate>::unwrap(JSContext* ctx, JSValueConst v) noexcept

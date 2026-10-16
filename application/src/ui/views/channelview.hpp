@@ -31,10 +31,11 @@ private:
     PluginEntry* m_plugin;
     SubscribeWidget* m_subscribeWidget;
     TubeLabel* m_subtextLabel;
+    QList<std::any> m_tabDatas;
 
     void loadChannel(const QString& channelId);
 private slots:
-    void loadTab(const std::any& requestData, int index);
+    void loadTab(int index);
     void processData(const QtTubePlugin::ChannelData& data);
     void processHeader(const QtTubePlugin::ChannelHeader& header);
     void processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs);

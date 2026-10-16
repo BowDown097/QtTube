@@ -49,6 +49,17 @@ void ScriptPluginInterface::registerProviders(QtTubePlugin::ProviderRegistry& re
         }
     }
 
+    if (qjs::value watchp = moduleNamespace["watchProvider"]; watchp.is_object())
+    {
+        qjs::value playero = moduleNamespace["player"];
+        qjs::value getVideo = watchp["getVideo"];
+        if (playero.is_object() && getVideo.is_function())
+        {
+            reg.emplace<ScriptWatchProvider>(
+                watchp["continueRecommended"], std::move(getVideo), std::move(playero), watchp["rate"]);
+        }
+    }
+
     registerProvider<ScriptChannelProvider>(reg, moduleNamespace, "channelProvider", "getChannel"_req);
     registerProvider<ScriptChannelSubscriptionProvider>(
         reg, moduleNamespace, "channelSubscriptionProvider",
@@ -66,7 +77,4 @@ void ScriptPluginInterface::registerProviders(QtTubePlugin::ProviderRegistry& re
         "getSearch"_req, "resolveUrlOrID"_req, "searchFilters"_opt);
     registerProvider<ScriptSubFeedProvider>(reg, moduleNamespace, "subFeedProvider", "getSubFeed"_req);
     registerProvider<ScriptTrendingProvider>(reg, moduleNamespace, "trendingProvider", "getTrending"_req);
-    registerProvider<ScriptWatchProvider>(
-        reg, moduleNamespace, "watchProvider",
-        "continueRecommended"_opt, "createPlayer"_opt, "getVideo"_req, "rate"_opt);
 }

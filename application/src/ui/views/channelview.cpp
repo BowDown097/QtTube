@@ -81,6 +81,7 @@ void ChannelView::hotLoadChannel(const QString& channelId)
     {
         disconnect(m_channelTabs, &QTabWidget::currentChanged, nullptr, nullptr);
         m_channelTabs->clear();
+        m_tabDatas.clear();
         loadChannel(channelId);
     }
 }
@@ -103,23 +104,21 @@ void ChannelView::loadChannel(const QString& channelId)
     loop.exec();
 }
 
-void ChannelView::loadTab(const std::any& requestData, int index)
+void ChannelView::loadTab(int index)
 {
     const QList<ContinuableListWidget*> tabWidgets = m_channelTabs->findChildren<ContinuableListWidget*>();
     for (ContinuableListWidget* list : tabWidgets)
         list->clear();
 
     ContinuableListWidget* list = m_channelTabs->widget(index)->findChild<ContinuableListWidget*>();
-    BrowseHelper::instance()->browseChannel(m_plugin, list, index, m_channelId, requestData);
+    BrowseHelper::instance()->browseChannel(m_plugin, list, index, m_channelId, m_tabDatas[index]);
 }
 
 void ChannelView::processData(const QtTubePlugin::ChannelData& data)
 {
     processHeader(data.header.value());
     processTabs(data.tabs);
-    connect(m_channelTabs, &QTabWidget::currentChanged, this, [this, tabs = data.tabs](int index) {
-        loadTab(tabs.at(index).requestData, index);
-    });
+    connect(m_channelTabs, &QTabWidget::currentChanged, this, &ChannelView::loadTab);
 }
 
 void ChannelView::processHeader(const QtTubePlugin::ChannelHeader& header)
@@ -165,6 +164,8 @@ void ChannelView::processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs)
 
     for (qsizetype i = 0; i < tabs.size(); ++i)
     {
+        m_tabDatas.append(tabs[i].requestData);
+
         QWidget* tabWidget = new QWidget;
 
         QGridLayout* grid = new QGridLayout(tabWidget);
@@ -179,9 +180,9 @@ void ChannelView::processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs)
         if (!firstListWidget)
             firstListWidget = list;
 
-        connect(list, &ContinuableListWidget::continuationReady, this, [this, data = tabs[i].requestData, i, list] {
+        connect(list, &ContinuableListWidget::continuationReady, this, [this, i, list] {
             if (list->continuationData.has_value())
-                BrowseHelper::instance()->browseChannel(m_plugin, list, i, m_channelId, data);
+                BrowseHelper::instance()->browseChannel(m_plugin, list, i, m_channelId, m_tabDatas[i]);
         });
 
         m_channelTabs->addTab(tabWidget, tabs[i].title);

@@ -4,10 +4,9 @@
 #include <qttube-plugin/providers/providertypes.h>
 #include <qttube-plugin/utils/replyutils.h>
 
-JSValue anyValue(const std::any& value)
+JSValue anyValue(JSContext* ctx, const std::any& value)
 {
-    try { return std::any_cast<const qjs::value&>(value).v; }
-    catch (const std::bad_any_cast&) { return JS_NULL; }
+    return qjs::js_traits<std::any>::wrap(ctx, value);
 }
 
 template<typename T>
@@ -27,10 +26,10 @@ QtTubePlugin::Reply<T>* makeReply(const qjs::value& func, auto&&... args)
         else
         {
             func.invoke_then([=](const qjs::value& data) {
-                if (qjs::value contData = data["continuationData"];
-                    !contData.is_null() && !contData.is_undefined())
+                if (qjs::value innerData = data["data"]; !innerData.is_nullish())
                 {
-                    reply->continuationData = contData;
+                    if (qjs::value contData = data["continuationData"]; !contData.is_nullish())
+                        reply->continuationData = contData;
                     QtTubePlugin::invokeQueued(reply, &ReplyType::finished, data["data"].as<T>());
                 }
                 else
@@ -81,7 +80,8 @@ struct ScriptChannelProvider : QtTubePlugin::ChannelProvider
     QtTubePlugin::ChannelReply* getChannel(
         const QString& channelId, const std::any& tabData, const std::any& continuationData) override
     {
-        return makeReply<QtTubePlugin::ChannelData>(get_v, channelId, anyValue(tabData), anyValue(continuationData));
+        return makeReply<QtTubePlugin::ChannelData>(
+            get_v, channelId, anyValue(get_v.ctx, tabData), anyValue(get_v.ctx, continuationData));
     }
 };
 
@@ -94,25 +94,25 @@ struct ScriptChannelSubscriptionProvider : QtTubePlugin::ChannelSubscriptionProv
     ScriptChannelSubscriptionProvider(
         qjs::value&& setNotificationPreference_v, qjs::value&& subscribe_v, qjs::value&& unsubscribe_v)
         : setNotificationPreference_v(std::move(setNotificationPreference_v)),
-        subscribe_v(std::move(subscribe_v)),
-        unsubscribe_v(std::move(unsubscribe_v)) {}
+          subscribe_v(std::move(subscribe_v)),
+          unsubscribe_v(std::move(unsubscribe_v)) {}
 
     QtTubePlugin::Reply<void>* setNotificationPreference(const QString& channelId, const std::any& data) override
     {
         if (setNotificationPreference_v.is_function())
-            return makeReply<void>(setNotificationPreference_v, channelId, anyValue(data));
+            return makeReply<void>(setNotificationPreference_v, channelId, anyValue(setNotificationPreference_v.ctx, data));
         else
             return nullptr;
     }
 
     QtTubePlugin::Reply<void>* subscribe(const QString& channelId, const std::any& data) override
     {
-        return makeReply<void>(subscribe_v, channelId, anyValue(data));
+        return makeReply<void>(subscribe_v, channelId, anyValue(subscribe_v.ctx, data));
     }
 
     QtTubePlugin::Reply<void>* unsubscribe(const QString& channelId, const std::any& data) override
     {
-        return makeReply<void>(unsubscribe_v, channelId, anyValue(data));
+        return makeReply<void>(unsubscribe_v, channelId, anyValue(unsubscribe_v.ctx, data));
     }
 };
 
@@ -123,7 +123,7 @@ struct ScriptHistoryProvider : QtTubePlugin::HistoryProvider
 
     QtTubePlugin::BrowseReply* getHistory(const QString& query, const std::any& continuationData) override
     {
-        return makeReply<QtTubePlugin::BrowseData>(get_v, query, anyValue(continuationData));
+        return makeReply<QtTubePlugin::BrowseData>(get_v, query, anyValue(get_v.ctx, continuationData));
     }
 };
 
@@ -134,7 +134,7 @@ struct ScriptHomeProvider : QtTubePlugin::HomeProvider
 
     QtTubePlugin::BrowseReply* getHome(const std::any& continuationData) override
     {
-        return makeReply<QtTubePlugin::BrowseData>(get_v, anyValue(continuationData));
+        return makeReply<QtTubePlugin::BrowseData>(get_v, anyValue(get_v.ctx, continuationData));
     }
 };
 
@@ -149,13 +149,13 @@ struct ScriptLiveChatProvider : QtTubePlugin::LiveChatProvider
 
     QtTubePlugin::LiveChatReply* getChat(const std::any& data) override
     {
-        return makeReply<QtTubePlugin::LiveChat>(get_v, anyValue(data));
+        return makeReply<QtTubePlugin::LiveChat>(get_v, anyValue(get_v.ctx, data));
     }
 
     QtTubePlugin::LiveChatReplayReply* getChatReplay(const std::any& data, qint64 videoOffsetMs) override
     {
         if (getReplay_v.is_function())
-            return makeReply<QtTubePlugin::LiveChatReplay>(getReplay_v, anyValue(data), videoOffsetMs);
+            return makeReply<QtTubePlugin::LiveChatReplay>(getReplay_v, anyValue(getReplay_v.ctx, data), videoOffsetMs);
         else
             return nullptr;
     }
@@ -176,7 +176,7 @@ struct ScriptNotificationsProvider : QtTubePlugin::NotificationsProvider
 
     QtTubePlugin::NotificationsReply* getNotifications(const std::any& continuationData) override
     {
-        return makeReply<QtTubePlugin::NotificationsData>(get_v, anyValue(continuationData));
+        return makeReply<QtTubePlugin::NotificationsData>(get_v, anyValue(get_v.ctx, continuationData));
     }
 };
 
@@ -194,7 +194,7 @@ struct ScriptSearchProvider : QtTubePlugin::SearchProvider
         const std::unordered_map<QString, int>& activeFilters,
         const std::any& continuationData) override
     {
-        return makeReply<QtTubePlugin::BrowseData>(get_v, query, activeFilters, anyValue(continuationData));
+        return makeReply<QtTubePlugin::BrowseData>(get_v, query, activeFilters, anyValue(get_v.ctx, continuationData));
     }
 
     QtTubePlugin::ResolveUrlReply* resolveUrlOrID(const QString& in) override
@@ -223,7 +223,7 @@ struct ScriptSubFeedProvider : QtTubePlugin::SubFeedProvider
 
     QtTubePlugin::BrowseReply* getSubFeed(const std::any& continuationData) override
     {
-        return makeReply<QtTubePlugin::BrowseData>(get_v, anyValue(continuationData));
+        return makeReply<QtTubePlugin::BrowseData>(get_v, anyValue(get_v.ctx, continuationData));
     }
 };
 
@@ -234,28 +234,28 @@ struct ScriptTrendingProvider : QtTubePlugin::TrendingProvider
 
     QtTubePlugin::BrowseReply* getTrending(const std::any& continuationData) override
     {
-        return makeReply<QtTubePlugin::BrowseData>(get_v, anyValue(continuationData));
+        return makeReply<QtTubePlugin::BrowseData>(get_v, anyValue(get_v.ctx, continuationData));
     }
 };
 
 struct ScriptWatchProvider : QtTubePlugin::WatchProvider
 {
     qjs::value continueRecommended_v;
-    qjs::value createPlayer_v;
     qjs::value get_v;
+    qjs::value player_v;
     qjs::value rate_v;
 
     ScriptWatchProvider(
-        qjs::value&& continueRecommended_v, qjs::value&& createPlayer_v, qjs::value&& get_v, qjs::value&& rate_v)
+        qjs::value&& continueRecommended_v, qjs::value&& get_v, qjs::value&& player_v, qjs::value&& rate_v)
         : continueRecommended_v(std::move(continueRecommended_v)),
-          createPlayer_v(std::move(createPlayer_v)),
           get_v(std::move(get_v)),
+          player_v(std::move(player_v)),
           rate_v(std::move(rate_v)) {}
 
     QtTubePlugin::RecommendedReply* continueRecommended(const QString& videoId, const std::any& continuationData) override
     {
         if (continueRecommended_v.is_function())
-            return makeReply<QtTubePlugin::RecommendedData>(continueRecommended_v, videoId, anyValue(continuationData));
+            return makeReply<QtTubePlugin::RecommendedData>(continueRecommended_v, videoId, anyValue(continueRecommended_v.ctx, continuationData));
         else
             return nullptr;
     }
@@ -273,7 +273,7 @@ struct ScriptWatchProvider : QtTubePlugin::WatchProvider
     QtTubePlugin::Reply<void>* rate(const QString& videoId, bool like, bool removing, const std::any& data) override
     {
         if (rate_v.is_function())
-            return makeReply<void>(rate_v, videoId, like, removing, anyValue(data));
+            return makeReply<void>(rate_v, videoId, like, removing, anyValue(rate_v.ctx, data));
         else
             return nullptr;
     }
