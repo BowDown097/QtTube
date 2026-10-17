@@ -2,10 +2,7 @@
 #include <QProgressBar>
 
 VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
-    : TubeLabel(parent),
-      m_lengthLabel(new QLabel(this)),
-      m_progressBar(new QProgressBar(this)),
-      m_sourceIconLabel(new TubeLabel(this))
+    : TubeLabel(parent), m_lengthLabel(new QLabel(this)), m_progressBar(new QProgressBar(this))
 {
     setClickable(true);
     setMinimumSize(1, 1);
@@ -21,32 +18,17 @@ VideoThumbnailWidget::VideoThumbnailWidget(QWidget* parent)
         QProgressBar { background-color: #717171; }
         QProgressBar::chunk { background-color: #f00; }
     )"));
-
-    m_sourceIconLabel->hide();
-    m_sourceIconLabel->setFixedSize(fontMetrics().height(), fontMetrics().height());
-    m_sourceIconLabel->setScaledContents(true);
 }
 
 void VideoThumbnailWidget::resizeEvent(QResizeEvent* event)
 {
-    int sourceIconWidth{};
-    if (m_hasSourceIcon)
-    {
-        m_sourceIconLabel->show();
-        sourceIconWidth = m_sourceIconLabel->width();
-    }
-
     m_lengthLabel->setVisible(!m_lengthLabel->text().isEmpty());
-    m_progressBar->setVisible(m_progressBar->value() > 0);
-
-    m_sourceIconLabel->move(
-        event->size().width() - sourceIconWidth - 3,
-        event->size().height() - m_sourceIconLabel->height() - 3);
     m_lengthLabel->move(
-        event->size().width() - sourceIconWidth - 3 - m_lengthLabel->width() - 3,
+        event->size().width() - m_lengthLabel->width() - 3,
         event->size().height() - m_lengthLabel->height() - 3);
-    m_progressBar->move(0, event->size().height() - 3);
 
+    m_progressBar->setVisible(m_progressBar->value() > 0);
+    m_progressBar->move(0, event->size().height() - 2);
     m_progressBar->setFixedWidth(event->size().width());
 }
 
@@ -54,12 +36,4 @@ void VideoThumbnailWidget::setProgress(int progress, int length)
 {
     m_progressBar->setMaximum(length);
     m_progressBar->setValue(progress);
-}
-
-void VideoThumbnailWidget::setSourceIconUrl(const QString& sourceIconUrl)
-{
-    if (sourceIconUrl.isEmpty())
-        return;
-    m_hasSourceIcon = true;
-    m_sourceIconLabel->setImage(sourceIconUrl, TubeLabel::Cached | TubeLabel::KeepAspectRatio | TubeLabel::LazyLoaded);
 }

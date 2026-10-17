@@ -24,6 +24,7 @@ private:
 
     void setStyle(bool hovered);
     void toggleSubscriptionStatus();
+    void updateWidth();
 private slots:
     void trySubscribe();
 signals:

@@ -8,32 +8,15 @@ namespace
         font-size: 12px;
         line-height: 22px;
         border-radius: 2px;
-        padding: 0 6px 1px 11px;
-    )");
-    const QString subscribeHoveredStylesheet = QStringLiteral(R"(
-        font-size: 12px;
-        line-height: 22px;
-        border-radius: 2px;
-        padding: 0 6px 1px 11px;
-    )");
-    const QString subscribedStylesheet = QStringLiteral(R"(
-        font-size: 12px;
-        line-height: 22px;
-        border-radius: 2px;
-        padding: 0 6px 1px 6px;
-    )");
-    const QString unsubscribeStylesheet = QStringLiteral(R"(
-        font-size: 12px;
-        line-height: 22px;
-        border-radius: 2px;
-        padding: 0 6px 1px 2.5px;
     )");
 }
 
 SubscribeLabel::SubscribeLabel(PluginEntry* plugin, QWidget* parent)
     : ClickableWidget<QLabel>(parent), m_plugin(plugin)
 {
-    setFixedSize(80, 24);
+    setAlignment(Qt::AlignCenter);
+    setFixedHeight(24);
+    setStyleSheet(subscribeStylesheet);
     connect(this, &ClickableWidget<QLabel>::clicked, this, &SubscribeLabel::trySubscribe);
 }
 
@@ -63,51 +46,47 @@ void SubscribeLabel::setData(const QString& channelId, const QtTubePlugin::Subsc
     m_data = data;
 
     setClickable(m_data.enabled && m_plugin->providers.channelSub != nullptr);
-    setStyle(false);
     setText(m_data.subscribed ? m_data.localization.subscribedText : m_data.localization.subscribeText);
+
+    updateWidth();
+    setStyle(false);
 }
 
 void SubscribeLabel::setStyle(bool hovered)
 {
     QString *background, *border, *foreground;
-    QString stylesheet;
-
     if (!m_data.enabled)
     {
         background = &m_data.colorPalette.subscribeDisabledBackground;
         border = &m_data.colorPalette.subscribeDisabledBorder;
         foreground = &m_data.colorPalette.subscribeDisabledForeground;
-        stylesheet = subscribeStylesheet;
     }
     else if (m_data.subscribed && hovered)
     {
         background = &m_data.colorPalette.unsubscribeBackground;
         border = &m_data.colorPalette.unsubscribeBorder;
         foreground = &m_data.colorPalette.unsubscribeForeground;
-        stylesheet = unsubscribeStylesheet;
     }
     else if (m_data.subscribed)
     {
         background = &m_data.colorPalette.subscribedBackground;
         border = &m_data.colorPalette.subscribedBorder;
         foreground = &m_data.colorPalette.subscribedForeground;
-        stylesheet = subscribedStylesheet;
     }
     else if (hovered)
     {
         background = &m_data.colorPalette.subscribeHoveredBackground;
         border = &m_data.colorPalette.subscribeHoveredBorder;
         foreground = &m_data.colorPalette.subscribeHoveredForeground;
-        stylesheet = subscribeHoveredStylesheet;
     }
     else
     {
         background = &m_data.colorPalette.subscribeBackground;
         border = &m_data.colorPalette.subscribeBorder;
         foreground = &m_data.colorPalette.subscribeForeground;
-        stylesheet = subscribeStylesheet;
     }
 
+    QString stylesheet = subscribeStylesheet;
     if (!background->isEmpty())
         stylesheet += "\nbackground: " % *background % ';';
     if (!border->isEmpty())
@@ -154,4 +133,17 @@ void SubscribeLabel::trySubscribe()
         toggleSubscriptionStatus();
         m_plugin->providers.channelSub->subscribe(m_channelId, m_data.subscribeData);
     }
+}
+
+void SubscribeLabel::updateWidth()
+{
+    const QFontMetrics fm(font());
+    const int maxTextWidth = std::max({
+        fm.horizontalAdvance(m_data.localization.subscribeText),
+        fm.horizontalAdvance(m_data.localization.subscribedText),
+        fm.horizontalAdvance(m_data.localization.unsubscribeText)
+    });
+
+    constexpr int hpad = 14; // 7px on each side
+    setFixedWidth(maxTextWidth + hpad);
 }

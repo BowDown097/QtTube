@@ -58,7 +58,6 @@ void VideoRenderer::setData(const QtTubePlugin::Video& video)
 
     thumbnail->setLengthText(video.lengthText);
     thumbnail->setProgress(m_progress, QTime(0, 0).secsTo(video.length()));
-    thumbnail->setSourceIconUrl(m_plugin->metadata.image);
 
     if (video.isVerticalVideo)
         thumbnail->setFixedSize(105, 186);
