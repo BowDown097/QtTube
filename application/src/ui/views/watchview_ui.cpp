@@ -194,7 +194,6 @@ void WatchView_Ui::setupPrimaryInfo(QWidget* watchView, PluginEntry* plugin)
     primaryInfoVbox->addWidget(channelLabel);
 
     subscribeWidget = new SubscribeWidget(plugin, watchView);
-    subscribeWidget->layout->addStretch();
     primaryInfoVbox->addWidget(subscribeWidget);
 
     primaryInfoHbox->addLayout(primaryInfoVbox);

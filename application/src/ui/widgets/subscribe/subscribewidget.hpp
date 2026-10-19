@@ -11,13 +11,12 @@ class TubeLabel;
 class SubscribeWidget : public QWidget
 {
 public:
-    QHBoxLayout* layout;
-
     explicit SubscribeWidget(PluginEntry* plugin, QWidget* parent = nullptr);
     void setData(const QString& channelId, const QtTubePlugin::SubscribeButton& data);
 protected:
     void changeEvent(QEvent* event) override;
 private:
+    QHBoxLayout* m_layout;
     NotificationBell* m_notificationBell;
     SubscribeLabel* m_subscribeLabel;
     TubeLabel* m_subscribersCountLabel;

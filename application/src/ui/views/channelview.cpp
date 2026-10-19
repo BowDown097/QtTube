@@ -62,8 +62,7 @@ ChannelView::ChannelView(const QString& channelId, PluginEntry* plugin)
     m_metaHbox->addLayout(m_metaVbox);
     m_channelHeaderLayout->addLayout(m_metaHbox);
 
-    m_subscribeWidget->layout->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    m_channelHeaderLayout->addWidget(m_subscribeWidget);
+    m_channelHeaderLayout->addWidget(m_subscribeWidget, 0, Qt::AlignRight | Qt::AlignVCenter);
 
     m_pageLayout->addWidget(m_channelHeaderContainer);
 

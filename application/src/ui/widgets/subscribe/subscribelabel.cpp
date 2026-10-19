@@ -5,7 +5,6 @@
 namespace
 {
     const QString subscribeStylesheet = QStringLiteral(R"(
-        font-size: 12px;
         line-height: 22px;
         border-radius: 2px;
     )");
@@ -14,6 +13,12 @@ namespace
 SubscribeLabel::SubscribeLabel(PluginEntry* plugin, QWidget* parent)
     : ClickableWidget<QLabel>(parent), m_plugin(plugin)
 {
+    // oddly, font-size in the stylesheet seems to not be preserved
+    // when coming from a BrowseChannelRenderer...
+    QFont f = font();
+    f.setPixelSize(12);
+    setFont(f);
+
     setAlignment(Qt::AlignCenter);
     setFixedHeight(24);
     setStyleSheet(subscribeStylesheet);

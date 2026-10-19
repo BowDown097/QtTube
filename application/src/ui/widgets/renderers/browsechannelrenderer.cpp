@@ -26,7 +26,6 @@ BrowseChannelRenderer::BrowseChannelRenderer(PluginEntry* plugin, QWidget* paren
     m_descriptionLabel->setWordWrap(true);
     m_textLayout->addWidget(m_descriptionLabel);
 
-    m_subscribeWidget->layout->addStretch();
     m_textLayout->addWidget(m_subscribeWidget);
 
     m_thumbLabel->setClickable(true);
@@ -44,8 +43,14 @@ void BrowseChannelRenderer::setData(const QtTubePlugin::Channel& channel)
     m_channelId = channel.channelId;
 
     m_descriptionLabel->setText(channel.description);
+    m_descriptionLabel->setVisible(!channel.description.isEmpty());
+
     m_metadataLabel->setText(channel.metadataText);
+    m_metadataLabel->setVisible(!channel.metadataText.isEmpty());
+
     m_subscribeWidget->setData(channel.channelId, channel.subscribeButton);
+
     m_thumbLabel->setImage(channel.channelAvatarUrl, TubeLabel::LazyLoaded);
+
     m_titleLabel->setInfo(m_channelId, channel.channelName, channel.channelBadges);
 }

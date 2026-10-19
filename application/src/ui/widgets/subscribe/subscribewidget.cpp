@@ -7,19 +7,19 @@
 
 SubscribeWidget::SubscribeWidget(PluginEntry* plugin, QWidget* parent)
     : QWidget(parent),
-      layout(new QHBoxLayout(this)),
+      m_layout(new QHBoxLayout(this)),
       m_notificationBell(new NotificationBell(plugin, this)),
       m_subscribeLabel(new SubscribeLabel(plugin, this)),
       m_subscribersCountLabel(new TubeLabel(this))
 {
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
 
     m_subscribeLabel->hide();
-    layout->addWidget(m_subscribeLabel);
+    m_layout->addWidget(m_subscribeLabel);
 
     m_notificationBell->hide();
-    layout->addWidget(m_notificationBell);
+    m_layout->addWidget(m_notificationBell);
 
     m_subscribersCountLabel->hide();
     m_subscribersCountLabel->setFixedHeight(24);
@@ -31,7 +31,9 @@ SubscribeWidget::SubscribeWidget(PluginEntry* plugin, QWidget* parent)
         border-radius: 2px;
         text-align: center;
     )"));
-    layout->addWidget(m_subscribersCountLabel);
+    m_layout->addWidget(m_subscribersCountLabel);
+
+    m_layout->addStretch();
 
     connect(m_subscribeLabel, &SubscribeLabel::subscribeStatusChanged, this, [this](bool subscribed)
     {
