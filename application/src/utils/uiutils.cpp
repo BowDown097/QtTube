@@ -242,11 +242,11 @@ namespace UIUtils
         widget->style()->polish(widget);
     }
 
-    QString resolveThemedIconName(const QString& name)
+    QString resolveThemedIconName(const QString& name, const QString& ext)
     {
-        const QString baseFile = ":/" % name % ".svg";
-        const QString lightFile = ":/" % name % "-light.svg";
-        return QFile::exists(lightFile) && preferDark() ? lightFile : baseFile;
+        const QString baseFile = ":/" % name % '.' % ext;
+        const QString lightFile = ":/" % name % "-light." % ext;
+        return preferDark() && QFile::exists(lightFile) ? lightFile : baseFile;
     }
 
     void setAppStyle(const QString& styleName, bool dark)
@@ -282,11 +282,5 @@ namespace UIUtils
             qApp->setPalette(qApp->style()->standardPalette());
             qApp->setStyleSheet(QString());
         }
-    }
-
-    void setTabsVisible(QTabWidget* widget, bool visible, std::initializer_list<int> indexes)
-    {
-        for (int i : indexes)
-            widget->setTabVisible(i, visible);
     }
 }

@@ -4,8 +4,8 @@
 #include <qttube-plugin/components/replytypes/channeldata.h>
 #include <QWidget>
 
+class ChannelTabWidget;
 class QHBoxLayout;
-class QTabWidget;
 class QVBoxLayout;
 class SubscribeWidget;
 class TubeLabel;
@@ -18,27 +18,23 @@ public:
     ~ChannelView();
     void hotLoadChannel(const QString& channelId);
 private:
-    TubeLabel* m_channelBanner;
-    QWidget* m_channelHeaderContainer;
-    QHBoxLayout* m_channelHeaderLayout;
-    TubeLabel* m_channelIcon;
+    TubeLabel* m_avatar;
+    TubeLabel* m_banner;
     QString m_channelId;
-    TubeLabel* m_channelNameLabel;
-    QTabWidget* m_channelTabs;
+    QWidget* m_headerContainer;
+    QHBoxLayout* m_headerLayout;
     QHBoxLayout* m_metaHbox;
     QVBoxLayout* m_metaVbox;
+    TubeLabel* m_nameLabel;
     QVBoxLayout* m_pageLayout;
     PluginEntry* m_plugin;
     SubscribeWidget* m_subscribeWidget;
     TubeLabel* m_subtextLabel;
-    QList<std::any> m_tabDatas;
+    ChannelTabWidget* m_tabWidget;
 
     void loadChannel(const QString& channelId);
 private slots:
-    void loadTab(int index);
     void processData(const QtTubePlugin::ChannelData& data);
-    void processHeader(const QtTubePlugin::ChannelHeader& header);
-    void processTabs(const QList<QtTubePlugin::ChannelTabData>& tabs);
 signals:
     void loadFailed(const QtTubePlugin::Exception& ex);
 };

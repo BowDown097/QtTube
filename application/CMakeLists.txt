@@ -61,6 +61,10 @@ target_sources(QtTube
         src/ui/widgets/subscribe/notificationbell.cpp
         src/ui/widgets/subscribe/subscribelabel.cpp
         src/ui/widgets/subscribe/subscribewidget.cpp
+        src/ui/widgets/tabwidgets/browsertabwidget.cpp
+        src/ui/widgets/tabwidgets/channeltabwidget.cpp
+        src/ui/widgets/tabwidgets/maintabwidget.cpp
+        src/ui/widgets/tabwidgets/reloadbutton.cpp
         src/ui/widgets/topbar/extmenu.cpp
         src/ui/widgets/topbar/exttoolbutton.cpp
         src/ui/widgets/topbar/searchbox.cpp
@@ -145,6 +149,10 @@ target_sources(QtTube
         src/ui/widgets/subscribe/notificationbell.hpp
         src/ui/widgets/subscribe/subscribelabel.hpp
         src/ui/widgets/subscribe/subscribewidget.hpp
+        src/ui/widgets/tabwidgets/browsertabwidget.hpp
+        src/ui/widgets/tabwidgets/channeltabwidget.hpp
+        src/ui/widgets/tabwidgets/maintabwidget.hpp
+        src/ui/widgets/tabwidgets/reloadbutton.hpp
         src/ui/widgets/topbar/extmenu.hpp
         src/ui/widgets/topbar/exttoolbutton.hpp
         src/ui/widgets/topbar/searchbox.hpp

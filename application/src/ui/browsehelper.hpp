@@ -27,8 +27,6 @@ public:
     void processChannelTabItems(
         ContinuableListWidget* widget, PluginEntry* plugin,
         const QList<QtTubePlugin::ChannelTabDataItem>& items);
-private slots:
-    void browseFailed(const QString& title, ContinuableListWidget* widget, const QtTubePlugin::Exception& ex);
 private:
     std::unordered_map<QString, int> getActiveFilters(QHBoxLayout* additionalWidgets);
     void setupBrowse(
@@ -42,4 +40,6 @@ private:
     void setupSearch(
         ContinuableListWidget* widget, QHBoxLayout* additionalWidgets, const QString& query,
         PluginEntry* plugin, QtTubePlugin::BrowseReply* reply, const QtTubePlugin::BrowseData& data);
+private slots:
+    void browseFailed(const QString& title, ContinuableListWidget* widget, const QtTubePlugin::Exception& ex);
 };

@@ -1,6 +1,5 @@
 #pragma once
 #include "plugins/pluginentry.hpp"
-#include <initializer_list>
 #include <QWidget>
 
 namespace QtTubePlugin { struct Channel; struct Notification; struct Video; }
@@ -9,7 +8,6 @@ class MainWindow;
 class QLayout;
 class QListWidget;
 class QListWidgetItem;
-class QTabWidget;
 class VideoRenderer;
 
 namespace UIUtils
@@ -33,9 +31,8 @@ namespace UIUtils
     bool preferDark();
     QString relativeTimeString(qint64 msecs);
     void repolish(QWidget* widget);
-    QString resolveThemedIconName(const QString& name);
+    QString resolveThemedIconName(const QString& name, const QString& ext = "svg");
     void setAppStyle(const QString& styleName, bool dark);
-    void setTabsVisible(QTabWidget* widget, bool visible, std::initializer_list<int> indexes);
 
     template<typename T>
     T findParent(QWidget* widget)

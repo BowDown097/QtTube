@@ -38,20 +38,10 @@ private slots:
     void authFailed();
     void authSucceeded();
     void pluginUpdateAvailable(const QString& name, const ReleaseData& data);
-    void reloadCurrentTab();
-    void returnFromSearch();
-    void returnFromWatchHistorySearch();
     void search(const QString& query, SearchBox::SearchType searchType);
-    void searchWatchHistory();
 private:
-    void browse();
-    void searchByQuery(const QString& query);
-    void toggleTabsForActivePlugin();
-
     PluginEntry* m_activePlugin{};
     FindBar* m_findbar;
-    int m_lastBrowseTab{};
-    QString m_lastSearchQuery;
     ContinuableListWidget* m_notificationMenu;
     TopBar* m_topbar;
     Ui::MainWindow* ui;

@@ -106,6 +106,12 @@
         <file>sign-out-light.svg</file>
     </qresource>
     <qresource>
+        <file>spinner.gif</file>
+    </qresource>
+    <qresource>
+        <file>spinner-light.gif</file>
+    </qresource>
+    <qresource>
         <file>switch-accounts.svg</file>
     </qresource>
     <qresource>
