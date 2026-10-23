@@ -7,7 +7,7 @@ class ReloadButton;
 #define CONTINUE_CONNECT(widget, function, ...) \
     connect(widget, &ContinuableListWidget::continuationReady, this, [=, this] { \
         if (widget->continuationData.has_value()) \
-            BrowseHelper::instance()->function(m_plugin, widget __VA_OPT__(,) __VA_ARGS__); \
+            BrowseHelper::instance()->function(m_plugin, widget, ##__VA_ARGS__); \
     })
 
 class BrowserTabWidget : public QTabWidget
