@@ -21,9 +21,6 @@
    <widget class="QWidget" name="mainPage">
     <layout class="QVBoxLayout" name="layout">
      <item>
-      <layout class="QHBoxLayout" name="additionalWidgets"/>
-     </item>
-     <item>
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Orientation::Vertical</enum>
@@ -38,6 +35,9 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="additionalWidgets"/>
      </item>
      <item>
       <widget class="MainTabWidget" name="tabWidget"/>

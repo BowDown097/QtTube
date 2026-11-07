@@ -114,6 +114,12 @@ ScriptPluginAuthStore::ScriptPluginAuthStore(const QString& pluginName, qjs::val
             out.emplaceBack(authObject.ctx, *user);
         return out;
     };
+
+    if (qjs::value onSuccessVal = authObject["onAuthenticateSuccess"]; onSuccessVal.is_function())
+    {
+        connect(this, &ScriptPluginAuthStore::authenticateSuccess, this,
+            [cb = onSuccessVal.as<std::function<void()>>()] { cb(); });
+    }
 }
 
 ScriptPluginAuthUser ScriptPluginAuthStore::createUser(

@@ -420,11 +420,7 @@ void TubeLabel::setText(const QString& text, bool processRemoteImages, ImageFlag
     calculateAndSetLineRects();
 
     if (processRemoteImages && outText.contains("<img"))
-    {
-        RemoteImageProcessor* proc = new RemoteImageProcessor(outText, remoteImageFlags, this);
-        connect(proc, &RemoteImageProcessor::textReady, proc, &RemoteImageProcessor::deleteLater);
-        connect(proc, &RemoteImageProcessor::textReady, this, &QLabel::setText);
-    }
+        new RemoteImageProcessor(std::move(outText), remoteImageFlags, this);
 }
 
 int TubeLabel::textLineWidth() const
@@ -451,35 +447,33 @@ void TubeLabel::updateMarginsForImageAspectRatio()
     }
 }
 
-RemoteImageProcessor::RemoteImageProcessor(QString text, TubeLabel::ImageFlags flags, QObject* parent)
-    : QObject(parent)
+RemoteImageProcessor::RemoteImageProcessor(QString text, TubeLabel::ImageFlags flags, TubeLabel* parent)
+    : QObject(parent), m_text(std::move(text))
 {
     static QRegularExpression imgTagRegex(R"~(<img[^>]+src="((?:https?:)?//[^"]+)")~");
 
-    // collect matches into a QList to prevent potential race condition with remoteImageDownloaded()
     QList<QRegularExpressionMatch> matches;
-    {
-        QRegularExpressionMatchIterator it = imgTagRegex.globalMatch(text);
-        while (it.hasNext())
-            matches.append(it.next());
-    }
+    for (QRegularExpressionMatchIterator it = imgTagRegex.globalMatch(m_text); it.hasNext();)
+        matches.append(it.next());
 
     m_pending = matches.size();
 
-    for (const QRegularExpressionMatch& match : matches)
+    for (QRegularExpressionMatch& match : matches)
     {
         QString url = match.captured(1);
         if (url.startsWith("//"))
             url.prepend("https:");
 
-        HttpReply* reply = HttpRequest().withDiskCache(qtTubeApp->settings().imageCaching && (flags & TubeLabel::Cached)).get(url);
+        HttpReply* reply = HttpRequest()
+            .withDiskCache(qtTubeApp->settings().imageCaching && (flags & TubeLabel::Cached))
+            .get(url);
+
         connect(reply, &HttpReply::finished, this,
-            std::bind_front(&RemoteImageProcessor::downloaded, this, text, match));
+            std::bind_front(&RemoteImageProcessor::downloaded, this, std::move(match)));
     }
 }
 
-void RemoteImageProcessor::downloaded(
-    QString text, QRegularExpressionMatch match, const HttpReply& reply)
+void RemoteImageProcessor::downloaded(QRegularExpressionMatch match, const HttpReply& reply)
 {
     QByteArray mimeType = reply.header(QNetworkRequest::ContentTypeHeader);
     if (mimeType.isEmpty()) // use image/png as fallback, i guess
@@ -494,7 +488,8 @@ void RemoteImageProcessor::downloaded(
     {
         std::ranges::sort(m_dataMap, std::greater{}, [](const auto& p) { return p.first.capturedStart(); });
         for (const auto& [match, data] : std::as_const(m_dataMap))
-            text.replace(match.capturedStart(1), match.capturedLength(1), data);
-        emit textReady(text);
+            m_text.replace(match.capturedStart(1), match.capturedLength(1), data);
+        static_cast<TubeLabel*>(parent())->setText(m_text);
+        deleteLater();
     }
 }

@@ -26,11 +26,11 @@ QtTubePlugin::Reply<T>* makeReply(const qjs::value& func, auto&&... args)
         else
         {
             func.invoke_then([=](const qjs::value& data) {
-                if (qjs::value innerData = data["data"]; !innerData.is_nullish())
+                if (qjs::value innerData = data["$data"]; !innerData.is_nullish())
                 {
-                    if (qjs::value contData = data["continuationData"]; !contData.is_nullish())
+                    if (qjs::value contData = data["$continuationData"]; !contData.is_nullish())
                         reply->continuationData = contData;
-                    QtTubePlugin::invokeQueued(reply, &ReplyType::finished, data["data"].as<T>());
+                    QtTubePlugin::invokeQueued(reply, &ReplyType::finished, innerData.as<T>());
                 }
                 else
                 {

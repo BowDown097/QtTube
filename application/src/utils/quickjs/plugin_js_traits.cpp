@@ -1,5 +1,6 @@
 #include "plugin_js_traits.hpp"
 #include <quickjs++/context.h>
+#include <QWebEngineScript>
 
 #define WRAP_FOR(Type, WRAP_BODY) \
     JSValue js_traits<Type>::wrap(JSContext* ctx, const Type& val) \
@@ -40,10 +41,10 @@ namespace qjs
         WRAP_FIELD(tooltip)
     )
     TRAIT_FOR(QtTubePlugin::Badge::ColorPalette,
-        UNWRAP_FIELD(background)
-        UNWRAP_FIELD(foreground)
-        UNWRAP_FIELD(hoveredBackground)
-        UNWRAP_FIELD(hoveredForeground),
+        UNWRAP_FIELD(background, "#777")
+        UNWRAP_FIELD(foreground, "#ddd")
+        UNWRAP_FIELD(hoveredBackground, "#4aa1df")
+        UNWRAP_FIELD(hoveredForeground, "#ddd"),
 
         WRAP_FIELD(background)
         WRAP_FIELD(foreground)
@@ -133,7 +134,7 @@ namespace qjs
         UNWRAP_FIELD(data)
         UNWRAP_FIELD(isReplay)
         UNWRAP_FIELD(platformEmojis)
-        UNWRAP_FIELD(updateIntervalMs),
+        UNWRAP_FIELD(updateIntervalMs, 1000),
 
         WRAP_FIELD(data)
         WRAP_FIELD(isReplay)
@@ -196,8 +197,8 @@ namespace qjs
         WRAP_FIELD(thumbnailUrl)
     )
     TRAIT_FOR(QtTubePlugin::NotificationBell,
-        UNWRAP_FIELD(activeStateIndex)
-        UNWRAP_FIELD(defaultEnabledStateIndex)
+        UNWRAP_FIELD(activeStateIndex, -1)
+        UNWRAP_FIELD(defaultEnabledStateIndex, -1)
         UNWRAP_FIELD(states),
 
         WRAP_FIELD(activeStateIndex)
@@ -255,9 +256,9 @@ namespace qjs
     TRAIT_FOR(QtTubePlugin::SpecialMessage,
         UNWRAP_FIELD(backgroundColor)
         UNWRAP_FIELD(content)
-        UNWRAP_FIELD(contentStyle)
+        UNWRAP_FIELD(contentStyle, QFont::StyleItalic)
         UNWRAP_FIELD(header)
-        UNWRAP_FIELD(headerStyle),
+        UNWRAP_FIELD(headerStyle, QFont::StyleNormal),
 
         WRAP_FIELD(backgroundColor)
         WRAP_FIELD(content)
@@ -268,7 +269,7 @@ namespace qjs
     TRAIT_FOR(QtTubePlugin::SubscribeButton,
         UNWRAP_FIELD(colorPalette)
         UNWRAP_FIELD(countText)
-        UNWRAP_FIELD(enabled)
+        UNWRAP_FIELD(enabled, true)
         UNWRAP_FIELD(localization)
         UNWRAP_FIELD(notificationBell)
         UNWRAP_FIELD(subscribed)
@@ -285,20 +286,20 @@ namespace qjs
         WRAP_FIELD(unsubscribeData)
     )
     TRAIT_FOR(QtTubePlugin::SubscribeButton::ColorPalette,
-        UNWRAP_FIELD(subscribeBackground)
-        UNWRAP_FIELD(subscribeBorder)
-        UNWRAP_FIELD(subscribeForeground)
-        UNWRAP_FIELD(subscribeDisabledBackground)
-        UNWRAP_FIELD(subscribeDisabledBorder)
-        UNWRAP_FIELD(subscribeDisabledForeground)
-        UNWRAP_FIELD(subscribeHoveredBackground)
-        UNWRAP_FIELD(subscribeHoveredBorder)
-        UNWRAP_FIELD(subscribeHoveredForeground)
+        UNWRAP_FIELD(subscribeBackground, "#e62117")
+        UNWRAP_FIELD(subscribeBorder, "transparent")
+        UNWRAP_FIELD(subscribeForeground, "#fefefe")
+        UNWRAP_FIELD(subscribeDisabledBackground, "#f28f8a")
+        UNWRAP_FIELD(subscribeDisabledBorder, "transparent")
+        UNWRAP_FIELD(subscribeDisabledForeground, "#f9f9f9")
+        UNWRAP_FIELD(subscribeHoveredBackground, "#d90a17")
+        UNWRAP_FIELD(subscribeHoveredBorder, "transparent")
+        UNWRAP_FIELD(subscribeHoveredForeground, "#fefefe")
         UNWRAP_FIELD(subscribedBackground)
-        UNWRAP_FIELD(subscribedBorder)
+        UNWRAP_FIELD(subscribedBorder, "#555")
         UNWRAP_FIELD(subscribedForeground)
         UNWRAP_FIELD(unsubscribeBackground)
-        UNWRAP_FIELD(unsubscribeBorder)
+        UNWRAP_FIELD(unsubscribeBorder, "#555")
         UNWRAP_FIELD(unsubscribeForeground),
 
         WRAP_FIELD(subscribeBackground)
@@ -379,12 +380,13 @@ namespace qjs
         UNWRAP_FIELD(likeCountText)
         UNWRAP_FIELD(likeData)
         UNWRAP_FIELD(likeDislikeRatio)
-        UNWRAP_FIELD(likeStatus)
-        UNWRAP_FIELD(ratingsAvailable)
+        UNWRAP_FIELD(likeStatus, QtTubePlugin::VideoData::LikeStatus::Neutral)
+        UNWRAP_FIELD(ratingsAvailable, true)
         UNWRAP_FIELD(recommendedVideos)
         UNWRAP_FIELD(titleText)
         UNWRAP_FIELD(videoId)
-        UNWRAP_FIELD(viewCountText),
+        UNWRAP_FIELD(viewCountText)
+        UNWRAP_FIELD(sources),
 
         WRAP_FIELD(channel)
         WRAP_FIELD(continuations)
@@ -402,6 +404,7 @@ namespace qjs
         WRAP_FIELD(titleText)
         WRAP_FIELD(videoId)
         WRAP_FIELD(viewCountText)
+        WRAP_FIELD(sources)
     )
     TRAIT_FOR(QtTubePlugin::VideoData::Continuations,
         UNWRAP_FIELD(comments)
@@ -421,23 +424,42 @@ namespace qjs
         WRAP_FIELD(dislike)
         WRAP_FIELD(removeDislike)
     )
+    TRAIT_FOR(QtTubePlugin::VideoSource,
+        UNWRAP_FIELD(type)
+        UNWRAP_FIELD(url)
+        UNWRAP_FIELD(resolution)
+        UNWRAP_FIELD(framerate),
+
+        WRAP_FIELD(type)
+        WRAP_FIELD(url)
+        WRAP_FIELD(resolution)
+        WRAP_FIELD(framerate)
+    )
 }
 
 void registerEnumsFor(qjs::context& ctx)
 {
+    using InjectionPoint = QWebEngineScript::InjectionPoint;
     using LikeStatus = QtTubePlugin::VideoData::LikeStatus;
     using Representation = QtTubePlugin::NotificationState::Representation;
     using ResolveUrlTarget = QtTubePlugin::ResolveUrlTarget;
     using TargetType = QtTubePlugin::Notification::TargetType;
+    using VideoSource = QtTubePlugin::VideoSource::Type;
 
-    qjs::enum_registrar<Representation>("NotificationStateRepresentation", ctx)
+    qjs::enum_registrar<InjectionPoint>("InjectionPoint", ctx)
+        .value<InjectionPoint::Deferred>()
+        .value<InjectionPoint::DocumentReady>()
+        .value<InjectionPoint::DocumentCreation>();
+
+    qjs::enum_registrar<LikeStatus>("LikeStatus", ctx)
+        .value<LikeStatus::Liked>()
+        .value<LikeStatus::Disliked>()
+        .value<LikeStatus::Neutral>();
+
+    qjs::enum_registrar<Representation>("Representation", ctx)
         .value<Representation::All>()
         .value<Representation::None>()
         .value<Representation::Neutral>();
-
-    qjs::enum_registrar<TargetType>("NotificationTargetType", ctx)
-        .value<TargetType::Channel>()
-        .value<TargetType::Video>();
 
     qjs::enum_registrar<ResolveUrlTarget>("ResolveUrlTarget", ctx)
         .value<ResolveUrlTarget::NotResolved>()
@@ -446,8 +468,11 @@ void registerEnumsFor(qjs::context& ctx)
         .value<ResolveUrlTarget::Channel>()
         .value<ResolveUrlTarget::Search>();
 
-    qjs::enum_registrar<LikeStatus>("VideoLikeStatus", ctx)
-        .value<LikeStatus::Liked>()
-        .value<LikeStatus::Disliked>()
-        .value<LikeStatus::Neutral>();
+    qjs::enum_registrar<TargetType>("TargetType", ctx)
+        .value<TargetType::Channel>()
+        .value<TargetType::Video>();
+
+    qjs::enum_registrar<VideoSource>("VideoSource", ctx)
+        .value<VideoSource::Direct>()
+        .value<VideoSource::Adaptive>();
 }

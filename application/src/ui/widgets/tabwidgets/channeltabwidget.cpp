@@ -48,10 +48,11 @@ void ChannelTabWidget::setData(
         m_tabDatas.append(tabs[i].requestData);
 
         ContinuableListWidget* list = new ContinuableListWidget;
-        if (!firstListWidget)
-            firstListWidget = list;
         addTab(list, tabs[i].title);
         CONTINUE_CONNECT(list, browseChannel, i, m_channelId, m_tabDatas[i]);
+
+        if (!firstListWidget)
+            firstListWidget = list;
     }
 
     BrowseHelper::instance()->processChannelTabItems(firstListWidget, m_plugin, tabs.front().items);

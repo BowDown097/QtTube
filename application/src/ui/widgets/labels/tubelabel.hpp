@@ -80,14 +80,13 @@ class RemoteImageProcessor : public QObject
 {
     Q_OBJECT
 public:
-    RemoteImageProcessor(QString text, TubeLabel::ImageFlags flags, QObject* parent = nullptr);
+    RemoteImageProcessor(QString text, TubeLabel::ImageFlags flags, TubeLabel* parent);
 private:
     QList<std::pair<QRegularExpressionMatch, QString>> m_dataMap;
     size_t m_pending;
+    QString m_text;
 private slots:
-    void downloaded(QString text, QRegularExpressionMatch match, const HttpReply& reply);
-signals:
-    void textReady(const QString& text);
+    void downloaded(QRegularExpressionMatch match, const HttpReply& reply);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(TubeLabel::ImageFlags)

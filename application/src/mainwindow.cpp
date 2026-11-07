@@ -82,6 +82,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 void MainWindow::activePluginChanged(PluginEntry* activePlugin)
 {
+    m_activePlugin = activePlugin;
+
     if (QtTubePlugin::AuthStoreBase* authStore = activePlugin->authStore)
     {
         if (const QtTubePlugin::AuthUser* authUser = authStore->activeBaseLogin())

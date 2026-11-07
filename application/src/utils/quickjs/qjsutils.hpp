@@ -38,7 +38,10 @@ namespace QJSUtils
     }
 
     template<typename T, bool ReturnDefault = false>
-    T getStringStrict(const qjs::value& val, const char* error = "Expected string for value", const char* defaultValue = "")
+    inline T getStringStrict(
+        const qjs::value& val,
+        const char* error = "Expected string for value",
+        const char* defaultValue = "")
     {
         if (val.is_string())
             return val.as<T>();
@@ -49,12 +52,22 @@ namespace QJSUtils
     }
 
     template<typename T>
-    auto unwrapObjectProperty(JSContext* ctx, JSValueConst this_obj, const char* prop)
+    inline T unwrapObjectProperty(
+        JSContext* ctx, JSValueConst this_obj, const char* prop)
     {
         JSValue val = JS_GetPropertyStr(ctx, this_obj, prop);
         if (!JS_IsUndefined(val) && !JS_IsNull(val))
             return qjs::detail::unwrap_free<T>(ctx, val);
-        else
-            return T{};
+        return T{};
+    }
+
+    template<typename T>
+    inline T unwrapObjectProperty(
+        JSContext* ctx, JSValueConst this_obj, const char* prop, T default_value)
+    {
+        JSValue val = JS_GetPropertyStr(ctx, this_obj, prop);
+        if (!JS_IsUndefined(val) && !JS_IsNull(val))
+            return qjs::detail::unwrap_free<T>(ctx, val);
+        return default_value;
     }
 }

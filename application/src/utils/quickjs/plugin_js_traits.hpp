@@ -9,10 +9,10 @@
 #include <qttube-plugin/objects/livechat/livechatreplay.h>
 #include <qttube-plugin/objects/notification.h>
 
-#define UNWRAP_FIELD_PART(name) \
-    QJSUtils::unwrapObjectProperty<decltype(T::name)>(ctx, val, #name)
-#define UNWRAP_FIELD(name) .name = UNWRAP_FIELD_PART(name),
-#define UNWRAP_NONAGGREGATE(name) result.name = UNWRAP_FIELD_PART(name);
+#define UNWRAP_FIELD_PART(name, ...) \
+    QJSUtils::unwrapObjectProperty<decltype(T::name)>(ctx, val, #name, ##__VA_ARGS__)
+#define UNWRAP_FIELD(name, ...) .name = UNWRAP_FIELD_PART(name, ##__VA_ARGS__),
+#define UNWRAP_NONAGGREGATE(name, ...) result.name = UNWRAP_FIELD_PART(name, ##__VA_ARGS__);
 
 #define WRAP_FIELD(name) \
     JS_SetPropertyStr(ctx, obj, #name, qjs::js_traits<std::decay_t<decltype(T::name)>>::wrap(ctx, val.name));
@@ -55,8 +55,8 @@ namespace qjs
     DEF_FOR(QtTubePlugin::VideoData)
     DEF_FOR(QtTubePlugin::VideoData::Continuations)
     DEF_FOR(QtTubePlugin::VideoData::LikeData)
+    DEF_FOR(QtTubePlugin::VideoSource)
 
-    // since this is a templated type, we have to define the full thing here
     template<typename... ItemTypes>
     struct js_traits<QtTubePlugin::Shelf<ItemTypes...>>
     {
