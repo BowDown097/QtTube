@@ -244,7 +244,7 @@ namespace qjs
         obj["handle"] = val.handle;
         obj["id"] = val.id;
         obj["username"] = val.username;
-        return obj;
+        return obj.release(); // MSVC will not use the implicit JSValue() operator here ._.
     }
 
     JSValue property_traits<QtTubePlugin::SearchCookie>::get(
