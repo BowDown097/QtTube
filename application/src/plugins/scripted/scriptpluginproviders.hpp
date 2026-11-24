@@ -1,5 +1,6 @@
 #pragma once
 #include "scriptpluginauthstore.hpp"
+#include "scriptpluginwebplayer.hpp"
 #include "utils/quickjs/plugin_js_traits.hpp"
 #include <qttube-plugin/providers/providertypes.h>
 #include <qttube-plugin/utils/replyutils.h>
@@ -262,7 +263,7 @@ struct ScriptWatchProvider : QtTubePlugin::WatchProvider
 
     QtTubePlugin::Player* createPlayer(QtTubePlugin::PlayerSettings* settings, QWidget* parent) override
     {
-        return nullptr;
+        return new ScriptPluginWebPlayer(settings, player_v, parent);
     }
 
     QtTubePlugin::VideoReply* getVideo(const QString& videoId) override

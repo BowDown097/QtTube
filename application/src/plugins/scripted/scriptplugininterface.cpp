@@ -32,7 +32,7 @@ void registerProvider(
 void ScriptPluginInterface::init()
 {
     if (qjs::value init_v = moduleNamespace["init"]; init_v.is_function())
-        init_v.invoke_then([] {});
+        init_v.invoke();
 }
 
 void ScriptPluginInterface::registerProviders(QtTubePlugin::ProviderRegistry& reg)

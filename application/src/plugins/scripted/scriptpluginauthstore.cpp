@@ -179,7 +179,7 @@ void ScriptPluginAuthStore::restoreFromActive()
 {
     if (qjs::value fn = authObject["restore"]; fn.is_function())
         if (const ScriptPluginAuthUser* active = activeLogin())
-            fn.invoke_then([] {}, *active);
+            fn.invoke(*active);
 }
 
 void ScriptPluginAuthStore::save()
@@ -213,7 +213,7 @@ void ScriptPluginAuthStore::save()
 void ScriptPluginAuthStore::unauthenticate()
 {
     if (qjs::value fn = authObject["unauthenticate"]; fn.is_function())
-        fn.invoke_then([] {});
+        fn.invoke();
 }
 
 namespace qjs
@@ -244,7 +244,7 @@ namespace qjs
         obj["handle"] = val.handle;
         obj["id"] = val.id;
         obj["username"] = val.username;
-        return obj.release();
+        return obj;
     }
 
     JSValue property_traits<QtTubePlugin::SearchCookie>::get(

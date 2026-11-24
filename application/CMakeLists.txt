@@ -15,6 +15,7 @@ target_sources(QtTube
         src/plugins/scripted/scriptpluginauthstore.cpp
         src/plugins/scripted/scriptpluginentry.cpp
         src/plugins/scripted/scriptplugininterface.cpp
+        src/plugins/scripted/scriptpluginwebplayer.cpp
         src/stores/emojistore.cpp
         src/stores/settingsstore.cpp
         src/ui/browsehelper.cpp
@@ -102,6 +103,7 @@ target_sources(QtTube
         src/plugins/scripted/scriptpluginentry.hpp
         src/plugins/scripted/scriptplugininterface.hpp
         src/plugins/scripted/scriptpluginproviders.hpp
+        src/plugins/scripted/scriptpluginwebplayer.hpp
         src/stores/emojistore.hpp
         src/stores/settingsstore.hpp
         src/ui/browsehelper.hpp
@@ -163,6 +165,7 @@ target_sources(QtTube
         src/utils/hashfunctions.hpp
         src/utils/osutils.hpp
         src/utils/uiutils.hpp
+        src/utils/quickjs/jsonvaluewrappers.hpp
         src/utils/quickjs/plugin_js_traits.hpp
         src/utils/quickjs/qjsutils.hpp
         src/utils/quickjs/qt_js_traits.hpp

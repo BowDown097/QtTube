@@ -26,6 +26,7 @@ private:
     QString m_channelId;
     QPointer<QTimer> m_metadataUpdateTimer;
     PluginEntry* m_plugin;
+    int m_progress;
     QString m_videoId;
     Ui::WatchView* ui;
 

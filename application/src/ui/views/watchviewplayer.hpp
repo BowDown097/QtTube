@@ -1,6 +1,7 @@
 #pragma once
 #include "plugins/pluginentry.hpp"
 #include <qttube-plugin/components/player/player.h>
+#include <qttube-plugin/components/replytypes/videodata.h>
 
 class WatchViewPlayer : public QObject
 {
@@ -10,9 +11,11 @@ public:
 
     WatchViewPlayer(QWidget* watchView, PluginEntry* plugin, const QSize& maxSize);
     void calcAndSetSize(const QSize& maxSize);
-    void play(const QString& videoId, int progress = 0);
     void seek(int progress);
     QWidget* widget();
+
+    void tryPlayDirect(const QList<QtTubePlugin::VideoSource>& sources, int progress = 0);
+    void tryPlayImmediate(const QString& videoId, int progress = 0);
 
     QSize size() const { return m_size; }
     ScaleMode scaleMode() const { return m_scaleMode; }

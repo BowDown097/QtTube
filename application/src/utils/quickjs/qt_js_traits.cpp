@@ -1,89 +1,85 @@
 #include "qt_js_traits.hpp"
 #include <quickjs++/value.h>
+#include <QUrl>
 
 namespace qjs
 {
-    QByteArray qjs::js_traits<QByteArray>::unwrap(JSContext* ctx, JSValueConst v)
+    QByteArray js_traits<QByteArray>::unwrap(JSContext* ctx, JSValueConst v)
     {
-        auto sv = qjs::js_traits<std::string_view>::unwrap(ctx, v);
+        auto sv = js_traits<std::string_view>::unwrap(ctx, v);
         return QByteArray(sv.data(), sv.size());
     }
 
-    JSValue qjs::js_traits<QByteArray>::wrap(JSContext* ctx, const QByteArray& v)
+    JSValue js_traits<QByteArray>::wrap(JSContext* ctx, const QByteArray& v)
     {
         return JS_NewStringLen(ctx, v.data(), v.size());
     }
 
-    QString qjs::js_traits<QString>::unwrap(JSContext* ctx, JSValueConst v)
+    QString js_traits<QString>::unwrap(JSContext* ctx, JSValueConst v)
     {
-        auto sv = qjs::js_traits<std::u16string_view>::unwrap(ctx, v);
+        auto sv = js_traits<std::u16string_view>::unwrap(ctx, v);
         return QString(reinterpret_cast<const QChar*>(sv.data()), sv.size());
     }
 
-    JSValue qjs::js_traits<QString>::wrap(JSContext* ctx, const QString& v)
+    JSValue js_traits<QString>::wrap(JSContext* ctx, const QString& v)
     {
         return JS_NewStringUTF16(ctx, reinterpret_cast<const uint16_t*>(v.data()), v.size());
     }
 
-    QLatin1String qjs::js_traits<QLatin1String>::unwrap(JSContext* ctx, JSValueConst v)
+    QLatin1String js_traits<QLatin1String>::unwrap(JSContext* ctx, JSValueConst v)
     {
-        auto sv = qjs::js_traits<std::string_view>::unwrap(ctx, v);
+        auto sv = js_traits<std::string_view>::unwrap(ctx, v);
         return QLatin1String(sv.data(), sv.size());
     }
 
-    JSValue qjs::js_traits<QLatin1String>::wrap(JSContext* ctx, QLatin1String v)
+    JSValue js_traits<QLatin1String>::wrap(JSContext* ctx, QLatin1String v)
     {
         return JS_NewStringLen(ctx, v.data(), v.size());
     }
 
-    QVariant qjs::js_traits<QVariant>::unwrap(JSContext* ctx, JSValueConst v)
+    QUrl js_traits<QUrl>::unwrap(JSContext* ctx, JSValueConst v)
     {
-        auto convert = [&](JSValueConst v) -> QVariant {
+        return js_traits<QString>::unwrap(ctx, v);
+    }
+
+    JSValue js_traits<QUrl>::wrap(JSContext* ctx, const QUrl& v)
+    {
+        return js_traits<QString>::wrap(ctx, v.toString());
+    }
+
+    QVariant js_traits<QVariant>::unwrap(JSContext* ctx, JSValueConst v)
+    {
+        if (JS_IsArray(v))
+        {
+            return detail::unwrap_free<QVariantList>(ctx, v);
+        }
+        else if (JS_IsObject(v))
+        {
+            return detail::unwrap_free<QVariantHash>(ctx, v);
+        }
+        else
+        {
             switch (JS_VALUE_GET_TAG(v))
             {
             case JS_TAG_STRING:
             case JS_TAG_STRING_ROPE:
-                return qjs::detail::unwrap_free<QByteArray>(ctx, v);
+                return detail::unwrap_free<QByteArray>(ctx, v);
             case JS_TAG_INT:
-                return qjs::detail::unwrap_free<int>(ctx, v);
+                return detail::unwrap_free<int>(ctx, v);
             case JS_TAG_BOOL:
-                return qjs::detail::unwrap_free<bool>(ctx, v);
+                return detail::unwrap_free<bool>(ctx, v);
             case JS_TAG_FLOAT64:
-                return qjs::detail::unwrap_free<double>(ctx, v);
+                return detail::unwrap_free<double>(ctx, v);
             default: return {};
             }
-        };
-
-        if (JS_IsArray(v))
-        {
-            int64_t length;
-            JS_GetLength(ctx, v, &length);
-
-            QVariantList list;
-            list.reserve(length);
-
-            for (int64_t i = 0; i < length; ++i)
-            {
-                JSValue elem = JS_GetPropertyInt64(ctx, v, i);
-                if (QVariant item = convert(elem); item.isValid())
-                    list.append(std::move(item));
-                else
-                    JS_FreeValue(ctx, elem);
-            }
-
-            return list;
-        }
-        else
-        {
-            return convert(v);
         }
     }
 
-    JSValue qjs::js_traits<QVariant>::wrap(JSContext* ctx, const QVariant& v)
+    JSValue js_traits<QVariant>::wrap(JSContext* ctx, const QVariant& v)
     {
     #define TYPE_CHECK(T) \
         if (v.metaType() == QMetaType::fromType<T>()) \
-            return qjs::js_traits<T>::wrap(ctx, *static_cast<const T*>(v.data()))
+            return js_traits<T>::wrap(ctx, *static_cast<const T*>(v.data()))
 
         if (v.isValid())
         {
@@ -97,56 +93,47 @@ namespace qjs
             TYPE_CHECK(QByteArray);
             TYPE_CHECK(QString);
             TYPE_CHECK(QVariantList);
+            TYPE_CHECK(QVariantHash);
         }
 
         return JS_NULL;
     }
 
-    std::any qjs::js_traits<std::any>::unwrap(JSContext* ctx, JSValueConst v) noexcept
+    std::any js_traits<std::any>::unwrap(JSContext* ctx, JSValueConst v)
     {
-        return qjs::value(ctx, JS_DupValue(ctx, v));
+        return value(ctx, JS_DupValue(ctx, v));
     }
 
-    JSValue qjs::js_traits<std::any>::wrap(JSContext* ctx, const std::any& v)
+    JSValue js_traits<std::any>::wrap(JSContext* ctx, const std::any& v)
     {
         if (!v.has_value())
             return JS_UNDEFINED;
-        if (const auto* value = std::any_cast<qjs::value>(&v))
-            return JS_DupValue(ctx, value->v);
-        throw qjs::exception(ctx, JS_TYPE_ERROR, "Unexpected std::any value (holding %s)", v.type().name());
+        if (const auto* val = std::any_cast<value>(&v))
+            return JS_DupValue(ctx, val->v);
+        throw exception(ctx, JS_TYPE_ERROR, "Unexpected std::any value (holding %s)", v.type().name());
     }
 
-    std::monostate qjs::js_traits<std::monostate>::unwrap(JSContext* ctx, JSValueConst v) noexcept
-    {
-        return {};
-    }
-
-    JSValue qjs::js_traits<std::monostate>::wrap(JSContext* ctx, std::monostate v) noexcept
-    {
-        return JS_NULL;
-    }
-
-    JSValue qjs::property_traits<QByteArray>::get(
+    JSValue property_traits<QByteArray>::get(
         JSContext* ctx, JSValueConst this_obj, const QByteArray& name) noexcept
     {
         return JS_GetPropertyStr(ctx, this_obj, name.data());
     }
 
-    void qjs::property_traits<QByteArray>::set(
+    void property_traits<QByteArray>::set(
         JSContext* ctx, JSValueConst this_obj, const QByteArray& name, JSValue val)
     {
         if (JS_SetPropertyStr(ctx, this_obj, name.data(), val) < 0)
             throw exception(ctx);
     }
 
-    JSValue qjs::property_traits<QString>::get(
+    JSValue property_traits<QString>::get(
         JSContext* ctx, JSValueConst this_obj, const QString& name)
     {
         const QByteArray ba = name.toUtf8();
         return JS_GetPropertyStr(ctx, this_obj, ba.data());
     }
 
-    void qjs::property_traits<QString>::set(
+    void property_traits<QString>::set(
         JSContext* ctx, JSValueConst this_obj, const QString& name, JSValue val)
     {
         const QByteArray ba = name.toUtf8();
@@ -154,13 +141,13 @@ namespace qjs
             throw exception(ctx);
     }
 
-    JSValue qjs::property_traits<QLatin1String>::get(
+    JSValue property_traits<QLatin1String>::get(
         JSContext* ctx, JSValueConst this_obj, QLatin1String name) noexcept
     {
         return JS_GetPropertyStr(ctx, this_obj, name.data());
     }
 
-    void qjs::property_traits<QLatin1String>::set(
+    void property_traits<QLatin1String>::set(
         JSContext* ctx, JSValueConst this_obj, QLatin1String name, JSValue val)
     {
         if (JS_SetPropertyStr(ctx, this_obj, name.data(), val) < 0)

@@ -84,17 +84,19 @@ void WatchViewPlayer::newState(QtTubePlugin::Player::PlayerState state)
     }
 }
 
-void WatchViewPlayer::play(const QString& videoId, int progress)
+void WatchViewPlayer::tryPlayDirect(const QList<QtTubePlugin::VideoSource>& sources, int progress)
+{
+    // to be implemented with native player
+}
+
+void WatchViewPlayer::tryPlayImmediate(const QString& videoId, int progress)
 {
     if (QString playerPath = qtTubeApp->settings().externalPlayerPath; !playerPath.isEmpty())
     {
-        // using splitCommand + start instead of startCommand for Qt 5.15 support
         QProcess* process = new QProcess(this);
-        QStringList args = process->splitCommand(playerPath
+        process->startCommand(playerPath
             .replace("%U", m_plugin->metadata.videoUrlTemplate.arg(videoId))
             .replace("%P", QString::number(progress)));
-        const QString program = args.takeFirst();
-        process->start(program, args);
     }
     else
     {

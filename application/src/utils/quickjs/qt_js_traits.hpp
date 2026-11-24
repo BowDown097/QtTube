@@ -23,22 +23,45 @@ namespace qjs
         static JSValue wrap(JSContext* ctx, QLatin1String v);
     };
 
+    template<> struct js_traits<QUrl>
+    {
+        static QUrl unwrap(JSContext* ctx, JSValueConst v);
+        static JSValue wrap(JSContext* ctx, const QUrl& v);
+    };
+
     template<> struct js_traits<QVariant>
     {
         static QVariant unwrap(JSContext* ctx, JSValueConst v);
         static JSValue wrap(JSContext* ctx, const QVariant& v);
     };
 
-    template<> struct js_traits<std::any>
+    template<typename Key, typename T>
+    struct js_traits<QHash<Key, T>>
     {
-        static std::any unwrap(JSContext* ctx, JSValueConst v) noexcept;
-        static JSValue wrap(JSContext* ctx, const std::any& v);
+        static QHash<Key, T> unwrap(JSContext* ctx, JSValueConst val)
+        {
+            return detail::make_from_range<QHash<Key, T>>(
+                detail::get_property_entries<Key, T>(ctx, val));
+        }
+
+        static JSValue wrap(JSContext* ctx, const QHash<Key, T>& val)
+        {
+            JSValue result = JS_NewObject(ctx);
+
+            for (auto it = val.begin(); it != val.end(); ++it)
+            {
+                JSValue wrapped = js_traits<T>::wrap(ctx, it.value());
+                property_traits<Key>::set(ctx, result, it.key(), wrapped);
+            }
+
+            return result;
+        }
     };
 
-    template<> struct js_traits<std::monostate>
+    template<> struct js_traits<std::any>
     {
-        static std::monostate unwrap(JSContext* ctx, JSValueConst v) noexcept;
-        static JSValue wrap(JSContext* ctx, std::monostate v) noexcept;
+        static std::any unwrap(JSContext* ctx, JSValueConst v);
+        static JSValue wrap(JSContext* ctx, const std::any& v);
     };
 
     template<> struct property_traits<QByteArray>

@@ -13,9 +13,9 @@ namespace jsfetch
 
         RequestInit() = default;
         explicit RequestInit(const qjs::value& options)
-            : method(QJSUtils::getStringStrict<QByteArray, true>(options["method"], "", "GET")),
-              headers(QJSUtils::unwrapObjectProperty<HttpReply::HeaderList>(options.ctx, options.v, "headers")),
-              body(QJSUtils::unwrapObjectProperty<QByteArray>(options.ctx, options.v, "body")),
+            : method(QJSUtils::getStringStrict<QByteArray>(options["method"], "", "GET")),
+              headers(QJSUtils::unwrapObjectProperty<HttpReply::HeaderList>(options, "headers")),
+              body(QJSUtils::unwrapObjectProperty<QByteArray>(options, "body")),
               spoofUserAgent(options["spoofUserAgent"].as<bool>()) {}
     };
 

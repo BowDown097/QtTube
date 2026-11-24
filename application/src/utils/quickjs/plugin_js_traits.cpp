@@ -1,6 +1,6 @@
 #include "plugin_js_traits.hpp"
+#include <qttube-plugin/components/settings/playersettings.h>
 #include <quickjs++/context.h>
-#include <QWebEngineScript>
 
 #define WRAP_FOR(Type, WRAP_BODY) \
     JSValue js_traits<Type>::wrap(JSContext* ctx, const Type& val) \
@@ -439,36 +439,43 @@ namespace qjs
 
 void registerEnumsFor(qjs::context& ctx)
 {
-    using InjectionPoint = QWebEngineScript::InjectionPoint;
     using LikeStatus = QtTubePlugin::VideoData::LikeStatus;
+    using PlayerQuality = QtTubePlugin::PlayerSettings::Quality;
     using Representation = QtTubePlugin::NotificationState::Representation;
     using ResolveUrlTarget = QtTubePlugin::ResolveUrlTarget;
     using TargetType = QtTubePlugin::Notification::TargetType;
     using VideoSource = QtTubePlugin::VideoSource::Type;
 
-    qjs::enum_registrar<InjectionPoint>("InjectionPoint", ctx)
-        .value<InjectionPoint::Deferred>()
-        .value<InjectionPoint::DocumentReady>()
-        .value<InjectionPoint::DocumentCreation>();
-
-    qjs::enum_registrar<LikeStatus>("LikeStatus", ctx)
+    qjs::enum_registrar<LikeStatus>(ctx)
         .value<LikeStatus::Liked>()
         .value<LikeStatus::Disliked>()
         .value<LikeStatus::Neutral>();
 
-    qjs::enum_registrar<Representation>("Representation", ctx)
+    qjs::enum_registrar<PlayerQuality>("PlayerQuality", ctx)
+        .value<PlayerQuality::Auto>()
+        .value<PlayerQuality::HD4320>()
+        .value<PlayerQuality::HD2160>()
+        .value<PlayerQuality::HD1440>()
+        .value<PlayerQuality::HD1080>()
+        .value<PlayerQuality::HD720>()
+        .value<PlayerQuality::SD480>()
+        .value<PlayerQuality::SD360>()
+        .value<PlayerQuality::SD240>()
+        .value<PlayerQuality::SD144>();
+
+    qjs::enum_registrar<Representation>(ctx)
         .value<Representation::All>()
         .value<Representation::None>()
         .value<Representation::Neutral>();
 
-    qjs::enum_registrar<ResolveUrlTarget>("ResolveUrlTarget", ctx)
+    qjs::enum_registrar<ResolveUrlTarget>(ctx)
         .value<ResolveUrlTarget::NotResolved>()
         .value<ResolveUrlTarget::PlainUrl>()
         .value<ResolveUrlTarget::Video>()
         .value<ResolveUrlTarget::Channel>()
         .value<ResolveUrlTarget::Search>();
 
-    qjs::enum_registrar<TargetType>("TargetType", ctx)
+    qjs::enum_registrar<TargetType>(ctx)
         .value<TargetType::Channel>()
         .value<TargetType::Video>();
 

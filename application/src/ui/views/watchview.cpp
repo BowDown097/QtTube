@@ -19,31 +19,39 @@
 #include <QScrollBar>
 #include <QTimer>
 #include <qttube-plugin/providers/providertypes.h>
+#include <qttube-plugin/utils/replyutils.h>
 
 WatchView::WatchView(const QString& videoId, PluginEntry* plugin, int progress,
                      PreloadData::WatchView* preload, QWidget* parent)
-    : QWidget(parent), m_plugin(plugin), ui(new Ui::WatchView)
+    : QWidget(parent), m_plugin(plugin), m_progress(progress), ui(new Ui::WatchView)
 {
-    assert(plugin->providers.watch != nullptr);
-
-    MainWindow* mainWindow = UIUtils::getMainWindow();
-    if (qtTubeApp->settings().autoHideTopBar)
+    try
     {
-        mainWindow->topbar()->hide();
-        mainWindow->topbar()->setAlwaysShow(false);
+        assert(plugin->providers.watch != nullptr);
+
+        MainWindow* mainWindow = UIUtils::getMainWindow();
+        if (qtTubeApp->settings().autoHideTopBar)
+        {
+            mainWindow->topbar()->hide();
+            mainWindow->topbar()->setAlwaysShow(false);
+        }
+
+        ui->setupUi(this, mainWindow, plugin);
+
+        if (preload)
+            processPreloadData(preload);
+
+        QtTubePlugin::VideoReply* reply = plugin->providers.watch->getVideo(videoId);
+        connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
+        connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
+
+        ui->player->tryPlayImmediate(videoId, progress);
+        connect(ui->description, &TubeLabel::linkActivated, this, &WatchView::descriptionLinkActivated);
     }
-
-    ui->setupUi(this, mainWindow, plugin);
-
-    if (preload)
-        processPreloadData(preload);
-
-    QtTubePlugin::VideoReply* reply = plugin->providers.watch->getVideo(videoId);
-    connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
-    connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
-
-    ui->player->play(videoId, progress);
-    connect(ui->description, &TubeLabel::linkActivated, this, &WatchView::descriptionLinkActivated);
+    catch (const QtTubePlugin::Exception& ex)
+    {
+        QtTubePlugin::invokeQueued(this, &WatchView::loadFailed, ex);
+    }
 }
 
 WatchView::~WatchView()
@@ -66,6 +74,8 @@ void WatchView::descriptionLinkActivated(const QString& link)
 void WatchView::hotLoadVideo(
     const QString& videoId, int progress, PreloadData::WatchView* preload, bool continuePlayback)
 {
+    m_progress = progress;
+
     ui->scrollArea->horizontalScrollBar()->setValue(0);
     ui->scrollArea->verticalScrollBar()->setValue(0);
 
@@ -90,7 +100,7 @@ void WatchView::hotLoadVideo(
     connect(reply, &QtTubePlugin::VideoReply::exception, this, &WatchView::loadFailed);
     connect(reply, &QtTubePlugin::VideoReply::finished, this, &WatchView::processData);
 
-    ui->player->play(videoId, progress);
+    ui->player->tryPlayImmediate(videoId, progress);
 }
 
 void WatchView::openLiveChat(const QtTubePlugin::InitialLiveChatData& data)
@@ -105,6 +115,8 @@ void WatchView::processData(const QtTubePlugin::VideoData& data)
 {
     m_channelId = data.channel.channelId;
     m_videoId = data.videoId;
+
+    ui->player->tryPlayDirect(data.sources, m_progress);
 
     UIUtils::getMainWindow()->setWindowTitle(data.titleText % " - " % QTTUBE_APP_NAME);
     ui->channelLabel->setInfo(m_channelId, data.channel.channelName, data.channel.channelBadges);

@@ -50,7 +50,7 @@ JSValue TextEncoder::encodeInto(JSContext* ctx, JSValueConst string, JSValue uin
     qjs::value result(ctx, JS_NewObject(ctx));
     result["read"] = read;
     result["written"] = written;
-    return result.release();
+    return result;
 }
 
 void TextEncoder::registerFor(qjs::context& ctx)
